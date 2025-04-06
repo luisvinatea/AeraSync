@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:math'; // Added import for pow
+import 'dart:math';
 import '../../core/services/app_state.dart';
 
 class AeratorEstimationForm extends StatefulWidget {
@@ -41,80 +41,113 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
                 ? Center(
                     child: Text('Error: ${appState.error}',
                         style: const TextStyle(color: Colors.red)))
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Aerator Estimation Calculator',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E40AF),
-                        ),
+                : SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: MediaQuery.of(context).size.height * 0.5,
                       ),
-                      const SizedBox(height: 10),
-                      Form(
-                        key: _formKey,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  _buildTextField(_shrimpRespirationController,
-                                      'Shrimp Respiration (mg/L/h)', 0, 10),
-                                  _buildTextField(_startO2ColumnController,
-                                      'Start O₂ Column (mg/L)', 0, 15),
-                                  _buildTextField(_finalO2ColumnController,
-                                      'Final O₂ Column (mg/L)', 0, 15),
-                                  _buildTextField(_startO2BottomController,
-                                      'Start O₂ Bottom (mg/L)', 0, 15),
-                                  _buildTextField(_finalO2BottomController,
-                                      'Final O₂ Bottom (mg/L)', 0, 15),
-                                ],
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 10.0),
+                              child: Image.asset(
+                                'assets/images/aerasync.png',
+                                height: 100,
+                                fit: BoxFit.contain,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  _buildTextField(
-                                      _timeController, 'Time (hours)', 0.1, 24),
-                                  _buildTextField(
-                                      _volumeController, 'Volume (m³)', 1000, 100000),
-                                  _buildTextField(
-                                      _temperatureController, 'Temperature (°C)', 0, 40),
-                                  _buildTextField(
-                                      _salinityController, 'Salinity (‰)', 0, 40),
-                                  _buildTextField(
-                                      _sotrController, 'SOTR (kg O₂/h)', 0, 10),
-                                  _buildTextField(
-                                      _depthController, 'Pond Depth (m)', 0.5, 5),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: _formKey.currentState!.validate()
-                              ? _calculate
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6)),
-                            backgroundColor: const Color(0xFF1E40AF),
-                            foregroundColor: Colors.white,
                           ),
-                          child: const Text('Calculate',
-                              style: TextStyle(fontSize: 16)),
-                        ),
+                          const Text(
+                            'Aerator Estimation Calculator',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E40AF),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Form(
+                            key: _formKey,
+                            child: MediaQuery.of(context).size.width < 600
+                                ? Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildTextField(_shrimpRespirationController,
+                                          'Shrimp Respiration (mg/L/h)', 0, 10),
+                                      _buildTextField(_startO2ColumnController,
+                                          'Start O₂ Column (mg/L)', 0, 15),
+                                      _buildTextField(_finalO2ColumnController,
+                                          'Final O₂ Column (mg/L)', 0, 15),
+                                      _buildTextField(_startO2BottomController,
+                                          'Start O₂ Bottom (mg/L)', 0, 15),
+                                      _buildTextField(_finalO2BottomController,
+                                          'Final O₂ Bottom (mg/L)', 0, 15),
+                                      _buildTextField(_timeController, 'Time (hours)', 0.1, 24),
+                                      _buildTextField(_volumeController, 'Volume (m³)', 1000, 100000),
+                                      _buildTextField(_temperatureController, 'Temperature (°C)', 0, 40),
+                                      _buildTextField(_salinityController, 'Salinity (‰)', 0, 40),
+                                      _buildTextField(_sotrController, 'SOTR (kg O₂/h)', 0, 10),
+                                      _buildTextField(_depthController, 'Pond Depth (m)', 0.5, 5),
+                                    ],
+                                  )
+                                : Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          children: [
+                                            _buildTextField(_shrimpRespirationController,
+                                                'Shrimp Respiration (mg/L/h)', 0, 10),
+                                            _buildTextField(_startO2ColumnController,
+                                                'Start O₂ Column (mg/L)', 0, 15),
+                                            _buildTextField(_finalO2ColumnController,
+                                                'Final O₂ Column (mg/L)', 0, 15),
+                                            _buildTextField(_startO2BottomController,
+                                                'Start O₂ Bottom (mg/L)', 0, 15),
+                                            _buildTextField(_finalO2BottomController,
+                                                'Final O₂ Bottom (mg/L)', 0, 15),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          children: [
+                                            _buildTextField(_timeController, 'Time (hours)', 0.1, 24),
+                                            _buildTextField(_volumeController, 'Volume (m³)', 1000, 100000),
+                                            _buildTextField(_temperatureController, 'Temperature (°C)', 0, 40),
+                                            _buildTextField(_salinityController, 'Salinity (‰)', 0, 40),
+                                            _buildTextField(_sotrController, 'SOTR (kg O₂/h)', 0, 10),
+                                            _buildTextField(_depthController, 'Pond Depth (m)', 0.5, 5),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                          const SizedBox(height: 12),
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: _formKey.currentState!.validate()
+                                  ? _calculate
+                                  : null,
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6)),
+                                backgroundColor: const Color(0xFF1E40AF),
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Calculate',
+                                  style: TextStyle(fontSize: 16)),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
       ),
     );

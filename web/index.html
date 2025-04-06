@@ -5,23 +5,21 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <meta name="description" content="AeraSync: Calculate aerator performance for shrimp ponds with precision.">
-  <meta name="keywords" content="AeraSync, aerator, shrimp pond, calculator, aquaculture">
+  <meta name="description" content="AeraSync: Calculate aerator performance and estimate the number of aerators per hectare for shrimp ponds, with interactive charts for key metrics.">
+  <meta name="keywords" content="AeraSync, aerator, shrimp pond, calculator, aquaculture, aerator performance, aerator estimation, shrimp farming, data visualization">
   <meta name="author" content="Luis Vinatea">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="AeraSync">
-  <!-- Updated apple-touch-icon links -->
   <link rel="apple-touch-icon" sizes="180x180" href="/AeraSync/icons/aerasync180.png">
   <link rel="apple-touch-icon" sizes="512x512" href="/AeraSync/icons/aerasync512.png">
   <link rel="apple-touch-icon" sizes="1024x1024" href="/AeraSync/icons/aerasync1024.png">
   <link rel="icon" type="image/png" href="/AeraSync/icons/aerasync64.png">
-  <title>AeraSync - Aerator Calculator</title>
+  <title>AeraSync - Aerator Performance & Estimation Calculator</title>
   <link rel="manifest" href="/AeraSync/manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 
-  <!-- Rest of your styles remain unchanged -->
   <style>
     body, html {
       touch-action: pan-x pan-y pinch-zoom !important;
@@ -30,6 +28,7 @@
       padding: 0;
       height: 100%;
       overflow: hidden;
+      font-family: 'Montserrat', Arial, sans-serif;
     }
     #loading-screen {
       position: fixed;
@@ -41,7 +40,6 @@
       justify-content: center;
       align-items: center;
       background: linear-gradient(180deg, #60A5FA 0%, #1E40AF 100%);
-      font-family: 'Montserrat', Arial, sans-serif;
       z-index: 9999;
       transition: opacity 0.5s ease-out;
     }
@@ -54,8 +52,14 @@
     .loading h1 {
       font-size: 28px;
       font-weight: 600;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .loading p {
+      font-size: 16px;
+      font-weight: 400;
+      margin-bottom: 20px;
+      opacity: 0.9;
     }
     .spinner {
       width: 50px;
@@ -98,6 +102,12 @@
       display: none;
       width: 100%;
       height: 100%;
+      overflow-y: auto;
+    }
+    /* Ensure charts render correctly on web */
+    canvas {
+      max-width: 100% !important;
+      height: auto !important;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -115,13 +125,13 @@
     <div class="loading">
       <img src="/AeraSync/icons/aerasync.png" alt="AeraSync Logo" style="width: 200px; height: auto; margin-bottom: 20px;">
       <h1>AeraSync</h1>
+      <p>Aerator Performance & Estimation for Shrimp Ponds</p>
       <div class="spinner"></div>
     </div>
   </div>
   <div id="flutter-app"></div>
   <script src="/AeraSync/flutter_bootstrap.js" async></script>
   <script>
-    // Register Flutter's service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('/AeraSync/flutter_service_worker.js')
@@ -134,14 +144,12 @@
       });
     }
 
-    // Handle touch events
     document.addEventListener('touchstart', function(event) {
       if (event.touches.length > 1) {
         event.stopPropagation();
       }
     }, { passive: false });
 
-    // Fade out loading screen after Flutter renders
     window.addEventListener('flutter-first-frame', function() {
       var loadingScreen = document.getElementById('loading-screen');
       var flutterApp = document.getElementById('flutter-app');

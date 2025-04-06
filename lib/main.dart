@@ -27,6 +27,17 @@ class AeraSyncApp extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
           ),
+          textTheme: const TextTheme(
+            bodyMedium: TextStyle(fontFamily: 'Montserrat'),
+            titleLarge: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
+          ),
+          tabBarTheme: const TabBarTheme(
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
+            labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            unselectedLabelStyle: TextStyle(fontSize: 16),
+          ),
         ),
         home: const MainScreen(),
         debugShowCheckedModeBanner: false,
@@ -74,33 +85,42 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         child: SafeArea(
           child: Column(
             children: [
-              TabBar(
-                controller: _tabController,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.white70,
-                indicatorColor: Colors.white,
-                tabs: const [
-                  Tab(text: 'Aerator Performance'),
-                  Tab(text: 'Aerator Estimation'),
-                ],
+              // TabBar with padding for better visibility
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: TabBar(
+                  controller: _tabController,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.white70,
+                  indicatorColor: Colors.white,
+                  tabs: const [
+                    Tab(text: 'Aerator Performance'),
+                    Tab(text: 'Aerator Estimation'),
+                  ],
+                ),
               ),
+              // Expanded TabBarView with SingleChildScrollView for scrolling
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
                   children: [
                     // Tab 1: Aerator Performance
-                    Column(
-                      children: [
-                        const Expanded(child: CalculatorForm()),
-                        Expanded(child: ResultsDisplay(tab: 'Aerator Performance')),
-                      ],
+                    SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const CalculatorForm(),
+                          ResultsDisplay(tab: 'Aerator Performance'),
+                        ],
+                      ),
                     ),
                     // Tab 2: Aerator Estimation
-                    Column(
-                      children: [
-                        const Expanded(child: AeratorEstimationForm()),
-                        Expanded(child: ResultsDisplay(tab: 'Aerator Estimation')),
-                      ],
+                    SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const AeratorEstimationForm(),
+                          ResultsDisplay(tab: 'Aerator Estimation'),
+                        ],
+                      ),
                     ),
                   ],
                 ),

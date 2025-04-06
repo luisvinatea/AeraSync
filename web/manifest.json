@@ -1,11 +1,11 @@
 {
   "name": "AeraSync",
   "short_name": "AeraSync",
-  "start_url": "/AeraSync/index.html",
-  "scope": "/AeraSync/",
+  "description": "Calculate aerator performance and estimate the number of aerators per hectare for shrimp ponds.",
+  "start_url": "/AeraSync/",
   "display": "standalone",
-  "background_color": "#1E40AF",
-  "theme_color": "#60A5FA",
+  "background_color": "#60A5FA",
+  "theme_color": "#1E40AF",
   "icons": [
     {
       "src": "/AeraSync/icons/aerasync64.png",
@@ -15,11 +15,6 @@
     {
       "src": "/AeraSync/icons/aerasync180.png",
       "sizes": "180x180",
-      "type": "image/png"
-    },
-    {
-      "src": "/AeraSync/icons/aerasync400.png",
-      "sizes": "400x400",
       "type": "image/png"
     },
     {
