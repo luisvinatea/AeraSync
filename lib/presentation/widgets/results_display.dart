@@ -4,13 +4,18 @@ import 'package:universal_html/html.dart' as html;
 import '../../core/services/app_state.dart';
 
 class ResultsDisplay extends StatelessWidget {
-  const ResultsDisplay({super.key});
+  final String tab;
+
+  const ResultsDisplay({super.key, required this.tab});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, appState, child) {
-        if (appState.results == null || appState.results!.isEmpty) {
+        final results = appState.getResults(tab);
+        final inputs = appState.getInputs(tab);
+
+        if (results == null || results.isEmpty) {
           return const Center(
             child: Text(
               'Enter values and click Calculate to see results',
@@ -18,9 +23,6 @@ class ResultsDisplay extends StatelessWidget {
             ),
           );
         }
-
-        final results = appState.results!;
-        final inputs = appState.inputs!;
 
         return ListView(
           children: [
@@ -76,9 +78,9 @@ class ResultsDisplay extends StatelessWidget {
                     Align(
                       alignment: Alignment.center,
                       child: ElevatedButton.icon(
-                        onPressed: () => _downloadAsCsv(inputs, results),
+                        onPressed: () => _downloadAsCsv(inputs!, results),
                         icon: const Icon(Icons.download, size: 32),
-                        label: const Text('Download as CSV'),
+                        label: const Text('Download as CSV (only values)'),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
