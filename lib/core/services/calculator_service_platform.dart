@@ -1,15 +1,18 @@
-import 'calculator_service.dart';
+import 'package:AeraSync/core/calculators/saturation_calculator.dart';
 
 abstract class CalculatorServicePlatform {
-  Future<ShrimpPondCalculator> initialize();
+  Future<void> initialize();
 
-  static CalculatorServicePlatform get instance => _instance;
-  static final CalculatorServicePlatform _instance = CalculatorServicePlatformImpl();
-}
+  double getO2Saturation(double temperature, double salinity);
 
-class CalculatorServicePlatformImpl implements CalculatorServicePlatform {
-  @override
-  Future<ShrimpPondCalculator> initialize() async {
-    return await CalculatorService().initialize(); // Delegate to concrete service
-  }
+  Map<String, dynamic> calculateMetrics({
+    required double temperature,
+    required double salinity,
+    required double horsepower,
+    required double volume,
+    required double t10,
+    required double t70,
+    required double kWhPrice,
+    required String aeratorId,
+  });
 }

@@ -1,46 +1,44 @@
 import 'package:flutter/foundation.dart';
-import '../calculators/saturation_calculator.dart';
+import 'calculator_service.dart';
 
 class AppState extends ChangeNotifier {
-  ShrimpPondCalculator? _calculator;
-  bool _isLoading = true;
+  final CalculatorService calculator;
+  bool _isLoading = false;
   String? _error;
   Map<String, Map<String, dynamic>> _results = {};
   Map<String, Map<String, dynamic>> _inputs = {};
 
-  ShrimpPondCalculator? get calculator => _calculator;
+  AppState({required this.calculator});
+
   bool get isLoading => _isLoading;
   String? get error => _error;
+
   Map<String, dynamic>? getResults(String tab) => _results[tab];
   Map<String, dynamic>? getInputs(String tab) => _inputs[tab];
 
-  AppState() {
-    _init();
+  void setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
   }
 
-  Future<void> _init() async {
-    try {
-      _isLoading = true;
-      _calculator = ShrimpPondCalculator('assets/data/o2_temp_sal_100_sat.json');
-      await _calculator!.loadData();
-      _error = null;
-    } catch (e) {
-      _error = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+  void setError(String? error) {
+    _error = error;
+    _isLoading = false;
+    notifyListeners();
   }
 
   void setResults(String tab, Map<String, dynamic> results, Map<String, dynamic> inputs) {
     _results[tab] = results;
     _inputs[tab] = inputs;
+    _isLoading = false;
     _error = null;
     notifyListeners();
   }
 
-  void setError(String error) {
-    _error = error;
+  // Add a method to reset the state when switching tabs
+  void resetState() {
+    _isLoading = false;
+    _error = null;
     notifyListeners();
   }
 }

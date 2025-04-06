@@ -115,7 +115,7 @@ class ResultsDisplay extends StatelessWidget {
     final metrics = [
       {'title': 'SOTR', 'value': results['SOTR (kg O₂/h)'] as double? ?? 0.0},
       {'title': 'SAE', 'value': results['SAE (kg O₂/kWh)'] as double? ?? 0.0},
-      {'title': 'KLa', 'value': results['KLa (h⁻¹)'] as double? ?? 0.0},
+      {'title': 'KLaT', 'value': results['KlaT (h⁻¹)'] as double? ?? 0.0}, // Updated key
     ];
 
     return SizedBox(
@@ -167,11 +167,11 @@ class ResultsDisplay extends StatelessWidget {
             rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           borderData: FlBorderData(
-            show: false,  // Updated to use 'show'
+            show: false,
           ),
           gridData: const FlGridData(
-            drawHorizontalLine: true,  // Updated to use 'drawHorizontalLine'
-            drawVerticalLine: false,  // Updated to use 'drawVerticalLine'
+            drawHorizontalLine: true,
+            drawVerticalLine: false,
           ),
         ),
       ),
