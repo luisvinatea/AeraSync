@@ -15,7 +15,7 @@ flutter pub get || { echo "Flutter pub get failed"; exit 1; }
 
 # Build web release
 echo "Building web release..."
-flutter build web --release || { echo "Flutter build failed"; exit 1; }
+flutter build web --no-tree-shake-icons || { echo "Flutter build failed"; exit 1; }
 
 # Copy to gh-pages directory
 echo "Copying build to gh-pages..."
