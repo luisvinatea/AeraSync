@@ -21,7 +21,7 @@ class AppState extends ChangeNotifier {
   Future<void> _init() async {
     try {
       _isLoading = true;
-      _calculator = ShrimpPondCalculator('assets/data/o2_saturation.json');
+      _calculator = ShrimpPondCalculator('assets/data/o2_temp_sal_100_sat.json');
       await _calculator!.loadData();
       _error = null;
     } catch (e) {
