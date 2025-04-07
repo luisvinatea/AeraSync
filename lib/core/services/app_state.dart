@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../calculators/saturation_calculator.dart';
+import '../calculators/shrimp_respiration_calculator.dart';
 
 class AppState with ChangeNotifier {
   Map<String, dynamic> _saturationResults = {};
@@ -8,30 +9,39 @@ class AppState with ChangeNotifier {
   Map<String, dynamic> _estimationInputs = {};
   Map<String, dynamic> _comparisonResults = {};
   Map<String, dynamic> _comparisonInputs = {};
+  Map<String, dynamic> _oxygenDemandResults = {};
+  Map<String, dynamic> _oxygenDemandInputs = {};
 
   bool _isLoading = false;
   String? _error;
   SaturationCalculator? _calculator;
+  ShrimpRespirationCalculator? _respirationCalculator;
 
   Map<String, dynamic> get saturationResults => _saturationResults;
   Map<String, dynamic> get estimationResults => _estimationResults;
   Map<String, dynamic> get comparisonResults => _comparisonResults;
+  Map<String, dynamic> get oxygenDemandResults => _oxygenDemandResults;
 
   bool get isLoading => _isLoading;
   String? get error => _error;
   SaturationCalculator? get calculator => _calculator;
+  ShrimpRespirationCalculator? get respirationCalculator => _respirationCalculator;
 
   AppState() {
-    _initializeCalculator();
+    _initializeCalculators();
   }
 
-  Future<void> _initializeCalculator() async {
+  Future<void> _initializeCalculators() async {
     _calculator = ShrimpPondCalculator('assets/data/saturation_data.json');
+    _respirationCalculator = ShrimpRespirationCalculator('assets/data/shrimp_respiration_salinity_temperature_weight.json');
     try {
-      await _calculator!.loadData();
+      await Future.wait([
+        _calculator!.loadData(),
+        _respirationCalculator!.loadData(),
+      ]);
       notifyListeners();
     } catch (e) {
-      _error = 'Failed to initialize calculator: $e';
+      _error = 'Failed to initialize calculators: $e';
       notifyListeners();
     }
   }
@@ -44,6 +54,8 @@ class AppState with ChangeNotifier {
         return _estimationResults;
       case 'Aerator Comparison':
         return _comparisonResults;
+      case 'Oxygen Demand':
+        return _oxygenDemandResults;
       default:
         return null;
     }
@@ -57,6 +69,8 @@ class AppState with ChangeNotifier {
         return _estimationInputs;
       case 'Aerator Comparison':
         return _comparisonInputs;
+      case 'Oxygen Demand':
+        return _oxygenDemandInputs;
       default:
         return null;
     }
@@ -75,6 +89,10 @@ class AppState with ChangeNotifier {
       case 'Aerator Comparison':
         _comparisonResults = results;
         _comparisonInputs = inputs;
+        break;
+      case 'Oxygen Demand':
+        _oxygenDemandResults = results;
+        _oxygenDemandInputs = inputs;
         break;
     }
     _isLoading = false;
@@ -100,6 +118,8 @@ class AppState with ChangeNotifier {
     _estimationInputs = {};
     _comparisonResults = {};
     _comparisonInputs = {};
+    _oxygenDemandResults = {};
+    _oxygenDemandInputs = {};
     _isLoading = false;
     _error = null;
     notifyListeners();

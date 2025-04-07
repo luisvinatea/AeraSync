@@ -1,7 +1,5 @@
-// /home/luisvinatea/Dev/Repos/AeraSync/AeraSync/lib/presentation/widgets/oxygen_demand_form.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:math' show pow;
 import '../../core/services/app_state.dart';
 
 class OxygenDemandForm extends StatefulWidget {
@@ -17,7 +15,7 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
   final _biomassController = TextEditingController(text: '2000'); // kg/ha
   final _temperatureController = TextEditingController(text: '30'); // °C
   final _salinityController = TextEditingController(text: '20'); // ‰
-  final _baseRespirationController = TextEditingController(text: '0.5'); // mg O₂/kg/h
+  final _shrimpWeightController = TextEditingController(text: '15'); // g
   final _safetyMarginController = TextEditingController(text: '1.2');
 
   @override
@@ -26,7 +24,7 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
     _biomassController.dispose();
     _temperatureController.dispose();
     _salinityController.dispose();
-    _baseRespirationController.dispose();
+    _shrimpWeightController.dispose();
     _safetyMarginController.dispose();
     super.dispose();
   }
@@ -41,28 +39,27 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
         final biomass = double.parse(_biomassController.text);
         final temperature = double.parse(_temperatureController.text);
         final salinity = double.parse(_salinityController.text);
-        final baseRespiration = double.parse(_baseRespirationController.text);
+        final shrimpWeight = double.parse(_shrimpWeightController.text);
         final safetyMargin = double.parse(_safetyMarginController.text);
 
-        // Adjust respiration rate based on temperature
-        // Using a simplified Q10 temperature coefficient model: respiration increases by a factor of Q10^(ΔT/10)
-        const double q10 = 2.0; // Q10 value for shrimp (respiration doubles every 10°C)
-        final tempAdjustment = pow(q10, (temperature - 20) / 10).toDouble();
-        final adjustedRespiration = baseRespiration * tempAdjustment;
+        // Get respiration rate from the calculator (in mg O₂/g/h)
+        final respirationRate = appState.respirationCalculator!.getRespirationRate(
+          salinity,
+          temperature,
+          shrimpWeight,
+        );
 
-        // Adjust respiration rate based on salinity (simplified linear adjustment)
-        // Higher salinity slightly reduces oxygen demand due to lower metabolic rates
-        final salinityAdjustment = 1.0 - (salinity / 100); // e.g., at 20‰, reduce by 20%
-        final finalRespiration = adjustedRespiration * salinityAdjustment;
+        // Convert respiration rate to mg O₂/kg/h (1 g = 0.001 kg, so multiply by 1000)
+        final respirationRateMgPerKgPerH = respirationRate * 1000;
 
         // Calculate oxygen demand from shrimp biomass (kg/ha * mg O₂/kg/h * ha = mg O₂/h)
-        final oxygenDemandFromShrimp = biomass * finalRespiration * area;
+        final oxygenDemandFromShrimp = biomass * respirationRateMgPerKgPerH * area;
 
         // Convert to kg O₂/h (1 mg = 1e-6 kg)
         final oxygenDemandKgPerHour = oxygenDemandFromShrimp * 1e-6;
 
         // Add environmental oxygen demand (simplified as a base rate per hectare)
-        const double environmentalDemandPerHectare = 0.5; // kg O₂/h/ha (e.g., from water column and sediment)
+        const double environmentalDemandPerHectare = 0.5; // kg O₂/h/ha
         final environmentalDemand = environmentalDemandPerHectare * area;
 
         // Total oxygen demand
@@ -74,12 +71,13 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
           'Shrimp Biomass (kg/ha)': biomass,
           'Water Temperature (°C)': temperature,
           'Salinity (‰)': salinity,
-          'Base Respiration Rate (mg O₂/kg/h)': baseRespiration,
+          'Average Shrimp Weight (g)': shrimpWeight,
           'Safety Margin (multiplier)': safetyMargin,
         };
 
         // Results for display
         final results = {
+          'Respiration Rate (mg O₂/g/h)': respirationRate,
           'Oxygen Demand from Shrimp (kg O₂/h)': oxygenDemandKgPerHour,
           'Environmental Oxygen Demand (kg O₂/h)': environmentalDemand,
           'Total Oxygen Demand (kg O₂/h)': totalOxygenDemand,
@@ -160,7 +158,7 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
                                       _buildTextField(
                                         _temperatureController,
                                         'Water Temperature (°C)',
-                                       0,
+                                        0,
                                         40,
                                         'Average water temperature in the pond',
                                       ),
@@ -172,11 +170,11 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
                                         'Salinity of the pond water',
                                       ),
                                       _buildTextField(
-                                        _baseRespirationController,
-                                        'Base Respiration Rate (mg O₂/kg/h)',
+                                        _shrimpWeightController,
+                                        'Average Shrimp Weight (g)',
                                         0,
-                                        10,
-                                        'Base oxygen consumption rate per kg of shrimp at 20°C',
+                                        50,
+                                        'Average weight of the shrimp in grams',
                                       ),
                                       _buildTextField(
                                         _safetyMarginController,
@@ -229,11 +227,11 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
                                               'Salinity of the pond water',
                                             ),
                                             _buildTextField(
-                                              _baseRespirationController,
-                                              'Base Respiration Rate (mg O₂/kg/h)',
+                                              _shrimpWeightController,
+                                              'Average Shrimp Weight (g)',
                                               0,
-                                              10,
-                                              'Base oxygen consumption rate per kg of shrimp at 20°C',
+                                              50,
+                                              'Average weight of the shrimp in grams',
                                             ),
                                             _buildTextField(
                                               _safetyMarginController,
