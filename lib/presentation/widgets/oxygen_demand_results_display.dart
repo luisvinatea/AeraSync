@@ -1,21 +1,19 @@
-// /home/luisvinatea/Dev/Repos/AeraSync/AeraSync/lib/presentation/widgets/results_display.dart
-import 'package:fl_chart/fl_chart.dart';
+// /home/luisvinatea/Dev/Repos/AeraSync/AeraSync/lib/presentation/widgets/oxygen_demand_results_display.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:clipboard/clipboard.dart';
 import '../../core/services/app_state.dart';
 
-class ResultsDisplay extends StatelessWidget {
-  final String tab;
-
-  const ResultsDisplay({super.key, required this.tab});
+class OxygenDemandResultsDisplay extends StatelessWidget {
+  const OxygenDemandResultsDisplay({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, appState, child) {
-        final results = appState.getResults(tab);
-        final inputs = appState.getInputs(tab);
+        final results = appState.getResults('Oxygen Demand');
+        final inputs = appState.getInputs('Oxygen Demand');
 
         if (results == null || results.isEmpty) {
           return const Padding(
@@ -27,6 +25,8 @@ class ResultsDisplay extends StatelessWidget {
             ),
           );
         }
+
+        final totalOxygenDemand = results['Total Oxygen Demand (kg O₂/h)'] as double;
 
         return Card(
           elevation: 4,
@@ -42,7 +42,7 @@ class ResultsDisplay extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Performance Metrics',
+                    'Oxygen Demand Results',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -50,12 +50,6 @@ class ResultsDisplay extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Bar Chart only for Aerator Estimation
-                  if (tab == 'Aerator Estimation') ...[
-                    _buildAeratorEstimationChart(results),
-                    const SizedBox(height: 16),
-                  ],
-                  // List of all results
                   ...results.entries.map((entry) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -70,13 +64,36 @@ class ResultsDisplay extends StatelessWidget {
                           ),
                           Expanded(
                             flex: 1,
-                            child: Text(
-                              _formatValue(entry.value),
-                              textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1E40AF),
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  _formatValue(entry.value),
+                                  textAlign: TextAlign.end,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1E40AF),
+                                  ),
+                                ),
+                                if (entry.key == 'Total Oxygen Demand (kg O₂/h)') ...[
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: const Icon(Icons.copy, color: Color(0xFF1E40AF)),
+                                    onPressed: () {
+                                      FlutterClipboard.copy(totalOxygenDemand.toStringAsFixed(2))
+                                          .then((value) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Total Oxygen Demand copied to clipboard'),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      });
+                                    },
+                                    tooltip: 'Copy to clipboard',
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ],
@@ -107,72 +124,6 @@ class ResultsDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildAeratorEstimationChart(Map<String, dynamic> results) {
-    // Select key metrics for visualization
-    final metrics = [
-      {'title': 'TOD', 'value': results['TOD (kg O₂/h)'] as double? ?? 0.0},
-      {'title': 'OTRt', 'value': results['OTRt (kg O₂/h)'] as double? ?? 0.0},
-      {'title': 'Aerators', 'value': results['Number of Aerators per Hectare'] as double? ?? 0.0},
-    ];
-
-    return SizedBox(
-      height: 200,
-      child: BarChart(
-        BarChartData(
-          alignment: BarChartAlignment.spaceAround,
-          maxY: metrics.map((e) => e['value'] as double).reduce((a, b) => a > b ? a : b) * 1.2,
-          barGroups: metrics.asMap().entries.map((entry) {
-            final index = entry.key;
-            final metric = entry.value;
-            return BarChartGroupData(
-              x: index,
-              barRods: [
-                BarChartRodData(
-                  toY: metric['value'] as double,
-                  color: const Color(0xFF1E40AF),
-                  width: 20,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
-            );
-          }).toList(),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 40,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    value.toStringAsFixed(1),
-                    style: const TextStyle(color: Colors.black54, fontSize: 12),
-                  );
-                },
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    metrics[value.toInt()]['title'] as String,
-                    style: const TextStyle(color: Colors.black54, fontSize: 12),
-                  );
-                },
-              ),
-            ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(show: false),
-          gridData: const FlGridData(
-            drawHorizontalLine: true,
-            drawVerticalLine: false,
-          ),
-        ),
-      ),
-    );
-  }
-
   String _formatValue(dynamic value) {
     if (value is double) {
       return value.toStringAsFixed(2);
@@ -197,7 +148,7 @@ class ResultsDisplay extends StatelessWidget {
     final url = html.Url.createObjectUrlFromBlob(blob);
 
     html.AnchorElement(href: url)
-      ..setAttribute('download', 'aerasync_data_${DateTime.now().toIso8601String()}.csv')
+      ..setAttribute('download', 'aerasync_oxygen_demand_${DateTime.now().toIso8601String()}.csv')
       ..click();
 
     html.Url.revokeObjectUrl(url);

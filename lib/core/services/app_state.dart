@@ -1,42 +1,105 @@
-import 'package:flutter/foundation.dart';
-import 'calculator_service.dart';
+import 'package:flutter/material.dart';
+import '../calculators/saturation_calculator.dart';
 
-class AppState extends ChangeNotifier {
-  final CalculatorService calculator;
+class AppState with ChangeNotifier {
+  Map<String, dynamic> _saturationResults = {};
+  Map<String, dynamic> _saturationInputs = {};
+  Map<String, dynamic> _estimationResults = {};
+  Map<String, dynamic> _estimationInputs = {};
+  Map<String, dynamic> _comparisonResults = {};
+  Map<String, dynamic> _comparisonInputs = {};
+
   bool _isLoading = false;
   String? _error;
-  Map<String, Map<String, dynamic>> _results = {};
-  Map<String, Map<String, dynamic>> _inputs = {};
+  SaturationCalculator? _calculator;
 
-  AppState({required this.calculator});
+  Map<String, dynamic> get saturationResults => _saturationResults;
+  Map<String, dynamic> get estimationResults => _estimationResults;
+  Map<String, dynamic> get comparisonResults => _comparisonResults;
 
   bool get isLoading => _isLoading;
   String? get error => _error;
+  SaturationCalculator? get calculator => _calculator;
 
-  Map<String, dynamic>? getResults(String tab) => _results[tab];
-  Map<String, dynamic>? getInputs(String tab) => _inputs[tab];
-
-  void setLoading(bool value) {
-    _isLoading = value;
-    notifyListeners();
+  AppState() {
+    _initializeCalculator();
   }
 
-  void setError(String? error) {
-    _error = error;
-    _isLoading = false;
-    notifyListeners();
+  Future<void> _initializeCalculator() async {
+    _calculator = ShrimpPondCalculator('assets/data/saturation_data.json');
+    try {
+      await _calculator!.loadData();
+      notifyListeners();
+    } catch (e) {
+      _error = 'Failed to initialize calculator: $e';
+      notifyListeners();
+    }
+  }
+
+  Map<String, dynamic>? getResults(String tab) {
+    switch (tab) {
+      case 'Aerator Performance':
+        return _saturationResults;
+      case 'Aerator Estimation':
+        return _estimationResults;
+      case 'Aerator Comparison':
+        return _comparisonResults;
+      default:
+        return null;
+    }
+  }
+
+  Map<String, dynamic>? getInputs(String tab) {
+    switch (tab) {
+      case 'Aerator Performance':
+        return _saturationInputs;
+      case 'Aerator Estimation':
+        return _estimationInputs;
+      case 'Aerator Comparison':
+        return _comparisonInputs;
+      default:
+        return null;
+    }
   }
 
   void setResults(String tab, Map<String, dynamic> results, Map<String, dynamic> inputs) {
-    _results[tab] = results;
-    _inputs[tab] = inputs;
+    switch (tab) {
+      case 'Aerator Performance':
+        _saturationResults = results;
+        _saturationInputs = inputs;
+        break;
+      case 'Aerator Estimation':
+        _estimationResults = results;
+        _estimationInputs = inputs;
+        break;
+      case 'Aerator Comparison':
+        _comparisonResults = results;
+        _comparisonInputs = inputs;
+        break;
+    }
     _isLoading = false;
     _error = null;
     notifyListeners();
   }
 
-  // Add a method to reset the state when switching tabs
+  void setError(String error) {
+    _isLoading = false;
+    _error = error;
+    notifyListeners();
+  }
+
+  void setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
   void resetState() {
+    _saturationResults = {};
+    _saturationInputs = {};
+    _estimationResults = {};
+    _estimationInputs = {};
+    _comparisonResults = {};
+    _comparisonInputs = {};
     _isLoading = false;
     _error = null;
     notifyListeners();
