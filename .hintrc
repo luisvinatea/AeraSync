@@ -4,6 +4,14 @@
   ],
   "hints": {
     "no-inline-styles": "off",
-    "meta-viewport": "off"
+    "meta-viewport": "off",
+    "compat-api/html": [
+      "default",
+      {
+        "ignore": [
+          "meta[name=theme-color]"
+        ]
+      }
+    ]
   }
 }

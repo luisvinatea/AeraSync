@@ -1,18 +1,33 @@
-import 'package:AeraSync/core/calculators/saturation_calculator.dart';
+import 'package:aerasync/core/services/aerator_calculator.dart';
 import 'calculator_service_platform.dart';
 
 class CalculatorServiceWeb implements CalculatorServicePlatform {
-  late SaturationCalculator calculator;
+  late AeratorCalculator _calculator;
+  final Map<String, double> _o2SaturationCache = {};
+
+  CalculatorServiceWeb() {
+    _calculator = AeratorCalculator();
+  }
 
   @override
   Future<void> initialize() async {
-    calculator = ShrimpPondCalculator('assets/data/o2_temp_sal_100_sat.json');
-    await calculator.loadData();
+    // No initialization required for AeratorCalculator
   }
 
   @override
   double getO2Saturation(double temperature, double salinity) {
-    return calculator.getO2Saturation(temperature, salinity);
+    // Create a cache key based on temperature and salinity
+    final cacheKey = '${temperature.toStringAsFixed(1)}-${salinity.toStringAsFixed(1)}';
+    
+    // Return cached result if available
+    if (_o2SaturationCache.containsKey(cacheKey)) {
+      return _o2SaturationCache[cacheKey]!;
+    }
+
+    // Calculate and cache the result
+    final result = _calculator.getO2Saturation(temperature, salinity);
+    _o2SaturationCache[cacheKey] = result;
+    return result;
   }
 
   @override
@@ -26,7 +41,7 @@ class CalculatorServiceWeb implements CalculatorServicePlatform {
     required double kWhPrice,
     required String aeratorId,
   }) {
-    return calculator.calculateMetrics(
+    return _calculator.calculateMetrics(
       temperature: temperature,
       salinity: salinity,
       horsepower: horsepower,

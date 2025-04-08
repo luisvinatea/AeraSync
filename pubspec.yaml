@@ -35,6 +35,5 @@ dependency_overrides:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/aerasync.png
     - assets/data/o2_temp_sal_100_sat.json
     - assets/data/shrimp_respiration_salinity_temperature_weight.json

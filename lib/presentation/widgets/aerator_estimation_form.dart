@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:math';
 import '../../core/services/app_state.dart';
 
@@ -12,7 +13,7 @@ class AeratorEstimationForm extends StatefulWidget {
 
 class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
   final _formKey = GlobalKey<FormState>();
-  final _shrimpRespirationController = TextEditingController(text: '0.5');
+  final _shrimpWeightController = TextEditingController(text: '15'); // g
   final _startO2ColumnController = TextEditingController(text: '7.0');
   final _finalO2ColumnController = TextEditingController(text: '6.0');
   final _startO2BottomController = TextEditingController(text: '6.5');
@@ -27,6 +28,7 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Card(
       elevation: 4,
@@ -39,7 +41,7 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
             ? const Center(child: CircularProgressIndicator())
             : appState.error != null
                 ? Center(
-                    child: Text('Error: ${appState.error}',
+                    child: Text('${l10n.error}: ${appState.error}',
                         style: const TextStyle(color: Colors.red)))
                 : SingleChildScrollView(
                     child: ConstrainedBox(
@@ -60,9 +62,9 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
                               ),
                             ),
                           ),
-                          const Text(
-                            'Aerator Estimation Calculator',
-                            style: TextStyle(
+                          Text(
+                            l10n.aeratorEstimationCalculator,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1E40AF),
@@ -75,22 +77,22 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
                                 ? Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      _buildTextField(_shrimpRespirationController,
-                                          'Shrimp Respiration (mg/L/h)', 0, 10),
+                                      _buildTextField(_shrimpWeightController,
+                                          l10n.averageShrimpWeightLabel, 0, 50),
                                       _buildTextField(_startO2ColumnController,
-                                          'Start O₂ Column (mg/L)', 0, 15),
+                                          l10n.startO2ColumnLabel, 0, 15),
                                       _buildTextField(_finalO2ColumnController,
-                                          'Final O₂ Column (mg/L)', 0, 15),
+                                          l10n.finalO2ColumnLabel, 0, 15),
                                       _buildTextField(_startO2BottomController,
-                                          'Start O₂ Bottom (mg/L)', 0, 15),
+                                          l10n.startO2BottomLabel, 0, 15),
                                       _buildTextField(_finalO2BottomController,
-                                          'Final O₂ Bottom (mg/L)', 0, 15),
-                                      _buildTextField(_timeController, 'Time (hours)', 0.1, 24),
-                                      _buildTextField(_volumeController, 'Volume (m³)', 1000, 100000),
-                                      _buildTextField(_temperatureController, 'Temperature (°C)', 0, 40),
-                                      _buildTextField(_salinityController, 'Salinity (‰)', 0, 40),
-                                      _buildTextField(_sotrController, 'SOTR (kg O₂/h)', 0, 10),
-                                      _buildTextField(_depthController, 'Pond Depth (m)', 0.5, 5),
+                                          l10n.finalO2BottomLabel, 0, 15),
+                                      _buildTextField(_timeController, l10n.timeLabel, 0.1, 24),
+                                      _buildTextField(_volumeController, l10n.volumeLabel, 1000, 100000),
+                                      _buildTextField(_temperatureController, l10n.waterTemperatureLabel, 0, 40),
+                                      _buildTextField(_salinityController, l10n.salinityLabel, 0, 40),
+                                      _buildTextField(_sotrController, l10n.sotrLabel, 0, 10),
+                                      _buildTextField(_depthController, l10n.pondDepthLabel, 0.5, 5),
                                     ],
                                   )
                                 : Row(
@@ -99,16 +101,16 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
                                       Expanded(
                                         child: Column(
                                           children: [
-                                            _buildTextField(_shrimpRespirationController,
-                                                'Shrimp Respiration (mg/L/h)', 0, 10),
+                                            _buildTextField(_shrimpWeightController,
+                                                l10n.averageShrimpWeightLabel, 0, 50),
                                             _buildTextField(_startO2ColumnController,
-                                                'Start O₂ Column (mg/L)', 0, 15),
+                                                l10n.startO2ColumnLabel, 0, 15),
                                             _buildTextField(_finalO2ColumnController,
-                                                'Final O₂ Column (mg/L)', 0, 15),
+                                                l10n.finalO2ColumnLabel, 0, 15),
                                             _buildTextField(_startO2BottomController,
-                                                'Start O₂ Bottom (mg/L)', 0, 15),
+                                                l10n.startO2BottomLabel, 0, 15),
                                             _buildTextField(_finalO2BottomController,
-                                                'Final O₂ Bottom (mg/L)', 0, 15),
+                                                l10n.finalO2BottomLabel, 0, 15),
                                           ],
                                         ),
                                       ),
@@ -116,12 +118,12 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
                                       Expanded(
                                         child: Column(
                                           children: [
-                                            _buildTextField(_timeController, 'Time (hours)', 0.1, 24),
-                                            _buildTextField(_volumeController, 'Volume (m³)', 1000, 100000),
-                                            _buildTextField(_temperatureController, 'Temperature (°C)', 0, 40),
-                                            _buildTextField(_salinityController, 'Salinity (‰)', 0, 40),
-                                            _buildTextField(_sotrController, 'SOTR (kg O₂/h)', 0, 10),
-                                            _buildTextField(_depthController, 'Pond Depth (m)', 0.5, 5),
+                                            _buildTextField(_timeController, l10n.timeLabel, 0.1, 24),
+                                            _buildTextField(_volumeController, l10n.volumeLabel, 1000, 100000),
+                                            _buildTextField(_temperatureController, l10n.waterTemperatureLabel, 0, 40),
+                                            _buildTextField(_salinityController, l10n.salinityLabel, 0, 40),
+                                            _buildTextField(_sotrController, l10n.sotrLabel, 0, 10),
+                                            _buildTextField(_depthController, l10n.pondDepthLabel, 0.5, 5),
                                           ],
                                         ),
                                       ),
@@ -141,8 +143,8 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
                                 backgroundColor: const Color(0xFF1E40AF),
                                 foregroundColor: Colors.white,
                               ),
-                              child: const Text('Calculate',
-                                  style: TextStyle(fontSize: 16)),
+                              child: Text(l10n.calculateButton,
+                                  style: const TextStyle(fontSize: 16)),
                             ),
                           ),
                         ],
@@ -155,44 +157,96 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
 
   Widget _buildTextField(
       TextEditingController controller, String label, double min, double max) {
+    final l10n = AppLocalizations.of(context)!;
+    String tooltip;
+    switch (label) {
+      case 'Average Shrimp Weight (g)':
+        tooltip = l10n.averageShrimpWeightTooltip;
+        break;
+      case 'Start O₂ Column (mg/L)':
+        tooltip = l10n.startO2ColumnTooltip;
+        break;
+      case 'Final O₂ Column (mg/L)':
+        tooltip = l10n.finalO2ColumnTooltip;
+        break;
+      case 'Start O₂ Bottom (mg/L)':
+        tooltip = l10n.startO2BottomTooltip;
+        break;
+      case 'Final O₂ Bottom (mg/L)':
+        tooltip = l10n.finalO2BottomTooltip;
+        break;
+      case 'Time (hours)':
+        tooltip = l10n.timeTooltip;
+        break;
+      case 'Volume (m³)':
+        tooltip = l10n.volumeTooltip;
+        break;
+      case 'Water Temperature (°C)':
+        tooltip = l10n.waterTemperatureTooltip;
+        break;
+      case 'Salinity (‰)':
+        tooltip = l10n.salinityTooltip;
+        break;
+      case 'SOTR (kg O₂/h)':
+        tooltip = l10n.sotrTooltip;
+        break;
+      case 'Pond Depth (m)':
+        tooltip = l10n.pondDepthTooltip;
+        break;
+      default:
+        tooltip = '';
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(fontSize: 16),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
-          filled: true,
-          fillColor: Colors.grey[100],
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-        ),
-        style: const TextStyle(fontSize: 16),
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        validator: (value) => _validateInput(value, min, max),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: label,
+                labelStyle: const TextStyle(fontSize: 16),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                filled: true,
+                fillColor: Colors.grey[100],
+                contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              ),
+              style: const TextStyle(fontSize: 16),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              validator: (value) => _validateInput(value, min, max),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Tooltip(
+            message: tooltip,
+            child: const Icon(Icons.info_outline, color: Colors.grey),
+          ),
+        ],
       ),
     );
   }
-
+  
   String? _validateInput(String? value, double min, double max) {
-    if (value == null || value.isEmpty) return 'Required';
+    if (value == null || value.isEmpty) return AppLocalizations.of(context)!.requiredField;
     final numValue = double.tryParse(value);
-    if (numValue == null) return 'Invalid number';
-    if (numValue < min || numValue > max) return 'Must be between $min and $max';
+    if (numValue == null) return AppLocalizations.of(context)!.invalidNumber;
+    if (numValue < min || numValue > max) return AppLocalizations.of(context)!.rangeError(min, max);
     return null;
   }
 
   void _calculate() async {
     final appState = Provider.of<AppState>(context, listen: false);
     final calculator = appState.calculator;
+    final respirationCalculator = appState.respirationCalculator;
 
-    if (calculator == null) {
-      appState.setError('Calculator not initialized');
+    if (calculator == null || respirationCalculator == null) {
+      appState.setError(AppLocalizations.of(context)!.calculatorNotInitialized);
       return;
     }
 
     try {
-      final shrimpRespiration = double.parse(_shrimpRespirationController.text);
+      final shrimpWeight = double.parse(_shrimpWeightController.text);
       final startO2Column = double.parse(_startO2ColumnController.text);
       final finalO2Column = double.parse(_finalO2ColumnController.text);
       final startO2Bottom = double.parse(_startO2BottomController.text);
@@ -203,6 +257,12 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
       final salinity = double.parse(_salinityController.text);
       final sotr = double.parse(_sotrController.text);
       final depth = double.parse(_depthController.text);
+
+      final shrimpRespiration = respirationCalculator.getRespirationRate(
+        salinity,
+        temperature,
+        shrimpWeight,
+      );
 
       final columnRespiration = (startO2Column - finalO2Column) / time;
       final totalBottomRespiration = (startO2Bottom - finalO2Bottom) / time;
@@ -220,39 +280,40 @@ class _AeratorEstimationFormState extends State<AeratorEstimationForm> {
       final numberOfAerators = otrT > 0 ? (todPerHectare / otrT) : double.infinity;
 
       final inputs = {
-        'Shrimp Respiration (mg/L/h)': double.parse(shrimpRespiration.toStringAsFixed(2)),
-        'Start O₂ Column (mg/L)': double.parse(startO2Column.toStringAsFixed(2)),
-        'Final O₂ Column (mg/L)': double.parse(finalO2Column.toStringAsFixed(2)),
-        'Start O₂ Bottom (mg/L)': double.parse(startO2Bottom.toStringAsFixed(2)),
-        'Final O₂ Bottom (mg/L)': double.parse(finalO2Bottom.toStringAsFixed(2)),
-        'Time (hours)': double.parse(time.toStringAsFixed(2)),
-        'Volume (m³)': double.parse(volume.toStringAsFixed(2)),
-        'Temperature (°C)': double.parse(temperature.toStringAsFixed(2)),
-        'Salinity (‰)': double.parse(salinity.toStringAsFixed(2)),
-        'SOTR (kg O₂/h)': double.parse(sotr.toStringAsFixed(2)),
-        'Pond Depth (m)': double.parse(depth.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.averageShrimpWeightLabel: double.parse(shrimpWeight.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.startO2ColumnLabel: double.parse(startO2Column.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.finalO2ColumnLabel: double.parse(finalO2Column.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.startO2BottomLabel: double.parse(startO2Bottom.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.finalO2BottomLabel: double.parse(finalO2Bottom.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.timeLabel: double.parse(time.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.volumeLabel: double.parse(volume.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.waterTemperatureLabel: double.parse(temperature.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.salinityLabel: double.parse(salinity.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.sotrLabel: double.parse(sotr.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.pondDepthLabel: double.parse(depth.toStringAsFixed(2)),
       };
 
       final results = {
-        'Column Respiration (mg/L/h)': double.parse(columnRespiration.toStringAsFixed(2)),
-        'Bottom Respiration (mg/L/h)': double.parse(bottomRespiration.toStringAsFixed(2)),
-        'Total Oxygen Demand (mg/L/h)': double.parse(oxygenDemand.toStringAsFixed(2)),
-        'TOD (kg O₂/h)': double.parse(tod.toStringAsFixed(2)),
-        'TOD per Hectare (kg O₂/h/ha)': double.parse(todPerHectare.toStringAsFixed(2)),
-        'OTR20 (kg O₂/h)': double.parse(otr20.toStringAsFixed(2)),
-        'OTRt (kg O₂/h)': double.parse(otrT.toStringAsFixed(2)),
-        'Number of Aerators per Hectare': double.parse(numberOfAerators.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.shrimpRespirationLabel: double.parse(shrimpRespiration.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.columnRespirationLabel: double.parse(columnRespiration.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.bottomRespirationLabel: double.parse(bottomRespiration.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.totalOxygenDemandMgPerLPerHLabel: double.parse(oxygenDemand.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.todLabel: double.parse(tod.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.todPerHectareLabel: double.parse(todPerHectare.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.otr20Label: double.parse(otr20.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.otrTLabel: double.parse(otrT.toStringAsFixed(2)),
+        AppLocalizations.of(context)!.numberOfAeratorsPerHectareLabel: double.parse(numberOfAerators.toStringAsFixed(2)),
       };
 
       appState.setResults('Aerator Estimation', results, inputs);
     } catch (e) {
-      appState.setError('Calculation failed: $e');
+      appState.setError('${AppLocalizations.of(context)!.calculationFailed}: $e');
     }
   }
 
   @override
   void dispose() {
-    _shrimpRespirationController.dispose();
+    _shrimpWeightController.dispose();
     _startO2ColumnController.dispose();
     _finalO2ColumnController.dispose();
     _startO2BottomController.dispose();

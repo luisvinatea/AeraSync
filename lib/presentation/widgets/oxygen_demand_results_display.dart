@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:clipboard/clipboard.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../core/services/app_state.dart';
 
 class OxygenDemandResultsDisplay extends StatelessWidget {
@@ -9,23 +10,24 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AppState>(
       builder: (context, appState, child) {
         final results = appState.getResults('Oxygen Demand');
         final inputs = appState.getInputs('Oxygen Demand');
 
         if (results == null || results.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(16.0),
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Enter values and click Calculate to see results',
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              l10n.enterValuesToCalculate,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
               textAlign: TextAlign.center,
             ),
           );
         }
 
-        final totalOxygenDemand = results['Total Oxygen Demand (kg O₂/h)'] as double;
+        final totalOxygenDemand = results[l10n.totalOxygenDemandLabel] as double;
 
         return Card(
           elevation: 4,
@@ -40,9 +42,9 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Oxygen Demand Results',
-                    style: TextStyle(
+                  Text(
+                    l10n.oxygenDemandResults,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E40AF),
@@ -74,7 +76,7 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
                                     color: Color(0xFF1E40AF),
                                   ),
                                 ),
-                                if (entry.key == 'Total Oxygen Demand (kg O₂/h)') ...[
+                                if (entry.key == l10n.totalOxygenDemandLabel) ...[
                                   const SizedBox(width: 8),
                                   IconButton(
                                     icon: const Icon(Icons.copy, color: Color(0xFF1E40AF)),
@@ -82,14 +84,14 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
                                       FlutterClipboard.copy(totalOxygenDemand.toStringAsFixed(2))
                                           .then((value) {
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('Total Oxygen Demand copied to clipboard'),
-                                            duration: Duration(seconds: 2),
+                                          SnackBar(
+                                            content: Text(l10n.totalOxygenDemandCopied),
+                                            duration: const Duration(seconds: 2),
                                           ),
                                         );
                                       });
                                     },
-                                    tooltip: 'Copy to clipboard',
+                                    tooltip: l10n.copyToClipboardTooltip,
                                   ),
                                 ],
                               ],
@@ -105,7 +107,7 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: () => _downloadAsCsv(inputs!, results),
                       icon: const Icon(Icons.download, size: 32),
-                      label: const Text('Download as CSV (only values)'),
+                      label: Text(l10n.downloadCsvButton),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),

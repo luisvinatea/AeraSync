@@ -1,8 +1,9 @@
-// /home/luisvinatea/Dev/Repos/AeraSync/AeraSync/lib/presentation/widgets/comparison_results_display.dart
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:clipboard/clipboard.dart';
 import '../../core/services/app_state.dart';
 
 class ComparisonResultsDisplay extends StatelessWidget {
@@ -10,28 +11,29 @@ class ComparisonResultsDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AppState>(
       builder: (context, appState, child) {
         final results = appState.getResults('Aerator Comparison');
         final inputs = appState.getInputs('Aerator Comparison');
 
         if (results == null || results.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(16.0),
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Enter values and click Calculate to see results',
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              l10n.enterValuesToCalculate,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
               textAlign: TextAlign.center,
             ),
           );
         }
 
-        final n1 = results['Number of Aerator 1 Units'] as double;
-        final n2 = results['Number of Aerator 2 Units'] as double;
-        final totalCost1 = results['Total Annual Cost Aerator 1 (USD/year)'] as double;
-        final totalCost2 = results['Total Annual Cost Aerator 2 (USD/year)'] as double;
-        final p2Equilibrium = results['Equilibrium Price P₂ (USD)'] as double;
-        final price2 = results['Actual Price P₂ (USD)'] as double;
+        final n1 = results[l10n.numberOfAerator1UnitsLabel] as double;
+        final n2 = results[l10n.numberOfAerator2UnitsLabel] as double;
+        final totalCost1 = results[l10n.totalAnnualCostAerator1Label] as double;
+        final totalCost2 = results[l10n.totalAnnualCostAerator2Label] as double;
+        final p2Equilibrium = results[l10n.equilibriumPriceP2Label] as double;
+        final price2 = results[l10n.actualPriceP2Label] as double;
 
         return Card(
           elevation: 4,
@@ -46,35 +48,54 @@ class ComparisonResultsDisplay extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Comparison Results',
-                    style: TextStyle(
+                  Text(
+                    l10n.comparisonResults,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E40AF),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'Equilibrium Price (P₂): \$${p2Equilibrium.toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 18, color: Color(0xFF1E40AF)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${l10n.equilibriumPriceP2Label}: \$${p2Equilibrium.toStringAsFixed(2)}',
+                        style: const TextStyle(fontSize: 18, color: Color(0xFF1E40AF)),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.copy, color: Color(0xFF1E40AF)),
+                        onPressed: () {
+                          FlutterClipboard.copy(p2Equilibrium.toStringAsFixed(2)).then((value) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.equilibriumPriceCopied),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          });
+                        },
+                        tooltip: l10n.copyToClipboardTooltip,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Actual Price (P₂): \$${price2.toStringAsFixed(2)}',
+                    '${l10n.actualPriceP2Label}: \$${price2.toStringAsFixed(2)}',
                     style: const TextStyle(fontSize: 18, color: Color(0xFF1E40AF)),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     p2Equilibrium > price2
-                        ? 'Aerator 2 is more cost-effective at the current price.'
-                        : 'Aerator 1 may be more cost-effective at the current price.',
+                        ? l10n.aerator2MoreCostEffective
+                        : l10n.aerator1MoreCostEffective,
                     style: const TextStyle(fontSize: 16, color: Colors.black87),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Number of Aerators Needed',
-                    style: TextStyle(
+                  Text(
+                    l10n.numberOfAeratorsNeeded,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E40AF),
@@ -130,11 +151,11 @@ class ComparisonResultsDisplay extends StatelessWidget {
                               getTitlesWidget: (value, meta) {
                                 switch (value.toInt()) {
                                   case 0:
-                                    return const Text('Aerator 1',
-                                        style: TextStyle(color: Colors.black54, fontSize: 12));
+                                    return Text(l10n.aerator1,
+                                        style: const TextStyle(color: Colors.black54, fontSize: 12));
                                   case 1:
-                                    return const Text('Aerator 2',
-                                        style: TextStyle(color: Colors.black54, fontSize: 12));
+                                    return Text(l10n.aerator2,
+                                        style: const TextStyle(color: Colors.black54, fontSize: 12));
                                   default:
                                     return const Text('');
                                 }
@@ -153,9 +174,9 @@ class ComparisonResultsDisplay extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Total Annual Cost (USD/year)',
-                    style: TextStyle(
+                  Text(
+                    l10n.totalAnnualCostLabel,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E40AF),
@@ -211,11 +232,11 @@ class ComparisonResultsDisplay extends StatelessWidget {
                               getTitlesWidget: (value, meta) {
                                 switch (value.toInt()) {
                                   case 0:
-                                    return const Text('Aerator 1',
-                                        style: TextStyle(color: Colors.black54, fontSize: 12));
+                                    return Text(l10n.aerator1,
+                                        style: const TextStyle(color: Colors.black54, fontSize: 12));
                                   case 1:
-                                    return const Text('Aerator 2',
-                                        style: TextStyle(color: Colors.black54, fontSize: 12));
+                                    return Text(l10n.aerator2,
+                                        style: const TextStyle(color: Colors.black54, fontSize: 12));
                                   default:
                                     return const Text('');
                                 }
@@ -239,7 +260,7 @@ class ComparisonResultsDisplay extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: () => _downloadAsCsv(inputs!, results),
                       icon: const Icon(Icons.download, size: 32),
-                      label: const Text('Download as CSV (only values)'),
+                      label: Text(l10n.downloadCsvButton),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),

@@ -1,8 +1,9 @@
-// /home/luisvinatea/Dev/Repos/AeraSync/AeraSync/lib/presentation/widgets/results_display.dart
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:clipboard/clipboard.dart';
 import '../../core/services/app_state.dart';
 
 class ResultsDisplay extends StatelessWidget {
@@ -12,17 +13,18 @@ class ResultsDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AppState>(
       builder: (context, appState, child) {
         final results = appState.getResults(tab);
         final inputs = appState.getInputs(tab);
 
         if (results == null || results.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(16.0),
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Enter values and click Calculate to see results',
-              style: TextStyle(color: Colors.white, fontSize: 16),
+              l10n.enterValuesToCalculate,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
               textAlign: TextAlign.center,
             ),
           );
@@ -41,9 +43,9 @@ class ResultsDisplay extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Performance Metrics',
-                    style: TextStyle(
+                  Text(
+                    l10n.performanceMetrics,
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1E40AF),
@@ -52,11 +54,13 @@ class ResultsDisplay extends StatelessWidget {
                   const SizedBox(height: 16),
                   // Bar Chart only for Aerator Estimation
                   if (tab == 'Aerator Estimation') ...[
-                    _buildAeratorEstimationChart(results),
+                    _buildAeratorEstimationChart(results, l10n),
                     const SizedBox(height: 16),
                   ],
                   // List of all results
                   ...results.entries.map((entry) {
+                    final isKeyMetric = (tab == 'Aerator Performance' && entry.key == 'SOTR (kg O₂/h)') ||
+                        (tab == 'Aerator Estimation' && entry.key == l10n.numberOfAeratorsPerHectareLabel);
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Row(
@@ -70,13 +74,39 @@ class ResultsDisplay extends StatelessWidget {
                           ),
                           Expanded(
                             flex: 1,
-                            child: Text(
-                              _formatValue(entry.value),
-                              textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1E40AF),
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  _formatValue(entry.value),
+                                  textAlign: TextAlign.end,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1E40AF),
+                                  ),
+                                ),
+                                if (isKeyMetric) ...[
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: const Icon(Icons.copy, color: Color(0xFF1E40AF)),
+                                    onPressed: () {
+                                      FlutterClipboard.copy(_formatValue(entry.value)).then((value) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              tab == 'Aerator Performance'
+                                                  ? l10n.sotrCopied
+                                                  : l10n.numberOfAeratorsCopied,
+                                            ),
+                                            duration: const Duration(seconds: 2),
+                                          ),
+                                        );
+                                      });
+                                    },
+                                    tooltip: l10n.copyToClipboardTooltip,
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ],
@@ -89,7 +119,7 @@ class ResultsDisplay extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: () => _downloadAsCsv(inputs!, results),
                       icon: const Icon(Icons.download, size: 32),
-                      label: const Text('Download as CSV (only values)'),
+                      label: Text(l10n.downloadCsvButton),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
@@ -107,20 +137,21 @@ class ResultsDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildAeratorEstimationChart(Map<String, dynamic> results) {
-    // Select key metrics for visualization
+  Widget _buildAeratorEstimationChart(Map<String, dynamic> results, AppLocalizations l10n) {
     final metrics = [
-      {'title': 'TOD', 'value': results['TOD (kg O₂/h)'] as double? ?? 0.0},
-      {'title': 'OTRt', 'value': results['OTRt (kg O₂/h)'] as double? ?? 0.0},
-      {'title': 'Aerators', 'value': results['Number of Aerators per Hectare'] as double? ?? 0.0},
+      {'title': l10n.todLabelShort, 'value': results[l10n.todLabel] as double? ?? 0.0},
+      {'title': l10n.otrTLabelShort, 'value': results[l10n.otrTLabel] as double? ?? 0.0},
+      {'title': l10n.aeratorsLabelShort, 'value': results[l10n.numberOfAeratorsPerHectareLabel] as double? ?? 0.0},
     ];
+
+    final maxY = metrics.map((e) => e['value'] as double).reduce((a, b) => a > b ? a : b) * 1.2;
 
     return SizedBox(
       height: 200,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: metrics.map((e) => e['value'] as double).reduce((a, b) => a > b ? a : b) * 1.2,
+          maxY: maxY,
           barGroups: metrics.asMap().entries.map((entry) {
             final index = entry.key;
             final metric = entry.value;
@@ -141,23 +172,19 @@ class ResultsDisplay extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 40,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    value.toStringAsFixed(1),
-                    style: const TextStyle(color: Colors.black54, fontSize: 12),
-                  );
-                },
+                getTitlesWidget: (value, meta) => Text(
+                  value.toStringAsFixed(1),
+                  style: const TextStyle(color: Colors.black54, fontSize: 12),
+                ),
               ),
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    metrics[value.toInt()]['title'] as String,
-                    style: const TextStyle(color: Colors.black54, fontSize: 12),
-                  );
-                },
+                getTitlesWidget: (value, meta) => Text(
+                  metrics[value.toInt()]['title'] as String,
+                  style: const TextStyle(color: Colors.black54, fontSize: 12),
+                ),
               ),
             ),
             topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -168,7 +195,9 @@ class ResultsDisplay extends StatelessWidget {
             drawHorizontalLine: true,
             drawVerticalLine: false,
           ),
+          barTouchData: BarTouchData(enabled: false), // Disable interactions to improve performance
         ),
+        swapAnimationDuration: const Duration(milliseconds: 0), // Disable animations
       ),
     );
   }
@@ -196,7 +225,7 @@ class ResultsDisplay extends StatelessWidget {
     final blob = html.Blob([csvContent], 'text/csv');
     final url = html.Url.createObjectUrlFromBlob(blob);
 
-    html.AnchorElement(href: url)
+    final anchor = html.AnchorElement(href: url)
       ..setAttribute('download', 'aerasync_data_${DateTime.now().toIso8601String()}.csv')
       ..click();
 

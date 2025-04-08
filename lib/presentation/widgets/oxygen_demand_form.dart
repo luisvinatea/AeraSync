@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../core/services/app_state.dart';
 
 class OxygenDemandForm extends StatefulWidget {
@@ -42,45 +43,35 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
         final shrimpWeight = double.parse(_shrimpWeightController.text);
         final safetyMargin = double.parse(_safetyMarginController.text);
 
-        // Get respiration rate from the calculator (in mg O₂/g/h)
         final respirationRate = appState.respirationCalculator!.getRespirationRate(
           salinity,
           temperature,
           shrimpWeight,
         );
 
-        // Convert respiration rate to mg O₂/kg/h (1 g = 0.001 kg, so multiply by 1000)
         final respirationRateMgPerKgPerH = respirationRate * 1000;
-
-        // Calculate oxygen demand from shrimp biomass (kg/ha * mg O₂/kg/h * ha = mg O₂/h)
         final oxygenDemandFromShrimp = biomass * respirationRateMgPerKgPerH * area;
-
-        // Convert to kg O₂/h (1 mg = 1e-6 kg)
         final oxygenDemandKgPerHour = oxygenDemandFromShrimp * 1e-6;
 
-        // Add environmental oxygen demand (simplified as a base rate per hectare)
-        const double environmentalDemandPerHectare = 0.5; // kg O₂/h/ha
+        const double environmentalDemandPerHectare = 0.5;
         final environmentalDemand = environmentalDemandPerHectare * area;
 
-        // Total oxygen demand
         final totalOxygenDemand = (oxygenDemandKgPerHour + environmentalDemand) * safetyMargin;
 
-        // Inputs for CSV download
         final inputs = {
-          'Farm Area (ha)': area,
-          'Shrimp Biomass (kg/ha)': biomass,
-          'Water Temperature (°C)': temperature,
-          'Salinity (‰)': salinity,
-          'Average Shrimp Weight (g)': shrimpWeight,
-          'Safety Margin (multiplier)': safetyMargin,
+          AppLocalizations.of(context)!.farmAreaLabel: area,
+          AppLocalizations.of(context)!.shrimpBiomassLabel: biomass,
+          AppLocalizations.of(context)!.waterTemperatureLabel: temperature,
+          AppLocalizations.of(context)!.salinityLabel: salinity,
+          AppLocalizations.of(context)!.averageShrimpWeightLabel: shrimpWeight,
+          AppLocalizations.of(context)!.safetyMarginLabel: safetyMargin,
         };
 
-        // Results for display
         final results = {
-          'Respiration Rate (mg O₂/g/h)': respirationRate,
-          'Oxygen Demand from Shrimp (kg O₂/h)': oxygenDemandKgPerHour,
-          'Environmental Oxygen Demand (kg O₂/h)': environmentalDemand,
-          'Total Oxygen Demand (kg O₂/h)': totalOxygenDemand,
+          AppLocalizations.of(context)!.respirationRateLabel: respirationRate,
+          AppLocalizations.of(context)!.oxygenDemandFromShrimpLabel: oxygenDemandKgPerHour,
+          AppLocalizations.of(context)!.environmentalOxygenDemandLabel: environmentalDemand,
+          AppLocalizations.of(context)!.totalOxygenDemandLabel: totalOxygenDemand,
         };
 
         appState.setResults('Oxygen Demand', results, inputs);
@@ -93,6 +84,7 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Card(
       elevation: 4,
@@ -126,9 +118,9 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
                               ),
                             ),
                           ),
-                          const Text(
-                            'Oxygen Demand Calculator',
-                            style: TextStyle(
+                          Text(
+                            l10n.oxygenDemandCalculator,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1E40AF),
@@ -143,45 +135,45 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
                                     children: [
                                       _buildTextField(
                                         _areaController,
-                                        'Farm Area (ha)',
+                                        l10n.farmAreaLabel,
                                         0,
                                         100000,
-                                        'Total area of the farm in hectares',
+                                        l10n.farmAreaTooltip,
                                       ),
                                       _buildTextField(
                                         _biomassController,
-                                        'Shrimp Biomass (kg/ha)',
+                                        l10n.shrimpBiomassLabel,
                                         0,
                                         10000,
-                                        'Average shrimp biomass per hectare',
+                                        l10n.shrimpBiomassTooltip,
                                       ),
                                       _buildTextField(
                                         _temperatureController,
-                                        'Water Temperature (°C)',
+                                        l10n.waterTemperatureLabel,
                                         0,
                                         40,
-                                        'Average water temperature in the pond',
+                                        l10n.waterTemperatureTooltip,
                                       ),
                                       _buildTextField(
                                         _salinityController,
-                                        'Salinity (‰)',
+                                        l10n.salinityLabel,
                                         0,
                                         40,
-                                        'Salinity of the pond water',
+                                        l10n.salinityTooltip,
                                       ),
                                       _buildTextField(
                                         _shrimpWeightController,
-                                        'Average Shrimp Weight (g)',
+                                        l10n.averageShrimpWeightLabel,
                                         0,
                                         50,
-                                        'Average weight of the shrimp in grams',
+                                        l10n.averageShrimpWeightTooltip,
                                       ),
                                       _buildTextField(
                                         _safetyMarginController,
-                                        'Safety Margin (multiplier)',
+                                        l10n.safetyMarginLabel,
                                         1,
                                         2,
-                                        'Multiplier to account for safety (e.g., 1.2 for 20% extra demand)',
+                                        l10n.safetyMarginTooltip,
                                       ),
                                     ],
                                   )
@@ -193,24 +185,24 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
                                           children: [
                                             _buildTextField(
                                               _areaController,
-                                              'Farm Area (ha)',
+                                              l10n.farmAreaLabel,
                                               0,
                                               100000,
-                                              'Total area of the farm in hectares',
+                                              l10n.farmAreaTooltip,
                                             ),
                                             _buildTextField(
                                               _biomassController,
-                                              'Shrimp Biomass (kg/ha)',
+                                              l10n.shrimpBiomassLabel,
                                               0,
                                               10000,
-                                              'Average shrimp biomass per hectare',
+                                              l10n.shrimpBiomassTooltip,
                                             ),
                                             _buildTextField(
                                               _temperatureController,
-                                              'Water Temperature (°C)',
+                                              l10n.waterTemperatureLabel,
                                               0,
                                               40,
-                                              'Average water temperature in the pond',
+                                              l10n.waterTemperatureTooltip,
                                             ),
                                           ],
                                         ),
@@ -221,24 +213,24 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
                                           children: [
                                             _buildTextField(
                                               _salinityController,
-                                              'Salinity (‰)',
+                                              l10n.salinityLabel,
                                               0,
                                               40,
-                                              'Salinity of the pond water',
+                                              l10n.salinityTooltip,
                                             ),
                                             _buildTextField(
                                               _shrimpWeightController,
-                                              'Average Shrimp Weight (g)',
+                                              l10n.averageShrimpWeightLabel,
                                               0,
                                               50,
-                                              'Average weight of the shrimp in grams',
+                                              l10n.averageShrimpWeightTooltip,
                                             ),
                                             _buildTextField(
                                               _safetyMarginController,
-                                              'Safety Margin (multiplier)',
+                                              l10n.safetyMarginLabel,
                                               1,
                                               2,
-                                              'Multiplier to account for safety (e.g., 1.2 for 20% extra demand)',
+                                              l10n.safetyMarginTooltip,
                                             ),
                                           ],
                                         ),
@@ -259,8 +251,8 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
                                 backgroundColor: const Color(0xFF1E40AF),
                                 foregroundColor: Colors.white,
                               ),
-                              child: const Text('Calculate',
-                                  style: TextStyle(fontSize: 16)),
+                              child: Text(l10n.calculateButton,
+                                  style: const TextStyle(fontSize: 16)),
                             ),
                           ),
                         ],
@@ -304,10 +296,10 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
   }
 
   String? _validateInput(String? value, double min, double max) {
-    if (value == null || value.isEmpty) return 'Required';
+    if (value == null || value.isEmpty) return AppLocalizations.of(context)!.requiredField;
     final numValue = double.tryParse(value);
-    if (numValue == null) return 'Invalid number';
-    if (numValue < min || numValue > max) return 'Must be between $min and $max';
+    if (numValue == null) return AppLocalizations.of(context)!.invalidNumber;
+    if (numValue < min || numValue > max) return AppLocalizations.of(context)!.rangeError(min, max);
     return null;
   }
 }

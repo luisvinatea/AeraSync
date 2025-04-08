@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <base href="/AeraSync/">
+  <base href="/">
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
@@ -12,13 +12,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="AeraSync">
-  <link rel="apple-touch-icon" sizes="180x180" href="/AeraSync/icons/aerasync180.png">
-  <link rel="apple-touch-icon" sizes="512x512" href="/AeraSync/icons/aerasync512.png">
-  <link rel="apple-touch-icon" sizes="1024x1024" href="/AeraSync/icons/aerasync1024.png">
-  <link rel="icon" type="image/png" href="/AeraSync/icons/aerasync64.png">
+  <meta name="theme-color" content="#1E40AF">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.webp">
+  <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.webp">
+  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.webp">
+  <link rel="icon" type="image/png" href="/icons/aerasync64.webp">
   <title>AeraSync - Aerator Performance & Estimation Calculator</title>
-  <link rel="manifest" href="/AeraSync/manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preload" href="/flutter_bootstrap.js" as="script">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
   <style>
     body, html {
@@ -95,7 +97,7 @@
       height: 70%;
       background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,138.7C672,128,768,160,864,186.7C960,213,1056,235,1152,213.3C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
       background-size: 200% 100%;
-      animation: wave 15s linear infinite;
+      animation: wave 30s linear infinite; /* Slow down animation to reduce CPU usage */
       z-index: 0;
     }
     #flutter-app {
@@ -120,21 +122,21 @@
   </style>
 </head>
 <body>
-  <div id="loading-screen">
+  <div id="loading-screen" role="status" aria-label="Loading AeraSync application">
     <div class="wave-overlay"></div>
     <div class="loading">
-      <img src="/AeraSync/icons/aerasync.png" alt="AeraSync Logo" style="width: 200px; height: auto; margin-bottom: 20px;">
+      <img src="/icons/aerasync.png" alt="AeraSync Logo - A stylized wave representing water and aeration" style="width: 200px; height: auto; margin-bottom: 20px;">
       <h1>AeraSync</h1>
       <p>Aerator Performance & Estimation for Shrimp Ponds</p>
-      <div class="spinner"></div>
+      <div class="spinner" aria-hidden="true"></div>
     </div>
   </div>
   <div id="flutter-app"></div>
-  <script src="/AeraSync/flutter_bootstrap.js" async></script>
+  <script src="flutter_bootstrap.js" async></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/AeraSync/flutter_service_worker.js')
+        navigator.serviceWorker.register('/flutter_service_worker.js')
           .then(function(registration) {
             console.log('Service Worker registered with scope: ', registration.scope);
           })

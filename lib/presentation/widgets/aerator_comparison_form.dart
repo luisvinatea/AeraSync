@@ -1,6 +1,6 @@
-// /home/luisvinatea/Dev/Repos/AeraSync/AeraSync/lib/presentation/widgets/aerator_comparison_form.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../core/services/app_state.dart';
 
 class AeratorComparisonForm extends StatefulWidget {
@@ -70,31 +70,31 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
 
         // Inputs for CSV download
         final inputs = {
-          'Total Oxygen Demand (kg O₂/h)': oxygenDemand,
-          'SOTR Aerator 1 (kg O₂/h per aerator)': sotr1,
-          'SOTR Aerator 2 (kg O₂/h per aerator)': sotr2,
-          'Price Aerator 1 (USD per aerator)': price1,
-          'Price Aerator 2 (USD per aerator)': price2,
-          'Maintenance Cost Aerator 1 (USD/year per aerator)': maintenance1,
-          'Maintenance Cost Aerator 2 (USD/year per aerator)': maintenance2,
-          'Durability Aerator 1 (years)': durability1,
-          'Durability Aerator 2 (years)': durability2,
-          'Annual Energy Cost (USD/year per aerator)': energyCost,
+          AppLocalizations.of(context)!.totalOxygenDemandLabel: oxygenDemand,
+          AppLocalizations.of(context)!.sotrAerator1Label: sotr1,
+          AppLocalizations.of(context)!.sotrAerator2Label: sotr2,
+          AppLocalizations.of(context)!.priceAerator1Label: price1,
+          AppLocalizations.of(context)!.priceAerator2Label: price2,
+          AppLocalizations.of(context)!.maintenanceCostAerator1Label: maintenance1,
+          AppLocalizations.of(context)!.maintenanceCostAerator2Label: maintenance2,
+          AppLocalizations.of(context)!.durabilityAerator1Label: durability1,
+          AppLocalizations.of(context)!.durabilityAerator2Label: durability2,
+          AppLocalizations.of(context)!.annualEnergyCostLabel: energyCost,
         };
 
         // Results for display
         final results = {
-          'Number of Aerator 1 Units': n1,
-          'Number of Aerator 2 Units': n2,
-          'Total Annual Cost Aerator 1 (USD/year)': totalCost1,
-          'Total Annual Cost Aerator 2 (USD/year)': totalCost2,
-          'Equilibrium Price P₂ (USD)': p2Equilibrium,
-          'Actual Price P₂ (USD)': price2,
+          AppLocalizations.of(context)!.numberOfAerator1UnitsLabel: n1,
+          AppLocalizations.of(context)!.numberOfAerator2UnitsLabel: n2,
+          AppLocalizations.of(context)!.totalAnnualCostAerator1Label: totalCost1,
+          AppLocalizations.of(context)!.totalAnnualCostAerator2Label: totalCost2,
+          AppLocalizations.of(context)!.equilibriumPriceP2Label: p2Equilibrium,
+          AppLocalizations.of(context)!.actualPriceP2Label: price2,
         };
 
         appState.setResults('Aerator Comparison', results, inputs);
       } catch (e) {
-        appState.setError('Calculation failed: $e');
+        appState.setError('${AppLocalizations.of(context)!.calculationFailed}: $e');
       }
     }
   }
@@ -102,6 +102,7 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Card(
       elevation: 4,
@@ -114,7 +115,7 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
             ? const Center(child: CircularProgressIndicator())
             : appState.error != null
                 ? Center(
-                    child: Text('Error: ${appState.error}',
+                    child: Text('${l10n.error}: ${appState.error}',
                         style: const TextStyle(color: Colors.red)))
                 : SingleChildScrollView(
                     child: ConstrainedBox(
@@ -135,9 +136,9 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
                               ),
                             ),
                           ),
-                          const Text(
-                            'Aerator Comparison Calculator',
-                            style: TextStyle(
+                          Text(
+                            l10n.aeratorComparisonCalculator,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1E40AF),
@@ -151,25 +152,25 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       _buildTextField(_oxygenDemandController,
-                                          'Total Oxygen Demand (kg O₂/h)', 0, 100000),
+                                          l10n.totalOxygenDemandLabel, 0, 100000),
                                       _buildTextField(_sotr1Controller,
-                                          'SOTR Aerator 1 (kg O₂/h per aerator)', 0, 10),
+                                          l10n.sotrAerator1Label, 0, 10),
                                       _buildTextField(_sotr2Controller,
-                                          'SOTR Aerator 2 (kg O₂/h per aerator)', 0, 10),
+                                          l10n.sotrAerator2Label, 0, 10),
                                       _buildTextField(_price1Controller,
-                                          'Price Aerator 1 (USD per aerator)', 0, 10000),
+                                          l10n.priceAerator1Label, 0, 10000),
                                       _buildTextField(_price2Controller,
-                                          'Price Aerator 2 (USD per aerator)', 0, 10000),
+                                          l10n.priceAerator2Label, 0, 10000),
                                       _buildTextField(_maintenance1Controller,
-                                          'Maintenance Cost Aerator 1 (USD/year per aerator)', 0, 1000),
+                                          l10n.maintenanceCostAerator1Label, 0, 1000),
                                       _buildTextField(_maintenance2Controller,
-                                          'Maintenance Cost Aerator 2 (USD/year per aerator)', 0, 1000),
+                                          l10n.maintenanceCostAerator2Label, 0, 1000),
                                       _buildTextField(_durability1Controller,
-                                          'Durability Aerator 1 (years)', 0.1, 20),
+                                          l10n.durabilityAerator1Label, 0.1, 20),
                                       _buildTextField(_durability2Controller,
-                                          'Durability Aerator 2 (years)', 0.1, 20),
+                                          l10n.durabilityAerator2Label, 0.1, 20),
                                       _buildTextField(_energyCostController,
-                                          'Annual Energy Cost (USD/year per aerator)', 0, 1000),
+                                          l10n.annualEnergyCostLabel, 0, 1000),
                                     ],
                                   )
                                 : Row(
@@ -179,15 +180,15 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
                                         child: Column(
                                           children: [
                                             _buildTextField(_oxygenDemandController,
-                                                'Total Oxygen Demand (kg O₂/h)', 0, 100000),
+                                                l10n.totalOxygenDemandLabel, 0, 100000),
                                             _buildTextField(_sotr1Controller,
-                                                'SOTR Aerator 1 (kg O₂/h per aerator)', 0, 10),
+                                                l10n.sotrAerator1Label, 0, 10),
                                             _buildTextField(_sotr2Controller,
-                                                'SOTR Aerator 2 (kg O₂/h per aerator)', 0, 10),
+                                                l10n.sotrAerator2Label, 0, 10),
                                             _buildTextField(_price1Controller,
-                                                'Price Aerator 1 (USD per aerator)', 0, 10000),
+                                                l10n.priceAerator1Label, 0, 10000),
                                             _buildTextField(_price2Controller,
-                                                'Price Aerator 2 (USD per aerator)', 0, 10000),
+                                                l10n.priceAerator2Label, 0, 10000),
                                           ],
                                         ),
                                       ),
@@ -196,15 +197,15 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
                                         child: Column(
                                           children: [
                                             _buildTextField(_maintenance1Controller,
-                                                'Maintenance Cost Aerator 1 (USD/year per aerator)', 0, 1000),
+                                                l10n.maintenanceCostAerator1Label, 0, 1000),
                                             _buildTextField(_maintenance2Controller,
-                                                'Maintenance Cost Aerator 2 (USD/year per aerator)', 0, 1000),
+                                                l10n.maintenanceCostAerator2Label, 0, 1000),
                                             _buildTextField(_durability1Controller,
-                                                'Durability Aerator 1 (years)', 0.1, 20),
+                                                l10n.durabilityAerator1Label, 0.1, 20),
                                             _buildTextField(_durability2Controller,
-                                                'Durability Aerator 2 (years)', 0.1, 20),
+                                                l10n.durabilityAerator2Label, 0.1, 20),
                                             _buildTextField(_energyCostController,
-                                                'Annual Energy Cost (USD/year per aerator)', 0, 1000),
+                                                l10n.annualEnergyCostLabel, 0, 1000),
                                           ],
                                         ),
                                       ),
@@ -224,8 +225,8 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
                                 backgroundColor: const Color(0xFF1E40AF),
                                 foregroundColor: Colors.white,
                               ),
-                              child: const Text('Calculate',
-                                  style: TextStyle(fontSize: 16)),
+                              child: Text(l10n.calculateButton,
+                                  style: const TextStyle(fontSize: 16)),
                             ),
                           ),
                         ],
@@ -238,30 +239,78 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
 
   Widget _buildTextField(
       TextEditingController controller, String label, double min, double max) {
+    final l10n = AppLocalizations.of(context)!;
+    String tooltip;
+    switch (label) {
+      case 'Total Oxygen Demand (kg O₂/h)':
+        tooltip = l10n.totalOxygenDemandTooltip;
+        break;
+      case 'SOTR Aerator 1 (kg O₂/h per aerator)':
+        tooltip = l10n.sotrAerator1Tooltip;
+        break;
+      case 'SOTR Aerator 2 (kg O₂/h per aerator)':
+        tooltip = l10n.sotrAerator2Tooltip;
+        break;
+      case 'Price Aerator 1 (USD per aerator)':
+        tooltip = l10n.priceAerator1Tooltip;
+        break;
+      case 'Price Aerator 2 (USD per aerator)':
+        tooltip = l10n.priceAerator2Tooltip;
+        break;
+      case 'Maintenance Cost Aerator 1 (USD/year per aerator)':
+        tooltip = l10n.maintenanceCostAerator1Tooltip;
+        break;
+      case 'Maintenance Cost Aerator 2 (USD/year per aerator)':
+        tooltip = l10n.maintenanceCostAerator2Tooltip;
+        break;
+      case 'Durability Aerator 1 (years)':
+        tooltip = l10n.durabilityAerator1Tooltip;
+        break;
+      case 'Durability Aerator 2 (years)':
+        tooltip = l10n.durabilityAerator2Tooltip;
+        break;
+      case 'Annual Energy Cost (USD/year per aerator)':
+        tooltip = l10n.annualEnergyCostTooltip;
+        break;
+      default:
+        tooltip = '';
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(fontSize: 16),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
-          filled: true,
-          fillColor: Colors.grey[100],
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-        ),
-        style: const TextStyle(fontSize: 16),
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        validator: (value) => _validateInput(value, min, max),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: label,
+                labelStyle: const TextStyle(fontSize: 16),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                filled: true,
+                fillColor: Colors.grey[100],
+                contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              ),
+              style: const TextStyle(fontSize: 16),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              validator: (value) => _validateInput(value, min, max),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Tooltip(
+            message: tooltip,
+            child: const Icon(Icons.info_outline, color: Colors.grey),
+          ),
+        ],
       ),
     );
   }
 
   String? _validateInput(String? value, double min, double max) {
-    if (value == null || value.isEmpty) return 'Required';
+    if (value == null || value.isEmpty) return AppLocalizations.of(context)!.requiredField;
     final numValue = double.tryParse(value);
-    if (numValue == null) return 'Invalid number';
-    if (numValue < min || numValue > max) return 'Must be between $min and $max';
+    if (numValue == null) return AppLocalizations.of(context)!.invalidNumber;
+    if (numValue < min || numValue > max) return AppLocalizations.of(context)!.rangeError(min, max);
     return null;
   }
 }

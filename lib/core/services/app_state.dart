@@ -32,7 +32,7 @@ class AppState with ChangeNotifier {
   }
 
   Future<void> _initializeCalculators() async {
-    _calculator = ShrimpPondCalculator('assets/data/saturation_data.json');
+    _calculator = ShrimpPondCalculator('assets/data/02_temp_sal_100_sat.json');
     _respirationCalculator = ShrimpRespirationCalculator('assets/data/shrimp_respiration_salinity_temperature_weight.json');
     try {
       await Future.wait([

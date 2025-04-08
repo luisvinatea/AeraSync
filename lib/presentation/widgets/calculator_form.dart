@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../core/services/app_state.dart';
 
 class CalculatorForm extends StatefulWidget {
@@ -26,18 +27,19 @@ class _CalculatorFormState extends State<CalculatorForm> {
   bool _showOtherTypeField = false;
   bool _dataCollectionConsent = false;
 
-  final List<String> _aeratorTypes = [
-    'Paddlewheel',
-    'Propeller',
-    'Splash',
-    'Diffused',
-    'Injector',
-    'Other'
-  ];
-
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    final List<String> _aeratorTypes = [
+      l10n.paddlewheel,
+      l10n.propeller,
+      l10n.splash,
+      l10n.diffused,
+      l10n.injector,
+      l10n.other
+    ];
 
     return Card(
       elevation: 4,
@@ -50,7 +52,7 @@ class _CalculatorFormState extends State<CalculatorForm> {
             ? const Center(child: CircularProgressIndicator())
             : appState.error != null
                 ? Center(
-                    child: Text('Error: ${appState.error}',
+                    child: Text('${l10n.error}: ${appState.error}',
                         style: const TextStyle(color: Colors.red)))
                 : SingleChildScrollView(
                     child: ConstrainedBox(
@@ -71,9 +73,9 @@ class _CalculatorFormState extends State<CalculatorForm> {
                               ),
                             ),
                           ),
-                          const Text(
-                            'Aerator Performance Calculator',
-                            style: TextStyle(
+                          Text(
+                            l10n.aeratorPerformanceCalculator,
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1E40AF),
@@ -86,17 +88,17 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                 ? Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      _buildTextField(_tempController, 'Temperature (°C)', 0, 40),
-                                      _buildTextField(_salinityController, 'Salinity (‰)', 0, 40),
-                                      _buildTextField(_hpController, 'Horsepower (HP)', 0, 100),
-                                      _buildTextField(_volumeController, 'Volume (m³)', 0, 1000),
-                                      _buildTextField(_t10Controller, 'T10 (minutes)', 0, 60, hint: 'For plotting only'),
-                                      _buildTextField(_t70Controller, 'T70 (minutes)', 0.1, 60, isT70: true),
-                                      _buildTextField(_kwhController, 'Electricity Cost (\$/kWh)', 0, 1),
+                                      _buildTextField(_tempController, l10n.waterTemperatureLabel, 0, 40),
+                                      _buildTextField(_salinityController, l10n.salinityLabel, 0, 40),
+                                      _buildTextField(_hpController, l10n.horsepowerLabel, 0, 100),
+                                      _buildTextField(_volumeController, l10n.volumeLabel, 0, 1000),
+                                      _buildTextField(_t10Controller, l10n.t10Label, 0, 60, hint: l10n.forPlottingOnly),
+                                      _buildTextField(_t70Controller, l10n.t70Label, 0.1, 60, isT70: true),
+                                      _buildTextField(_kwhController, l10n.electricityCostLabel, 0, 1),
                                       TextFormField(
                                         controller: _brandController,
                                         decoration: InputDecoration(
-                                          labelText: 'Brand (Optional)',
+                                          labelText: l10n.brandLabel,
                                           labelStyle: const TextStyle(fontSize: 16),
                                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
                                           filled: true,
@@ -117,11 +119,11 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                         onChanged: (value) {
                                           setState(() {
                                             _selectedType = value!;
-                                            _showOtherTypeField = (value == 'Other');
+                                            _showOtherTypeField = (value == l10n.other);
                                           });
                                         },
                                         decoration: InputDecoration(
-                                          labelText: 'Aerator Type',
+                                          labelText: l10n.aeratorTypeLabel,
                                           labelStyle: const TextStyle(fontSize: 16),
                                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
                                           filled: true,
@@ -135,7 +137,7 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                         TextFormField(
                                           controller: _otherTypeController,
                                           decoration: InputDecoration(
-                                            labelText: 'Specify Aerator Type',
+                                            labelText: l10n.specifyAeratorTypeLabel,
                                             labelStyle: const TextStyle(fontSize: 16),
                                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
                                             filled: true,
@@ -145,7 +147,7 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                           style: const TextStyle(fontSize: 16),
                                           validator: (value) {
                                             if (_showOtherTypeField && (value == null || value.isEmpty)) {
-                                              return 'Please specify the aerator type';
+                                              return l10n.specifyAeratorTypeRequired;
                                             }
                                             return null;
                                           },
@@ -159,10 +161,10 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                       Expanded(
                                         child: Column(
                                           children: [
-                                            _buildTextField(_tempController, 'Temperature (°C)', 0, 40),
-                                            _buildTextField(_salinityController, 'Salinity (‰)', 0, 40),
-                                            _buildTextField(_hpController, 'Horsepower (HP)', 0, 100),
-                                            _buildTextField(_volumeController, 'Volume (m³)', 0, 1000),
+                                            _buildTextField(_tempController, l10n.waterTemperatureLabel, 0, 40),
+                                            _buildTextField(_salinityController, l10n.salinityLabel, 0, 40),
+                                            _buildTextField(_hpController, l10n.horsepowerLabel, 0, 100),
+                                            _buildTextField(_volumeController, l10n.volumeLabel, 0, 1000),
                                           ],
                                         ),
                                       ),
@@ -170,13 +172,13 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                       Expanded(
                                         child: Column(
                                           children: [
-                                            _buildTextField(_t10Controller, 'T10 (minutes)', 0, 60, hint: 'For plotting only'),
-                                            _buildTextField(_t70Controller, 'T70 (minutes)', 0.1, 60, isT70: true),
-                                            _buildTextField(_kwhController, 'Electricity Cost (\$/kWh)', 0, 1),
+                                            _buildTextField(_t10Controller, l10n.t10Label, 0, 60, hint: l10n.forPlottingOnly),
+                                            _buildTextField(_t70Controller, l10n.t70Label, 0.1, 60, isT70: true),
+                                            _buildTextField(_kwhController, l10n.electricityCostLabel, 0, 1),
                                             TextFormField(
                                               controller: _brandController,
                                               decoration: InputDecoration(
-                                                labelText: 'Brand (Optional)',
+                                                labelText: l10n.brandLabel,
                                                 labelStyle: const TextStyle(fontSize: 16),
                                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
                                                 filled: true,
@@ -197,11 +199,11 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                               onChanged: (value) {
                                                 setState(() {
                                                   _selectedType = value!;
-                                                  _showOtherTypeField = (value == 'Other');
+                                                  _showOtherTypeField = (value == l10n.other);
                                                 });
                                               },
                                               decoration: InputDecoration(
-                                                labelText: 'Aerator Type',
+                                                labelText: l10n.aeratorTypeLabel,
                                                 labelStyle: const TextStyle(fontSize: 16),
                                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
                                                 filled: true,
@@ -215,7 +217,7 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                               TextFormField(
                                                 controller: _otherTypeController,
                                                 decoration: InputDecoration(
-                                                  labelText: 'Specify Aerator Type',
+                                                  labelText: l10n.specifyAeratorTypeLabel,
                                                   labelStyle: const TextStyle(fontSize: 16),
                                                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
                                                   filled: true,
@@ -225,7 +227,7 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                                 style: const TextStyle(fontSize: 16),
                                                 validator: (value) {
                                                   if (_showOtherTypeField && (value == null || value.isEmpty)) {
-                                                    return 'Please specify the aerator type';
+                                                    return l10n.specifyAeratorTypeRequired;
                                                   }
                                                   return null;
                                                 },
@@ -255,8 +257,8 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                   ),
                                   Expanded(
                                     child: Text(
-                                      'I agree to allow my data to be collected safely for research purposes, in accordance with applicable laws.',
-                                      style: TextStyle(fontSize: 16),
+                                      l10n.dataCollectionConsentLabel,
+                                      style: const TextStyle(fontSize: 16),
                                     ),
                                   ),
                                   TextButton(
@@ -266,11 +268,11 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                         await launchUrl(url, mode: LaunchMode.externalApplication);
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Could not open privacy policy')),
+                                          SnackBar(content: Text(l10n.couldNotOpenPrivacyPolicy)),
                                         );
                                       }
                                     },
-                                    child: const Text('Learn More', style: TextStyle(fontSize: 16)),
+                                    child: Text(l10n.learnMore, style: const TextStyle(fontSize: 16)),
                                   ),
                                 ],
                               ),
@@ -285,7 +287,7 @@ class _CalculatorFormState extends State<CalculatorForm> {
                                   backgroundColor: const Color(0xFF1E40AF),
                                   foregroundColor: Colors.white,
                                 ),
-                                child: const Text('Calculate', style: TextStyle(fontSize: 16)),
+                                child: Text(l10n.calculateButton, style: const TextStyle(fontSize: 16)),
                               ),
                             ],
                           ),
@@ -305,34 +307,73 @@ class _CalculatorFormState extends State<CalculatorForm> {
     String? hint,
     bool isT70 = false,
   }) {
+    final l10n = AppLocalizations.of(context)!;
+    String tooltip;
+    switch (label) {
+      case 'Water Temperature (°C)':
+        tooltip = l10n.waterTemperatureTooltip;
+        break;
+      case 'Salinity (‰)':
+        tooltip = l10n.salinityTooltip;
+        break;
+      case 'Horsepower (HP)':
+        tooltip = l10n.horsepowerTooltip;
+        break;
+      case 'Volume (m³)':
+        tooltip = l10n.volumeTooltip;
+        break;
+      case 'T10 (minutes)':
+        tooltip = l10n.t10Tooltip;
+        break;
+      case 'T70 (minutes)':
+        tooltip = l10n.t70Tooltip;
+        break;
+      case 'Electricity Cost ($/kWh)':
+        tooltip = l10n.electricityCostTooltip;
+        break;
+      default:
+        tooltip = '';
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(fontSize: 16),
-          hintText: hint,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
-          filled: true,
-          fillColor: Colors.grey[100],
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-        ),
-        style: const TextStyle(fontSize: 16),
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        validator: (value) => _validateInput(value, min, max, isT70: isT70),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: label,
+                labelStyle: const TextStyle(fontSize: 16),
+                hintText: hint,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                filled: true,
+                fillColor: Colors.grey[100],
+                contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              ),
+              style: const TextStyle(fontSize: 16),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              validator: (value) => _validateInput(value, min, max, isT70: isT70),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Tooltip(
+            message: tooltip,
+            child: const Icon(Icons.info_outline, color: Colors.grey),
+          ),
+        ],
       ),
     );
   }
 
   String? _validateInput(String? value, double min, double max, {bool isT70 = false}) {
-    if (value == null || value.isEmpty) return 'Required';
+    if (value == null || value.isEmpty) return AppLocalizations.of(context)!.requiredField;
     final numValue = double.tryParse(value);
-    if (numValue == null) return 'Invalid number';
-    if (numValue < min || numValue > max) return 'Must be between $min and $max';
+    if (numValue == null) return AppLocalizations.of(context)!.invalidNumber;
+    if (numValue < min || numValue > max) return AppLocalizations.of(context)!.rangeError(min, max);
     if (isT70) {
       final t10 = double.tryParse(_t10Controller.text) ?? 0;
-      if (numValue <= t10) return 'T70 must be greater than T10';
+      if (numValue <= t10) return AppLocalizations.of(context)!.t70MustBeGreaterThanT10;
     }
     return null;
   }
@@ -340,15 +381,16 @@ class _CalculatorFormState extends State<CalculatorForm> {
   void _calculate() async {
     final appState = Provider.of<AppState>(context, listen: false);
     final calculator = appState.calculator;
+    final l10n = AppLocalizations.of(context)!;
 
     if (calculator == null) {
-      appState.setError('Calculator not initialized');
+      appState.setError(l10n.calculatorNotInitialized);
       return;
     }
 
     try {
-      final brand = _brandController.text.isEmpty ? 'Generic' : _brandController.text;
-      final type = _selectedType == 'Other' ? _otherTypeController.text : _selectedType;
+      final brand = _brandController.text.isEmpty ? l10n.generic : _brandController.text;
+      final type = _selectedType == l10n.other ? _otherTypeController.text : _selectedType;
       final temperature = double.parse(_tempController.text);
       final salinity = double.parse(_salinityController.text);
       final horsepower = double.parse(_hpController.text);
@@ -358,16 +400,16 @@ class _CalculatorFormState extends State<CalculatorForm> {
       final kWhPrice = double.parse(_kwhController.text);
 
       final inputs = {
-        'Temperature (°C)': double.parse(temperature.toStringAsFixed(2)),
-        'Salinity (‰)': double.parse(salinity.toStringAsFixed(2)),
-        'Horsepower (HP)': double.parse(horsepower.toStringAsFixed(2)),
-        'Volume (m³)': double.parse(volume.toStringAsFixed(2)),
-        'T10 (minutes)': double.parse(t10.toStringAsFixed(2)),
-        'T70 (minutes)': double.parse(t70.toStringAsFixed(2)),
-        'Electricity Cost (\$/kWh)': double.parse(kWhPrice.toStringAsFixed(2)),
-        'Brand': brand,
-        'Aerator Type': type,
-        'Data Collection Consent': _dataCollectionConsent,
+        l10n.waterTemperatureLabel: double.parse(temperature.toStringAsFixed(2)),
+        l10n.salinityLabel: double.parse(salinity.toStringAsFixed(2)),
+        l10n.horsepowerLabel: double.parse(horsepower.toStringAsFixed(2)),
+        l10n.volumeLabel: double.parse(volume.toStringAsFixed(2)),
+        l10n.t10Label: double.parse(t10.toStringAsFixed(2)),
+        l10n.t70Label: double.parse(t70.toStringAsFixed(2)),
+        l10n.electricityCostLabel: double.parse(kWhPrice.toStringAsFixed(2)),
+        l10n.brandLabel: brand,
+        l10n.aeratorTypeLabel: type,
+        l10n.dataCollectionConsentLabel: _dataCollectionConsent,
       };
 
       final results = calculator.calculateMetrics(
@@ -386,7 +428,7 @@ class _CalculatorFormState extends State<CalculatorForm> {
 
       appState.setResults('Aerator Performance', formattedResults, inputs);
     } catch (e) {
-      appState.setError('Calculation failed: $e');
+      appState.setError('${l10n.calculationFailed}: $e');
     }
   }
 
