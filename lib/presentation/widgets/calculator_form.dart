@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:AeraSync/generated/l10n.dart';
 import '../../core/services/app_state.dart';
 
 class CalculatorForm extends StatefulWidget {
@@ -328,7 +328,7 @@ class _CalculatorFormState extends State<CalculatorForm> {
       case 'T70 (minutes)':
         tooltip = l10n.t70Tooltip;
         break;
-      case 'Electricity Cost ($/kWh)':
+      case 'Electricity Cost (\$/kWh)':
         tooltip = l10n.electricityCostTooltip;
         break;
       default:

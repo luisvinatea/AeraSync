@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:AeraSync/generated/l10n.dart';
 import 'package:clipboard/clipboard.dart';
 import '../../core/services/app_state.dart';
 

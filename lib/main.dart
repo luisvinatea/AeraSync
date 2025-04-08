@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'core/services/app_state.dart';
-import 'core/services/aerator_calculator.dart';
-import 'core/services/shrimp_respiration_calculator.dart';
+import 'package:AeraSync/generated/l10n.dart';
+import 'core/calculators/shrimp_respiration_calculator.dart';
 import 'presentation/pages/home_page.dart';
 
 void main() {
-  // Preload critical assets
-  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -19,44 +16,56 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<AeratorCalculator>(
-          create: (_) => AeratorCalculator(),
-        ),
         Provider<ShrimpRespirationCalculator>(
-          create: (_) => ShrimpRespirationCalculator(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => AppState(
-            calculator: Provider.of<AeratorCalculator>(context, listen: false),
-            respirationCalculator: Provider.of<ShrimpRespirationCalculator>(context, listen: false),
-          ),
+          create: (_) => ShrimpRespirationCalculator('assets/data/shrimp_respiration_salinity_temperature_weight.json'),
         ),
       ],
       child: MaterialApp(
         title: 'AeraSync',
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData(
           primarySwatch: Colors.blue,
-          fontFamily: 'Montserrat',
-          colorScheme: const ColorScheme.light(
-            primary: Color(0xFF1E40AF),
-            secondary: Color(0xFF60A5FA),
-          ),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFF1E40AF),
-            foregroundColor: Colors.white,
-          ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E40AF),
-              foregroundColor: Colors.white,
-            ),
-          ),
         ),
-        home: Builder(
-          builder: (context) => const HomePage(),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const HomePage(),
+      ),
+    );
+  }
+}
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        Provider<ShrimpRespirationCalculator>(
+          create: (_) => ShrimpRespirationCalculator(),
         ),
+      ],
+      child: MaterialApp(
+        title: 'AeraSync',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const HomePage(),
       ),
     );
   }

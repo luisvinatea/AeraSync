@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:AeraSync/generated/l10n.dart';
 import '../../core/services/app_state.dart';
 
 class AeratorComparisonForm extends StatefulWidget {
@@ -130,7 +130,7 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
                             child: Padding(
                               padding: const EdgeInsets.only(bottom: 10.0),
                               child: Image.asset(
-                                'assets/images/aerasync.png',
+                                'assets/images/aerasync.webp',
                                 height: 100,
                                 fit: BoxFit.contain,
                               ),

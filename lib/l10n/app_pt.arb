@@ -1,3 +1,6 @@
+  {
+  "@@locale": "pt",
+  "appTitle": "AeraSync",
   "aeratorComparisonCalculator": "Calculadora de Comparação de Aeradores",
   "totalOxygenDemandLabel": "Demanda Total de Oxigênio (kg O₂/h)",
   "sotrAerator1Label": "SOTR Aerador 1 (kg O₂/h por aerador)",
@@ -119,4 +122,4 @@
   "equilibriumPriceCopied": "Preço de Equilíbrio copiado para a área de transferência",
   "sotrCopied": "SOTR copiado para a área de transferência",
   "numberOfAeratorsCopied": "Número de Aeradores copiado para a área de transferência"
-  
+  }
