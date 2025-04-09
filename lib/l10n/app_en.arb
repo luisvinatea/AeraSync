@@ -1,4 +1,4 @@
-  {
+{
   "@@locale": "en",
   "appTitle": "AeraSync",
   "aeratorComparisonCalculator": "Aerator Comparison Calculator",
@@ -121,6 +121,15 @@
   "electricityCostTooltip": "Cost of electricity per kilowatt-hour in USD",
   "equilibriumPriceCopied": "Equilibrium Price copied to clipboard",
   "sotrCopied": "SOTR copied to clipboard",
-  "numberOfAeratorsCopied": "Number of Aerators copied to clipboard"
-  }
-  
+  "numberOfAeratorsCopied": "Number of Aerators copied to clipboard",
+  "discountRateInflationRateError": "Discount rate and inflation rate cannot be equal.",
+  "sotrZeroError": "SOTR values cannot be zero.",
+  "integerError": "This value must be an integer.",
+  "recommendationChooseAerator1": "Recommendation: Choose Aerator 1 to save {0} USD over the analysis horizon.",
+  "recommendationChooseAerator2": "Recommendation: Choose Aerator 2 to save {0} USD over the analysis horizon.",
+  "recommendationEqualCosts": "Recommendation: Both aerators have equal annual costs.",
+  "valueCopied": "Copied {0} to clipboard.",
+  "totalAnnualCostAerator1LabelShort": "Cost Aerator 1",
+  "totalAnnualCostAerator2LabelShort": "Cost Aerator 2",
+  "costOfOpportunityLabelShort": "Cost of Opportunity"
+}

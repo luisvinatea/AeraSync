@@ -1,4 +1,4 @@
-  {
+{
   "@@locale": "es",
   "appTitle": "AeraSync",
   "aeratorComparisonCalculator": "Calculadora de Comparación de Aireadores",
@@ -71,7 +71,7 @@
   "t70MustBeGreaterThanT10": "T70 debe ser mayor que T10",
   "generic": "Genérico",
   "couldNotOpenPrivacyPolicy": "No se pudo abrir la política de privacidad",
-    "calculateButton": "Calcular",
+  "calculateButton": "Calcular",
   "enterValuesToCalculate": "Ingresa los valores y haz clic en Calcular para ver los resultados",
   "downloadCsvButton": "Descargar como CSV (solo valores)",
   "requiredField": "Requerido",
@@ -87,7 +87,7 @@
   "salinityLabel": "Salinidad (‰)",
   "salinityTooltip": "Salinidad del agua en partes por mil",
   "averageShrimpWeightLabel": "Peso Promedio de Camarones (g)",
-  "averageShrimpWeightTooltip": "Peso promedio de los camarones en gramos",
+  "averageShrimpWeightTooltip": "Peso promedio de los camarones en gramas",
   "safetyMarginLabel": "Margen de Seguridad",
   "safetyMarginTooltip": "Multiplicador para considerar una demanda de oxígeno inesperada",
   "respirationRateLabel": "Tasa de Respiración (g O₂/kg camarón/h)",
@@ -121,5 +121,15 @@
   "electricityCostTooltip": "Costo de la electricidad por kilovatio-hora en USD",
   "equilibriumPriceCopied": "Precio de Equilibrio copiado al portapapeles",
   "sotrCopied": "SOTR copiado al portapapeles",
-  "numberOfAeratorsCopied": "Número de Aireadores copiado al portapapeles"
-  }
+  "numberOfAeratorsCopied": "Número de Aireadores copiado al portapapeles",
+  "discountRateInflationRateError": "La tasa de descuento y la tasa de inflación no pueden ser iguales.",
+  "sotrZeroError": "Los valores de SOTR no pueden ser cero.",
+  "integerError": "Este valor debe ser un número entero.",
+  "recommendationChooseAerator1": "Recomendación: Elija el Aireador 1 para ahorrar {0} USD durante el horizonte de análisis.",
+  "recommendationChooseAerator2": "Recomendación: Elija el Aireador 2 para ahorrar {0} USD durante el horizonte de análisis.",
+  "recommendationEqualCosts": "Recomendación: Ambos aireadores tienen costos anuales iguales.",
+  "valueCopied": "Copiado {0} al portapapeles.",
+  "totalAnnualCostAerator1LabelShort": "Costo Aireador 1",
+  "totalAnnualCostAerator2LabelShort": "Costo Aireador 2",
+  "costOfOpportunityLabelShort": "Costo de Oportunidad"
+}

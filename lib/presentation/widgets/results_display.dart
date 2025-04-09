@@ -30,6 +30,23 @@ class ResultsDisplay extends StatelessWidget {
           );
         }
 
+        // Recommendation message for Aerator Comparison
+        String? recommendationMessage;
+        if (tab == 'Aerator Comparison') {
+          final totalCost1 = results[l10n.totalAnnualCostAerator1Label] as double? ?? 0.0;
+          final totalCost2 = results[l10n.totalAnnualCostAerator2Label] as double? ?? 0.0;
+          final costOfOpportunity = results['Cost of Opportunity (USD)'] as double? ?? 0.0;
+          if (totalCost1 > totalCost2) {
+            recommendationMessage = l10n.recommendationChooseAerator2(
+                _formatValue(costOfOpportunity));
+          } else if (totalCost2 > totalCost1) {
+            recommendationMessage = l10n.recommendationChooseAerator1(
+                _formatValue(costOfOpportunity));
+          } else {
+            recommendationMessage = l10n.recommendationEqualCosts;
+          }
+        }
+
         return Card(
           elevation: 4,
           shape: RoundedRectangleBorder(
@@ -52,15 +69,41 @@ class ResultsDisplay extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Bar Chart only for Aerator Estimation
+                  // Bar Chart for Aerator Estimation and Aerator Comparison
                   if (tab == 'Aerator Estimation') ...[
                     _buildAeratorEstimationChart(results, l10n),
                     const SizedBox(height: 16),
                   ],
+                  if (tab == 'Aerator Comparison') ...[
+                    _buildAeratorComparisonChart(results, l10n),
+                    const SizedBox(height: 16),
+                  ],
+                  // Recommendation Message for Aerator Comparison
+                  if (recommendationMessage != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        recommendationMessage,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.green,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   // List of all results
                   ...results.entries.map((entry) {
-                    final isKeyMetric = (tab == 'Aerator Performance' && entry.key == 'SOTR (kg O₂/h)') ||
-                        (tab == 'Aerator Estimation' && entry.key == l10n.numberOfAeratorsPerHectareLabel);
+                    final isKeyMetric = (tab == 'Aerator Performance' &&
+                            entry.key == 'SOTR (kg O₂/h)') ||
+                        (tab == 'Aerator Estimation' &&
+                            entry.key == l10n.numberOfAeratorsPerHectareLabel) ||
+                        (tab == 'Aerator Comparison' &&
+                            (entry.key == 'Coefficient of Profitability (k)' ||
+                                entry.key == 'Cost of Opportunity (USD)' ||
+                                entry.key.contains('Real Price of Losing Aerator')));
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Row(
@@ -94,9 +137,7 @@ class ResultsDisplay extends StatelessWidget {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              tab == 'Aerator Performance'
-                                                  ? l10n.sotrCopied
-                                                  : l10n.numberOfAeratorsCopied,
+                                              l10n.valueCopied(entry.key),
                                             ),
                                             duration: const Duration(seconds: 2),
                                           ),
@@ -174,6 +215,80 @@ class ResultsDisplay extends StatelessWidget {
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) => Text(
                   value.toStringAsFixed(1),
+                  style: const TextStyle(color: Colors.black54, fontSize: 12),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) => Text(
+                  metrics[value.toInt()]['title'] as String,
+                  style: const TextStyle(color: Colors.black54, fontSize: 12),
+                ),
+              ),
+            ),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          borderData: FlBorderData(show: false),
+          gridData: const FlGridData(
+            drawHorizontalLine: true,
+            drawVerticalLine: false,
+          ),
+          barTouchData: BarTouchData(enabled: false), // Disable interactions to improve performance
+        ),
+        swapAnimationDuration: const Duration(milliseconds: 0), // Disable animations
+      ),
+    );
+  }
+
+  Widget _buildAeratorComparisonChart(Map<String, dynamic> results, AppLocalizations l10n) {
+    final metrics = [
+      {
+        'title': l10n.totalAnnualCostAerator1LabelShort,
+        'value': results[l10n.totalAnnualCostAerator1Label] as double? ?? 0.0,
+      },
+      {
+        'title': l10n.totalAnnualCostAerator2LabelShort,
+        'value': results[l10n.totalAnnualCostAerator2Label] as double? ?? 0.0,
+      },
+      {
+        'title': l10n.costOfOpportunityLabelShort,
+        'value': results['Cost of Opportunity (USD)'] as double? ?? 0.0,
+      },
+    ];
+
+    final maxY = metrics.map((e) => e['value'] as double).reduce((a, b) => a > b ? a : b) * 1.2;
+
+    return SizedBox(
+      height: 200,
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceAround,
+          maxY: maxY,
+          barGroups: metrics.asMap().entries.map((entry) {
+            final index = entry.key;
+            final metric = entry.value;
+            return BarChartGroupData(
+              x: index,
+              barRods: [
+                BarChartRodData(
+                  toY: metric['value'] as double,
+                  color: const Color(0xFF1E40AF),
+                  width: 20,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ],
+            );
+          }).toList(),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40,
+                getTitlesWidget: (value, meta) => Text(
+                  value.toStringAsFixed(0), // Use 0 decimals for large financial values
                   style: const TextStyle(color: Colors.black54, fontSize: 12),
                 ),
               ),

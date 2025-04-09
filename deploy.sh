@@ -17,7 +17,7 @@ cd /home/luisvinatea/Dev/Repos/AeraSync/AeraSync || { echo "Failed to change dir
 
 # Verify required assets
 echo "Verifying required assets..."
-for asset in web/icons/aerasync64.webp web/icons/aerasync180.webp web/icons/aerasync512.webp web/icons/aerasync1024.webp web/icons/aerasync.png web/manifest.json; do
+for asset in web/icons/aerasync64.webp web/icons/aerasync180.webp web/icons/aerasync512.webp web/icons/aerasync1024.webp web/icons/aerasync.webp web/manifest.json; do
   if [ ! -f "$asset" ]; then
     echo "Error: Required asset $asset is missing"
     exit 1
