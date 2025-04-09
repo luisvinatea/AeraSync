@@ -53,6 +53,10 @@
   "diffused": "Difuso",
   "injector": "Inyector",
   "other": "Otro",
+  "respirationRateLabelShort": "Tasa de Respiración",
+  "oxygenDemandFromShrimpLabelShort": "Demanda del Camarón",
+  "environmentalOxygenDemandLabelShort": "Demanda del Ambiente",
+  "totalOxygenDemandLabelShort": "Demanda Total",
   "dataCollectionConsentLabel": "Acepto que mis datos sean recolectados de manera segura para fines de investigación, de acuerdo con las leyes aplicables.",
   "learnMore": "Saber Más",
   "forPlottingOnly": "Solo para graficar",
@@ -125,11 +129,45 @@
   "discountRateInflationRateError": "La tasa de descuento y la tasa de inflación no pueden ser iguales.",
   "sotrZeroError": "Los valores de SOTR no pueden ser cero.",
   "integerError": "Este valor debe ser un número entero.",
-  "recommendationChooseAerator1": "Recomendación: Elija el Aireador 1 para ahorrar {0} USD durante el horizonte de análisis.",
-  "recommendationChooseAerator2": "Recomendación: Elija el Aireador 2 para ahorrar {0} USD durante el horizonte de análisis.",
+  "recommendationChooseAerator1": "Recomendación: Elija el Aireador 1 para ahorrar {amount} USD durante el horizonte de análisis.",
+  "@recommendationChooseAerator1": {
+    "description": "Mensaje de recomendación cuando el Aireador 1 es más rentable",
+    "placeholders": {
+      "amount": {
+        "type": "double",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "recommendationChooseAerator2": "Recomendación: Elija el Aireador 2 para ahorrar {amount} USD durante el horizonte de análisis.",
+  "@recommendationChooseAerator2": {
+    "description": "Mensaje de recomendación cuando el Aireador 2 es más rentable",
+    "placeholders": {
+      "amount": {
+        "type": "double",
+        "format": "decimalPattern"
+      }
+    }
+  },
   "recommendationEqualCosts": "Recomendación: Ambos aireadores tienen costos anuales iguales.",
-  "valueCopied": "Copiado {0} al portapapeles.",
+  "valueCopied": "Copiado {value} al portapapeles.",
+  "@valueCopied": {
+    "description": "Mensaje mostrado cuando un valor es copiado al portapapeles",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "totalAnnualCostAerator1LabelShort": "Costo Aireador 1",
   "totalAnnualCostAerator2LabelShort": "Costo Aireador 2",
-  "costOfOpportunityLabelShort": "Costo de Oportunidad"
+  "costOfOpportunityLabelShort": "Costo de Oportunidad",
+  "totalAnnualCostAerator1Tooltip": "Costo anual total del Aireador 1, incluyendo costos de energía, mantenimiento y capital.",
+  "totalAnnualCostAerator2Tooltip": "Costo anual total del Aireador 2, incluyendo costos de energía, mantenimiento y capital.",
+  "costOfOpportunityTooltip": "El valor presente de los ahorros al elegir el aireador más rentable.",
+  "costBreakdownTableTitle": "Desglose de Costos",
+  "costComponentLabel": "Componente de Costo",
+  "energyCostLabel": "Costo de Energía (USD/año)",
+  "maintenanceCostLabel": "Costo de Mantenimiento (USD/año)",
+  "capitalCostLabel": "Costo de Capital (USD/año)"
 }

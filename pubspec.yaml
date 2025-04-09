@@ -1,31 +1,27 @@
 name: AeraSync
-description: A Flutter application for aerator performance and oxygen demand calculations.
-
+description: A new Flutter project.
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  provider: ^6.1.2
-  fl_chart: ^0.68.0
-  url_launcher: ^6.3.0
+  provider: ^6.0.0
+  fl_chart: ^0.70.2  # Updated to the latest version
   universal_html: ^2.2.4
   clipboard: ^0.1.3
+  intl: ^0.20.2  # Updated to the latest version
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0  # Updated to the latest version
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/images/aerasync.webp
-    - assets/data/o2_temp_sal_100_sat.json
-    - assets/data/shrimp_respiration_salinity_temperature_weight.json
   generate: true

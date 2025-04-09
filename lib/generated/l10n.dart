@@ -67,8 +67,8 @@ abstract class AppLocalizations {
 
   final String localeName;
 
-  static AppLocalizations of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  static AppLocalizations? of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
@@ -822,6 +822,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Number of Aerators copied to clipboard'**
   String get numberOfAeratorsCopied;
+
+  /// No description provided for @discountRateInflationRateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount rate and inflation rate cannot be equal.'**
+  String get discountRateInflationRateError;
+
+  /// No description provided for @sotrZeroError.
+  ///
+  /// In en, this message translates to:
+  /// **'SOTR values cannot be zero.'**
+  String get sotrZeroError;
+
+  /// No description provided for @integerError.
+  ///
+  /// In en, this message translates to:
+  /// **'This value must be an integer.'**
+  String get integerError;
+
+  /// Recommendation message when Aerator 1 is more cost-effective
+  ///
+  /// In en, this message translates to:
+  /// **'Recommendation: Choose Aerator 1 to save {amount} USD over the analysis horizon.'**
+  String recommendationChooseAerator1(double amount);
+
+  /// Recommendation message when Aerator 2 is more cost-effective
+  ///
+  /// In en, this message translates to:
+  /// **'Recommendation: Choose Aerator 2 to save {amount} USD over the analysis horizon.'**
+  String recommendationChooseAerator2(double amount);
+
+  /// No description provided for @recommendationEqualCosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommendation: Both aerators have equal annual costs.'**
+  String get recommendationEqualCosts;
+
+  /// Message shown when a value is copied to the clipboard
+  ///
+  /// In en, this message translates to:
+  /// **'Copied {value} to clipboard.'**
+  String valueCopied(String value);
+
+  /// No description provided for @totalAnnualCostAerator1LabelShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost Aerator 1'**
+  String get totalAnnualCostAerator1LabelShort;
+
+  /// No description provided for @totalAnnualCostAerator2LabelShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost Aerator 2'**
+  String get totalAnnualCostAerator2LabelShort;
+
+  /// No description provided for @costOfOpportunityLabelShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost of Opportunity'**
+  String get costOfOpportunityLabelShort;
+
+  /// No description provided for @totalAnnualCostAerator1Tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Total annual cost for Aerator 1, including energy, maintenance, and capital costs.'**
+  String get totalAnnualCostAerator1Tooltip;
+
+  /// No description provided for @totalAnnualCostAerator2Tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Total annual cost for Aerator 2, including energy, maintenance, and capital costs.'**
+  String get totalAnnualCostAerator2Tooltip;
+
+  /// No description provided for @costOfOpportunityTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'The present value of savings by choosing the more cost-effective aerator.'**
+  String get costOfOpportunityTooltip;
+
+  /// No description provided for @costBreakdownTableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost Breakdown'**
+  String get costBreakdownTableTitle;
+
+  /// No description provided for @costComponentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost Component'**
+  String get costComponentLabel;
+
+  /// No description provided for @energyCostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy Cost (USD/year)'**
+  String get energyCostLabel;
+
+  /// No description provided for @maintenanceCostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance Cost (USD/year)'**
+  String get maintenanceCostLabel;
+
+  /// No description provided for @capitalCostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Capital Cost (USD/year)'**
+  String get capitalCostLabel;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

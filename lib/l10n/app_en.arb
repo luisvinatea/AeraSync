@@ -53,6 +53,10 @@
   "diffused": "Diffused",
   "injector": "Injector",
   "other": "Other",
+  "respirationRateLabelShort": "Respiration Rate",
+  "oxygenDemandFromShrimpLabelShort": "Shrimp Demand",
+  "environmentalOxygenDemandLabelShort": "Env. Demand",
+  "totalOxygenDemandLabelShort": "Total Demand",
   "dataCollectionConsentLabel": "I agree to allow my data to be collected safely for research purposes, in accordance with applicable laws.",
   "learnMore": "Learn More",
   "forPlottingOnly": "For plotting only",
@@ -125,11 +129,45 @@
   "discountRateInflationRateError": "Discount rate and inflation rate cannot be equal.",
   "sotrZeroError": "SOTR values cannot be zero.",
   "integerError": "This value must be an integer.",
-  "recommendationChooseAerator1": "Recommendation: Choose Aerator 1 to save {0} USD over the analysis horizon.",
-  "recommendationChooseAerator2": "Recommendation: Choose Aerator 2 to save {0} USD over the analysis horizon.",
+  "recommendationChooseAerator1": "Recommendation: Choose Aerator 1 to save {amount} USD over the analysis horizon.",
+  "@recommendationChooseAerator1": {
+    "description": "Recommendation message when Aerator 1 is more cost-effective",
+    "placeholders": {
+      "amount": {
+        "type": "double",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "recommendationChooseAerator2": "Recommendation: Choose Aerator 2 to save {amount} USD over the analysis horizon.",
+  "@recommendationChooseAerator2": {
+    "description": "Recommendation message when Aerator 2 is more cost-effective",
+    "placeholders": {
+      "amount": {
+        "type": "double",
+        "format": "decimalPattern"
+      }
+    }
+  },
   "recommendationEqualCosts": "Recommendation: Both aerators have equal annual costs.",
-  "valueCopied": "Copied {0} to clipboard.",
+  "valueCopied": "Copied {value} to clipboard.",
+  "@valueCopied": {
+    "description": "Message shown when a value is copied to the clipboard",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "totalAnnualCostAerator1LabelShort": "Cost Aerator 1",
   "totalAnnualCostAerator2LabelShort": "Cost Aerator 2",
-  "costOfOpportunityLabelShort": "Cost of Opportunity"
+  "costOfOpportunityLabelShort": "Cost of Opportunity",
+  "totalAnnualCostAerator1Tooltip": "Total annual cost for Aerator 1, including energy, maintenance, and capital costs.",
+  "totalAnnualCostAerator2Tooltip": "Total annual cost for Aerator 2, including energy, maintenance, and capital costs.",
+  "costOfOpportunityTooltip": "The present value of savings by choosing the more cost-effective aerator.",
+  "costBreakdownTableTitle": "Cost Breakdown",
+  "costComponentLabel": "Cost Component",
+  "energyCostLabel": "Energy Cost (USD/year)",
+  "maintenanceCostLabel": "Maintenance Cost (USD/year)",
+  "capitalCostLabel": "Capital Cost (USD/year)"
 }

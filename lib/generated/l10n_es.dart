@@ -272,7 +272,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get averageShrimpWeightLabel => 'Peso Promedio de Camarones (g)';
 
   @override
-  String get averageShrimpWeightTooltip => 'Peso promedio de los camarones en gramos';
+  String get averageShrimpWeightTooltip => 'Peso promedio de los camarones en gramas';
 
   @override
   String get safetyMarginLabel => 'Margen de Seguridad';
@@ -372,4 +372,70 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get numberOfAeratorsCopied => 'Número de Aireadores copiado al portapapeles';
+
+  @override
+  String get discountRateInflationRateError => 'La tasa de descuento y la tasa de inflación no pueden ser iguales.';
+
+  @override
+  String get sotrZeroError => 'Los valores de SOTR no pueden ser cero.';
+
+  @override
+  String get integerError => 'Este valor debe ser un número entero.';
+
+  @override
+  String recommendationChooseAerator1(double amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return 'Recomendación: Elija el Aireador 1 para ahorrar $amountString USD durante el horizonte de análisis.';
+  }
+
+  @override
+  String recommendationChooseAerator2(double amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return 'Recomendación: Elija el Aireador 2 para ahorrar $amountString USD durante el horizonte de análisis.';
+  }
+
+  @override
+  String get recommendationEqualCosts => 'Recomendación: Ambos aireadores tienen costos anuales iguales.';
+
+  @override
+  String valueCopied(String value) {
+    return 'Copiado $value al portapapeles.';
+  }
+
+  @override
+  String get totalAnnualCostAerator1LabelShort => 'Costo Aireador 1';
+
+  @override
+  String get totalAnnualCostAerator2LabelShort => 'Costo Aireador 2';
+
+  @override
+  String get costOfOpportunityLabelShort => 'Costo de Oportunidad';
+
+  @override
+  String get totalAnnualCostAerator1Tooltip => 'Costo anual total del Aireador 1, incluyendo costos de energía, mantenimiento y capital.';
+
+  @override
+  String get totalAnnualCostAerator2Tooltip => 'Costo anual total del Aireador 2, incluyendo costos de energía, mantenimiento y capital.';
+
+  @override
+  String get costOfOpportunityTooltip => 'El valor presente de los ahorros al elegir el aireador más rentable.';
+
+  @override
+  String get costBreakdownTableTitle => 'Desglose de Costos';
+
+  @override
+  String get costComponentLabel => 'Componente de Costo';
+
+  @override
+  String get energyCostLabel => 'Costo de Energía (USD/año)';
+
+  @override
+  String get maintenanceCostLabel => 'Costo de Mantenimiento (USD/año)';
+
+  @override
+  String get capitalCostLabel => 'Costo de Capital (USD/año)';
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:AeraSync/generated/l10n.dart';
 import '../../core/services/app_state.dart';
@@ -10,7 +11,7 @@ class OxygenDemandForm extends StatefulWidget {
   State<OxygenDemandForm> createState() => _OxygenDemandFormState();
 }
 
-class _OxygenDemandFormState extends State<OxygenDemandForm> {
+class _OxygenDemandFormState extends State<OxygenDemandForm> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _areaController = TextEditingController(text: '1000');
   final _biomassController = TextEditingController(text: '2000'); // kg/ha
@@ -18,6 +19,20 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
   final _salinityController = TextEditingController(text: '20'); // ‰
   final _shrimpWeightController = TextEditingController(text: '15'); // g
   final _safetyMarginController = TextEditingController(text: '1.2');
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+  }
 
   @override
   void dispose() {
@@ -27,6 +42,7 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
     _salinityController.dispose();
     _shrimpWeightController.dispose();
     _safetyMarginController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -36,12 +52,12 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
       appState.setLoading(true);
 
       try {
-        final area = double.parse(_areaController.text);
-        final biomass = double.parse(_biomassController.text);
-        final temperature = double.parse(_temperatureController.text);
-        final salinity = double.parse(_salinityController.text);
-        final shrimpWeight = double.parse(_shrimpWeightController.text);
-        final safetyMargin = double.parse(_safetyMarginController.text);
+        final area = double.parse(_areaController.text.replaceAll(',', ''));
+        final biomass = double.parse(_biomassController.text.replaceAll(',', ''));
+        final temperature = double.parse(_temperatureController.text.replaceAll(',', ''));
+        final salinity = double.parse(_salinityController.text.replaceAll(',', ''));
+        final shrimpWeight = double.parse(_shrimpWeightController.text.replaceAll(',', ''));
+        final safetyMargin = double.parse(_safetyMarginController.text.replaceAll(',', ''));
 
         final respirationRate = appState.respirationCalculator!.getRespirationRate(
           salinity,
@@ -240,19 +256,27 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
                           ),
                           const SizedBox(height: 12),
                           Center(
-                            child: ElevatedButton(
-                              onPressed: _formKey.currentState!.validate()
-                                  ? _calculateOxygenDemand
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6)),
-                                backgroundColor: const Color(0xFF1E40AF),
-                                foregroundColor: Colors.white,
+                            child: ScaleTransition(
+                              scale: _scaleAnimation,
+                              child: ElevatedButton(
+                                onPressed: _formKey.currentState!.validate()
+                                    ? () {
+                                        _animationController.forward().then((_) {
+                                          _animationController.reverse();
+                                          _calculateOxygenDemand();
+                                        });
+                                      }
+                                    : null,
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6)),
+                                  backgroundColor: const Color(0xFF1E40AF),
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: Text(l10n.calculateButton,
+                                    style: const TextStyle(fontSize: 16)),
                               ),
-                              child: Text(l10n.calculateButton,
-                                  style: const TextStyle(fontSize: 16)),
                             ),
                           ),
                         ],
@@ -282,6 +306,10 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
               ),
               style: const TextStyle(fontSize: 16),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                // Optional: Add a custom formatter for thousand separators if desired
+              ],
               validator: (value) => _validateInput(value, min, max),
             ),
           ),
@@ -297,7 +325,8 @@ class _OxygenDemandFormState extends State<OxygenDemandForm> {
 
   String? _validateInput(String? value, double min, double max) {
     if (value == null || value.isEmpty) return AppLocalizations.of(context)!.requiredField;
-    final numValue = double.tryParse(value);
+    final cleanedValue = value.replaceAll(',', '');
+    final numValue = double.tryParse(cleanedValue);
     if (numValue == null) return AppLocalizations.of(context)!.invalidNumber;
     if (numValue < min || numValue > max) return AppLocalizations.of(context)!.rangeError(min, max);
     return null;

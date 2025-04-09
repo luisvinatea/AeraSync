@@ -372,4 +372,70 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get numberOfAeratorsCopied => 'Número de Aeradores copiado para a área de transferência';
+
+  @override
+  String get discountRateInflationRateError => 'A taxa de desconto e a taxa de inflação não podem ser iguais.';
+
+  @override
+  String get sotrZeroError => 'Os valores de SOTR não podem ser zero.';
+
+  @override
+  String get integerError => 'Este valor deve ser um número inteiro.';
+
+  @override
+  String recommendationChooseAerator1(double amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return 'Recomendação: Escolha o Aerador 1 para economizar $amountString USD ao longo do horizonte de análise.';
+  }
+
+  @override
+  String recommendationChooseAerator2(double amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return 'Recomendação: Escolha o Aerador 2 para economizar $amountString USD ao longo do horizonte de análise.';
+  }
+
+  @override
+  String get recommendationEqualCosts => 'Recomendação: Ambos os aeradores têm custos anuais iguais.';
+
+  @override
+  String valueCopied(String value) {
+    return 'Copiado $value para a área de transferência.';
+  }
+
+  @override
+  String get totalAnnualCostAerator1LabelShort => 'Custo Aerador 1';
+
+  @override
+  String get totalAnnualCostAerator2LabelShort => 'Custo Aerador 2';
+
+  @override
+  String get costOfOpportunityLabelShort => 'Custo de Oportunidade';
+
+  @override
+  String get totalAnnualCostAerator1Tooltip => 'Custo anual total do Aerador 1, incluindo custos de energia, manutenção e capital.';
+
+  @override
+  String get totalAnnualCostAerator2Tooltip => 'Custo anual total do Aerador 2, incluindo custos de energia, manutenção e capital.';
+
+  @override
+  String get costOfOpportunityTooltip => 'O valor presente das economias ao escolher o aerador mais econômico.';
+
+  @override
+  String get costBreakdownTableTitle => 'Detalhamento de Custos';
+
+  @override
+  String get costComponentLabel => 'Componente de Custo';
+
+  @override
+  String get energyCostLabel => 'Custo de Energia (USD/ano)';
+
+  @override
+  String get maintenanceCostLabel => 'Custo de Manutenção (USD/ano)';
+
+  @override
+  String get capitalCostLabel => 'Custo de Capital (USD/ano)';
 }

@@ -372,4 +372,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get numberOfAeratorsCopied => 'Number of Aerators copied to clipboard';
+
+  @override
+  String get discountRateInflationRateError => 'Discount rate and inflation rate cannot be equal.';
+
+  @override
+  String get sotrZeroError => 'SOTR values cannot be zero.';
+
+  @override
+  String get integerError => 'This value must be an integer.';
+
+  @override
+  String recommendationChooseAerator1(double amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return 'Recommendation: Choose Aerator 1 to save $amountString USD over the analysis horizon.';
+  }
+
+  @override
+  String recommendationChooseAerator2(double amount) {
+    final intl.NumberFormat amountNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String amountString = amountNumberFormat.format(amount);
+
+    return 'Recommendation: Choose Aerator 2 to save $amountString USD over the analysis horizon.';
+  }
+
+  @override
+  String get recommendationEqualCosts => 'Recommendation: Both aerators have equal annual costs.';
+
+  @override
+  String valueCopied(String value) {
+    return 'Copied $value to clipboard.';
+  }
+
+  @override
+  String get totalAnnualCostAerator1LabelShort => 'Cost Aerator 1';
+
+  @override
+  String get totalAnnualCostAerator2LabelShort => 'Cost Aerator 2';
+
+  @override
+  String get costOfOpportunityLabelShort => 'Cost of Opportunity';
+
+  @override
+  String get totalAnnualCostAerator1Tooltip => 'Total annual cost for Aerator 1, including energy, maintenance, and capital costs.';
+
+  @override
+  String get totalAnnualCostAerator2Tooltip => 'Total annual cost for Aerator 2, including energy, maintenance, and capital costs.';
+
+  @override
+  String get costOfOpportunityTooltip => 'The present value of savings by choosing the more cost-effective aerator.';
+
+  @override
+  String get costBreakdownTableTitle => 'Cost Breakdown';
+
+  @override
+  String get costComponentLabel => 'Cost Component';
+
+  @override
+  String get energyCostLabel => 'Energy Cost (USD/year)';
+
+  @override
+  String get maintenanceCostLabel => 'Maintenance Cost (USD/year)';
+
+  @override
+  String get capitalCostLabel => 'Capital Cost (USD/year)';
 }

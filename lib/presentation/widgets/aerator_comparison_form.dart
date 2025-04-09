@@ -121,23 +121,25 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
       final appState = Provider.of<AppState>(context, listen: false);
       appState.setLoading(true);
 
-      try {
-        // Parse input values
-        final temperature = double.parse(_temperatureController.text);
-        final salinity = double.parse(_salinityController.text);
-        final biomass = double.parse(_biomassController.text); // kg/ha
-        final sotr1 = double.parse(_sotr1Controller.text);
-        final sotr2 = double.parse(_sotr2Controller.text);
-        final price1 = double.parse(_price1Controller.text);
-        final price2 = double.parse(_price2Controller.text);
-        final maintenance1 = double.parse(_maintenance1Controller.text);
-        final maintenance2 = double.parse(_maintenance2Controller.text);
-        final durability1 = double.parse(_durability1Controller.text);
-        final durability2 = double.parse(_durability2Controller.text);
-        final energyCost = double.parse(_energyCostController.text);
-        final discountRate = double.parse(_discountRateController.text) / 100; // Convert to decimal
-        final inflationRate = double.parse(_inflationRateController.text) / 100; // Convert to decimal
-        final analysisHorizon = double.parse(_analysisHorizonController.text);
+     try {
+      // Parse input values
+        final temperature = double.parse(_temperatureController.text.replaceAll(',', ''));
+        final salinity = double.parse(_salinityController.text.replaceAll(',', ''));
+        final biomass = double.parse(_biomassController.text.replaceAll(',', '')); // kg/ha
+        final sotr1 = double.parse(_sotr1Controller.text.replaceAll(',', ''));
+        final sotr2 = double.parse(_sotr2Controller.text.replaceAll(',', ''));
+        final price1 = double.parse(_price1Controller.text.replaceAll(',', ''));
+        final price2 = double.parse(_price2Controller.text.replaceAll(',', ''));
+        final maintenance1 = double.parse(_maintenance1Controller.text.replaceAll(',', ''));
+        final maintenance2 = double.parse(_maintenance2Controller.text.replaceAll(',', ''));
+        final durability1 = double.parse(_durability1Controller.text.replaceAll(',', ''));
+        final durability2 = double.parse(_durability2Controller.text.replaceAll(',', ''));
+        final energyCostPerKWh = 0.05; // USD/kWh (hardcoded as per the article)
+        final hp1 = 3.0; // Hardcoded for Aireador 1
+        final hp2 = 3.5; // Hardcoded for Aireador 2
+        final discountRate = double.parse(_discountRateController.text.replaceAll(',', '')) / 100; // Convert to decimal
+        final inflationRate = double.parse(_inflationRateController.text.replaceAll(',', '')) / 100; // Convert to decimal
+        final analysisHorizon = double.parse(_analysisHorizonController.text.replaceAll(',', ''));
 
         // Additional validation: Check if discount rate equals inflation rate
         if (discountRate == inflationRate) {
@@ -149,11 +151,17 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
           throw Exception(AppLocalizations.of(context)!.sotrZeroError);
         }
 
+        // Calculate energy costs based on HP
+        const hoursPerYear = 2920; // 8 hours/day * 365 days
+        final kw1 = hp1 * 0.746; // kW for Aireador 1
+        final kw2 = hp2 * 0.746; // kW for Aireador 2
+        final energyCost1 = kw1 * energyCostPerKWh * hoursPerYear; // USD/year for Aireador 1
+        final energyCost2 = kw2 * energyCostPerKWh * hoursPerYear; // USD/year for Aireador 2
+
         // Calculate OTRt with corrected formula
         final cs100Ref = _getCs100(20, salinity); // 20°C, experiment salinity
-        final cs100 = _getCs100(temperature, salinity);
-        final cs50 = cs100 * 0.5; // Target at 50% saturation
-        final otrFactor = (cs100Ref - cs50) / cs100Ref;
+        final cs50 = cs100Ref * 0.5; // Target at 50% saturation
+        final otrFactor = (cs100Ref - cs50) / cs100Ref; // Should be 0.5
         final otr1 = sotr1 * otrFactor;
         final otr2 = sotr2 * otrFactor;
 
@@ -174,13 +182,13 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
         final n2 = n2PerHa * totalHectares;
 
         // Calculate total annual costs
-        final totalCost1 = n1 * (energyCost + maintenance1 + (price1 / durability1));
-        final totalCost2 = n2 * (energyCost + maintenance2 + (price2 / durability2));
+        final totalCost1 = n1 * (energyCost1 + maintenance1 + (price1 / durability1));
+        final totalCost2 = n2 * (energyCost2 + maintenance2 + (price2 / durability2));
 
         // Calculate equilibrium price P2
         final p2Equilibrium = (durability2 / otr1) *
-            (otr2 * (energyCost + maintenance1 + (price1 / durability1)) -
-                otr1 * (energyCost + maintenance2));
+            (otr2 * (energyCost1 + maintenance1 + (price1 / durability1)) -
+                otr1 * (energyCost2 + maintenance2));
 
         // Determine the loser and calculate savings
         bool isAerator1Loser = totalCost1 > totalCost2;
@@ -223,7 +231,8 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
           AppLocalizations.of(context)!.maintenanceCostAerator2Label: maintenance2,
           AppLocalizations.of(context)!.durabilityAerator1Label: durability1,
           AppLocalizations.of(context)!.durabilityAerator2Label: durability2,
-          AppLocalizations.of(context)!.annualEnergyCostLabel: energyCost,
+          'Annual Energy Cost Aerator 1 (USD/year per aerator)': energyCost1,
+          'Annual Energy Cost Aerator 2 (USD/year per aerator)': energyCost2,
           'Temperature (°C)': temperature,
           'Salinity (ppt)': salinity,
           'Biomass (kg/ha)': biomass,
