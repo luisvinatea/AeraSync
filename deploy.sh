@@ -70,9 +70,30 @@ echo "Verifying intl version..."
 INTL_VERSION=$(grep -A 2 "intl:" pubspec.lock | grep "version:" | grep -oP '"\K[^"]+')
 EXPECTED_INTL_VERSION="0.20.2"
 if [ "$INTL_VERSION" != "$EXPECTED_INTL_VERSION" ]; then
-  echo "Error: Resolved intl version ($INTL_VERSION) does not match expected version ($EXPECTED_INTL_VERSION)."
-  echo "Please check your Flutter SDK version and pubspec.yaml constraints."
-  exit 1
+  echo "Warning: Resolved intl version ($INTL_VERSION) does not match expected version ($EXPECTED_INTL_VERSION)."
+  echo "This might be due to a dependency conflict with flutter_localizations."
+  echo "Checking dependency tree..."
+  flutter pub deps -- --style=compact | grep -A 1 "flutter_localizations" || true
+  echo "Attempting to override intl version to $EXPECTED_INTL_VERSION..."
+  # Backup pubspec.yaml
+  cp pubspec.yaml pubspec.yaml.bak
+  # Add dependency override
+  echo -e "\ndependency_overrides:\n  intl: $EXPECTED_INTL_VERSION" >> pubspec.yaml
+  # Retry dependency resolution
+  flutter pub get || { echo "Flutter pub get with override failed"; exit 1; }
+  # Re-verify intl version
+  INTL_VERSION=$(grep -A 2 "intl:" pubspec.lock | grep "version:" | grep -oP '"\K[^"]+')
+  if [ "$INTL_VERSION" != "$EXPECTED_INTL_VERSION" ]; then
+    echo "Error: Failed to resolve intl to version $EXPECTED_INTL_VERSION even with override."
+    echo "Please check your Flutter SDK installation and pubspec.yaml constraints."
+    # Restore pubspec.yaml
+    mv pubspec.yaml.bak pubspec.yaml
+    exit 1
+  fi
+  echo "Successfully overridden intl to version $INTL_VERSION."
+else
+  # Remove pubspec.yaml.bak if it exists from a previous run
+  rm -f pubspec.yaml.bak
 fi
 
 # Run tests
