@@ -6,33 +6,51 @@ class AppState with ChangeNotifier {
   SaturationCalculator? _calculator;
   ShrimpRespirationCalculator? _respirationCalculator;
   String? _error;
-  bool _isLoading = false; // Add loading state
-  Map<String, Map<String, dynamic>> _results = {};
-  Map<String, Map<String, dynamic>> _inputs = {};
+  bool _isLoading = false;
+  final Map<String, Map<String, dynamic>> _results = {};
+  final Map<String, Map<String, dynamic>> _inputs = {};
 
   AppState() {
-    _calculator = SaturationCalculator('assets/data/o2_temp_sal_100_sat.json');
+    // Initialize calculators
+    _calculator = ShrimpPondCalculator('assets/data/o2_temp_sal_100_sat.json');
     _respirationCalculator = ShrimpRespirationCalculator('assets/data/shrimp_respiration_salinity_temperature_weight.json');
-    Future.wait([
-      _calculator!.loadData(),
-      _respirationCalculator!.loadData(),
-    ]);
+  }
+
+  // Initialize calculators asynchronously
+  Future<void> initialize() async {
+    setLoading(true);
+    try {
+      await Future.wait([
+        _calculator!.loadData(),
+        _respirationCalculator!.loadData(),
+      ]);
+    } catch (e) {
+      setError('Failed to load calculator data: $e');
+    } finally {
+      setLoading(false);
+    }
   }
 
   SaturationCalculator? get calculator => _calculator;
   ShrimpRespirationCalculator? get respirationCalculator => _respirationCalculator;
   String? get error => _error;
-  bool get isLoading => _isLoading; // Add getter for isLoading
-  Map<String, Map<String, dynamic>> get results => _results;
-  Map<String, Map<String, dynamic>> get inputs => _inputs;
+  bool get isLoading => _isLoading;
+
+  Map<String, dynamic>? getResults(String tab) => _results[tab];
+  Map<String, dynamic>? getInputs(String tab) => _inputs[tab];
 
   void setError(String error) {
     _error = error;
-    _isLoading = false; // Reset loading state on error
+    _isLoading = false;
     notifyListeners();
   }
 
-  void setLoading(bool loading) { // Add setLoading method
+  void clearError() {
+    _error = null;
+    notifyListeners();
+  }
+
+  void setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
   }
@@ -41,7 +59,16 @@ class AppState with ChangeNotifier {
     _results[calculatorType] = results;
     _inputs[calculatorType] = inputs;
     _error = null;
-    _isLoading = false; // Reset loading state on success
+    _isLoading = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _calculator = null;
+    _respirationCalculator = null;
+    _results.clear();
+    _inputs.clear();
+    super.dispose();
   }
 }

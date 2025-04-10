@@ -22,6 +22,7 @@ class ShrimpPondCalculator implements SaturationCalculator {
   List<List<double>>? _matrix;
   double _tempStep = 1.0;
   double _salStep = 5.0;
+  final Map<String, double> _o2SaturationCache = {};
 
   ShrimpPondCalculator(this.dataPath);
 
@@ -43,6 +44,14 @@ class ShrimpPondCalculator implements SaturationCalculator {
 
   @override
   double getO2Saturation(double temperature, double salinity) {
+    // Create a cache key based on temperature and salinity
+    final cacheKey = '${temperature.toStringAsFixed(1)}-${salinity.toStringAsFixed(1)}';
+
+    // Return cached result if available
+    if (_o2SaturationCache.containsKey(cacheKey)) {
+      return _o2SaturationCache[cacheKey]!;
+    }
+
     if (_matrix == null) {
       throw Exception('Saturation data not loaded');
     }
@@ -54,7 +63,10 @@ class ShrimpPondCalculator implements SaturationCalculator {
     if (tempIdx >= _matrix!.length || salIdx >= _matrix![0].length) {
       throw RangeError('Index out of bounds: tempIdx=$tempIdx, salIdx=$salIdx');
     }
-    return _matrix![tempIdx][salIdx];
+
+    final result = _matrix![tempIdx][salIdx];
+    _o2SaturationCache[cacheKey] = result;
+    return result;
   }
 
   String _normalizeBrand(String brand) {
@@ -98,12 +110,14 @@ class ShrimpPondCalculator implements SaturationCalculator {
     final cs20 = getO2Saturation(20, salinity);
     final cs20KgM3 = cs20 * 0.001;
 
-    final klaT = -log(1 - 0.7) / (t70 / 60); // Precise formula for SOTR > 4
+    final klaT = -log(1 - 0.7) / (t70 / 60);
     final kla20 = klaT * pow(1.024, 20 - temperature).toDouble();
 
     final sotr = (kla20 * cs20KgM3 * volume * 100).round() / 100;
     final sae = powerKw > 0 ? (sotr / powerKw * 100).round() / 100 : 0;
     final costPerKg = sae > 0 ? (kWhPrice / sae * 100).round() / 100 : double.infinity;
+
+    final annualEnergyCost = powerKw * kWhPrice * 24 * 365;
 
     return {
       'Pond Volume (m³)': volume,
@@ -114,6 +128,7 @@ class ShrimpPondCalculator implements SaturationCalculator {
       'SAE (kg O₂/kWh)': sae,
       'US\$/kg O₂': costPerKg,
       'Power (kW)': powerKw,
+      'Annual Energy Cost (USD/year)': annualEnergyCost,
       'Normalized Aerator ID': normalizedAeratorId,
     };
   }

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/aerator_comparison_form.dart';
-import '../widgets/aerator_estimation_form.dart';
 import '../widgets/calculator_form.dart';
+import '../widgets/oxygen_demand_and_estimation_form.dart';
 import '../widgets/comparison_results_display.dart';
-import '../widgets/oxygen_demand_form.dart';
 import '../widgets/oxygen_demand_results_display.dart';
 import '../widgets/results_display.dart';
+import '../../core/services/app_state.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -36,39 +37,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AeraSync'),
+        title: Text(l10n.appTitle),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
             Tab(text: l10n.aeratorPerformanceCalculator),
-            Tab(text: l10n.aeratorEstimationCalculator),
             Tab(text: l10n.aeratorComparisonCalculator),
-            Tab(text: l10n.oxygenDemandCalculator),
+            Tab(text: l10n.oxygenDemandAndEstimationCalculator),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        physics: const NeverScrollableScrollPhysics(), // Disable swipe to reduce unnecessary builds
-        children: const [
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
           // Aerator Performance Tab
           _LazyTab(
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  CalculatorForm(),
+                  const CalculatorForm(),
                   ResultsDisplay(tab: 'Aerator Performance'),
-                ],
-              ),
-            ),
-          ),
-          // Aerator Estimation Tab
-          _LazyTab(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  AeratorEstimationForm(),
-                  ResultsDisplay(tab: 'Aerator Estimation'),
                 ],
               ),
             ),
@@ -78,19 +67,31 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  AeratorComparisonForm(),
+                  const AeratorComparisonForm(),
                   ComparisonResultsDisplay(),
                 ],
               ),
             ),
           ),
-          // Oxygen Demand Tab
+          // Oxygen Demand and Estimation Tab
           _LazyTab(
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  OxygenDemandForm(),
-                  OxygenDemandResultsDisplay(),
+                  const OxygenDemandAndEstimationForm(),
+                  Consumer<AppState>(
+                    builder: (context, appState, child) {
+                      final results = appState.getResults('Oxygen Demand and Estimation');
+                      if (results == null || results.isEmpty) {
+                        return ResultsDisplay(tab: 'Oxygen Demand and Estimation');
+                      }
+                      if (results.containsKey(l10n.numberOfAeratorsPerHectareLabel)) {
+                        return ResultsDisplay(tab: 'Oxygen Demand and Estimation');
+                      } else {
+                        return const OxygenDemandResultsDisplay();
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
@@ -101,7 +102,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 }
 
-/// A widget that defers building its child until it is visible.
 class _LazyTab extends StatefulWidget {
   final Widget child;
 

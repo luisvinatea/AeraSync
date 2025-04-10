@@ -1,7 +1,12 @@
 /// Represents an aerator used in shrimp ponds.
 class Aerator {
+  /// Unique identifier for the aerator.
   final String id;
+
+  /// Name of the aerator (e.g., "Pentair Paddlewheel").
   final String name;
+
+  /// Standard Oxygen Transfer Rate per horsepower (kg O₂/h/HP).
   final double sotrPerHp;
 
   Aerator({
@@ -9,18 +14,6 @@ class Aerator {
     required this.name,
     required this.sotrPerHp,
   });
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'sotrPerHp': sotrPerHp,
-      };
-
-  factory Aerator.fromJson(Map<String, dynamic> json) => Aerator(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        sotrPerHp: (json['sotrPerHp'] as num).toDouble(),
-      );
 }
 
 /// Represents calculated metrics for a shrimp pond.
@@ -37,16 +30,16 @@ class PondMetrics {
   /// Oxygen transfer coefficient at 20°C (h⁻¹).
   final double kla20;
 
-  /// Standard Oxygen Transfer Rate (kg O₂/h), truncated to 2 decimals.
+  /// Standard Oxygen Transfer Rate (kg O₂/h).
   final double sotr;
 
-  /// Standard Aeration Efficiency (kg O₂/kWh), truncated to 2 decimals.
+  /// Standard Aeration Efficiency (kg O₂/kWh).
   final double sae;
 
-  /// Annual energy cost (USD/year), truncated to 2 decimals.
+  /// Annual energy cost (USD/year).
   final double annualEnergyCost;
 
-  /// Power consumption in kilowatts (kW), truncated to 2 decimals.
+  /// Power consumption in kilowatts (kW).
   final double powerKw;
 
   PondMetrics({
@@ -62,7 +55,6 @@ class PondMetrics {
 
   /// Creates a [PondMetrics] instance from calculator results.
   factory PondMetrics.fromCalculatorResults(Map<String, dynamic> results) {
-    // Validate required keys
     const requiredKeys = [
       'Pond Volume (m³)',
       'Cs (mg/L)',
@@ -75,11 +67,19 @@ class PondMetrics {
     ];
 
     for (final key in requiredKeys) {
-      if (!results.containsKey(key) || results[key] == null) {
-        throw ArgumentError('Missing or null value for key: $key');
-      }
-      if (results[key] is! num) {
-        throw ArgumentError('Value for key $key must be a number, got ${results[key].runtimeType}');
+      if (!results.containsKey(key) || results[key] == null || results[key] is! num) {
+        // Return a default instance instead of throwing an error
+        debugPrint('Invalid calculator results for key: $key, value: ${results[key]}');
+        return PondMetrics(
+          volume: 0.0,
+          cs: 0.0,
+          klaT: 0.0,
+          kla20: 0.0,
+          sotr: 0.0,
+          sae: 0.0,
+          annualEnergyCost: 0.0,
+          powerKw: 0.0,
+        );
       }
     }
 
@@ -94,26 +94,4 @@ class PondMetrics {
       powerKw: (results['Power (kW)'] as num).toDouble(),
     );
   }
-
-  Map<String, dynamic> toJson() => {
-        'volume': volume,
-        'cs': cs,
-        'klaT': klaT,
-        'kla20': kla20,
-        'sotr': sotr,
-        'sae': sae,
-        'annualEnergyCost': annualEnergyCost,
-        'powerKw': powerKw,
-      };
-
-  factory PondMetrics.fromJson(Map<String, dynamic> json) => PondMetrics(
-        volume: (json['volume'] as num).toDouble(),
-        cs: (json['cs'] as num).toDouble(),
-        klaT: (json['klaT'] as num).toDouble(),
-        kla20: (json['kla20'] as num).toDouble(),
-        sotr: (json['sotr'] as num).toDouble(),
-        sae: (json['sae'] as num).toDouble(),
-        annualEnergyCost: (json['annualEnergyCost'] as num).toDouble(),
-        powerKw: (json['powerKw'] as num).toDouble(),
-      );
 }

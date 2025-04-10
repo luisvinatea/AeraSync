@@ -1,10 +1,13 @@
-.PHONY: run-flutter run-python test
+.PHONY: run-flutter build-web gen-l10n test
 
 run-flutter:
 	flutter run -d chrome
 
-run-python:
-	cd backend && python3 -m core.sotr_calculator
+build-web:
+	flutter build web --release
+
+gen-l10n:
+	flutter gen-l10n
 
 test:
 	flutter test

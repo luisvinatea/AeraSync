@@ -15,8 +15,9 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Consumer<AppState>(
       builder: (context, appState, child) {
-        final results = appState.getResults('Oxygen Demand');
-        final inputs = appState.getInputs('Oxygen Demand');
+        // Updated key to match the merged form
+        final results = appState.getResults('Oxygen Demand and Estimation');
+        final inputs = appState.getInputs('Oxygen Demand and Estimation');
 
         if (results == null || results.isEmpty) {
           return Padding(
@@ -134,10 +135,6 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
   Widget _buildOxygenDemandChart(Map<String, dynamic> results, AppLocalizations l10n) {
     final metrics = [
       {
-        'title': l10n.respirationRateLabelShort,
-        'value': results[l10n.respirationRateLabel] as double? ?? 0.0,
-      },
-      {
         'title': l10n.oxygenDemandFromShrimpLabelShort,
         'value': results[l10n.oxygenDemandFromShrimpLabel] as double? ?? 0.0,
       },
@@ -180,7 +177,7 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
                 showTitles: true,
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) => Text(
-                  value.toStringAsFixed(1),
+                  NumberFormat.compact().format(value),
                   style: const TextStyle(color: Colors.black54, fontSize: 12),
                 ),
               ),
@@ -202,9 +199,9 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
             drawHorizontalLine: true,
             drawVerticalLine: false,
           ),
-          barTouchData: BarTouchData(enabled: false), // Disable interactions to improve performance
+          barTouchData: BarTouchData(enabled: false),
         ),
-        swapAnimationDuration: const Duration(milliseconds: 0), // Disable animations
+        swapAnimationDuration: const Duration(milliseconds: 0),
       ),
     );
   }
@@ -218,20 +215,36 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
 
   String _formatValueWithThousandSeparator(dynamic value) {
     if (value is double) {
+      if (value >= 1000000) {
+        return NumberFormat.compact().format(value);
+      }
       return NumberFormat('#,##0.00').format(value);
     } else if (value is int) {
+      if (value >= 1000000) {
+        return NumberFormat.compact().format(value);
+      }
       return NumberFormat('#,##0').format(value);
     }
     return value.toString();
   }
 
   void _downloadAsCsv(Map<String, dynamic> inputs, Map<String, dynamic> results) {
-    final combinedData = <String, dynamic>{};
-    inputs.forEach((key, value) => combinedData['Input: $key'] = value);
-    results.forEach((key, value) => combinedData['Result: $key'] = value);
+    final csvRows = <String>[];
 
-    final csvRows = <String>['"Category","Value"'];
-    combinedData.forEach((key, value) {
+    // Inputs Section
+    csvRows.add('"Inputs"');
+    csvRows.add('"Category","Value"');
+    inputs.forEach((key, value) {
+      final escapedKey = key.replaceAll('"', '""');
+      final escapedValue = _formatValue(value).replaceAll('"', '""');
+      csvRows.add('"$escapedKey","$escapedValue"');
+    });
+
+    // Results Section
+    csvRows.add('');
+    csvRows.add('"Results"');
+    csvRows.add('"Category","Value"');
+    results.forEach((key, value) {
       final escapedKey = key.replaceAll('"', '""');
       final escapedValue = _formatValue(value).replaceAll('"', '""');
       csvRows.add('"$escapedKey","$escapedValue"');

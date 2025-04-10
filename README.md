@@ -7,10 +7,13 @@ AeraSync is built using Dart and Flutter, enabling cross-platform support for mo
 ## Features
 
 - **SOTR & SAE Calculation** – Compute key aerator efficiency metrics effortlessly using a built-in calculator.
+- **Aerator Comparison** – Compare two aerators based on SOTR, cost, and maintenance to determine the most cost-effective option.
+- **Oxygen Demand and Estimation** – Calculate oxygen demand and estimate the number of aerators needed, with both farm-based and experimental methods.
 - **Cross-Platform Support** – Available on Android, iOS, and web, with a consistent user experience.
 - **User-Friendly Interface** – Designed for field technicians with a simple and intuitive UI.
 - **Localization** – Supports multiple languages (English, Spanish, Portuguese) for broader accessibility.
 - **Data Integration** – Includes preloaded datasets (e.g., `o2_temp_sal_100_sat.json`) for accurate calculations.
+- **Interactive Charts** – Visualize key metrics using interactive charts powered by `fl_chart`.
 - **Predictive Analytics (Upcoming)** – AI-driven insights for aeration optimization (planned for future releases).
 
 ## Installation
@@ -31,7 +34,11 @@ AeraSync is a Flutter project. Follow these steps to set up and run the applicat
    flutter pub get
    ```
 4. **Run the Application**:
-   - For web:
+   - Using the Makefile:
+     ```sh
+     make run-flutter
+     ```
+   - Or directly:
      ```sh
      flutter run -d chrome
      ```
@@ -39,18 +46,46 @@ AeraSync is a Flutter project. Follow these steps to set up and run the applicat
      ```sh
      flutter run
      ```
-   - To build a release version for web (e.g., for GitHub Pages):
-     ```sh
-     flutter build web --release
-     ```
+
+## Development Tasks
+
+- **Generate Localization Files**:
+  After updating the `.arb` files in `lib/l10n/`, regenerate the localization classes:
+  ```sh
+  make gen-l10n
+  ```
+  Or:
+  ```sh
+  flutter gen-l10n
+  ```
+
+- **Run Tests**:
+  Run the unit and widget tests:
+  ```sh
+  make test
+  ```
+  Or:
+  ```sh
+  flutter test
+  ```
+
+- **Build for Web**:
+  Create a release build for web deployment:
+  ```sh
+  make build-web
+  ```
+  Or:
+  ```sh
+  flutter build web --release
+  ```
 
 ## Deployment to GitHub Pages
 
 The web version of AeraSync is hosted on GitHub Pages. To deploy an updated version:
 
-1. Build the web app:
+1. Build the web app with the correct base href (since the app is hosted at `/AeraSync/`):
    ```sh
-   flutter build web --release
+   flutter build web --release --base-href=/AeraSync/
    ```
 2. Copy the build output to the `gh-pages` branch (using a worktree or direct checkout):
    ```sh

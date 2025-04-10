@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:AeraSync/generated/l10n.dart';
 import '../../core/services/app_state.dart';
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/services.dart' show rootBundle;
 
 class AeratorComparisonForm extends StatefulWidget {
@@ -14,7 +15,6 @@ class AeratorComparisonForm extends StatefulWidget {
 
 class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
   final _formKey = GlobalKey<FormState>();
-  final _oxygenDemandController = TextEditingController(text: '3');
   final _sotr1Controller = TextEditingController(text: '1.4');
   final _sotr2Controller = TextEditingController(text: '2.2');
   final _price1Controller = TextEditingController(text: '500');
@@ -23,16 +23,35 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
   final _maintenance2Controller = TextEditingController(text: '50');
   final _durability1Controller = TextEditingController(text: '2');
   final _durability2Controller = TextEditingController(text: '4.5');
-  final _energyCostController = TextEditingController(text: '326.75');
   final _temperatureController = TextEditingController(text: '31.5');
   final _salinityController = TextEditingController(text: '20');
-  final _biomassController = TextEditingController(text: '10000'); // kg/ha
+  final _biomassController = TextEditingController(text: '3333.33'); // Adjusted to match article
   final _discountRateController = TextEditingController(text: '10'); // %
   final _inflationRateController = TextEditingController(text: '2.5'); // %
   final _analysisHorizonController = TextEditingController(text: '9'); // years
+  final _manualTODController = TextEditingController(text: '5443.7675'); // kg O₂/h for 1000 ha
+
+  // Custom respiration rate controllers
+  final _shrimpRespirationController = TextEditingController(text: '0.3436'); // mg O₂/g/h
+  final _waterRespirationController = TextEditingController(text: '0.49125'); // mg/L/h
+  final _bottomRespirationController = TextEditingController(text: '0.245625'); // mg/L/h
+
+  // Toggles for manual TOD and custom respiration rates
+  bool _useManualTOD = false;
+  bool _useCustomShrimpRespiration = false;
+  bool _useCustomWaterRespiration = false;
+  bool _useCustomBottomRespiration = false;
 
   Map<String, dynamic>? _saturationData;
   Map<String, dynamic>? _respirationData;
+
+  // Intermediate values for display
+  double? otrT1;
+  double? otrT2;
+  double? shrimpDemand;
+  double? waterDemand;
+  double? bottomDemand;
+  double? totalDemand;
 
   @override
   void initState() {
@@ -51,7 +70,6 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
 
   @override
   void dispose() {
-    _oxygenDemandController.dispose();
     _sotr1Controller.dispose();
     _sotr2Controller.dispose();
     _price1Controller.dispose();
@@ -60,13 +78,16 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
     _maintenance2Controller.dispose();
     _durability1Controller.dispose();
     _durability2Controller.dispose();
-    _energyCostController.dispose();
     _temperatureController.dispose();
     _salinityController.dispose();
     _biomassController.dispose();
     _discountRateController.dispose();
     _inflationRateController.dispose();
     _analysisHorizonController.dispose();
+    _manualTODController.dispose();
+    _shrimpRespirationController.dispose();
+    _waterRespirationController.dispose();
+    _bottomRespirationController.dispose();
     super.dispose();
   }
 
@@ -116,16 +137,43 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
     return _interpolate(temperature, tempLow, tempHigh, rateLow, rateHigh);
   }
 
+  double _calculateTIR(double additionalCost, double annualSavings, double inflationRate, double analysisHorizon) {
+    // Use Newton-Raphson method to solve for TIR
+    double tir = 0.1; // Initial guess (10%)
+    const maxIterations = 1000;
+    const tolerance = 1e-6;
+
+    for (int i = 0; i < maxIterations; i++) {
+      double sum = 0.0;
+      double derivative = 0.0;
+
+      for (int t = 1; t <= analysisHorizon; t++) {
+        double discountFactor = math.pow(1 + tir, t);
+        double cashFlow = annualSavings * math.pow(1 + inflationRate, t);
+        sum += cashFlow / discountFactor;
+        derivative += -t * cashFlow / (discountFactor * (1 + tir));
+      }
+
+      double f = sum - additionalCost; // f(TIR) = PV - additionalCost
+      if (math.abs(f) < tolerance) break;
+
+      tir -= f / derivative; // Newton-Raphson update
+      if (tir < 0) tir = 0.1; // Reset if negative
+    }
+
+    return tir * 100; // Convert to percentage
+  }
+
   void _calculateEquilibrium() {
     if (_formKey.currentState!.validate()) {
       final appState = Provider.of<AppState>(context, listen: false);
       appState.setLoading(true);
 
-     try {
-      // Parse input values
+      try {
+        // Parse input values
         final temperature = double.parse(_temperatureController.text.replaceAll(',', ''));
         final salinity = double.parse(_salinityController.text.replaceAll(',', ''));
-        final biomass = double.parse(_biomassController.text.replaceAll(',', '')); // kg/ha
+        final biomass = _useManualTOD ? 0 : double.parse(_biomassController.text.replaceAll(',', '')); // kg/ha
         final sotr1 = double.parse(_sotr1Controller.text.replaceAll(',', ''));
         final sotr2 = double.parse(_sotr2Controller.text.replaceAll(',', ''));
         final price1 = double.parse(_price1Controller.text.replaceAll(',', ''));
@@ -140,6 +188,17 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
         final discountRate = double.parse(_discountRateController.text.replaceAll(',', '')) / 100; // Convert to decimal
         final inflationRate = double.parse(_inflationRateController.text.replaceAll(',', '')) / 100; // Convert to decimal
         final analysisHorizon = double.parse(_analysisHorizonController.text.replaceAll(',', ''));
+
+        // Parse custom respiration rates
+        final shrimpRespirationRate = _useCustomShrimpRespiration
+            ? double.parse(_shrimpRespirationController.text.replaceAll(',', ''))
+            : null;
+        final waterRespirationRate = _useCustomWaterRespiration
+            ? double.parse(_waterRespirationController.text.replaceAll(',', ''))
+            : null;
+        final bottomRespirationRate = _useCustomBottomRespiration
+            ? double.parse(_bottomRespirationController.text.replaceAll(',', ''))
+            : null;
 
         // Additional validation: Check if discount rate equals inflation rate
         if (discountRate == inflationRate) {
@@ -158,37 +217,74 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
         final energyCost1 = kw1 * energyCostPerKWh * hoursPerYear; // USD/year for Aireador 1
         final energyCost2 = kw2 * energyCostPerKWh * hoursPerYear; // USD/year for Aireador 2
 
-        // Calculate OTRt with corrected formula
+        // Calculate OTRt with corrected formula including temperature adjustment
         final cs100Ref = _getCs100(20, salinity); // 20°C, experiment salinity
         final cs50 = cs100Ref * 0.5; // Target at 50% saturation
         final otrFactor = (cs100Ref - cs50) / cs100Ref; // Should be 0.5
-        final otr1 = sotr1 * otrFactor;
-        final otr2 = sotr2 * otrFactor;
+        final otr20_1 = sotr1 * otrFactor;
+        final otr20_2 = sotr2 * otrFactor;
+
+        // Apply temperature correction
+        const theta = 1.024;
+        const standardTemp = 20.0;
+        final tempCorrection = math.pow(theta, standardTemp - temperature);
+        otrT1 = otr20_1 * tempCorrection;
+        otrT2 = otr20_2 * tempCorrection;
 
         // Calculate oxygen demand
-        final averageWeight = 10.0; // g (assumed average over cycle)
-        final respirationRate = _getRespirationRate(temperature, salinity, averageWeight);
-        final shrimpDemand = (biomass * 1000) * respirationRate / 1000; // kg/ha/h
-        const pondDemand = 0.5 * 10000; // 0.5 mg/L/h * 10,000,000 L/ha = 5 kg/ha/h
-        final totalDemand = shrimpDemand + pondDemand;
+        if (_useManualTOD) {
+          totalDemand = double.parse(_manualTODController.text.replaceAll(',', ''));
+        } else {
+          // Shrimp respiration
+          final averageWeight = 10.0; // g (assumed average over cycle)
+          final respirationRate = _useCustomShrimpRespiration
+              ? shrimpRespirationRate!
+              : _getRespirationRate(temperature, salinity, averageWeight);
+          shrimpDemand = (biomass * 1000) * respirationRate / 1000; // kg/ha/h
+
+          // Pond demand: split into water and bottom
+          final cs100 = _getCs100(temperature, salinity); // At operating conditions
+          final cs50Target = cs100 * 0.5;
+          final cs25 = cs100 * 0.25; // For bottom respiration
+
+          // Water respiration
+          if (_useCustomWaterRespiration) {
+            waterDemand = waterRespirationRate! * 10000000 / 1000; // mg/L/h to kg/ha/h
+          } else {
+            waterDemand = (cs100 - cs50Target) * 10000000 / 1000 / 8; // kg/ha/h over 8 hours
+          }
+
+          // Bottom respiration
+          final bottomVolume = 1000000; // 10% of water volume
+          if (_useCustomBottomRespiration) {
+            bottomDemand = bottomRespirationRate! * bottomVolume / 1000; // mg/L/h to kg/ha/h
+          } else {
+            bottomDemand = (cs50Target - cs25) * bottomVolume / 1000 / 8; // kg/ha/h over 8 hours
+          }
+
+          final pondDemand = waterDemand! + bottomDemand!;
+          final totalDemandPerHa = shrimpDemand! + pondDemand;
+          const totalHectares = 1000;
+          totalDemand = totalDemandPerHa * totalHectares;
+        }
 
         // Calculate number of aerators per hectare
-        final n1PerHa = (totalDemand / otr1).ceil();
-        final n2PerHa = (totalDemand / otr2).ceil();
+        final totalDemandPerHa = totalDemand! / 1000;
+        final n1PerHa = (totalDemandPerHa / otrT1!).ceil();
+        final n2PerHa = (totalDemandPerHa / otrT2!).ceil();
 
         // Total for 1000 ha
-        const totalHectares = 1000;
-        final n1 = n1PerHa * totalHectares;
-        final n2 = n2PerHa * totalHectares;
+        final n1 = n1PerHa * 1000;
+        final n2 = n2PerHa * 1000;
 
         // Calculate total annual costs
         final totalCost1 = n1 * (energyCost1 + maintenance1 + (price1 / durability1));
         final totalCost2 = n2 * (energyCost2 + maintenance2 + (price2 / durability2));
 
         // Calculate equilibrium price P2
-        final p2Equilibrium = (durability2 / otr1) *
-            (otr2 * (energyCost1 + maintenance1 + (price1 / durability1)) -
-                otr1 * (energyCost2 + maintenance2));
+        final p2Equilibrium = (durability2 / otrT1!) *
+            (otrT2! * (energyCost1 + maintenance1 + (price1 / durability1)) -
+                otrT1! * (energyCost2 + maintenance2));
 
         // Determine the loser and calculate savings
         bool isAerator1Loser = totalCost1 > totalCost2;
@@ -196,11 +292,17 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
         final additionalCost = (n2 * price2) - (n1 * price1);
 
         // Calculate present value of savings (PV of savings)
-        final factor = (1 + inflationRate) * (1 - (pow((1 + inflationRate) / (1 + discountRate), analysisHorizon))) / (discountRate - inflationRate);
+        final factor = (1 + inflationRate) * (1 - (math.pow((1 + inflationRate) / (1 + discountRate), analysisHorizon))) / (discountRate - inflationRate);
         final pvSavings = annualSavings * factor;
 
         // Calculate coefficient of profitability k
         final k = additionalCost != 0 ? pvSavings / additionalCost : 0;
+
+        // Calculate additional financial metrics
+        final vpn = pvSavings - additionalCost;
+        final payback = (factor / k) * 365; // Convert to days
+        final roi = (additionalCost != 0) ? (annualSavings / additionalCost) * 100 : 0;
+        final tir = _calculateTIR(additionalCost, annualSavings, inflationRate, analysisHorizon);
 
         // Calculate cost of opportunity and real price dynamically
         double costOfOpportunity;
@@ -235,7 +337,10 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
           'Annual Energy Cost Aerator 2 (USD/year per aerator)': energyCost2,
           'Temperature (°C)': temperature,
           'Salinity (ppt)': salinity,
-          'Biomass (kg/ha)': biomass,
+          'Biomass (kg/ha)': _useManualTOD ? 'N/A' : biomass,
+          'Shrimp Respiration Rate (mg O₂/g/h)': _useCustomShrimpRespiration ? shrimpRespirationRate : 'Dynamic',
+          'Water Respiration Rate (mg/L/h)': _useCustomWaterRespiration ? waterRespirationRate : 'Dynamic',
+          'Bottom Respiration Rate (mg/L/h)': _useCustomBottomRespiration ? bottomRespirationRate : 'Dynamic',
           'Discount Rate (%)': discountRate * 100,
           'Inflation Rate (%)': inflationRate * 100,
           'Analysis Horizon (years)': analysisHorizon,
@@ -243,6 +348,11 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
 
         // Results for display
         final results = {
+          'OTR_T Aerator 1 (kg O₂/h)': otrT1,
+          'OTR_T Aerator 2 (kg O₂/h)': otrT2,
+          if (!_useManualTOD) 'Shrimp Demand (kg O₂/h for 1000 ha)': shrimpDemand! * 1000,
+          if (!_useManualTOD) 'Water Demand (kg O₂/h/ha)': waterDemand,
+          if (!_useManualTOD) 'Bottom Demand (kg O₂/h/ha)': bottomDemand,
           AppLocalizations.of(context)!.numberOfAerator1UnitsLabel: n1,
           AppLocalizations.of(context)!.numberOfAerator2UnitsLabel: n2,
           AppLocalizations.of(context)!.totalAnnualCostAerator1Label: totalCost1,
@@ -250,6 +360,10 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
           AppLocalizations.of(context)!.equilibriumPriceP2Label: p2Equilibrium,
           AppLocalizations.of(context)!.actualPriceP2Label: price2,
           'Coefficient of Profitability (k)': k,
+          'VPN (USD)': vpn,
+          'Payback (days)': payback,
+          'ROI (%)': roi,
+          'TIR (%)': tir,
           'Cost of Opportunity (USD)': costOfOpportunity,
           'Real Price of Losing Aerator (USD) ($loserLabel)': realPriceLoser,
           'Number of Units of Losing Aerator': loserUnits,
@@ -312,90 +426,202 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
                           const SizedBox(height: 10),
                           Form(
                             key: _formKey,
-                            child: MediaQuery.of(context).size.width < 600
-                                ? Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Toggle for manual vs dynamic TOD
+                                Row(
+                                  children: [
+                                    Text(l10n.useManualTODLabel),
+                                    Switch(
+                                      value: _useManualTOD,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _useManualTOD = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                if (_useManualTOD)
+                                  _buildTextField(
+                                      _manualTODController,
+                                      'Manual Total Oxygen Demand (kg O₂/h for 1000 ha)',
+                                      0,
+                                      100000),
+                                if (!_useManualTOD) ...[
+                                  // Toggle for custom shrimp respiration
+                                  Row(
                                     children: [
-                                      _buildTextField(_temperatureController,
-                                          'Temperature (°C)', 0, 40),
-                                      _buildTextField(_salinityController,
-                                          'Salinity (ppt)', 0, 40),
-                                      _buildTextField(_biomassController,
-                                          'Biomass (kg/ha)', 0, 100000),
-                                      _buildTextField(_sotr1Controller,
-                                          l10n.sotrAerator1Label, 0, 10),
-                                      _buildTextField(_sotr2Controller,
-                                          l10n.sotrAerator2Label, 0, 10),
-                                      _buildTextField(_price1Controller,
-                                          l10n.priceAerator1Label, 0, 10000),
-                                      _buildTextField(_price2Controller,
-                                          l10n.priceAerator2Label, 0, 10000),
-                                      _buildTextField(_maintenance1Controller,
-                                          l10n.maintenanceCostAerator1Label, 0, 1000),
-                                      _buildTextField(_maintenance2Controller,
-                                          l10n.maintenanceCostAerator2Label, 0, 1000),
-                                      _buildTextField(_durability1Controller,
-                                          l10n.durabilityAerator1Label, 0.1, 20),
-                                      _buildTextField(_durability2Controller,
-                                          l10n.durabilityAerator2Label, 0.1, 20),
-                                      _buildTextField(_energyCostController,
-                                          l10n.annualEnergyCostLabel, 0, 1000),
-                                      _buildTextField(_discountRateController,
-                                          'Discount Rate (%)', 0, 100),
-                                      _buildTextField(_inflationRateController,
-                                          'Inflation Rate (%)', 0, 100),
-                                      _buildTextField(_analysisHorizonController,
-                                          'Analysis Horizon (years)', 1, 50),
-                                    ],
-                                  )
-                                : Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          children: [
-                                            _buildTextField(_temperatureController,
-                                                'Temperature (°C)', 0, 40),
-                                            _buildTextField(_salinityController,
-                                                'Salinity (ppt)', 0, 40),
-                                            _buildTextField(_biomassController,
-                                                'Biomass (kg/ha)', 0, 100000),
-                                            _buildTextField(_sotr1Controller,
-                                                l10n.sotrAerator1Label, 0, 10),
-                                            _buildTextField(_sotr2Controller,
-                                                l10n.sotrAerator2Label, 0, 10),
-                                            _buildTextField(_price1Controller,
-                                                l10n.priceAerator1Label, 0, 10000),
-                                            _buildTextField(_price2Controller,
-                                                l10n.priceAerator2Label, 0, 10000),
-                                            _buildTextField(_discountRateController,
-                                                'Discount Rate (%)', 0, 100),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          children: [
-                                            _buildTextField(_maintenance1Controller,
-                                                l10n.maintenanceCostAerator1Label, 0, 1000),
-                                            _buildTextField(_maintenance2Controller,
-                                                l10n.maintenanceCostAerator2Label, 0, 1000),
-                                            _buildTextField(_durability1Controller,
-                                                l10n.durabilityAerator1Label, 0.1, 20),
-                                            _buildTextField(_durability2Controller,
-                                                l10n.durabilityAerator2Label, 0.1, 20),
-                                            _buildTextField(_energyCostController,
-                                                l10n.annualEnergyCostLabel, 0, 1000),
-                                            _buildTextField(_inflationRateController,
-                                                'Inflation Rate (%)', 0, 100),
-                                            _buildTextField(_analysisHorizonController,
-                                                'Analysis Horizon (years)', 1, 50),
-                                          ],
-                                        ),
+                                      Text('Use Custom Shrimp Respiration Rate'),
+                                      Switch(
+                                        value: _useCustomShrimpRespiration,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _useCustomShrimpRespiration = value;
+                                          });
+                                        },
                                       ),
                                     ],
                                   ),
+                                  if (_useCustomShrimpRespiration)
+                                    _buildTextField(
+                                        _shrimpRespirationController,
+                                        'Shrimp Respiration Rate (mg O₂/g/h)',
+                                        0,
+                                        10),
+                                  // Toggle for custom water respiration
+                                  Row(
+                                    children: [
+                                      Text('Use Custom Water Respiration Rate'),
+                                      Switch(
+                                        value: _useCustomWaterRespiration,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _useCustomWaterRespiration = value;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  if (_useCustomWaterRespiration)
+                                    _buildTextField(
+                                        _waterRespirationController,
+                                        'Water Respiration Rate (mg/L/h)',
+                                        0,
+                                        10),
+                                  // Toggle for custom bottom respiration
+                                  Row(
+                                    children: [
+                                      Text('Use Custom Bottom Respiration Rate'),
+                                      Switch(
+                                        value: _useCustomBottomRespiration,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _useCustomBottomRespiration = value;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  if (_useCustomBottomRespiration)
+                                    _buildTextField(
+                                        _bottomRespirationController,
+                                        'Bottom Respiration Rate (mg/L/h)',
+                                        0,
+                                        10),
+                                ],
+                                MediaQuery.of(context).size.width < 600
+                                    ? Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          _buildTextField(_temperatureController,
+                                              'Temperature (°C)', 0, 40),
+                                          _buildTextField(_salinityController,
+                                              'Salinity (ppt)', 0, 40),
+                                          if (!_useManualTOD)
+                                            _buildTextField(_biomassController,
+                                                'Biomass (kg/ha)', 0, 100000),
+                                          _buildTextField(_sotr1Controller,
+                                              l10n.sotrAerator1Label, 0, 10),
+                                          _buildTextField(_sotr2Controller,
+                                              l10n.sotrAerator2Label, 0, 10),
+                                          _buildTextField(_price1Controller,
+                                              l10n.priceAerator1Label, 0, 10000),
+                                          _buildTextField(_price2Controller,
+                                              l10n.priceAerator2Label, 0, 10000),
+                                          _buildTextField(
+                                              _maintenance1Controller,
+                                              l10n.maintenanceCostAerator1Label,
+                                              0,
+                                              1000),
+                                          _buildTextField(
+                                              _maintenance2Controller,
+                                              l10n.maintenanceCostAerator2Label,
+                                              0,
+                                              1000),
+                                          _buildTextField(_durability1Controller,
+                                              l10n.durabilityAerator1Label, 0.1, 20),
+                                          _buildTextField(_durability2Controller,
+                                              l10n.durabilityAerator2Label, 0.1, 20),
+                                          _buildTextField(_discountRateController,
+                                              'Discount Rate (%)', 0, 100),
+                                          _buildTextField(_inflationRateController,
+                                              'Inflation Rate (%)', 0, 100),
+                                          _buildTextField(_analysisHorizonController,
+                                              'Analysis Horizon (years)', 1, 50),
+                                        ],
+                                      )
+                                    : Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              children: [
+                                                _buildTextField(_temperatureController,
+                                                    'Temperature (°C)', 0, 40),
+                                                _buildTextField(_salinityController,
+                                                    'Salinity (ppt)', 0, 40),
+                                                if (!_useManualTOD)
+                                                  _buildTextField(
+                                                      _biomassController,
+                                                      'Biomass (kg/ha)',
+                                                      0,
+                                                      100000),
+                                                _buildTextField(_sotr1Controller,
+                                                    l10n.sotrAerator1Label, 0, 10),
+                                                _buildTextField(_sotr2Controller,
+                                                    l10n.sotrAerator2Label, 0, 10),
+                                                _buildTextField(_price1Controller,
+                                                    l10n.priceAerator1Label, 0, 10000),
+                                                _buildTextField(_price2Controller,
+                                                    l10n.priceAerator2Label, 0, 10000),
+                                                _buildTextField(_discountRateController,
+                                                    'Discount Rate (%)', 0, 100),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              children: [
+                                                _buildTextField(
+                                                    _maintenance1Controller,
+                                                    l10n.maintenanceCostAerator1Label,
+                                                    0,
+                                                    1000),
+                                                _buildTextField(
+                                                    _maintenance2Controller,
+                                                    l10n.maintenanceCostAerator2Label,
+                                                    0,
+                                                    1000),
+                                                _buildTextField(
+                                                    _durability1Controller,
+                                                    l10n.durabilityAerator1Label,
+                                                    0.1,
+                                                    20),
+                                                _buildTextField(
+                                                    _durability2Controller,
+                                                    l10n.durabilityAerator2Label,
+                                                    0.1,
+                                                    20),
+                                                _buildTextField(
+                                                    _inflationRateController,
+                                                    'Inflation Rate (%)',
+                                                    0,
+                                                    100),
+                                                _buildTextField(
+                                                    _analysisHorizonController,
+                                                    'Analysis Horizon (years)',
+                                                    1,
+                                                    50),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 12),
                           Center(
@@ -436,6 +662,18 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
       case 'Biomass (kg/ha)':
         tooltip = 'Shrimp biomass per hectare in kilograms';
         break;
+      case 'Manual Total Oxygen Demand (kg O₂/h for 1000 ha)':
+        tooltip = 'Manually specified total oxygen demand for 1000 hectares';
+        break;
+      case 'Shrimp Respiration Rate (mg O₂/g/h)':
+        tooltip = 'Custom respiration rate for shrimp in mg O₂ per gram per hour';
+        break;
+      case 'Water Respiration Rate (mg/L/h)':
+        tooltip = 'Custom respiration rate for water in mg O₂ per liter per hour';
+        break;
+      case 'Bottom Respiration Rate (mg/L/h)':
+        tooltip = 'Custom respiration rate for bottom in mg O₂ per liter per hour';
+        break;
       case 'SOTR Aerator 1 (kg O₂/h per aerator)':
         tooltip = l10n.sotrAerator1Tooltip;
         break;
@@ -459,9 +697,6 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
         break;
       case 'Durability Aerator 2 (years)':
         tooltip = l10n.durabilityAerator2Tooltip;
-        break;
-      case 'Annual Energy Cost (USD/year per aerator)':
-        tooltip = l10n.annualEnergyCostTooltip;
         break;
       case 'Discount Rate (%)':
         tooltip = 'Annual discount rate for present value calculations';

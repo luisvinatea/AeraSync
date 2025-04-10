@@ -53,6 +53,27 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
           }
         }
 
+        // Group results into sections for Aerator Comparison
+        final Map<String, Map<String, dynamic>> groupedResults = {
+          'Oxygen Demand': <String, dynamic>{},
+          'Aerator Metrics': <String, dynamic>{},
+          'Financial Metrics': <String, dynamic>{},
+        };
+
+        if (widget.tab == 'Aerator Comparison') {
+          results.forEach((key, value) {
+            if (key.contains('Demand') || key == AppLocalizations.of(context)!.totalOxygenDemandLabel) {
+              groupedResults['Oxygen Demand']![key] = value;
+            } else if (key.contains('OTR_T') ||
+                key == AppLocalizations.of(context)!.numberOfAerator1UnitsLabel ||
+                key == AppLocalizations.of(context)!.numberOfAerator2UnitsLabel) {
+              groupedResults['Aerator Metrics']![key] = value;
+            } else {
+              groupedResults['Financial Metrics']![key] = value;
+            }
+          });
+        }
+
         return Card(
           elevation: 4,
           shape: RoundedRectangleBorder(
@@ -128,6 +149,9 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                           : _buildAeratorComparisonPieChart(results, l10n, key: const Key('pieChart')),
                     ),
                     const SizedBox(height: 16),
+                    // Oxygen Demand Breakdown Pie Chart
+                    _buildOxygenDemandPieChart(results, l10n),
+                    const SizedBox(height: 16),
                     // Cost Breakdown Table for Aerator Comparison
                     _buildCostBreakdownTable(results, inputs!, l10n),
                     const SizedBox(height: 16),
@@ -151,66 +175,143 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                     ),
                     const SizedBox(height: 16),
                   ],
-                  // List of all results
-                  ...results.entries.map((entry) {
-                    final isKeyMetric = (widget.tab == 'Aerator Performance' &&
-                            entry.key == 'SOTR (kg O₂/h)') ||
-                        (widget.tab == 'Aerator Estimation' &&
-                            entry.key == l10n.numberOfAeratorsPerHectareLabel) ||
-                        (widget.tab == 'Aerator Comparison' &&
-                            (entry.key == 'Coefficient of Profitability (k)' ||
-                                entry.key == 'Cost of Opportunity (USD)' ||
-                                entry.key.contains('Real Price of Losing Aerator')));
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
+                  // Grouped results for Aerator Comparison
+                  if (widget.tab == 'Aerator Comparison') ...[
+                    ...groupedResults.entries.map((group) {
+                      if (group.value.isEmpty) return const SizedBox.shrink();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            flex: 2,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Text(
-                              entry.key,
-                              style: const TextStyle(fontWeight: FontWeight.w600),
+                              group.key,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1E40AF),
+                              ),
                             ),
                           ),
-                          Expanded(
-                            flex: 1,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  _formatValueWithThousandSeparator(entry.value),
-                                  textAlign: TextAlign.end,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1E40AF),
+                          ...group.value.entries.map((entry) {
+                            final isKeyMetric = entry.key == 'Coefficient of Profitability (k)' ||
+                                entry.key == 'Cost of Opportunity (USD)' ||
+                                entry.key.contains('Real Price of Losing Aerator');
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      entry.key,
+                                      style: const TextStyle(fontWeight: FontWeight.w600),
+                                    ),
                                   ),
-                                ),
-                                if (isKeyMetric) ...[
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    icon: const Icon(Icons.copy, color: Color(0xFF1E40AF)),
-                                    onPressed: () {
-                                      FlutterClipboard.copy(_formatValue(entry.value)).then((value) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              l10n.valueCopied(value: entry.key),
-                                            ),
-                                            duration: const Duration(seconds: 2),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          _formatValueWithThousandSeparator(entry.value),
+                                          textAlign: TextAlign.end,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF1E40AF),
                                           ),
-                                        );
-                                      });
-                                    },
-                                    tooltip: l10n.copyToClipboardTooltip,
+                                        ),
+                                        if (isKeyMetric) ...[
+                                          const SizedBox(width: 8),
+                                          IconButton(
+                                            icon: const Icon(Icons.copy, color: Color(0xFF1E40AF)),
+                                            onPressed: () {
+                                              FlutterClipboard.copy(_formatValue(entry.value)).then((value) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      l10n.valueCopied(value: entry.key),
+                                                    ),
+                                                    duration: const Duration(seconds: 2),
+                                                  ),
+                                                );
+                                              });
+                                            },
+                                            tooltip: l10n.copyToClipboardTooltip,
+                                          ),
+                                        ],
+                                      ],
+                                    ),
                                   ),
                                 ],
-                              ],
-                            ),
-                          ),
+                              ),
+                            );
+                          }),
                         ],
-                      ),
-                    );
-                  }),
+                      );
+                    }),
+                  ] else ...[
+                    // Default results list for other tabs
+                    ...results.entries.map((entry) {
+                      final isKeyMetric = (widget.tab == 'Aerator Performance' &&
+                              entry.key == 'SOTR (kg O₂/h)') ||
+                          (widget.tab == 'Aerator Estimation' &&
+                              entry.key == l10n.numberOfAeratorsPerHectareLabel) ||
+                          (widget.tab == 'Aerator Comparison' &&
+                              (entry.key == 'Coefficient of Profitability (k)' ||
+                                  entry.key == 'Cost of Opportunity (USD)' ||
+                                  entry.key.contains('Real Price of Losing Aerator')));
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                entry.key,
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    _formatValueWithThousandSeparator(entry.value),
+                                    textAlign: TextAlign.end,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF1E40AF),
+                                    ),
+                                  ),
+                                  if (isKeyMetric) ...[
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.copy, color: Color(0xFF1E40AF)),
+                                      onPressed: () {
+                                        FlutterClipboard.copy(_formatValue(entry.value)).then((value) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                l10n.valueCopied(value: entry.key),
+                                              ),
+                                              duration: const Duration(seconds: 2),
+                                            ),
+                                          );
+                                        });
+                                      },
+                                      tooltip: l10n.copyToClipboardTooltip,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
                   const SizedBox(height: 16),
                   Align(
                     alignment: Alignment.center,
@@ -481,9 +582,104 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
     );
   }
 
+  Widget _buildOxygenDemandPieChart(Map<String, dynamic> results, AppLocalizations l10n) {
+    final metrics = [
+      {
+        'title': 'Shrimp Demand',
+        'value': results['Shrimp Demand (kg O₂/h for 1000 ha)'] as double? ?? 0.0,
+        'color': Colors.blue,
+      },
+      {
+        'title': 'Water Demand',
+        'value': (results['Water Demand (kg O₂/h/ha)'] as double? ?? 0.0) * 1000, // Convert to total for 1000 ha
+        'color': Colors.green,
+      },
+      {
+        'title': 'Bottom Demand',
+        'value': (results['Bottom Demand (kg O₂/h/ha)'] as double? ?? 0.0) * 1000, // Convert to total for 1000 ha
+        'color': Colors.orange,
+      },
+    ];
+
+    final totalValue = metrics.map((e) => e['value'] as double).reduce((a, b) => a + b);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Oxygen Demand Breakdown",
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1E40AF),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 200,
+          child: Column(
+            children: [
+              Expanded(
+                child: PieChart(
+                  PieChartData(
+                    sections: metrics.asMap().entries.map((entry) {
+                      final metric = entry.value;
+                      return PieChartSectionData(
+                        color: metric['color'] as Color,
+                        value: metric['value'] as double,
+                        title: metric['title'] as String,
+                        radius: 50,
+                        titleStyle: const TextStyle(fontSize: 12, color: Colors.white),
+                        showTitle: totalValue > 0,
+                      );
+                    }).toList(),
+                    sectionsSpace: 2,
+                    centerSpaceRadius: 40,
+                    pieTouchData: PieTouchData(
+                      enabled: true,
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        // Handle touch events if needed
+                      },
+                      longPressDuration: const Duration(milliseconds: 500),
+                    ),
+                  ),
+                  swapAnimationDuration: const Duration(milliseconds: 0),
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Legend
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: metrics.map((metric) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        color: metric['color'] as Color,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        metric['title'] as String,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildCostBreakdownTable(Map<String, dynamic> results, Map<String, dynamic> inputs, AppLocalizations l10n) {
-    // Extract input values
-    final energyCost = inputs[l10n.annualEnergyCostLabel] as double? ?? 0.0;
+    // Extract input values with correct energy costs
+    final energyCost1 = inputs['Annual Energy Cost Aerator 1 (USD/year per aerator)'] as double? ?? 0.0;
+    final energyCost2 = inputs['Annual Energy Cost Aerator 2 (USD/year per aerator)'] as double? ?? 0.0;
     final maintenance1 = inputs[l10n.maintenanceCostAerator1Label] as double? ?? 0.0;
     final maintenance2 = inputs[l10n.maintenanceCostAerator2Label] as double? ?? 0.0;
     final price1 = inputs[l10n.priceAerator1Label] as double? ?? 0.0;
@@ -494,8 +690,8 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
     final n2 = results[l10n.numberOfAerator2UnitsLabel] as int? ?? 0;
 
     // Calculate cost components
-    final energyCost1 = energyCost * n1;
-    final energyCost2 = energyCost * n2;
+    final energyCostTotal1 = energyCost1 * n1;
+    final energyCostTotal2 = energyCost2 * n2;
     final maintenanceCost1 = maintenance1 * n1;
     final maintenanceCost2 = maintenance2 * n2;
     final capitalCost1 = (price1 / durability1) * n1;
@@ -547,20 +743,20 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    _formatValueWithThousandSeparator(energyCost1),
+                    _formatValueWithThousandSeparator(energyCostTotal1),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: energyCost1 <= energyCost2 ? Colors.green : Colors.red,
+                      color: energyCostTotal1 <= energyCostTotal2 ? Colors.green : Colors.red,
                     ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    _formatValueWithThousandSeparator(energyCost2),
+                    _formatValueWithThousandSeparator(energyCostTotal2),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: energyCost2 <= energyCost1 ? Colors.green : Colors.red,
+                      color: energyCostTotal2 <= energyCostTotal1 ? Colors.green : Colors.red,
                     ),
                   ),
                 ),
@@ -629,7 +825,8 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
   }
 
   Widget _buildCostBreakdownPieChart(Map<String, dynamic> results, Map<String, dynamic> inputs, AppLocalizations l10n) {
-    final energyCost = inputs[l10n.annualEnergyCostLabel] as double? ?? 0.0;
+    final energyCost1 = inputs['Annual Energy Cost Aerator 1 (USD/year per aerator)'] as double? ?? 0.0;
+    final energyCost2 = inputs['Annual Energy Cost Aerator 2 (USD/year per aerator)'] as double? ?? 0.0;
     final maintenance1 = inputs[l10n.maintenanceCostAerator1Label] as double? ?? 0.0;
     final maintenance2 = inputs[l10n.maintenanceCostAerator2Label] as double? ?? 0.0;
     final price1 = inputs[l10n.priceAerator1Label] as double? ?? 0.0;
@@ -639,24 +836,24 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
     final n1 = results[l10n.numberOfAerator1UnitsLabel] as int? ?? 0;
     final n2 = results[l10n.numberOfAerator2UnitsLabel] as int? ?? 0;
 
-    final energyCost1 = energyCost * n1;
-    final energyCost2 = energyCost * n2;
+    final energyCostTotal1 = energyCost1 * n1;
+    final energyCostTotal2 = energyCost2 * n2;
     final maintenanceCost1 = maintenance1 * n1;
     final maintenanceCost2 = maintenance2 * n2;
     final capitalCost1 = (price1 / durability1) * n1;
     final capitalCost2 = (price2 / durability2) * n2;
 
-    final totalCost1 = energyCost1 + maintenanceCost1 + capitalCost1;
-    final totalCost2 = energyCost2 + maintenanceCost2 + capitalCost2;
+    final totalCost1 = energyCostTotal1 + maintenanceCost1 + capitalCost1;
+    final totalCost2 = energyCostTotal2 + maintenanceCost2 + capitalCost2;
 
     final metrics1 = [
-      {'title': l10n.energyCostLabel, 'value': energyCost1, 'color': Colors.blue},
+      {'title': l10n.energyCostLabel, 'value': energyCostTotal1, 'color': Colors.blue},
       {'title': l10n.maintenanceCostLabel, 'value': maintenanceCost1, 'color': Colors.green},
       {'title': l10n.capitalCostLabel, 'value': capitalCost1, 'color': Colors.orange},
     ];
 
     final metrics2 = [
-      {'title': l10n.energyCostLabel, 'value': energyCost2, 'color': Colors.blue},
+      {'title': l10n.energyCostLabel, 'value': energyCostTotal2, 'color': Colors.blue},
       {'title': l10n.maintenanceCostLabel, 'value': maintenanceCost2, 'color': Colors.green},
       {'title': l10n.capitalCostLabel, 'value': capitalCost2, 'color': Colors.orange},
     ];
@@ -785,20 +982,47 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
 
   String _formatValueWithThousandSeparator(dynamic value) {
     if (value is double) {
+      if (value >= 1000000) {
+        return NumberFormat.compact().format(value);
+      }
       return NumberFormat('#,##0.00').format(value);
     } else if (value is int) {
+      if (value >= 1000000) {
+        return NumberFormat.compact().format(value);
+      }
       return NumberFormat('#,##0').format(value);
     }
     return value.toString();
   }
 
   void _downloadAsCsv(Map<String, dynamic> inputs, Map<String, dynamic> results) {
-    final combinedData = <String, dynamic>{};
-    inputs.forEach((key, value) => combinedData['Input: $key'] = value);
-    results.forEach((key, value) => combinedData['Result: $key'] = value);
+    final csvRows = <String>[];
 
-    // Add cost breakdown data
-    final energyCost = inputs[l10n.annualEnergyCostLabel] as double? ?? 0.0;
+    // Inputs Section
+    csvRows.add('"Inputs"');
+    csvRows.add('"Category","Value"');
+    inputs.forEach((key, value) {
+      final escapedKey = key.replaceAll('"', '""');
+      final escapedValue = _formatValue(value).replaceAll('"', '""');
+      csvRows.add('"$escapedKey","$escapedValue"');
+    });
+
+    // Results Section
+    csvRows.add('');
+    csvRows.add('"Results"');
+    csvRows.add('"Category","Value"');
+    results.forEach((key, value) {
+      final escapedKey = key.replaceAll('"', '""');
+      final escapedValue = _formatValue(value).replaceAll('"', '""');
+      csvRows.add('"$escapedKey","$escapedValue"');
+    });
+
+    // Cost Breakdown Section
+    csvRows.add('');
+    csvRows.add('"Cost Breakdown"');
+    csvRows.add('"Category","Value"');
+    final energyCost1 = inputs['Annual Energy Cost Aerator 1 (USD/year per aerator)'] as double? ?? 0.0;
+    final energyCost2 = inputs['Annual Energy Cost Aerator 2 (USD/year per aerator)'] as double? ?? 0.0;
     final maintenance1 = inputs[l10n.maintenanceCostAerator1Label] as double? ?? 0.0;
     final maintenance2 = inputs[l10n.maintenanceCostAerator2Label] as double? ?? 0.0;
     final price1 = inputs[l10n.priceAerator1Label] as double? ?? 0.0;
@@ -808,26 +1032,19 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
     final n1 = results[l10n.numberOfAerator1UnitsLabel] as int? ?? 0;
     final n2 = results[l10n.numberOfAerator2UnitsLabel] as int? ?? 0;
 
-    final energyCost1 = energyCost * n1;
-    final energyCost2 = energyCost * n2;
+    final energyCostTotal1 = energyCost1 * n1;
+    final energyCostTotal2 = energyCost2 * n2;
     final maintenanceCost1 = maintenance1 * n1;
     final maintenanceCost2 = maintenance2 * n2;
     final capitalCost1 = (price1 / durability1) * n1;
     final capitalCost2 = (price2 / durability2) * n2;
 
-    combinedData['Cost Breakdown: ${l10n.aerator1} - ${l10n.energyCostLabel}'] = energyCost1;
-    combinedData['Cost Breakdown: ${l10n.aerator1} - ${l10n.maintenanceCostLabel}'] = maintenanceCost1;
-    combinedData['Cost Breakdown: ${l10n.aerator1} - ${l10n.capitalCostLabel}'] = capitalCost1;
-    combinedData['Cost Breakdown: ${l10n.aerator2} - ${l10n.energyCostLabel}'] = energyCost2;
-    combinedData['Cost Breakdown: ${l10n.aerator2} - ${l10n.maintenanceCostLabel}'] = maintenanceCost2;
-    combinedData['Cost Breakdown: ${l10n.aerator2} - ${l10n.capitalCostLabel}'] = capitalCost2;
-
-    final csvRows = <String>['"Category","Value"'];
-    combinedData.forEach((key, value) {
-      final escapedKey = key.replaceAll('"', '""');
-      final escapedValue = _formatValue(value).replaceAll('"', '""');
-      csvRows.add('"$escapedKey","$escapedValue"');
-    });
+    csvRows.add('"${l10n.aerator1} - ${l10n.energyCostLabel}","${_formatValue(energyCostTotal1)}"');
+    csvRows.add('"${l10n.aerator1} - ${l10n.maintenanceCostLabel}","${_formatValue(maintenanceCost1)}"');
+    csvRows.add('"${l10n.aerator1} - ${l10n.capitalCostLabel}","${_formatValue(capitalCost1)}"');
+    csvRows.add('"${l10n.aerator2} - ${l10n.energyCostLabel}","${_formatValue(energyCostTotal2)}"');
+    csvRows.add('"${l10n.aerator2} - ${l10n.maintenanceCostLabel}","${_formatValue(maintenanceCost2)}"');
+    csvRows.add('"${l10n.aerator2} - ${l10n.capitalCostLabel}","${_formatValue(capitalCost2)}"');
 
     final csvContent = csvRows.join('\n');
     final blob = html.Blob([csvContent], 'text/csv');

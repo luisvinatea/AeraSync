@@ -2,10 +2,16 @@
 # Deployment script for AeraSync to GitHub Pages
 set -e # Exit immediately if a command exits with a non-zero status
 
+# Check if working directory is clean
+if [[ -n $(git status --porcelain) ]]; then
+  echo "Error: Working directory is not clean. Please commit or stash changes before deploying."
+  exit 1
+fi
+
 # Check Flutter version
 echo "Checking Flutter version..."
-FLUTTER_VERSION=$(flutter --version --machine | grep -oP '"frameworkVersion": "\K[^"]+')
-MINIMUM_VERSION="2.0.0"
+FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K[\d\.]+')
+MINIMUM_VERSION="3.0.0"
 if [[ $(echo -e "$FLUTTER_VERSION\n$MINIMUM_VERSION" | sort -V | head -n1) != "$MINIMUM_VERSION" ]]; then
   echo "Error: Flutter version $FLUTTER_VERSION is too old. Minimum required version is $MINIMUM_VERSION."
   echo "Please upgrade Flutter by running 'flutter upgrade'."
@@ -13,16 +19,39 @@ if [[ $(echo -e "$FLUTTER_VERSION\n$MINIMUM_VERSION" | sort -V | head -n1) != "$
 fi
 
 # Change to project directory
-cd /home/luisvinatea/Dev/Repos/AeraSync/AeraSync || { echo "Failed to change directory"; exit 1; }
+cd "$(dirname "$0")" || { echo "Failed to change directory"; exit 1; }
 
 # Verify required assets
 echo "Verifying required assets..."
-for asset in web/icons/aerasync64.webp web/icons/aerasync180.webp web/icons/aerasync512.webp web/icons/aerasync1024.webp web/icons/aerasync.webp web/manifest.json; do
+for asset in \
+  web/icons/aerasync64.webp \
+  web/icons/aerasync64.png \
+  web/icons/aerasync180.webp \
+  web/icons/aerasync180.png \
+  web/icons/aerasync512.webp \
+  web/icons/aerasync512.png \
+  web/icons/aerasync1024.webp \
+  web/icons/aerasync1024.png \
+  web/icons/aerasync.webp \
+  web/assets/wave.svg \
+  web/manifest.json; do
   if [ ! -f "$asset" ]; then
     echo "Error: Required asset $asset is missing"
     exit 1
   fi
+  # Verify asset type (basic integrity check)
+  if [[ "$asset" == *.webp || "$asset" == *.png ]]; then
+    file_type=$(file -b --mime-type "$asset")
+    if [[ "$file_type" != "image/webp" && "$file_type" != "image/png" ]]; then
+      echo "Error: Asset $asset is not a valid image (type: $file_type)"
+      exit 1
+    fi
+  fi
 done
+
+# Run tests
+echo "Running tests..."
+flutter test || { echo "Tests failed"; exit 1; }
 
 # Clean previous builds
 echo "Cleaning previous builds..."
@@ -43,11 +72,6 @@ for file in lib/l10n/*.arb; do
     echo "No .arb files found in lib/l10n/"
     exit 1
   fi
-  # Check for trailing commas
-  if grep -qE ',\s*}' "$file"; then
-    echo "Error: Trailing comma found in $file"
-    exit 1
-  fi
   # Validate JSON syntax
   if ! python3 -m json.tool "$file" >/dev/null 2>&1; then
     echo "Error: Invalid JSON syntax in $file"
@@ -64,23 +88,36 @@ for file in lib/l10n/app_*.arb; do
     file_keys=$(python3 -c "import json; print(sorted(json.load(open('$file')).keys()))")
     if [ "$reference_keys" != "$file_keys" ]; then
       echo "Error: Keys in $file do not match $reference_file"
-      echo "Reference keys: $reference_keys"
-      echo "File keys: $file_keys"
+      # Show diff of keys
+      diff <(echo "$reference_keys" | tr -d '[]' | tr ',' '\n') <(echo "$file_keys" | tr -d '[]' | tr ',' '\n') | grep -E '^[<>]' || true
       exit 1
     fi
   fi
 done
 
-# Build web release with CanvasKit using --dart-define
+# Build web release with CanvasKit
 echo "Building web release..."
-flutter build web --dart-define=flutter.web.renderer=canvaskit --release --no-tree-shake-icons || { echo "Flutter build failed"; exit 1; }
+flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ || { echo "Flutter build failed"; exit 1; }
 
-# Copy to gh-pages directory
+# Analyze bundle size
+echo "Analyzing bundle size..."
+total_size=$(du -sh build/web | cut -f1)
+echo "Total build size: $total_size"
+
+# Prepare gh-pages directory
+GH_PAGES_DIR="../AeraSync-gh-pages"
+if [ ! -d "$GH_PAGES_DIR" ]; then
+  echo "gh-pages directory not found. Initializing it..."
+  git worktree add "$GH_PAGES_DIR" gh-pages || { echo "Failed to set up gh-pages worktree. Please ensure the gh-pages branch exists."; exit 1; }
+fi
+
+# Clean gh-pages directory and copy build
 echo "Copying build to gh-pages..."
-cp -r build/web/* ../AeraSync-gh-pages/ || { echo "Copy failed"; exit 1; }
+rm -rf "$GH_PAGES_DIR"/* || { echo "Failed to clean gh-pages directory"; exit 1; }
+cp -r build/web/* "$GH_PAGES_DIR/" || { echo "Copy failed"; exit 1; }
 
 # Commit and push changes
-cd ../AeraSync-gh-pages || { echo "Failed to change to gh-pages directory"; exit 1; }
+cd "$GH_PAGES_DIR" || { echo "Failed to change to gh-pages directory"; exit 1; }
 
 echo "Committing changes..."
 git add . || { echo "Git add failed"; exit 1; }
@@ -92,8 +129,9 @@ else
 fi
 git push origin gh-pages || { echo "Git push failed"; exit 1; }
 
-# Provide deployment URL
-REPO_NAME="AeraSync-gh-pages"
-USER_NAME=$(git config user.name)
+# Derive GitHub username from remote URL
+REMOTE_URL=$(git remote get-url origin)
+USER_NAME=$(echo "$REMOTE_URL" | grep -oP '(?<=github\.com[:/])([^/]+)' | head -n1)
+REPO_NAME="AeraSync"
 echo "✅ Deployment completed successfully"
 echo "View your site at: https://$USER_NAME.github.io/$REPO_NAME/"
