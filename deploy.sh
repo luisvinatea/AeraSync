@@ -11,11 +11,17 @@ fi
 # Check Flutter version
 echo "Checking Flutter version..."
 FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K[\d\.]+')
-MINIMUM_VERSION="3.0.0"
+MINIMUM_VERSION="3.13.0"
 if [[ $(echo -e "$FLUTTER_VERSION\n$MINIMUM_VERSION" | sort -V | head -n1) != "$MINIMUM_VERSION" ]]; then
-  echo "Error: Flutter version $FLUTTER_VERSION is too old. Minimum required version is $MINIMUM_VERSION."
-  echo "Please upgrade Flutter by running 'flutter upgrade'."
-  exit 1
+  echo "Flutter version $FLUTTER_VERSION is too old. Minimum required version is $MINIMUM_VERSION."
+  echo "Attempting to upgrade Flutter..."
+  flutter channel stable
+  flutter upgrade
+  FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K[\d\.]+')
+  if [[ $(echo -e "$FLUTTER_VERSION\n$MINIMUM_VERSION" | sort -V | head -n1) != "$MINIMUM_VERSION" ]]; then
+    echo "Error: Flutter upgrade failed. Please manually upgrade Flutter to version $MINIMUM_VERSION or higher."
+    exit 1
+  fi
 fi
 
 # Change to project directory
@@ -49,17 +55,29 @@ for asset in \
   fi
 done
 
-# Run tests
-echo "Running tests..."
-flutter test || { echo "Tests failed"; exit 1; }
-
-# Clean previous builds
-echo "Cleaning previous builds..."
+# Clean previous builds and caches
+echo "Cleaning previous builds and caches..."
 flutter clean || { echo "Flutter clean failed"; exit 1; }
+flutter pub cache repair || { echo "Pub cache repair failed"; exit 1; }
+rm -f pubspec.lock || { echo "Failed to remove pubspec.lock"; exit 1; }
 
 # Get dependencies
 echo "Getting dependencies..."
 flutter pub get || { echo "Flutter pub get failed"; exit 1; }
+
+# Verify intl version
+echo "Verifying intl version..."
+INTL_VERSION=$(grep -A 2 "intl:" pubspec.lock | grep "version:" | grep -oP '"\K[^"]+')
+EXPECTED_INTL_VERSION="0.20.2"
+if [ "$INTL_VERSION" != "$EXPECTED_INTL_VERSION" ]; then
+  echo "Error: Resolved intl version ($INTL_VERSION) does not match expected version ($EXPECTED_INTL_VERSION)."
+  echo "Please check your Flutter SDK version and pubspec.yaml constraints."
+  exit 1
+fi
+
+# Run tests
+echo "Running tests..."
+flutter test || { echo "Tests failed"; exit 1; }
 
 # Generate localization files
 echo "Generating localization files..."
