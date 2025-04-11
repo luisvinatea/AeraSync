@@ -11,7 +11,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  provider: ^6.1.2  # Updated to the latest version
+  provider: ^6.1.2
   fl_chart: ^0.70.2
   universal_html: ^2.2.4
   clipboard: ^0.1.3
@@ -31,3 +31,13 @@ flutter:
     - assets/data/shrimp_respiration_salinity_temperature_weight.json
     - web/assets/wave.svg
     - packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf
+    - web/icons/aerasync64.webp
+    - web/icons/aerasync64.png
+    - web/icons/aerasync180.webp
+    - web/icons/aerasync180.png
+    - web/icons/aerasync512.webp
+    - web/icons/aerasync512.png
+    - web/icons/aerasync1024.webp
+    - web/icons/aerasync1024.png
+    - web/icons/aerasync.webp
+    - web/manifest.json
