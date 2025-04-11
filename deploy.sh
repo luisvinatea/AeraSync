@@ -8,20 +8,45 @@ if [[ -n $(git status --porcelain) ]]; then
   exit 1
 fi
 
-# Check Flutter version
-echo "Checking Flutter version..."
+# Check Flutter and Dart versions
+echo "Checking Flutter and Dart versions..."
 FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K[\d\.]+')
-MINIMUM_VERSION="3.13.0"
-if [[ $(echo -e "$FLUTTER_VERSION\n$MINIMUM_VERSION" | sort -V | head -n1) != "$MINIMUM_VERSION" ]]; then
-  echo "Flutter version $FLUTTER_VERSION is too old. Minimum required version is $MINIMUM_VERSION."
+DART_VERSION=$(flutter --version | grep -oP 'Dart \K[\d\.]+')
+MINIMUM_FLUTTER_VERSION="3.13.0"
+RECOMMENDED_FLUTTER_VERSION="3.22.2"
+MINIMUM_DART_VERSION="3.3.0"
+if [[ $(echo -e "$FLUTTER_VERSION\n$MINIMUM_FLUTTER_VERSION" | sort -V | head -n1) != "$MINIMUM_FLUTTER_VERSION" ]]; then
+  echo "Flutter version $FLUTTER_VERSION is too old. Minimum required version is $MINIMUM_FLUTTER_VERSION."
   echo "Attempting to upgrade Flutter..."
   flutter channel stable
   flutter upgrade
   FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K[\d\.]+')
-  if [[ $(echo -e "$FLUTTER_VERSION\n$MINIMUM_VERSION" | sort -V | head -n1) != "$MINIMUM_VERSION" ]]; then
-    echo "Error: Flutter upgrade failed. Please manually upgrade Flutter to version $MINIMUM_VERSION or higher."
+  if [[ $(echo -e "$FLUTTER_VERSION\n$MINIMUM_FLUTTER_VERSION" | sort -V | head -n1) != "$MINIMUM_FLUTTER_VERSION" ]]; then
+    echo "Error: Flutter upgrade failed. Please manually upgrade Flutter to version $MINIMUM_FLUTTER_VERSION or higher."
     exit 1
   fi
+fi
+if [[ "$FLUTTER_VERSION" == "3.29.2" ]]; then
+  echo "Warning: Flutter 3.29.2 has known regressions (e.g., incorrect Dart SDK version, intl dependency issues)."
+  echo "It is recommended to use Flutter $RECOMMENDED_FLUTTER_VERSION instead."
+fi
+if [[ $(echo -e "$DART_VERSION\n$MINIMUM_DART_VERSION" | sort -V | head -n1) != "$MINIMUM_DART_VERSION" ]]; then
+  echo "Error: Dart version $DART_VERSION is too old. Minimum required version is $MINIMUM_DART_VERSION."
+  echo "Please use a Flutter version that bundles a compatible Dart SDK (e.g., Flutter $RECOMMENDED_FLUTTER_VERSION)."
+  exit 1
+fi
+
+# Adjust flutter_lints based on Dart version
+echo "Checking Dart version for flutter_lints compatibility..."
+if [[ $(echo -e "$DART_VERSION\n3.5.0" | sort -V | head -n1) != "3.5.0" ]]; then
+  echo "Dart version $DART_VERSION is older than 3.5.0, adjusting flutter_lints to ^4.0.0..."
+  # Backup pubspec.yaml
+  cp pubspec.yaml pubspec.yaml.bak
+  # Replace flutter_lints constraint
+  sed -i '/flutter_lints: ^5.0.0/c\  flutter_lints: ^4.0.0' pubspec.yaml
+else
+  # Ensure flutter_lints is set to ^5.0.0 if Dart version is 3.5.0 or higher
+  sed -i '/flutter_lints: ^4.0.0/c\  flutter_lints: ^5.0.0' pubspec.yaml
 fi
 
 # Change to project directory
@@ -61,36 +86,23 @@ flutter clean || { echo "Flutter clean failed"; exit 1; }
 flutter pub cache repair || { echo "Pub cache repair failed"; exit 1; }
 rm -f pubspec.lock || { echo "Failed to remove pubspec.lock"; exit 1; }
 
-# Get dependencies
+# Get dependencies with fallback override for intl
 echo "Getting dependencies..."
-flutter pub get || { echo "Flutter pub get failed"; exit 1; }
-
-# Verify intl version
-echo "Verifying intl version..."
-INTL_VERSION=$(grep -A 2 "intl:" pubspec.lock | grep "version:" | grep -oP '"\K[^"]+')
-EXPECTED_INTL_VERSION="0.20.2"
-if [ "$INTL_VERSION" != "$EXPECTED_INTL_VERSION" ]; then
-  echo "Warning: Resolved intl version ($INTL_VERSION) does not match expected version ($EXPECTED_INTL_VERSION)."
-  echo "This might be due to a dependency conflict with flutter_localizations."
+if ! flutter pub get; then
+  echo "Warning: Initial flutter pub get failed, likely due to a dependency conflict with intl."
   echo "Checking dependency tree..."
   flutter pub deps -- --style=compact | grep -A 1 "flutter_localizations" || true
-  echo "Attempting to override intl version to $EXPECTED_INTL_VERSION..."
-  # Backup pubspec.yaml
-  cp pubspec.yaml pubspec.yaml.bak
-  # Add dependency override
-  echo -e "\ndependency_overrides:\n  intl: $EXPECTED_INTL_VERSION" >> pubspec.yaml
+  echo "Attempting to downgrade intl constraint to ^0.19.0..."
+  # Replace intl constraint
+  sed -i '/intl: ^0.20.0/c\  intl: ^0.19.0' pubspec.yaml
   # Retry dependency resolution
-  flutter pub get || { echo "Flutter pub get with override failed"; exit 1; }
-  # Re-verify intl version
-  INTL_VERSION=$(grep -A 2 "intl:" pubspec.lock | grep "version:" | grep -oP '"\K[^"]+')
-  if [ "$INTL_VERSION" != "$EXPECTED_INTL_VERSION" ]; then
-    echo "Error: Failed to resolve intl to version $EXPECTED_INTL_VERSION even with override."
-    echo "Please check your Flutter SDK installation and pubspec.yaml constraints."
+  if ! flutter pub get; then
+    echo "Error: Flutter pub get failed even after downgrading intl constraint."
     # Restore pubspec.yaml
     mv pubspec.yaml.bak pubspec.yaml
     exit 1
   fi
-  echo "Successfully overridden intl to version $INTL_VERSION."
+  echo "Successfully resolved dependencies with downgraded intl constraint."
 else
   # Remove pubspec.yaml.bak if it exists from a previous run
   rm -f pubspec.yaml.bak
