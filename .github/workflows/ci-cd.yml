@@ -45,26 +45,55 @@ jobs:
           DART_VERSION=$(flutter --version | grep -oP 'Dart \K[\d\.]+')
           if [[ $(echo -e "$DART_VERSION\n3.5.0" | sort -V | head -n1) != "3.5.0" ]]; then
             echo "Dart version $DART_VERSION is older than 3.5.0, adjusting flutter_lints to ^4.0.0..."
-            sed -i 's/flutter_lints: ^5.0.0/flutter_lints: ^4.0.0/' pubspec.yaml
+            sed -i 's/flutter_lints: ^5.0.0/flutter_lints: ^4.0.0/' pubspec.yaml || echo "flutter_lints not found in expected format"
           else
             echo "Dart version $DART_VERSION is 3.5.0 or higher, ensuring flutter_lints is ^5.0.0..."
-            sed -i 's/flutter_lints: ^4.0.0/flutter_lints: ^5.0.0/' pubspec.yaml
+            sed -i 's/flutter_lints: ^4.0.0/flutter_lints: ^5.0.0/' pubspec.yaml || echo "flutter_lints not found in expected format"
           fi
           flutter pub get
 
-      # Step 8: Run tests
+      # Step 8: Verify required assets
+      - name: Verify required assets
+        run: |
+          for asset in \
+            web/icons/aerasync64.webp \
+            web/icons/aerasync64.png \
+            web/icons/aerasync180.webp \
+            web/icons/aerasync180.png \
+            web/icons/aerasync512.webp \
+            web/icons/aerasync512.png \
+            web/icons/aerasync1024.webp \
+            web/icons/aerasync1024.png \
+            web/icons/aerasync.webp \
+            web/assets/wave.svg \
+            web/manifest.json; do
+            if [ ! -f "$asset" ]; then
+              echo "Error: Required asset $asset is missing"
+              exit 1
+            fi
+            # Verify asset type (basic integrity check)
+            if [[ "$asset" == *.webp || "$asset" == *.png ]]; then
+              file_type=$(file -b --mime-type "$asset")
+              if [[ "$file_type" != "image/webp" && "$file_type" != "image/png" ]]; then
+                echo "Error: Asset $asset is not a valid image (type: $file_type)"
+                exit 1
+              fi
+            fi
+          done
+
+      # Step 9: Run tests
       - name: Run tests
         run: flutter test
 
-      # Step 9: Generate localization files
+      # Step 10: Generate localization files
       - name: Generate localization files
         run: flutter gen-l10n
 
-      # Step 10: Build web release
+      # Step 11: Build web release
       - name: Build web release
         run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/
 
-      # Step 11: Deploy to GitHub Pages
+      # Step 12: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
