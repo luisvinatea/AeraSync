@@ -1,0 +1,72 @@
+name: CI/CD Pipeline for AeraSync
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Flutter environment
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.2'
+          channel: 'stable'
+
+      # Step 3: Verify Flutter version
+      - name: Verify Flutter version
+        run: flutter --version
+
+      # Step 4: Clean the project
+      - name: Clean project
+        run: flutter clean
+
+      # Step 5: Repair pub cache
+      - name: Repair pub cache
+        run: flutter pub cache repair
+
+      # Step 6: Get dependencies with fallback for intl
+      - name: Get dependencies
+        run: |
+          flutter pub get || (sed -i 's/intl: ^0.20.0/intl: ^0.19.0/' pubspec.yaml && flutter pub get)
+
+      # Step 7: Adjust flutter_lints based on Dart version
+      - name: Adjust flutter_lints version
+        run: |
+          DART_VERSION=$(flutter --version | grep -oP 'Dart \K[\d\.]+')
+          if [[ $(echo -e "$DART_VERSION\n3.5.0" | sort -V | head -n1) != "3.5.0" ]]; then
+            echo "Dart version $DART_VERSION is older than 3.5.0, adjusting flutter_lints to ^4.0.0..."
+            sed -i 's/flutter_lints: ^5.0.0/flutter_lints: ^4.0.0/' pubspec.yaml
+          else
+            echo "Dart version $DART_VERSION is 3.5.0 or higher, ensuring flutter_lints is ^5.0.0..."
+            sed -i 's/flutter_lints: ^4.0.0/flutter_lints: ^5.0.0/' pubspec.yaml
+          fi
+          flutter pub get
+
+      # Step 8: Run tests
+      - name: Run tests
+        run: flutter test
+
+      # Step 9: Generate localization files
+      - name: Generate localization files
+        run: flutter gen-l10n
+
+      # Step 10: Build web release
+      - name: Build web release
+        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/
+
+      # Step 11: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
