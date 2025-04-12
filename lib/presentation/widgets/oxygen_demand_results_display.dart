@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:AeraSync/generated/l10n.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:intl/intl.dart'; // For number formatting
 import '../../core/services/app_state.dart';
@@ -12,7 +12,9 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get l10n object from context
     final l10n = AppLocalizations.of(context)!;
+
     return Consumer<AppState>(
       builder: (context, appState, child) {
         // Updated key to match the merged form
@@ -24,13 +26,17 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Text(
               l10n.enterValuesToCalculate,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              // Consider using Theme.of(context).textTheme style
+              style: const TextStyle(color: Colors.black54, fontSize: 16),
               textAlign: TextAlign.center,
             ),
           );
         }
 
-        final totalOxygenDemand = results[l10n.totalOxygenDemandLabel] as double;
+        // Safely get the value, providing a default if null or wrong type
+        final totalOxygenDemand = results[l10n.totalOxygenDemandLabel] is double
+            ? results[l10n.totalOxygenDemandLabel] as double
+            : 0.0;
 
         return Card(
           elevation: 4,
@@ -57,72 +63,90 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
                   // Add a bar chart for visualization
                   _buildOxygenDemandChart(results, l10n),
                   const SizedBox(height: 16),
-                  ...results.entries.map((entry) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              entry.key,
-                              style: const TextStyle(fontWeight: FontWeight.w600),
+                  // Display results using a ListView for better structure if many items
+                  ListView.separated(
+                    shrinkWrap: true, // Important inside SingleChildScrollView
+                    physics: const NeverScrollableScrollPhysics(), // Disable scrolling
+                    itemCount: results.length,
+                    itemBuilder: (context, index) {
+                      final entry = results.entries.elementAt(index);
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0), // Reduced padding
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 3, // Adjust flex for better spacing
+                              child: Text(
+                                entry.key,
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  _formatValueWithThousandSeparator(entry.value),
-                                  textAlign: TextAlign.end,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1E40AF),
+                            Expanded(
+                              flex: 2, // Adjust flex for better spacing
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Flexible( // Allow text to wrap if needed
+                                    child: Text(
+                                      _formatValueWithThousandSeparator(entry.value),
+                                      textAlign: TextAlign.end,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF1E40AF),
+                                      ),
+                                      overflow: TextOverflow.ellipsis, // Prevent overflow
+                                    ),
                                   ),
-                                ),
-                                if (entry.key == l10n.totalOxygenDemandLabel) ...[
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    icon: const Icon(Icons.copy, color: Color(0xFF1E40AF)),
-                                    onPressed: () {
-                                      FlutterClipboard.copy(_formatValue(totalOxygenDemand)).then((value) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              l10n.valueCopied(value: l10n.totalOxygenDemandLabel),
+                                  // Only show copy button for the specific key
+                                  if (entry.key == l10n.totalOxygenDemandLabel) ...[
+                                    const SizedBox(width: 4), // Reduced spacing
+                                    IconButton(
+                                      icon: const Icon(Icons.copy, size: 18, color: Color(0xFF1E40AF)), // Smaller icon
+                                      padding: EdgeInsets.zero, // Remove default padding
+                                      constraints: const BoxConstraints(), // Remove constraints
+                                      onPressed: () {
+                                        // Use the correctly retrieved totalOxygenDemand
+                                        FlutterClipboard.copy(_formatValue(totalOxygenDemand)).then((value) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                // FIX: Pass the required 'value' argument
+                                                l10n.valueCopied(value: l10n.totalOxygenDemandLabel),
+                                              ),
+                                              duration: const Duration(seconds: 2),
                                             ),
-                                            duration: const Duration(seconds: 2),
-                                          ),
-                                        );
-                                      });
-                                    },
-                                    tooltip: l10n.copyToClipboardTooltip,
-                                  ),
+                                          );
+                                        });
+                                      },
+                                      tooltip: l10n.copyToClipboardTooltip,
+                                    ),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                          ],
+                        ),
+                      );
+                    },
+                    separatorBuilder: (context, index) => const Divider(height: 1), // Add dividers
+                  ),
                   const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.center,
-                    child: ElevatedButton.icon(
-                      onPressed: () => _downloadAsCsv(inputs!, results),
-                      icon: const Icon(Icons.download, size: 32),
-                      label: Text(l10n.downloadCsvButton),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                        backgroundColor: const Color(0xFF1E40AF),
-                        foregroundColor: Colors.white,
+                  if (inputs != null) // Ensure inputs are not null before enabling button
+                    Align(
+                      alignment: Alignment.center,
+                      child: ElevatedButton.icon(
+                        // FIX: Pass l10n object to _downloadAsCsv
+                        onPressed: () => _downloadAsCsv(inputs, results, l10n),
+                        icon: const Icon(Icons.download), // Standard size is fine
+                        label: Text(l10n.downloadCsvButton),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                          backgroundColor: const Color(0xFF1E40AF),
+                          foregroundColor: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -132,23 +156,34 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
     );
   }
 
+  // Helper method to build the chart
   Widget _buildOxygenDemandChart(Map<String, dynamic> results, AppLocalizations l10n) {
+    // Safely access results with default values
+    final shrimpDemand = results[l10n.oxygenDemandFromShrimpLabel] is double
+        ? results[l10n.oxygenDemandFromShrimpLabel] as double
+        : 0.0;
+    final envDemand = results[l10n.environmentalOxygenDemandLabel] is double
+        ? results[l10n.environmentalOxygenDemandLabel] as double
+        : 0.0;
+    final totalDemand = results[l10n.totalOxygenDemandLabel] is double
+        ? results[l10n.totalOxygenDemandLabel] as double
+        : 0.0;
+
+    // Ensure metrics list only contains valid data
     final metrics = [
-      {
-        'title': l10n.oxygenDemandFromShrimpLabelShort,
-        'value': results[l10n.oxygenDemandFromShrimpLabel] as double? ?? 0.0,
-      },
-      {
-        'title': l10n.environmentalOxygenDemandLabelShort,
-        'value': results[l10n.environmentalOxygenDemandLabel] as double? ?? 0.0,
-      },
-      {
-        'title': l10n.totalOxygenDemandLabelShort,
-        'value': results[l10n.totalOxygenDemandLabel] as double? ?? 0.0,
-      },
+      if (shrimpDemand >= 0) {'title': l10n.oxygenDemandFromShrimpLabelShort, 'value': shrimpDemand},
+      if (envDemand >= 0) {'title': l10n.environmentalOxygenDemandLabelShort, 'value': envDemand},
+      if (totalDemand >= 0) {'title': l10n.totalOxygenDemandLabelShort, 'value': totalDemand},
     ];
 
-    final maxY = metrics.map((e) => e['value'] as double).reduce((a, b) => a > b ? a : b) * 1.2;
+    // Handle case where there are no valid metrics to display
+    if (metrics.isEmpty) {
+      return const SizedBox(height: 200, child: Center(child: Text("No data for chart")));
+    }
+
+    // Calculate maxY safely
+    final maxYValue = metrics.map((e) => e['value'] as double).reduce(max);
+    final maxY = maxYValue > 0 ? maxYValue * 1.2 : 1.0; // Avoid maxY being 0
 
     return SizedBox(
       height: 200,
@@ -176,19 +211,29 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 40,
-                getTitlesWidget: (value, meta) => Text(
-                  NumberFormat.compact().format(value),
-                  style: const TextStyle(color: Colors.black54, fontSize: 12),
-                ),
+                getTitlesWidget: (value, meta) {
+                  // Avoid showing 0.0 if maxY is 1.0 due to no data
+                   if (maxY == 1.0 && value == 0) return const SizedBox.shrink();
+                   return Text(
+                     NumberFormat.compact().format(value),
+                     style: const TextStyle(color: Colors.black54, fontSize: 12),
+                   );
+                }
               ),
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                getTitlesWidget: (value, meta) => Text(
-                  metrics[value.toInt()]['title'] as String,
-                  style: const TextStyle(color: Colors.black54, fontSize: 12),
-                ),
+                getTitlesWidget: (value, meta) {
+                   // Check bounds before accessing metrics list
+                   if (value.toInt() >= 0 && value.toInt() < metrics.length) {
+                     return Text(
+                       metrics[value.toInt()]['title'] as String,
+                       style: const TextStyle(color: Colors.black54, fontSize: 12),
+                     );
+                   }
+                   return const SizedBox.shrink(); // Return empty for invalid index
+                },
               ),
             ),
             topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -198,29 +243,35 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
           gridData: const FlGridData(
             drawHorizontalLine: true,
             drawVerticalLine: false,
+            horizontalInterval: maxY / 5 > 0 ? maxY / 5 : 1, // Dynamic interval
           ),
-          barTouchData: BarTouchData(enabled: false),
+          barTouchData: BarTouchData(enabled: false), // Keep disabled for simplicity
         ),
-        swapAnimationDuration: const Duration(milliseconds: 0),
+        swapAnimationDuration: const Duration(milliseconds: 0), // Keep disabled
       ),
     );
   }
 
+  // Helper method for formatting values (remains the same)
   String _formatValue(dynamic value) {
     if (value is double) {
+      // Handle potential NaN or Infinity
+      if (value.isNaN || value.isInfinite) return "N/A";
       return value.toStringAsFixed(2);
     }
     return value.toString();
   }
 
+  // Helper method for formatting values with separators (remains the same)
   String _formatValueWithThousandSeparator(dynamic value) {
-    if (value is double) {
-      if (value >= 1000000) {
+     if (value is double) {
+      if (value.isNaN || value.isInfinite) return "N/A";
+      if (value.abs() >= 1000000) {
         return NumberFormat.compact().format(value);
       }
       return NumberFormat('#,##0.00').format(value);
     } else if (value is int) {
-      if (value >= 1000000) {
+       if (value.abs() >= 1000000) {
         return NumberFormat.compact().format(value);
       }
       return NumberFormat('#,##0').format(value);
@@ -228,20 +279,23 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
     return value.toString();
   }
 
-  void _downloadAsCsv(Map<String, dynamic> inputs, Map<String, dynamic> results) {
+  // FIX: Modify method signature to accept l10n
+  void _downloadAsCsv(Map<String, dynamic> inputs, Map<String, dynamic> results, AppLocalizations l10n) {
     final csvRows = <String>[];
 
+    // Use l10n for headers if desired, e.g., csvRows.add('"${l10n.inputsCategory}"');
     // Inputs Section
     csvRows.add('"Inputs"');
     csvRows.add('"Category","Value"');
     inputs.forEach((key, value) {
+      // Escape quotes within key and value
       final escapedKey = key.replaceAll('"', '""');
       final escapedValue = _formatValue(value).replaceAll('"', '""');
       csvRows.add('"$escapedKey","$escapedValue"');
     });
 
     // Results Section
-    csvRows.add('');
+    csvRows.add(''); // Add empty row for spacing
     csvRows.add('"Results"');
     csvRows.add('"Category","Value"');
     results.forEach((key, value) {
@@ -251,13 +305,19 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
     });
 
     final csvContent = csvRows.join('\n');
-    final blob = html.Blob([csvContent], 'text/csv');
+    // Use universal_html for web compatibility
+    final blob = html.Blob([csvContent], 'text/csv;charset=utf-8');
     final url = html.Url.createObjectUrlFromBlob(blob);
 
-    html.AnchorElement(href: url)
+    // Create an anchor element and trigger download
+    final anchor = html.AnchorElement(href: url)
       ..setAttribute('download', 'aerasync_oxygen_demand_${DateTime.now().toIso8601String()}.csv')
       ..click();
 
+    // Release the object URL
     html.Url.revokeObjectUrl(url);
   }
 }
+
+// Helper function to find max value in a list (needed for maxY calculation)
+double max(double a, double b) => a > b ? a : b;

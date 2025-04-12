@@ -1,8 +1,10 @@
+import 'dart:math'; // Import for max function used in charts
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:AeraSync/generated/l10n.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:intl/intl.dart'; // For number formatting
 import '../../core/services/app_state.dart';
@@ -21,7 +23,9 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    // Get l10n object from context
     final l10n = AppLocalizations.of(context)!;
+
     return Consumer<AppState>(
       builder: (context, appState, child) {
         final results = appState.getResults(widget.tab);
@@ -32,7 +36,7 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
             padding: const EdgeInsets.all(16.0),
             child: Text(
               l10n.enterValuesToCalculate,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(color: Colors.black54, fontSize: 16), // Adjusted color
               textAlign: TextAlign.center,
             ),
           );
@@ -44,10 +48,12 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
           final totalCost1 = results[l10n.totalAnnualCostAerator1Label] as double? ?? 0.0;
           final totalCost2 = results[l10n.totalAnnualCostAerator2Label] as double? ?? 0.0;
           final costOfOpportunity = results['Cost of Opportunity (USD)'] as double? ?? 0.0;
+          // Format costOfOpportunity for the message
+          final formattedAmount = _formatValueWithThousandSeparator(costOfOpportunity.abs());
           if (totalCost1 > totalCost2) {
-            recommendationMessage = l10n.recommendationChooseAerator2(costOfOpportunity);
+            recommendationMessage = l10n.recommendationChooseAerator2(formattedAmount);
           } else if (totalCost2 > totalCost1) {
-            recommendationMessage = l10n.recommendationChooseAerator1(costOfOpportunity);
+            recommendationMessage = l10n.recommendationChooseAerator1(formattedAmount);
           } else {
             recommendationMessage = l10n.recommendationEqualCosts;
           }
@@ -62,16 +68,37 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
 
         if (widget.tab == 'Aerator Comparison') {
           results.forEach((key, value) {
-            if (key.contains('Demand') || key == AppLocalizations.of(context)!.totalOxygenDemandLabel) {
-              groupedResults['Oxygen Demand']![key] = value;
+            // Check if key exists in l10n before using it for comparison
+            // This assumes l10n keys match the keys in the results map
+            if (key == l10n.totalOxygenDemandLabel || key.contains('Demand')) {
+               groupedResults['Oxygen Demand']![key] = value;
             } else if (key.contains('OTR_T') ||
-                key == AppLocalizations.of(context)!.numberOfAerator1UnitsLabel ||
-                key == AppLocalizations.of(context)!.numberOfAerator2UnitsLabel) {
+                key == l10n.numberOfAerator1UnitsLabel ||
+                key == l10n.numberOfAerator2UnitsLabel) {
               groupedResults['Aerator Metrics']![key] = value;
             } else {
+              // Put everything else in Financial Metrics
               groupedResults['Financial Metrics']![key] = value;
             }
           });
+           // Ensure specific keys are in Financial Metrics if they exist
+           const financialKeys = [
+             'Coefficient of Profitability (k)', 'VPN (USD)', 'Payback (days)',
+             'ROI (%)', 'TIR (%)', 'Cost of Opportunity (USD)',
+             'Real Price of Losing Aerator (USD) (Aerator 1)', // Handle dynamic label if needed
+             'Real Price of Losing Aerator (USD) (Aerator 2)',
+             'Number of Units of Losing Aerator',
+           ];
+           results.forEach((key, value) {
+             if (financialKeys.any((fk) => key.startsWith(fk.split('(')[0]))) { // Basic check for dynamic labels
+               groupedResults['Financial Metrics']![key] = value;
+               // Remove from other groups if accidentally added
+               groupedResults['Oxygen Demand']!.remove(key);
+               groupedResults['Aerator Metrics']!.remove(key);
+             }
+           });
+
+
         }
 
         return Card(
@@ -111,7 +138,7 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                             backgroundColor: _showBarChart ? const Color(0xFF1E40AF) : Colors.grey,
                             foregroundColor: Colors.white,
                           ),
-                          child: const Text('Bar Chart'),
+                          child: const Text('Bar Chart'), // Consider localizing
                         ),
                         const SizedBox(width: 8),
                         ElevatedButton(
@@ -124,7 +151,7 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                             backgroundColor: !_showBarChart ? const Color(0xFF1E40AF) : Colors.grey,
                             foregroundColor: Colors.white,
                           ),
-                          child: const Text('Pie Chart'),
+                          child: const Text('Pie Chart'), // Consider localizing
                         ),
                       ],
                     ),
@@ -141,34 +168,47 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                       transitionBuilder: (Widget child, Animation<double> animation) {
                         return FadeTransition(
                           opacity: animation,
-                          child: child,
+                          child: SizeTransition( // Add SizeTransition for smoother height change
+                             sizeFactor: animation,
+                             axisAlignment: -1.0, // Align top
+                             child: child
+                          ),
                         );
                       },
                       child: _showBarChart
-                          ? _buildAeratorComparisonBarChart(results, l10n, key: const Key('barChart'))
-                          : _buildAeratorComparisonPieChart(results, l10n, key: const Key('pieChart')),
+                          ? _buildAeratorComparisonBarChart(results, l10n, key: const ValueKey('barChart')) // Use ValueKey
+                          : _buildAeratorComparisonPieChart(results, l10n, key: const ValueKey('pieChart')), // Use ValueKey
                     ),
                     const SizedBox(height: 16),
-                    // Oxygen Demand Breakdown Pie Chart
-                    _buildOxygenDemandPieChart(results, l10n),
-                    const SizedBox(height: 16),
-                    // Cost Breakdown Table for Aerator Comparison
-                    _buildCostBreakdownTable(results, inputs!, l10n),
-                    const SizedBox(height: 16),
-                    // Cost Breakdown Pie Chart
-                    _buildCostBreakdownPieChart(results, inputs!, l10n),
-                    const SizedBox(height: 16),
+                    // Oxygen Demand Breakdown Pie Chart (only if data exists)
+                    if (groupedResults['Oxygen Demand']!.isNotEmpty && groupedResults['Oxygen Demand']!.values.any((v) => v is double && v > 0)) ...[
+                       _buildOxygenDemandPieChart(groupedResults['Oxygen Demand']!, l10n),
+                       const SizedBox(height: 16),
+                    ],
+                    // Cost Breakdown Table for Aerator Comparison (only if data exists)
+                    if (inputs != null && results.containsKey(l10n.totalAnnualCostAerator1Label)) ...[
+                        _buildCostBreakdownTable(results, inputs, l10n),
+                        const SizedBox(height: 16),
+                        // Cost Breakdown Pie Chart
+                        _buildCostBreakdownPieChart(results, inputs, l10n),
+                        const SizedBox(height: 16),
+                    ]
                   ],
                   // Recommendation Message for Aerator Comparison
                   if (recommendationMessage != null) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    Container( // Added container for styling
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.green),
+                      ),
                       child: Text(
                         recommendationMessage,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.green,
+                          color: Colors.green, // Darker green might be better
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -185,7 +225,7 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Text(
-                              group.key,
+                              group.key, // Consider localizing group keys if needed
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -193,140 +233,163 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                               ),
                             ),
                           ),
-                          ...group.value.entries.map((entry) {
-                            final isKeyMetric = entry.key == 'Coefficient of Profitability (k)' ||
-                                entry.key == 'Cost of Opportunity (USD)' ||
-                                entry.key.contains('Real Price of Losing Aerator');
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      entry.key,
-                                      style: const TextStyle(fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          _formatValueWithThousandSeparator(entry.value),
-                                          textAlign: TextAlign.end,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(0xFF1E40AF),
-                                          ),
-                                        ),
-                                        if (isKeyMetric) ...[
-                                          const SizedBox(width: 8),
-                                          IconButton(
-                                            icon: const Icon(Icons.copy, color: Color(0xFF1E40AF)),
-                                            onPressed: () {
-                                              FlutterClipboard.copy(_formatValue(entry.value)).then((value) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      l10n.valueCopied(value: entry.key),
-                                                    ),
-                                                    duration: const Duration(seconds: 2),
-                                                  ),
-                                                );
-                                              });
-                                            },
-                                            tooltip: l10n.copyToClipboardTooltip,
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
+                          ListView.separated( // Use ListView for consistency
+                             shrinkWrap: true,
+                             physics: const NeverScrollableScrollPhysics(),
+                             itemCount: group.value.length,
+                             itemBuilder: (context, index) {
+                               final entry = group.value.entries.elementAt(index);
+                               final isKeyMetric = entry.key == 'Coefficient of Profitability (k)' ||
+                                    entry.key == 'Cost of Opportunity (USD)' ||
+                                    entry.key.contains('Real Price of Losing Aerator');
+                               return Padding(
+                                 padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                 child: Row(
+                                   children: [
+                                     Expanded(
+                                       flex: 3,
+                                       child: Text(
+                                         entry.key,
+                                         style: const TextStyle(fontWeight: FontWeight.w600),
+                                       ),
+                                     ),
+                                     Expanded(
+                                       flex: 2,
+                                       child: Row(
+                                         mainAxisAlignment: MainAxisAlignment.end,
+                                         children: [
+                                           Flexible(
+                                             child: Text(
+                                               _formatValueWithThousandSeparator(entry.value),
+                                               textAlign: TextAlign.end,
+                                               style: const TextStyle(
+                                                 fontWeight: FontWeight.bold,
+                                                 color: Color(0xFF1E40AF),
+                                               ),
+                                                overflow: TextOverflow.ellipsis,
+                                             ),
+                                           ),
+                                           if (isKeyMetric) ...[
+                                             const SizedBox(width: 4),
+                                             IconButton(
+                                               icon: const Icon(Icons.copy, size: 18, color: Color(0xFF1E40AF)),
+                                               padding: EdgeInsets.zero,
+                                               constraints: const BoxConstraints(),
+                                               onPressed: () {
+                                                 FlutterClipboard.copy(_formatValue(entry.value)).then((_) {
+                                                   ScaffoldMessenger.of(context).showSnackBar(
+                                                     SnackBar(
+                                                       // FIX: Pass the required 'value' argument
+                                                       content: Text(l10n.valueCopied(value: entry.key)),
+                                                       duration: const Duration(seconds: 2),
+                                                     ),
+                                                   );
+                                                 });
+                                               },
+                                               tooltip: l10n.copyToClipboardTooltip,
+                                             ),
+                                           ],
+                                         ],
+                                       ),
+                                     ),
+                                   ],
+                                 ),
+                               );
+                             },
+                             separatorBuilder: (context, index) => const Divider(height: 1),
+                          ),
+                          const SizedBox(height: 10), // Space after group
                         ],
                       );
                     }),
                   ] else ...[
                     // Default results list for other tabs
-                    ...results.entries.map((entry) {
-                      final isKeyMetric = (widget.tab == 'Aerator Performance' &&
-                              entry.key == 'SOTR (kg O₂/h)') ||
-                          (widget.tab == 'Aerator Estimation' &&
-                              entry.key == l10n.numberOfAeratorsPerHectareLabel) ||
-                          (widget.tab == 'Aerator Comparison' &&
-                              (entry.key == 'Coefficient of Profitability (k)' ||
-                                  entry.key == 'Cost of Opportunity (USD)' ||
-                                  entry.key.contains('Real Price of Losing Aerator')));
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Text(
-                                entry.key,
-                                style: const TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    _formatValueWithThousandSeparator(entry.value),
-                                    textAlign: TextAlign.end,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF1E40AF),
-                                    ),
-                                  ),
-                                  if (isKeyMetric) ...[
-                                    const SizedBox(width: 8),
-                                    IconButton(
-                                      icon: const Icon(Icons.copy, color: Color(0xFF1E40AF)),
-                                      onPressed: () {
-                                        FlutterClipboard.copy(_formatValue(entry.value)).then((value) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                l10n.valueCopied(value: entry.key),
-                                              ),
-                                              duration: const Duration(seconds: 2),
-                                            ),
-                                          );
-                                        });
-                                      },
-                                      tooltip: l10n.copyToClipboardTooltip,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
+                     ListView.separated(
+                       shrinkWrap: true,
+                       physics: const NeverScrollableScrollPhysics(),
+                       itemCount: results.length,
+                       itemBuilder: (context, index) {
+                         final entry = results.entries.elementAt(index);
+                         final isKeyMetric = (widget.tab == 'Aerator Performance' &&
+                                 entry.key == 'SOTR (kg O₂/h)') ||
+                             (widget.tab == 'Aerator Estimation' &&
+                                 entry.key == l10n.numberOfAeratorsPerHectareLabel);
+                          // Note: Key metrics for 'Aerator Comparison' handled above
+
+                         return Padding(
+                           padding: const EdgeInsets.symmetric(vertical: 4.0),
+                           child: Row(
+                             children: [
+                               Expanded(
+                                 flex: 3,
+                                 child: Text(
+                                   entry.key,
+                                   style: const TextStyle(fontWeight: FontWeight.w600),
+                                 ),
+                               ),
+                               Expanded(
+                                 flex: 2,
+                                 child: Row(
+                                   mainAxisAlignment: MainAxisAlignment.end,
+                                   children: [
+                                     Flexible(
+                                       child: Text(
+                                         _formatValueWithThousandSeparator(entry.value),
+                                         textAlign: TextAlign.end,
+                                         style: const TextStyle(
+                                           fontWeight: FontWeight.bold,
+                                           color: Color(0xFF1E40AF),
+                                         ),
+                                          overflow: TextOverflow.ellipsis,
+                                       ),
+                                     ),
+                                     if (isKeyMetric) ...[
+                                       const SizedBox(width: 4),
+                                       IconButton(
+                                         icon: const Icon(Icons.copy, size: 18, color: Color(0xFF1E40AF)),
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                         onPressed: () {
+                                           FlutterClipboard.copy(_formatValue(entry.value)).then((_) {
+                                             ScaffoldMessenger.of(context).showSnackBar(
+                                               SnackBar(
+                                                 // FIX: Pass the required 'value' argument
+                                                 content: Text(l10n.valueCopied(value: entry.key)),
+                                                 duration: const Duration(seconds: 2),
+                                               ),
+                                             );
+                                           });
+                                         },
+                                         tooltip: l10n.copyToClipboardTooltip,
+                                       ),
+                                     ],
+                                   ],
+                                 ),
+                               ),
+                             ],
+                           ),
+                         );
+                       },
+                       separatorBuilder: (context, index) => const Divider(height: 1),
+                    ),
                   ],
                   const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.center,
-                    child: ElevatedButton.icon(
-                      onPressed: () => _downloadAsCsv(inputs!, results),
-                      icon: const Icon(Icons.download, size: 32),
-                      label: Text(l10n.downloadCsvButton),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                        backgroundColor: const Color(0xFF1E40AF),
-                        foregroundColor: Colors.white,
+                  if (inputs != null)
+                    Align(
+                      alignment: Alignment.center,
+                      child: ElevatedButton.icon(
+                        // FIX: Pass context to _downloadAsCsv
+                        onPressed: () => _downloadAsCsv(context, inputs, results),
+                        icon: const Icon(Icons.download),
+                        label: Text(l10n.downloadCsvButton),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                          backgroundColor: const Color(0xFF1E40AF),
+                          foregroundColor: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -336,14 +399,26 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
     );
   }
 
+  // --- Chart Building Methods ---
+
   Widget _buildAeratorEstimationChart(Map<String, dynamic> results, AppLocalizations l10n) {
+    // Safely access results
+    final tod = results[l10n.todLabel] as double? ?? 0.0;
+    final otrT = results[l10n.otrTLabel] as double? ?? 0.0;
+    final aerators = results[l10n.numberOfAeratorsPerHectareLabel] as double? ?? 0.0;
+
     final metrics = [
-      {'title': l10n.todLabelShort, 'value': results[l10n.todLabel] as double? ?? 0.0},
-      {'title': l10n.otrTLabelShort, 'value': results[l10n.otrTLabel] as double? ?? 0.0},
-      {'title': l10n.aeratorsLabelShort, 'value': results[l10n.numberOfAeratorsPerHectareLabel] as double? ?? 0.0},
+      if (tod >= 0) {'title': l10n.todLabelShort, 'value': tod},
+      if (otrT >= 0) {'title': l10n.otrTLabelShort, 'value': otrT},
+      if (aerators >= 0) {'title': l10n.aeratorsLabelShort, 'value': aerators},
     ];
 
-    final maxY = metrics.map((e) => e['value'] as double).reduce((a, b) => a > b ? a : b) * 1.2;
+     if (metrics.isEmpty) {
+      return const SizedBox(height: 200, child: Center(child: Text("No data for chart")));
+    }
+
+    final maxYValue = metrics.map((e) => e['value'] as double).reduce(max);
+    final maxY = maxYValue > 0 ? maxYValue * 1.2 : 1.0;
 
     return SizedBox(
       height: 200,
@@ -371,56 +446,76 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 40,
-                getTitlesWidget: (value, meta) => Text(
-                  value.toStringAsFixed(1),
-                  style: const TextStyle(color: Colors.black54, fontSize: 12),
-                ),
+                getTitlesWidget: (value, meta) {
+                   if (maxY == 1.0 && value == 0) return const SizedBox.shrink();
+                   return Text(
+                     value.toStringAsFixed(1), // Format left axis titles
+                     style: const TextStyle(color: Colors.black54, fontSize: 12),
+                   );
+                }
               ),
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                getTitlesWidget: (value, meta) => Text(
-                  metrics[value.toInt()]['title'] as String,
-                  style: const TextStyle(color: Colors.black54, fontSize: 12),
-                ),
+                getTitlesWidget: (value, meta) {
+                  if (value.toInt() >= 0 && value.toInt() < metrics.length) {
+                     return Text(
+                       metrics[value.toInt()]['title'] as String,
+                       style: const TextStyle(color: Colors.black54, fontSize: 12),
+                     );
+                   }
+                   return const SizedBox.shrink();
+                }
               ),
             ),
             topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           borderData: FlBorderData(show: false),
-          gridData: const FlGridData(
+          gridData: FlGridData(
             drawHorizontalLine: true,
             drawVerticalLine: false,
+             horizontalInterval: maxY / 5 > 0 ? maxY / 5 : 1,
           ),
-          barTouchData: BarTouchData(enabled: false), // Disable interactions to improve performance
+          barTouchData: BarTouchData(enabled: false),
         ),
-        swapAnimationDuration: const Duration(milliseconds: 0), // Disable animations
+        swapAnimationDuration: const Duration(milliseconds: 0),
       ),
     );
   }
 
   Widget _buildAeratorComparisonBarChart(Map<String, dynamic> results, AppLocalizations l10n, {Key? key}) {
+     // Safely access results
+    final cost1 = results[l10n.totalAnnualCostAerator1Label] as double? ?? 0.0;
+    final cost2 = results[l10n.totalAnnualCostAerator2Label] as double? ?? 0.0;
+    final opportunityCost = results['Cost of Opportunity (USD)'] as double? ?? 0.0;
+
     final metrics = [
-      {
+      if (cost1 >= 0) {
         'title': l10n.totalAnnualCostAerator1LabelShort,
-        'value': results[l10n.totalAnnualCostAerator1Label] as double? ?? 0.0,
+        'value': cost1,
         'tooltip': l10n.totalAnnualCostAerator1Tooltip,
       },
-      {
+      if (cost2 >= 0) {
         'title': l10n.totalAnnualCostAerator2LabelShort,
-        'value': results[l10n.totalAnnualCostAerator2Label] as double? ?? 0.0,
+        'value': cost2,
         'tooltip': l10n.totalAnnualCostAerator2Tooltip,
       },
-      {
+      if (opportunityCost >= 0) { // Only show if positive
         'title': l10n.costOfOpportunityLabelShort,
-        'value': results['Cost of Opportunity (USD)'] as double? ?? 0.0,
+        'value': opportunityCost,
         'tooltip': l10n.costOfOpportunityTooltip,
       },
     ];
 
-    final maxY = metrics.map((e) => e['value'] as double).reduce((a, b) => a > b ? a : b) * 1.2;
+     if (metrics.isEmpty) {
+      return SizedBox(key: key, height: 200, child: const Center(child: Text("No data for chart")));
+    }
+
+    final maxYValue = metrics.map((e) => e['value'] as double).reduce(max);
+    final maxY = maxYValue > 0 ? maxYValue * 1.2 : 1.0;
+
 
     return SizedBox(
       key: key,
@@ -442,82 +537,115 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                   borderRadius: BorderRadius.circular(4),
                 ),
               ],
-              showingTooltipIndicators: [0], // Show tooltip for each bar
+              // showingTooltipIndicators: [0], // Consider removing if getTooltipItem is used
             );
           }).toList(),
           titlesData: FlTitlesData(
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 40,
-                getTitlesWidget: (value, meta) => Text(
-                  NumberFormat.compact().format(value), // Compact format for large numbers
-                  style: const TextStyle(color: Colors.black54, fontSize: 12),
-                ),
+                reservedSize: 50, // Increased reserved size for compact format
+                getTitlesWidget: (value, meta) {
+                   if (maxY == 1.0 && value == 0) return const SizedBox.shrink();
+                   return Text(
+                     NumberFormat.compact().format(value), // Compact format for large numbers
+                     style: const TextStyle(color: Colors.black54, fontSize: 12),
+                   );
+                }
               ),
             ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                getTitlesWidget: (value, meta) => Text(
-                  metrics[value.toInt()]['title'] as String,
-                  style: const TextStyle(color: Colors.black54, fontSize: 12),
-                ),
+                getTitlesWidget: (value, meta) {
+                   if (value.toInt() >= 0 && value.toInt() < metrics.length) {
+                     return Text(
+                       metrics[value.toInt()]['title'] as String,
+                       style: const TextStyle(color: Colors.black54, fontSize: 12),
+                     );
+                   }
+                   return const SizedBox.shrink();
+                }
               ),
             ),
             topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           borderData: FlBorderData(show: false),
-          gridData: const FlGridData(
+          gridData: FlGridData(
             drawHorizontalLine: true,
             drawVerticalLine: false,
+             horizontalInterval: maxY / 5 > 0 ? maxY / 5 : 1,
           ),
-          barTouchData: BarTouchData(
+          barTouchData: BarTouchData( // Enable touch for tooltips
             enabled: true,
             touchTooltipData: BarTouchTooltipData(
-              tooltipBgColor: Colors.grey.withOpacity(0.8),
+              // FIX: Use getTooltipItem instead of tooltipBgColor
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                return BarTooltipItem(
-                  _formatValueWithThousandSeparator(rod.toY),
-                  const TextStyle(color: Colors.white),
-                  children: [
-                    TextSpan(
-                      text: '\n${metrics[groupIndex]['tooltip']}',
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                 if (groupIndex < 0 || groupIndex >= metrics.length) {
+                   return null; // Avoid index out of bounds
+                 }
+                 final metric = metrics[groupIndex];
+                 String text = '${metric['title']}\n'
+                               '${_formatValueWithThousandSeparator(rod.toY)}';
+                 // Optionally add the full tooltip text from the metric map
+                 // if (metric['tooltip'] != null) {
+                 //   text += '\n${metric['tooltip']}';
+                 // }
+
+                 return BarTooltipItem(
+                   text,
+                   const TextStyle(color: Colors.white, fontSize: 12),
+                    tooltipPadding: const EdgeInsets.all(8), // Add padding
+                    tooltipBorder: BorderSide(color: Colors.grey[700]!), // Add border
+                    // Set background color here
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                  ],
-                );
+                 );
               },
             ),
+             handleBuiltInTouches: true, // Use built-in touch handling
           ),
         ),
-        swapAnimationDuration: const Duration(milliseconds: 0), // Disable animations
+        swapAnimationDuration: const Duration(milliseconds: 0),
       ),
     );
   }
 
   Widget _buildAeratorComparisonPieChart(Map<String, dynamic> results, AppLocalizations l10n, {Key? key}) {
+    // Safely access results
+    final cost1 = results[l10n.totalAnnualCostAerator1Label] as double? ?? 0.0;
+    final cost2 = results[l10n.totalAnnualCostAerator2Label] as double? ?? 0.0;
+    final opportunityCost = results['Cost of Opportunity (USD)'] as double? ?? 0.0;
+
     final metrics = [
-      {
+      if (cost1 > 0) { // Only include positive values in pie chart
         'title': l10n.totalAnnualCostAerator1LabelShort,
-        'value': results[l10n.totalAnnualCostAerator1Label] as double? ?? 0.0,
+        'value': cost1,
         'tooltip': l10n.totalAnnualCostAerator1Tooltip,
-        'color': Colors.blue,
+        'color': Colors.blue.shade700, // Use shades for better distinction
       },
-      {
+      if (cost2 > 0) {
         'title': l10n.totalAnnualCostAerator2LabelShort,
-        'value': results[l10n.totalAnnualCostAerator2Label] as double? ?? 0.0,
+        'value': cost2,
         'tooltip': l10n.totalAnnualCostAerator2Tooltip,
-        'color': Colors.green,
+        'color': Colors.green.shade700,
       },
-      {
-        'title': l10n.costOfOpportunityLabelShort,
-        'value': results['Cost of Opportunity (USD)'] as double? ?? 0.0,
-        'tooltip': l10n.costOfOpportunityTooltip,
-        'color': Colors.orange,
-      },
+      // Opportunity cost might not make sense in a pie chart showing total costs
+      // Consider showing only cost1 and cost2 here.
+      // if (opportunityCost > 0) {
+      //   'title': l10n.costOfOpportunityLabelShort,
+      //   'value': opportunityCost,
+      //   'tooltip': l10n.costOfOpportunityTooltip,
+      //   'color': Colors.orange.shade700,
+      // },
     ];
+
+    if (metrics.isEmpty) {
+       return SizedBox(key: key, height: 200, child: const Center(child: Text("No data for chart")));
+    }
 
     final totalValue = metrics.map((e) => e['value'] as double).reduce((a, b) => a + b);
 
@@ -530,25 +658,42 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
             child: PieChart(
               PieChartData(
                 sections: metrics.asMap().entries.map((entry) {
-                  final index = entry.key;
+                  // final index = entry.key; // Not needed here
                   final metric = entry.value;
+                  final percentage = totalValue > 0 ? (metric['value'] as double) / totalValue * 100 : 0;
                   return PieChartSectionData(
                     color: metric['color'] as Color,
                     value: metric['value'] as double,
-                    title: metric['title'] as String,
-                    radius: 50,
-                    titleStyle: const TextStyle(fontSize: 12, color: Colors.white),
-                    showTitle: totalValue > 0,
+                    // Show percentage in title
+                    title: '${percentage.toStringAsFixed(0)}%',
+                    radius: 60, // Slightly larger radius
+                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                    showTitle: totalValue > 0 && percentage > 5, // Show title only if percentage is significant
                   );
                 }).toList(),
                 sectionsSpace: 2,
                 centerSpaceRadius: 40,
-                pieTouchData: PieTouchData(
+                pieTouchData: PieTouchData( // Add touch data for tooltips
                   enabled: true,
                   touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                    // Handle touch events if needed
+                    // Optional: Handle touch events for interactivity
                   },
-                  longPressDuration: const Duration(milliseconds: 500),
+                  longPressDuration: const Duration(milliseconds: 500), // Optional
+                   tooltipData: PieTouchTooltipData( // Define tooltip appearance
+                     tooltipBgColor: Colors.black87,
+                     getTooltipItems: (touchedSpots) {
+                       return touchedSpots.map((touchedSpot) {
+                         if (touchedSpot.touchedSectionIndex < 0 || touchedSpot.touchedSectionIndex >= metrics.length) {
+                            return null;
+                         }
+                         final metric = metrics[touchedSpot.touchedSectionIndex];
+                         return PieTooltipItem(
+                           '${metric['title']}: ${_formatValueWithThousandSeparator(metric['value'])}',
+                           const TextStyle(color: Colors.white),
+                         );
+                       }).whereType<PieTooltipItem>().toList(); // Filter out nulls
+                     },
+                   ),
                 ),
               ),
               swapAnimationDuration: const Duration(milliseconds: 0),
@@ -559,6 +704,7 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
           Wrap(
             spacing: 8,
             runSpacing: 4,
+            alignment: WrapAlignment.center, // Center legend items
             children: metrics.map((metric) {
               return Row(
                 mainAxisSize: MainAxisSize.min,
@@ -566,7 +712,10 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                   Container(
                     width: 12,
                     height: 12,
-                    color: metric['color'] as Color,
+                    decoration: BoxDecoration(
+                      color: metric['color'] as Color,
+                      shape: BoxShape.circle, // Use circles for legend
+                    ),
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -582,32 +731,34 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
     );
   }
 
-  Widget _buildOxygenDemandPieChart(Map<String, dynamic> results, AppLocalizations l10n) {
+
+  Widget _buildOxygenDemandPieChart(Map<String, dynamic> oxygenDemandResults, AppLocalizations l10n) {
+    // Safely access results, assuming keys might not always be present
+    final shrimpDemand = oxygenDemandResults['Shrimp Demand (kg O₂/h for 1000 ha)'] as double? ?? 0.0;
+    final waterDemand = (oxygenDemandResults['Water Demand (kg O₂/h/ha)'] as double? ?? 0.0) * 1000; // Convert to total
+    final bottomDemand = (oxygenDemandResults['Bottom Demand (kg O₂/h/ha)'] as double? ?? 0.0) * 1000; // Convert to total
+
     final metrics = [
-      {
-        'title': 'Shrimp Demand',
-        'value': results['Shrimp Demand (kg O₂/h for 1000 ha)'] as double? ?? 0.0,
-        'color': Colors.blue,
-      },
-      {
-        'title': 'Water Demand',
-        'value': (results['Water Demand (kg O₂/h/ha)'] as double? ?? 0.0) * 1000, // Convert to total for 1000 ha
-        'color': Colors.green,
-      },
-      {
-        'title': 'Bottom Demand',
-        'value': (results['Bottom Demand (kg O₂/h/ha)'] as double? ?? 0.0) * 1000, // Convert to total for 1000 ha
-        'color': Colors.orange,
-      },
+      if (shrimpDemand > 0) {'title': 'Shrimp', 'value': shrimpDemand, 'color': Colors.blue.shade700},
+      if (waterDemand > 0) {'title': 'Water', 'value': waterDemand, 'color': Colors.green.shade700},
+      if (bottomDemand > 0) {'title': 'Bottom', 'value': bottomDemand, 'color': Colors.orange.shade700},
     ];
 
+     if (metrics.isEmpty) {
+       return const SizedBox.shrink(); // Don't show if no data
+    }
+
     final totalValue = metrics.map((e) => e['value'] as double).reduce((a, b) => a + b);
+
+     if (totalValue <= 0) {
+       return const SizedBox.shrink(); // Don't show if total is zero
+     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Oxygen Demand Breakdown",
+          "Oxygen Demand Breakdown (kg O₂/h for 1000 ha)", // Clarify units
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -616,7 +767,7 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 200,
+          height: 200, // Consistent height
           child: Column(
             children: [
               Expanded(
@@ -624,23 +775,34 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                   PieChartData(
                     sections: metrics.asMap().entries.map((entry) {
                       final metric = entry.value;
+                      final percentage = (metric['value'] as double) / totalValue * 100;
                       return PieChartSectionData(
                         color: metric['color'] as Color,
                         value: metric['value'] as double,
-                        title: metric['title'] as String,
-                        radius: 50,
-                        titleStyle: const TextStyle(fontSize: 12, color: Colors.white),
-                        showTitle: totalValue > 0,
+                        title: '${percentage.toStringAsFixed(0)}%',
+                        radius: 60,
+                        titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                        showTitle: percentage > 5,
                       );
                     }).toList(),
                     sectionsSpace: 2,
                     centerSpaceRadius: 40,
                     pieTouchData: PieTouchData(
                       enabled: true,
-                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                        // Handle touch events if needed
-                      },
-                      longPressDuration: const Duration(milliseconds: 500),
+                       tooltipData: PieTouchTooltipData(
+                         tooltipBgColor: Colors.black87,
+                         getTooltipItems: (touchedSpots) {
+                           return touchedSpots.map((touchedSpot) {
+                             if (touchedSpot.touchedSectionIndex < 0 || touchedSpot.touchedSectionIndex >= metrics.length) return null;
+                             final metric = metrics[touchedSpot.touchedSectionIndex];
+                             return PieTooltipItem(
+                               '${metric['title']}: ${_formatValueWithThousandSeparator(metric['value'])} kg/h',
+                               const TextStyle(color: Colors.white),
+                             );
+                           }).whereType<PieTooltipItem>().toList();
+                         },
+                       ),
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {},
                     ),
                   ),
                   swapAnimationDuration: const Duration(milliseconds: 0),
@@ -651,6 +813,7 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
+                alignment: WrapAlignment.center,
                 children: metrics.map((metric) {
                   return Row(
                     mainAxisSize: MainAxisSize.min,
@@ -658,7 +821,10 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                       Container(
                         width: 12,
                         height: 12,
-                        color: metric['color'] as Color,
+                         decoration: BoxDecoration(
+                           color: metric['color'] as Color,
+                           shape: BoxShape.circle,
+                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -676,8 +842,9 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
     );
   }
 
+
   Widget _buildCostBreakdownTable(Map<String, dynamic> results, Map<String, dynamic> inputs, AppLocalizations l10n) {
-    // Extract input values with correct energy costs
+    // Extract input values safely
     final energyCost1 = inputs['Annual Energy Cost Aerator 1 (USD/year per aerator)'] as double? ?? 0.0;
     final energyCost2 = inputs['Annual Energy Cost Aerator 2 (USD/year per aerator)'] as double? ?? 0.0;
     final maintenance1 = inputs[l10n.maintenanceCostAerator1Label] as double? ?? 0.0;
@@ -686,16 +853,18 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
     final price2 = inputs[l10n.priceAerator2Label] as double? ?? 0.0;
     final durability1 = inputs[l10n.durabilityAerator1Label] as double? ?? 1.0;
     final durability2 = inputs[l10n.durabilityAerator2Label] as double? ?? 1.0;
-    final n1 = results[l10n.numberOfAerator1UnitsLabel] as int? ?? 0;
-    final n2 = results[l10n.numberOfAerator2UnitsLabel] as int? ?? 0;
+    // Extract results safely
+    final n1 = results[l10n.numberOfAerator1UnitsLabel] is int ? results[l10n.numberOfAerator1UnitsLabel] as int : (results[l10n.numberOfAerator1UnitsLabel] as double? ?? 0.0).toInt();
+    final n2 = results[l10n.numberOfAerator2UnitsLabel] is int ? results[l10n.numberOfAerator2UnitsLabel] as int : (results[l10n.numberOfAerator2UnitsLabel] as double? ?? 0.0).toInt();
 
-    // Calculate cost components
+
+    // Calculate cost components, handle division by zero for durability
     final energyCostTotal1 = energyCost1 * n1;
     final energyCostTotal2 = energyCost2 * n2;
     final maintenanceCost1 = maintenance1 * n1;
     final maintenanceCost2 = maintenance2 * n2;
-    final capitalCost1 = (price1 / durability1) * n1;
-    final capitalCost2 = (price2 / durability2) * n2;
+    final capitalCost1 = durability1 > 0 ? (price1 / durability1) * n1 : 0.0;
+    final capitalCost2 = durability2 > 0 ? (price2 / durability2) * n2 : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -710,15 +879,15 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
         ),
         const SizedBox(height: 8),
         Table(
-          border: TableBorder.all(color: Colors.grey),
+          border: TableBorder.all(color: Colors.grey.shade300, width: 0.5), // Lighter border
           columnWidths: const {
             0: FlexColumnWidth(2),
-            1: FlexColumnWidth(1),
-            2: FlexColumnWidth(1),
+            1: FlexColumnWidth(1.2), // Adjust widths
+            2: FlexColumnWidth(1.2),
           },
           children: [
             TableRow(
-              decoration: BoxDecoration(color: Colors.grey[200]),
+              decoration: BoxDecoration(color: Colors.grey[100]), // Lighter header
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -726,105 +895,82 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(l10n.aerator1, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                  child: Text(l10n.aerator1, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.right), // Align right
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(l10n.aerator2, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                  child: Text(l10n.aerator2, style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.right), // Align right
                 ),
               ],
             ),
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(l10n.energyCostLabel),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    _formatValueWithThousandSeparator(energyCostTotal1),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: energyCostTotal1 <= energyCostTotal2 ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    _formatValueWithThousandSeparator(energyCostTotal2),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: energyCostTotal2 <= energyCostTotal1 ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(l10n.maintenanceCostLabel),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    _formatValueWithThousandSeparator(maintenanceCost1),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: maintenanceCost1 <= maintenanceCost2 ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    _formatValueWithThousandSeparator(maintenanceCost2),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: maintenanceCost2 <= maintenanceCost1 ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(l10n.capitalCostLabel),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    _formatValueWithThousandSeparator(capitalCost1),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: capitalCost1 <= capitalCost2 ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    _formatValueWithThousandSeparator(capitalCost2),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: capitalCost2 <= capitalCost1 ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            _buildCostTableRow(l10n.energyCostLabel, energyCostTotal1, energyCostTotal2),
+            _buildCostTableRow(l10n.maintenanceCostLabel, maintenanceCost1, maintenanceCost2),
+            _buildCostTableRow(l10n.capitalCostLabel, capitalCost1, capitalCost2),
+             // Add Total Row
+             TableRow(
+               decoration: BoxDecoration(color: Colors.grey[200]), // Highlight total
+               children: [
+                 const Padding(
+                   padding: EdgeInsets.all(8.0),
+                   child: Text("Total Annual Cost", style: TextStyle(fontWeight: FontWeight.bold)),
+                 ),
+                 Padding(
+                   padding: const EdgeInsets.all(8.0),
+                   child: Text(
+                     _formatValueWithThousandSeparator(energyCostTotal1 + maintenanceCost1 + capitalCost1),
+                     textAlign: TextAlign.right,
+                     style: const TextStyle(fontWeight: FontWeight.bold),
+                   ),
+                 ),
+                 Padding(
+                   padding: const EdgeInsets.all(8.0),
+                   child: Text(
+                     _formatValueWithThousandSeparator(energyCostTotal2 + maintenanceCost2 + capitalCost2),
+                     textAlign: TextAlign.right,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                   ),
+                 ),
+               ],
+             ),
           ],
         ),
       ],
     );
   }
 
+  // Helper for table rows
+  TableRow _buildCostTableRow(String label, double value1, double value2) {
+     final color1 = value1.isNaN || value2.isNaN || value1 == value2 ? Colors.black : (value1 < value2 ? Colors.green : Colors.red);
+     final color2 = value1.isNaN || value2.isNaN || value1 == value2 ? Colors.black : (value2 < value1 ? Colors.green : Colors.red);
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(label),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            _formatValueWithThousandSeparator(value1),
+            textAlign: TextAlign.right,
+             style: TextStyle(color: color1),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            _formatValueWithThousandSeparator(value2),
+            textAlign: TextAlign.right,
+             style: TextStyle(color: color2),
+          ),
+        ),
+      ],
+    );
+  }
+
+
   Widget _buildCostBreakdownPieChart(Map<String, dynamic> results, Map<String, dynamic> inputs, AppLocalizations l10n) {
+     // Extract values safely
     final energyCost1 = inputs['Annual Energy Cost Aerator 1 (USD/year per aerator)'] as double? ?? 0.0;
     final energyCost2 = inputs['Annual Energy Cost Aerator 2 (USD/year per aerator)'] as double? ?? 0.0;
     final maintenance1 = inputs[l10n.maintenanceCostAerator1Label] as double? ?? 0.0;
@@ -833,30 +979,35 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
     final price2 = inputs[l10n.priceAerator2Label] as double? ?? 0.0;
     final durability1 = inputs[l10n.durabilityAerator1Label] as double? ?? 1.0;
     final durability2 = inputs[l10n.durabilityAerator2Label] as double? ?? 1.0;
-    final n1 = results[l10n.numberOfAerator1UnitsLabel] as int? ?? 0;
-    final n2 = results[l10n.numberOfAerator2UnitsLabel] as int? ?? 0;
+    final n1 = results[l10n.numberOfAerator1UnitsLabel] is int ? results[l10n.numberOfAerator1UnitsLabel] as int : (results[l10n.numberOfAerator1UnitsLabel] as double? ?? 0.0).toInt();
+    final n2 = results[l10n.numberOfAerator2UnitsLabel] is int ? results[l10n.numberOfAerator2UnitsLabel] as int : (results[l10n.numberOfAerator2UnitsLabel] as double? ?? 0.0).toInt();
+
 
     final energyCostTotal1 = energyCost1 * n1;
     final energyCostTotal2 = energyCost2 * n2;
     final maintenanceCost1 = maintenance1 * n1;
     final maintenanceCost2 = maintenance2 * n2;
-    final capitalCost1 = (price1 / durability1) * n1;
-    final capitalCost2 = (price2 / durability2) * n2;
+    final capitalCost1 = durability1 > 0 ? (price1 / durability1) * n1 : 0.0;
+    final capitalCost2 = durability2 > 0 ? (price2 / durability2) * n2 : 0.0;
 
     final totalCost1 = energyCostTotal1 + maintenanceCost1 + capitalCost1;
     final totalCost2 = energyCostTotal2 + maintenanceCost2 + capitalCost2;
 
     final metrics1 = [
-      {'title': l10n.energyCostLabel, 'value': energyCostTotal1, 'color': Colors.blue},
-      {'title': l10n.maintenanceCostLabel, 'value': maintenanceCost1, 'color': Colors.green},
-      {'title': l10n.capitalCostLabel, 'value': capitalCost1, 'color': Colors.orange},
+      if (energyCostTotal1 > 0) {'title': l10n.energyCostLabel, 'value': energyCostTotal1, 'color': Colors.blue.shade700},
+      if (maintenanceCost1 > 0) {'title': l10n.maintenanceCostLabel, 'value': maintenanceCost1, 'color': Colors.green.shade700},
+      if (capitalCost1 > 0) {'title': l10n.capitalCostLabel, 'value': capitalCost1, 'color': Colors.orange.shade700},
     ];
 
     final metrics2 = [
-      {'title': l10n.energyCostLabel, 'value': energyCostTotal2, 'color': Colors.blue},
-      {'title': l10n.maintenanceCostLabel, 'value': maintenanceCost2, 'color': Colors.green},
-      {'title': l10n.capitalCostLabel, 'value': capitalCost2, 'color': Colors.orange},
+       if (energyCostTotal2 > 0) {'title': l10n.energyCostLabel, 'value': energyCostTotal2, 'color': Colors.blue.shade700},
+       if (maintenanceCost2 > 0) {'title': l10n.maintenanceCostLabel, 'value': maintenanceCost2, 'color': Colors.green.shade700},
+       if (capitalCost2 > 0) {'title': l10n.capitalCostLabel, 'value': capitalCost2, 'color': Colors.orange.shade700},
     ];
+
+     if (metrics1.isEmpty && metrics2.isEmpty) {
+       return const SizedBox.shrink(); // Don't show if no data for either
+     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -873,92 +1024,97 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start, // Align tops
           children: [
             // Pie Chart for Aerator 1
-            Column(
-              children: [
-                Text(l10n.aerator1, style: const TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(
-                  height: 150,
-                  width: 150,
-                  child: PieChart(
-                    PieChartData(
-                      sections: metrics1.asMap().entries.map((entry) {
-                        final metric = entry.value;
-                        return PieChartSectionData(
-                          color: metric['color'] as Color,
-                          value: metric['value'] as double,
-                          title: metric['title'] as String,
-                          radius: 50,
-                          titleStyle: const TextStyle(fontSize: 12, color: Colors.white),
-                          showTitle: totalCost1 > 0,
-                        );
-                      }).toList(),
-                      sectionsSpace: 2,
-                      centerSpaceRadius: 40,
-                      pieTouchData: PieTouchData(
-                        enabled: true,
-                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                          // Handle touch events if needed
-                        },
-                        longPressDuration: const Duration(milliseconds: 500),
+            if (metrics1.isNotEmpty && totalCost1 > 0)
+              Expanded( // Use Expanded to allow charts to take space
+                child: Column(
+                  children: [
+                    Text(l10n.aerator1, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(
+                      height: 150, // Fixed height
+                      // width: 150, // Width is determined by Expanded
+                      child: PieChart(
+                        PieChartData(
+                          sections: metrics1.asMap().entries.map((entry) {
+                             final metric = entry.value;
+                             final percentage = (metric['value'] as double) / totalCost1 * 100;
+                            return PieChartSectionData(
+                              color: metric['color'] as Color,
+                              value: metric['value'] as double,
+                              title: '${percentage.toStringAsFixed(0)}%',
+                              radius: 50,
+                              titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                              showTitle: percentage > 5,
+                            );
+                          }).toList(),
+                          sectionsSpace: 2,
+                          centerSpaceRadius: 30, // Smaller center space
+                           pieTouchData: _buildPieTouchData(metrics1, l10n),
+                        ),
+                        swapAnimationDuration: const Duration(milliseconds: 0),
                       ),
                     ),
-                    swapAnimationDuration: const Duration(milliseconds: 0),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
             // Pie Chart for Aerator 2
-            Column(
-              children: [
-                Text(l10n.aerator2, style: const TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(
-                  height: 150,
-                  width: 150,
-                  child: PieChart(
-                    PieChartData(
-                      sections: metrics2.asMap().entries.map((entry) {
-                        final metric = entry.value;
-                        return PieChartSectionData(
-                          color: metric['color'] as Color,
-                          value: metric['value'] as double,
-                          title: metric['title'] as String,
-                          radius: 50,
-                          titleStyle: const TextStyle(fontSize: 12, color: Colors.white),
-                          showTitle: totalCost2 > 0,
-                        );
-                      }).toList(),
-                      sectionsSpace: 2,
-                      centerSpaceRadius: 40,
-                      pieTouchData: PieTouchData(
-                        enabled: true,
-                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                          // Handle touch events if needed
-                        },
-                        longPressDuration: const Duration(milliseconds: 500),
-                      ),
-                    ),
-                    swapAnimationDuration: const Duration(milliseconds: 0),
-                  ),
-                ),
-              ],
-            ),
+             if (metrics2.isNotEmpty && totalCost2 > 0)
+               Expanded(
+                 child: Column(
+                   children: [
+                     Text(l10n.aerator2, style: const TextStyle(fontWeight: FontWeight.bold)),
+                     SizedBox(
+                       height: 150,
+                       // width: 150,
+                       child: PieChart(
+                         PieChartData(
+                           sections: metrics2.asMap().entries.map((entry) {
+                              final metric = entry.value;
+                              final percentage = (metric['value'] as double) / totalCost2 * 100;
+                             return PieChartSectionData(
+                               color: metric['color'] as Color,
+                               value: metric['value'] as double,
+                               title: '${percentage.toStringAsFixed(0)}%',
+                               radius: 50,
+                               titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                               showTitle: percentage > 5,
+                             );
+                           }).toList(),
+                           sectionsSpace: 2,
+                           centerSpaceRadius: 30,
+                            pieTouchData: _buildPieTouchData(metrics2, l10n),
+                         ),
+                         swapAnimationDuration: const Duration(milliseconds: 0),
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
           ],
         ),
         const SizedBox(height: 8),
-        // Legend for Cost Breakdown Pie Charts
+        // Legend for Cost Breakdown Pie Charts (use common metrics)
         Wrap(
           spacing: 8,
           runSpacing: 4,
-          children: metrics1.map((metric) {
+          alignment: WrapAlignment.center,
+          children: [
+             {'title': l10n.energyCostLabel, 'color': Colors.blue.shade700},
+             {'title': l10n.maintenanceCostLabel, 'color': Colors.green.shade700},
+             {'title': l10n.capitalCostLabel, 'color': Colors.orange.shade700},
+          ].map((metric) {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   width: 12,
                   height: 12,
-                  color: metric['color'] as Color,
+                   decoration: BoxDecoration(
+                     color: metric['color'] as Color,
+                     shape: BoxShape.circle,
+                   ),
                 ),
                 const SizedBox(width: 4),
                 Text(
@@ -973,29 +1129,65 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
     );
   }
 
+  // Helper for Pie Touch Data
+  PieTouchData _buildPieTouchData(List<Map<String, dynamic>> metrics, AppLocalizations l10n) {
+     return PieTouchData(
+       enabled: true,
+       tooltipData: PieTouchTooltipData(
+         tooltipBgColor: Colors.black87,
+         getTooltipItems: (touchedSpots) {
+           return touchedSpots.map((touchedSpot) {
+             if (touchedSpot.touchedSectionIndex < 0 || touchedSpot.touchedSectionIndex >= metrics.length) return null;
+             final metric = metrics[touchedSpot.touchedSectionIndex];
+             return PieTooltipItem(
+               '${metric['title']}\n${_formatValueWithThousandSeparator(metric['value'])}', // Show title and value
+               const TextStyle(color: Colors.white, fontSize: 12), // Smaller font
+               textAlign: TextAlign.center, // Center align text
+             );
+           }).whereType<PieTooltipItem>().toList();
+         },
+       ),
+       touchCallback: (FlTouchEvent event, pieTouchResponse) {
+         // Optional: Handle touch events if needed, e.g., for highlighting
+       },
+     );
+  }
+
+
+  // --- Helper Methods ---
+
   String _formatValue(dynamic value) {
     if (value is double) {
+      if (value.isNaN || value.isInfinite) return "N/A";
       return value.toStringAsFixed(2);
     }
     return value.toString();
   }
 
   String _formatValueWithThousandSeparator(dynamic value) {
-    if (value is double) {
-      if (value >= 1000000) {
+     if (value is double) {
+      if (value.isNaN || value.isInfinite) return "N/A";
+      if (value.abs() >= 1000000) {
         return NumberFormat.compact().format(value);
       }
-      return NumberFormat('#,##0.00').format(value);
+      // Use currency format for costs
+      return NumberFormat.currency(locale: 'en_US', symbol: '\$').format(value);
+      // return NumberFormat('#,##0.00').format(value); // Original formatting
     } else if (value is int) {
-      if (value >= 1000000) {
+       if (value.abs() >= 1000000) {
         return NumberFormat.compact().format(value);
       }
+       // Use currency format for costs if applicable (e.g., number of units might not be currency)
+       // Check the context where this is called if needed. For now, assume non-currency for int.
       return NumberFormat('#,##0').format(value);
     }
     return value.toString();
   }
 
-  void _downloadAsCsv(Map<String, dynamic> inputs, Map<String, dynamic> results) {
+  // FIX: Modify method signature to accept BuildContext
+  void _downloadAsCsv(BuildContext context, Map<String, dynamic> inputs, Map<String, dynamic> results) {
+     // FIX: Get l10n object using context
+    final l10n = AppLocalizations.of(context)!;
     final csvRows = <String>[];
 
     // Inputs Section
@@ -1017,43 +1209,54 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
       csvRows.add('"$escapedKey","$escapedValue"');
     });
 
-    // Cost Breakdown Section
-    csvRows.add('');
-    csvRows.add('"Cost Breakdown"');
-    csvRows.add('"Category","Value"');
-    final energyCost1 = inputs['Annual Energy Cost Aerator 1 (USD/year per aerator)'] as double? ?? 0.0;
-    final energyCost2 = inputs['Annual Energy Cost Aerator 2 (USD/year per aerator)'] as double? ?? 0.0;
-    final maintenance1 = inputs[l10n.maintenanceCostAerator1Label] as double? ?? 0.0;
-    final maintenance2 = inputs[l10n.maintenanceCostAerator2Label] as double? ?? 0.0;
-    final price1 = inputs[l10n.priceAerator1Label] as double? ?? 0.0;
-    final price2 = inputs[l10n.priceAerator2Label] as double? ?? 0.0;
-    final durability1 = inputs[l10n.durabilityAerator1Label] as double? ?? 1.0;
-    final durability2 = inputs[l10n.durabilityAerator2Label] as double? ?? 1.0;
-    final n1 = results[l10n.numberOfAerator1UnitsLabel] as int? ?? 0;
-    final n2 = results[l10n.numberOfAerator2UnitsLabel] as int? ?? 0;
+    // Cost Breakdown Section (Only for Aerator Comparison Tab)
+    if (widget.tab == 'Aerator Comparison') {
+        csvRows.add('');
+        csvRows.add('"Cost Breakdown (Annual, USD)"'); // Add units to header
+        csvRows.add('"Category","Aerator 1","Aerator 2"'); // Change header structure
 
-    final energyCostTotal1 = energyCost1 * n1;
-    final energyCostTotal2 = energyCost2 * n2;
-    final maintenanceCost1 = maintenance1 * n1;
-    final maintenanceCost2 = maintenance2 * n2;
-    final capitalCost1 = (price1 / durability1) * n1;
-    final capitalCost2 = (price2 / durability2) * n2;
+        // Extract values safely
+        final energyCost1 = inputs['Annual Energy Cost Aerator 1 (USD/year per aerator)'] as double? ?? 0.0;
+        final energyCost2 = inputs['Annual Energy Cost Aerator 2 (USD/year per aerator)'] as double? ?? 0.0;
+        final maintenance1Input = inputs[l10n.maintenanceCostAerator1Label] as double? ?? 0.0;
+        final maintenance2Input = inputs[l10n.maintenanceCostAerator2Label] as double? ?? 0.0;
+        final price1 = inputs[l10n.priceAerator1Label] as double? ?? 0.0;
+        final price2 = inputs[l10n.priceAerator2Label] as double? ?? 0.0;
+        final durability1 = inputs[l10n.durabilityAerator1Label] as double? ?? 1.0;
+        final durability2 = inputs[l10n.durabilityAerator2Label] as double? ?? 1.0;
+        final n1 = results[l10n.numberOfAerator1UnitsLabel] is int ? results[l10n.numberOfAerator1UnitsLabel] as int : (results[l10n.numberOfAerator1UnitsLabel] as double? ?? 0.0).toInt();
+        final n2 = results[l10n.numberOfAerator2UnitsLabel] is int ? results[l10n.numberOfAerator2UnitsLabel] as int : (results[l10n.numberOfAerator2UnitsLabel] as double? ?? 0.0).toInt();
 
-    csvRows.add('"${l10n.aerator1} - ${l10n.energyCostLabel}","${_formatValue(energyCostTotal1)}"');
-    csvRows.add('"${l10n.aerator1} - ${l10n.maintenanceCostLabel}","${_formatValue(maintenanceCost1)}"');
-    csvRows.add('"${l10n.aerator1} - ${l10n.capitalCostLabel}","${_formatValue(capitalCost1)}"');
-    csvRows.add('"${l10n.aerator2} - ${l10n.energyCostLabel}","${_formatValue(energyCostTotal2)}"');
-    csvRows.add('"${l10n.aerator2} - ${l10n.maintenanceCostLabel}","${_formatValue(maintenanceCost2)}"');
-    csvRows.add('"${l10n.aerator2} - ${l10n.capitalCostLabel}","${_formatValue(capitalCost2)}"');
+
+        final energyCostTotal1 = energyCost1 * n1;
+        final energyCostTotal2 = energyCost2 * n2;
+        final maintenanceCost1 = maintenance1Input * n1;
+        final maintenanceCost2 = maintenance2Input * n2;
+        final capitalCost1 = durability1 > 0 ? (price1 / durability1) * n1 : 0.0;
+        final capitalCost2 = durability2 > 0 ? (price2 / durability2) * n2 : 0.0;
+        final totalCost1 = energyCostTotal1 + maintenanceCost1 + capitalCost1;
+        final totalCost2 = energyCostTotal2 + maintenanceCost2 + capitalCost2;
+
+
+        // Add rows for each cost component
+        csvRows.add('"${l10n.energyCostLabel}","${_formatValue(energyCostTotal1)}","${_formatValue(energyCostTotal2)}"');
+        csvRows.add('"${l10n.maintenanceCostLabel}","${_formatValue(maintenanceCost1)}","${_formatValue(maintenanceCost2)}"');
+        csvRows.add('"${l10n.capitalCostLabel}","${_formatValue(capitalCost1)}","${_formatValue(capitalCost2)}"');
+        csvRows.add('"Total Annual Cost","${_formatValue(totalCost1)}","${_formatValue(totalCost2)}"'); // Add total row
+    }
+
 
     final csvContent = csvRows.join('\n');
-    final blob = html.Blob([csvContent], 'text/csv');
+    final blob = html.Blob([csvContent], 'text/csv;charset=utf-8;'); // Ensure UTF-8
     final url = html.Url.createObjectUrlFromBlob(blob);
 
     final anchor = html.AnchorElement(href: url)
-      ..setAttribute('download', 'aerasync_data_${DateTime.now().toIso8601String()}.csv')
+      ..setAttribute('download', 'aerasync_data_${widget.tab.replaceAll(' ', '_')}_${DateTime.now().toIso8601String()}.csv') // Use tab name in filename
       ..click();
 
     html.Url.revokeObjectUrl(url);
   }
 }
+
+// Helper function needed if using .reduce(max)
+// double max(double a, double b) => a > b ? a : b; // Already imported dart:math

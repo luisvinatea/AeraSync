@@ -1,9 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:AeraSync/generated/l10n.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../core/services/app_state.dart';
 import 'dart:convert';
-import 'dart:math' as math;
 import 'package:flutter/services.dart' show rootBundle;
 
 class AeratorComparisonForm extends StatefulWidget {
@@ -148,7 +149,7 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
       double derivative = 0.0;
 
       for (int t = 1; t <= analysisHorizon; t++) {
-        double discountFactor = math.pow(1 + tir, t);
+        double discountFactor = math.pow(1 + tir, t).toDouble(); // Add .toDouble()
         double cashFlow = annualSavings * math.pow(1 + inflationRate, t);
         sum += cashFlow / discountFactor;
         derivative += -t * cashFlow / (discountFactor * (1 + tir));

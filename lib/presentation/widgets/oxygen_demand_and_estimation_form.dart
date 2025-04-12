@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:AeraSync/generated/l10n.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:math';
 import '../../core/services/app_state.dart';
 
@@ -197,7 +197,7 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
             AppLocalizations.of(context)!.shrimpRespirationLabel: double.parse(shrimpRespiration.toStringAsFixed(2)),
             AppLocalizations.of(context)!.columnRespirationLabel: double.parse(columnRespiration.toStringAsFixed(2)),
             AppLocalizations.of(context)!.bottomRespirationLabel: double.parse(bottomRespiration.toStringAsFixed(2)),
-            AppLocalizations.of(context)!.environmentalRespirationLabel: double.parse(environmentalDemand.toStringAsFixed(2)),
+            AppLocalizations.of(context)!.environmentalOxygenDemandLabel: double.parse(environmentalDemand.toStringAsFixed(2)),
             AppLocalizations.of(context)!.totalOxygenDemandMgPerLPerHLabel: double.parse(oxygenDemand.toStringAsFixed(2)),
             AppLocalizations.of(context)!.todPerHectareLabel: double.parse(todPerHectare.toStringAsFixed(2)),
             AppLocalizations.of(context)!.otr20Label: double.parse(otr20.toStringAsFixed(2)),
@@ -263,9 +263,9 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              _buildTabButton(l10n.farmBasedCalculation, 0),
+                              _buildTabButton(l10n.farmBasedTabLabel, 0),
                               const SizedBox(width: 8),
-                              _buildTabButton(l10n.experimentalCalculation, 1),
+                              _buildTabButton(l10n.experimentalTabLabel, 1),
                             ],
                           ),
                           const SizedBox(height: 10),

@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:AeraSync/presentation/pages/home_page.dart';
 import 'package:provider/provider.dart';
-import 'package:AeraSync/generated/l10n.dart';
-import 'core/services/app_state.dart';
-import 'presentation/pages/home_page.dart';
+import 'package:AeraSync/core/services/app_state.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Create and initialize AppState
+  final appState = AppState();
+  await appState.initialize();
+
+  runApp(
+    Provider<AppState>.value(
+      value: appState,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -14,43 +24,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) {
-        final appState = AppState();
-        // Initialize AppState immediately
-        appState.initialize();
-        return appState;
-      },
-      child: MaterialApp(
-        title: 'AeraSync',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Consumer<AppState>(
-          builder: (context, appState, child) {
-            if (appState.isLoading) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-            if (appState.error != null) {
-              return Scaffold(
-                body: Center(
-                  child: Text('Error: ${appState.error}'),
-                ),
-              );
-            }
-            return const HomePage();
-          },
-        ),
-      ),
+    return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      title: 'AeraSync',
+      home: const HomePage(),
     );
   }
 }

@@ -178,5 +178,8 @@
   "costComponentLabel": "Componente de Custo",
   "energyCostLabel": "Custo de Energia (USD/year)",
   "maintenanceCostLabel": "Custo de Manutenção (USD/year)",
-  "capitalCostLabel": "Custo de Capital (USD/year)"
+  "capitalCostLabel": "Custo de Capital (USD/year)",
+
+  "useManualTODLabel": "Use Demanda Total de Oxigênio Manual",
+  "finalO2MustBeLessThanStartO2": "O₂ Final deve ser inferior à O₂ Inicial"
 }

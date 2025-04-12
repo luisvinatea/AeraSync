@@ -4,7 +4,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/aerator_comparison_form.dart';
 import '../widgets/calculator_form.dart';
 import '../widgets/oxygen_demand_and_estimation_form.dart';
-import '../widgets/comparison_results_display.dart';
 import '../widgets/oxygen_demand_results_display.dart';
 import '../widgets/results_display.dart';
 import '../../core/services/app_state.dart';
@@ -68,7 +67,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               child: Column(
                 children: [
                   const AeratorComparisonForm(),
-                  ComparisonResultsDisplay(),
+                  ResultsDisplay(tab: 'Aerator Comparison'), // Replaced ComparisonResultsDisplay
                 ],
               ),
             ),
