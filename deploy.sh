@@ -150,12 +150,13 @@ fi
 if [ -f "$PUBSPEC_BAK_FILE" ]; then rm -f "$PUBSPEC_FILE.bak"; fi
 
 
+echo "Generating localization files..."
+flutter gen-l10n || { echo "Localization generation failed"; if [ -f "$PUBSPEC_BAK_FILE" ]; then mv "$PUBSPEC_BAK_FILE" "$PUBSPEC_FILE"; fi; exit 1; } # Restore on failure
+
 # --- Testing & Generation ---
 echo "Running tests..."
 flutter test || { echo "Tests failed"; if [ -f "$PUBSPEC_BAK_FILE" ]; then mv "$PUBSPEC_BAK_FILE" "$PUBSPEC_FILE"; fi; exit 1; } # Restore on failure
 
-echo "Generating localization files..."
-flutter gen-l10n || { echo "Localization generation failed"; if [ -f "$PUBSPEC_BAK_FILE" ]; then mv "$PUBSPEC_BAK_FILE" "$PUBSPEC_FILE"; fi; exit 1; } # Restore on failure
 
 # --- ARB Checks (Requires Python 3) ---
 echo "Linting .arb files (requires python3)..."
