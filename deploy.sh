@@ -18,7 +18,7 @@ echo "Checking Flutter and Dart versions..."
 FLUTTER_VERSION=$(flutter --version | grep -oP 'Flutter \K[\d\.]+')
 DART_VERSION=$(flutter --version | grep -oP 'Dart \K[\d\.]+')
 MINIMUM_FLUTTER_VERSION="3.13.0"
-RECOMMENDED_FLUTTER_VERSION="3.22.2" # Consider updating this recommendation periodically
+RECOMMENDED_FLUTTER_VERSION="3.29.2" # Consider updating this recommendation periodically
 MINIMUM_DART_VERSION="3.3.0"
 if [[ $(echo -e "$FLUTTER_VERSION\n$MINIMUM_FLUTTER_VERSION" | sort -V | head -n1) != "$MINIMUM_FLUTTER_VERSION" ]]; then
   echo "Flutter version $FLUTTER_VERSION is too old. Minimum required version is $MINIMUM_FLUTTER_VERSION."
