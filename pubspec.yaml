@@ -46,8 +46,7 @@ flutter:
 
   # Enables generation features, including for localization.
   generate: true
-  localizations-delegates:
-    - AppLocalizations.delegate
+
 
   # Declares assets to be included with the application.
   assets:
