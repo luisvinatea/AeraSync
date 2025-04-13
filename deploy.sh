@@ -31,28 +31,6 @@ if [[ $(echo -e "$FLUTTER_VERSION\n$MINIMUM_FLUTTER_VERSION" | sort -V | head -n
     exit 1
   fi
 fi
-# Warning for specific problematic versions (keep updated if necessary)
-if [[ "$FLUTTER_VERSION" == "3.29.2" ]]; then
-  echo "Warning: Flutter 3.29.2 has known regressions (e.g., incorrect Dart SDK version, intl dependency issues)."
-  echo "It is recommended to use Flutter $RECOMMENDED_FLUTTER_VERSION instead."
-fi
-if [[ $(echo -e "$DART_VERSION\n$MINIMUM_DART_VERSION" | sort -V | head -n1) != "$MINIMUM_DART_VERSION" ]]; then
-  echo "Error: Dart version $DART_VERSION is too old. Minimum required version is $MINIMUM_DART_VERSION."
-  echo "Please use a Flutter version that bundles a compatible Dart SDK (e.g., Flutter $RECOMMENDED_FLUTTER_VERSION)."
-  exit 1
-fi
-
-# --- Dependency Adjustments (Potentially Risky - Consider Manual Check/Update) ---
-# These 'sed' commands automatically modify pubspec.yaml. This can be fragile.
-# A safer alternative is to check versions and prompt the user to update manually.
-
-echo "Checking Dart version for flutter_lints compatibility..."
-PUBSPEC_FILE="pubspec.yaml"
-PUBSPEC_BAK_FILE="pubspec.yaml.bak.deploy" # Use distinct backup name
-LINTS_V4_PATTERN='flutter_lints: ^4\.0\.0' # Escaped dot
-LINTS_V5_PATTERN='flutter_lints: ^5\.0\.0' # Escaped dot
-LINTS_V4_REPLACEMENT='  flutter_lints: ^4.0.0' # Ensure correct indentation
-LINTS_V5_REPLACEMENT='  flutter_lints: ^5.0.0' # Ensure correct indentation
 
 # Backup pubspec.yaml only if modification is needed
 NEEDS_LINT_MOD=false
