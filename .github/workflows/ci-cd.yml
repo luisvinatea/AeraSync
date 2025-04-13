@@ -20,9 +20,9 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2' # Ensure pubspec.yaml dependencies match this version
+          flutter-version: '3.29.2' # Updated from 3.22.2
           channel: 'stable'
-          cache: true # Enable flutter-action's built-in caching
+          cache: true # Cache dependencies for faster builds
 
       # Step 3: Verify Flutter version
       - name: Verify Flutter version
