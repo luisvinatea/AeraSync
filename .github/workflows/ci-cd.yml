@@ -64,15 +64,15 @@ jobs:
           done
           if [ "$MISSING" = true ]; then exit 1; fi
 
-      # Step 7: Run tests (Good practice)
-      - name: Run tests
-        run: flutter test
-
-      # Step 8: Generate localization files (Necessary)
+      # Step 7: Generate localization files (Necessary)
       - name: Generate localization files
         run: flutter gen-l10n
 
-      # Step 9: Check ARB File Consistency (Requires Python)
+      # Step 8: Run tests (Good practice)
+      - name: Run tests
+        run: flutter test
+
+      # Step 8: Check ARB File Consistency (Requires Python)
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
