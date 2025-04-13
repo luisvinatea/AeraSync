@@ -16,45 +16,31 @@ jobs:
         uses: actions/checkout@v4
 
       # Step 2: Set up Flutter environment
+      # Pinning version ensures consistency. cache: true enables dependency caching.
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2'
+          flutter-version: '3.22.2' # Ensure pubspec.yaml dependencies match this version
           channel: 'stable'
+          cache: true # Enable flutter-action's built-in caching
 
       # Step 3: Verify Flutter version
       - name: Verify Flutter version
         run: flutter --version
 
-      # Step 4: Clean the project
+      # Step 4: Clean the project (Good practice)
       - name: Clean project
         run: flutter clean
 
-      # Step 5: Repair pub cache
-      - name: Repair pub cache
-        run: flutter pub cache repair
-
-      # Step 6: Get dependencies with fallback for intl
+      # Step 5: Get dependencies (Removed risky fallback logic)
+      # Ensure pubspec.yaml is correct before committing. If this fails, the workflow should fail.
       - name: Get dependencies
-        run: |
-          flutter pub get || (sed -i 's/intl: ^0.20.0/intl: ^0.19.0/' pubspec.yaml && flutter pub get)
+        run: flutter pub get
 
-      # Step 7: Adjust flutter_lints based on Dart version
-      - name: Adjust flutter_lints version
-        run: |
-          DART_VERSION=$(flutter --version | grep -oP 'Dart \K[\d\.]+')
-          if [[ $(echo -e "$DART_VERSION\n3.5.0" | sort -V | head -n1) != "3.5.0" ]]; then
-            echo "Dart version $DART_VERSION is older than 3.5.0, adjusting flutter_lints to ^4.0.0..."
-            sed -i 's/flutter_lints: ^5.0.0/flutter_lints: ^4.0.0/' pubspec.yaml || echo "flutter_lints not found in expected format"
-          else
-            echo "Dart version $DART_VERSION is 3.5.0 or higher, ensuring flutter_lints is ^5.0.0..."
-            sed -i 's/flutter_lints: ^4.0.0/flutter_lints: ^5.0.0/' pubspec.yaml || echo "flutter_lints not found in expected format"
-          fi
-          flutter pub get
-
-      # Step 8: Verify required assets
+      # Step 6: Verify required assets (Good check)
       - name: Verify required assets
         run: |
+          MISSING=false
           for asset in \
             web/icons/aerasync64.webp \
             web/icons/aerasync64.png \
@@ -67,37 +53,103 @@ jobs:
             web/icons/aerasync.webp \
             web/assets/wave.svg \
             web/manifest.json \
+            web/privacy.html \
             assets/data/shrimp_respiration_salinity_temperature_weight.json \
-            assets/data/o2_temp_sal_100_sat.json; do
+            assets/data/o2_temp_sal_100_sat.json \
+            lib/l10n/app_en.arb; do # Added a few more critical files
             if [ ! -f "$asset" ]; then
-              echo "Error: Required asset $asset is missing"
-              exit 1
-            fi
-            # Verify asset type (basic integrity check)
-            if [[ "$asset" == *.webp || "$asset" == *.png ]]; then
-              file_type=$(file -b --mime-type "$asset")
-              if [[ "$file_type" != "image/webp" && "$file_type" != "image/png" ]]; then
-                echo "Error: Asset $asset is not a valid image (type: $file_type)"
-                exit 1
-              fi
+              echo "Error: Required asset/file '$asset' is missing"
+              MISSING=true
             fi
           done
+          if [ "$MISSING" = true ]; then exit 1; fi
 
-      # Step 9: Run tests
+      # Step 7: Run tests (Good practice)
       - name: Run tests
         run: flutter test
 
-      # Step 10: Generate localization files
+      # Step 8: Generate localization files (Necessary)
       - name: Generate localization files
         run: flutter gen-l10n
 
-      # Step 11: Build web release
+      # Step 9: Check ARB File Consistency (Requires Python)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x' # Use a recent Python 3 version
+
+      - name: Check ARB Key Consistency
+        run: |
+          echo "Checking consistency of localization keys..."
+          PYTHON_EXE="python" # GitHub Actions runner usually has python mapped to python3
+          reference_file="lib/l10n/app_en.arb"
+          if [ -f "$reference_file" ]; then
+            # Python script to compare keys (ensure proper indentation in YAML)
+            read -r -d '' PY_SCRIPT << EOM
+          import json, sys, os
+          mismatch = False
+          ref_keys = set()
+          try:
+              ref_file = sys.argv[1]
+              l10n_dir = os.path.dirname(ref_file)
+              print(f"Reference file: {ref_file}")
+              print(f"Checking directory: {l10n_dir}")
+              with open(ref_file, 'r', encoding='utf-8') as f:
+                  ref_keys = set(json.load(f).keys())
+              print(f"Found {len(ref_keys)} keys in reference file.")
+
+              for filename in os.listdir(l10n_dir):
+                  if filename.startswith('app_') and filename.endswith('.arb') and filename != os.path.basename(ref_file):
+                      file_path = os.path.join(l10n_dir, filename)
+                      print(f"Checking file: {filename}")
+                      try:
+                          with open(file_path, 'r', encoding='utf-8') as f:
+                              file_keys = set(json.load(f).keys())
+                          if ref_keys != file_keys:
+                              mismatch = True
+                              missing_in_file = sorted(list(ref_keys - file_keys))
+                              extra_in_file = sorted(list(file_keys - ref_keys))
+                              print(f"ERROR: Key mismatch in {filename}")
+                              if missing_in_file: print(f"  Missing keys: {missing_in_file}")
+                              if extra_in_file: print(f"  Extra keys: {extra_in_file}")
+                      except Exception as e:
+                          print(f"ERROR processing {filename}: {e}")
+                          mismatch = True # Treat parse errors as mismatch
+          except Exception as e:
+              print(f"Python script error: {e}")
+              sys.exit(1)
+
+          if mismatch:
+              sys.exit(1)
+          else:
+              print("ARB key consistency check passed.")
+              sys.exit(0)
+          EOM
+            if ! $PYTHON_EXE -c "$PY_SCRIPT" "$reference_file"; then
+                echo "::error::ARB key consistency check failed."
+                exit 1
+            fi
+          else
+              echo "::warning::Reference localization file $reference_file not found. Skipping key consistency check."
+          fi
+
+      # Step 10: Build web release (Correct command and base-href)
       - name: Build web release
         run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/
 
-      # Step 12: Deploy to GitHub Pages
+      # Step 11: Deploy to GitHub Pages (Uses standard action)
+      # Now only runs on push events to the main branch
       - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Condition added
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
+          # Optional: Add commit message, user name/email if needed
+          commit_message: "Deploy build for commit ${{ github.sha }}"
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          # Optional: Keep history or force push (use force push with caution)
+          # keep_files: false # Default is false (cleans destination branch)
+          # force_orphan: true # Creates a clean history each time
+

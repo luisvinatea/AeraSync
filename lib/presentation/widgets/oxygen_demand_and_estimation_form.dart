@@ -79,6 +79,8 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
   }
 
   void _calculate() {
+    // Get AppLocalizations instance *once* if needed for error messages, etc.
+    final l10n = AppLocalizations.of(context)!;
     final appState = Provider.of<AppState>(context, listen: false);
     appState.setLoading(true);
 
@@ -86,6 +88,7 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
       // Farm-Based Calculation
       if (_farmFormKey.currentState!.validate()) {
         try {
+          // Parse input values
           final area = double.parse(_areaController.text.replaceAll(',', ''));
           final biomass = double.parse(_biomassController.text.replaceAll(',', ''));
           final temperature = double.parse(_farmTemperatureController.text.replaceAll(',', ''));
@@ -93,6 +96,7 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
           final shrimpWeight = double.parse(_farmShrimpWeightController.text.replaceAll(',', ''));
           final safetyMargin = double.parse(_safetyMarginController.text.replaceAll(',', ''));
 
+          // Perform calculations
           final respirationRate = appState.respirationCalculator!.getRespirationRate(
             salinity,
             temperature,
@@ -112,25 +116,29 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
 
           final totalOxygenDemand = (oxygenDemandKgPerHour + environmentalDemand) * safetyMargin;
 
+          // **FIX:** Use string literals for keys in AppState
           final inputs = {
-            AppLocalizations.of(context)!.farmAreaLabel: area,
-            AppLocalizations.of(context)!.shrimpBiomassLabel: biomass,
-            AppLocalizations.of(context)!.waterTemperatureLabel: temperature,
-            AppLocalizations.of(context)!.salinityLabel: salinity,
-            AppLocalizations.of(context)!.averageShrimpWeightLabel: shrimpWeight,
-            AppLocalizations.of(context)!.safetyMarginLabel: safetyMargin,
+            'farmAreaLabel': area,
+            'shrimpBiomassLabel': biomass,
+            'waterTemperatureLabel': temperature,
+            'salinityLabel': salinity,
+            'averageShrimpWeightLabel': shrimpWeight,
+            'safetyMarginLabel': safetyMargin,
           };
 
+          // **FIX:** Use string literals for keys in AppState
           final results = {
-            AppLocalizations.of(context)!.respirationRateLabel: respirationRate,
-            AppLocalizations.of(context)!.oxygenDemandFromShrimpLabel: oxygenDemandKgPerHour,
-            AppLocalizations.of(context)!.environmentalOxygenDemandLabel: environmentalDemand,
-            AppLocalizations.of(context)!.totalOxygenDemandLabel: totalOxygenDemand,
+            'respirationRateLabel': respirationRate,
+            'oxygenDemandFromShrimpLabel': oxygenDemandKgPerHour,
+            'environmentalOxygenDemandLabel': environmentalDemand,
+            'totalOxygenDemandLabel': totalOxygenDemand,
           };
 
+          // Set results in AppState
           appState.setResults('Oxygen Demand and Estimation', results, inputs);
         } catch (e) {
-          appState.setError('Calculation failed: $e');
+          // Use the l10n object fetched at the start of the method
+          appState.setError('${l10n.calculationFailed}: $e');
         }
       }
     } else {
@@ -139,12 +147,14 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
         final calculator = appState.calculator;
         final respirationCalculator = appState.respirationCalculator;
 
+        // Use the l10n object fetched at the start of the method
         if (calculator == null || respirationCalculator == null) {
-          appState.setError(AppLocalizations.of(context)!.calculatorNotInitialized);
+          appState.setError(l10n.calculatorNotInitialized);
           return;
         }
 
         try {
+          // Parse input values
           final shrimpWeight = double.parse(_expShrimpWeightController.text.replaceAll(',', ''));
           final startO2Column = double.parse(_startO2ColumnController.text.replaceAll(',', ''));
           final finalO2Column = double.parse(_finalO2ColumnController.text.replaceAll(',', ''));
@@ -156,6 +166,7 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
           final sotr = double.parse(_sotrController.text.replaceAll(',', ''));
           final depth = double.parse(_depthController.text.replaceAll(',', ''));
 
+          // Perform calculations
           final shrimpRespiration = respirationCalculator.getRespirationRate(
             salinity,
             temperature,
@@ -175,47 +186,57 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
           final todPerHectare = oxygenDemand * volumePerHectare * 1e-6; // kg O₂/h/ha
 
           final cs100 = calculator.getO2Saturation(temperature, salinity);
-          final otr20 = sotr * 0.5;
-          final otrT = otr20 * pow(1.024, 20 - temperature).toDouble();
+          final otr20 = sotr * 0.5; // Assuming SOTR input is SAE, need OTR20 for correction
+          final otrT = otr20 * pow(1.024, temperature - 20).toDouble(); // Corrected OTR formula
 
           final numberOfAerators = otrT > 0 ? (todPerHectare / otrT) : double.infinity;
 
+          // **FIX:** Use string literals for keys in AppState
           final inputs = {
-            AppLocalizations.of(context)!.averageShrimpWeightLabel: shrimpWeight,
-            AppLocalizations.of(context)!.startO2ColumnLabel: startO2Column,
-            AppLocalizations.of(context)!.finalO2ColumnLabel: finalO2Column,
-            AppLocalizations.of(context)!.startO2BottomLabel: startO2Bottom,
-            AppLocalizations.of(context)!.finalO2BottomLabel: finalO2Bottom,
-            AppLocalizations.of(context)!.timeLabel: time,
-            AppLocalizations.of(context)!.waterTemperatureLabel: temperature,
-            AppLocalizations.of(context)!.salinityLabel: salinity,
-            AppLocalizations.of(context)!.sotrLabel: sotr,
-            AppLocalizations.of(context)!.pondDepthLabel: depth,
+            'averageShrimpWeightLabel': shrimpWeight,
+            'startO2ColumnLabel': startO2Column,
+            'finalO2ColumnLabel': finalO2Column,
+            'startO2BottomLabel': startO2Bottom,
+            'finalO2BottomLabel': finalO2Bottom,
+            'timeLabel': time,
+            'waterTemperatureLabel': temperature,
+            'salinityLabel': salinity,
+            'sotrLabel': sotr, // This is likely SAE, not OTR20
+            'pondDepthLabel': depth,
           };
 
+          // **FIX:** Use string literals for keys in AppState
           final results = {
-            AppLocalizations.of(context)!.shrimpRespirationLabel: double.parse(shrimpRespiration.toStringAsFixed(2)),
-            AppLocalizations.of(context)!.columnRespirationLabel: double.parse(columnRespiration.toStringAsFixed(2)),
-            AppLocalizations.of(context)!.bottomRespirationLabel: double.parse(bottomRespiration.toStringAsFixed(2)),
-            AppLocalizations.of(context)!.environmentalOxygenDemandLabel: double.parse(environmentalDemand.toStringAsFixed(2)),
-            AppLocalizations.of(context)!.totalOxygenDemandMgPerLPerHLabel: double.parse(oxygenDemand.toStringAsFixed(2)),
-            AppLocalizations.of(context)!.todPerHectareLabel: double.parse(todPerHectare.toStringAsFixed(2)),
-            AppLocalizations.of(context)!.otr20Label: double.parse(otr20.toStringAsFixed(2)),
-            AppLocalizations.of(context)!.otrTLabel: double.parse(otrT.toStringAsFixed(2)),
-            AppLocalizations.of(context)!.numberOfAeratorsPerHectareLabel: double.parse(numberOfAerators.toStringAsFixed(2)),
+            'shrimpRespirationLabel': double.parse(shrimpRespiration.toStringAsFixed(2)),
+            'columnRespirationLabel': double.parse(columnRespiration.toStringAsFixed(2)),
+            'bottomRespirationLabel': double.parse(bottomRespiration.toStringAsFixed(2)),
+            'environmentalOxygenDemandLabel': double.parse(environmentalDemand.toStringAsFixed(2)),
+            'totalOxygenDemandMgPerLPerHLabel': double.parse(oxygenDemand.toStringAsFixed(2)),
+            'todPerHectareLabel': double.parse(todPerHectare.toStringAsFixed(2)),
+            'otr20Label': double.parse(otr20.toStringAsFixed(2)), // Calculated OTR20
+            'otrTLabel': double.parse(otrT.toStringAsFixed(2)), // Calculated OTRT
+            'numberOfAeratorsPerHectareLabel': double.parse(numberOfAerators.toStringAsFixed(2)),
           };
 
+          // Set results in AppState
           appState.setResults('Oxygen Demand and Estimation', results, inputs);
         } catch (e) {
-          appState.setError('${AppLocalizations.of(context)!.calculationFailed}: $e');
+          // Use the l10n object fetched at the start of the method
+          appState.setError('${l10n.calculationFailed}: $e');
         }
       }
     }
+    // Ensure loading state is reset even if validation fails or errors occur
+    // Might need adjustment based on desired UX for validation failure
+     if (mounted) { // Check if widget is still mounted before calling setState
+        appState.setLoading(false);
+     }
   }
 
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
+    // Get l10n instance here for use throughout the build method
     final l10n = AppLocalizations.of(context)!;
 
     return Card(
@@ -229,6 +250,7 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
             ? const Center(child: CircularProgressIndicator())
             : appState.error != null
                 ? Center(
+                    // Use l10n instance from build method
                     child: Text('${l10n.error}: ${appState.error}',
                         style: const TextStyle(color: Colors.red)))
                 : SingleChildScrollView(
@@ -244,13 +266,16 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
                             child: Padding(
                               padding: const EdgeInsets.only(bottom: 10.0),
                               child: Image.asset(
-                                'assets/images/aerasync.png',
+                                'assets/images/aerasync.png', // Ensure this path is correct in pubspec.yaml
                                 height: 100,
                                 fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(Icons.image_not_supported, size: 100), // Placeholder on error
                               ),
                             ),
                           ),
                           Text(
+                            // Use l10n instance from build method
                             l10n.oxygenDemandAndEstimationCalculator,
                             style: const TextStyle(
                               fontSize: 20,
@@ -263,15 +288,19 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              // Use l10n instance from build method
                               _buildTabButton(l10n.farmBasedTabLabel, 0),
                               const SizedBox(width: 8),
+                              // Use l10n instance from build method
                               _buildTabButton(l10n.experimentalTabLabel, 1),
                             ],
                           ),
                           const SizedBox(height: 10),
                           // Tab Content
                           _selectedTabIndex == 0
+                              // Pass l10n instance to helper methods
                               ? _buildFarmBasedForm(l10n)
+                              // Pass l10n instance to helper methods
                               : _buildExperimentalForm(l10n),
                           const SizedBox(height: 12),
                           Center(
@@ -279,15 +308,18 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
                               scale: _scaleAnimation,
                               child: ElevatedButton(
                                 onPressed: () {
+                                  // Check form validity before triggering animation/calculation
+                                  bool isValid = false;
                                   if (_selectedTabIndex == 0 && _farmFormKey.currentState!.validate()) {
-                                    _animationController.forward().then((_) {
-                                      _animationController.reverse();
-                                      _calculate();
-                                    });
+                                     isValid = true;
                                   } else if (_selectedTabIndex == 1 && _experimentalFormKey.currentState!.validate()) {
+                                     isValid = true;
+                                  }
+
+                                  if (isValid) {
                                     _animationController.forward().then((_) {
                                       _animationController.reverse();
-                                      _calculate();
+                                      _calculate(); // Call calculate after animation
                                     });
                                   }
                                 },
@@ -298,6 +330,7 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
                                   backgroundColor: const Color(0xFF1E40AF),
                                   foregroundColor: Colors.white,
                                 ),
+                                // Use l10n instance from build method
                                 child: Text(l10n.calculateButton,
                                     style: const TextStyle(fontSize: 16)),
                               ),
@@ -311,6 +344,7 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
     );
   }
 
+  // Helper method for building tab buttons
   Widget _buildTabButton(String label, int index) {
     return ElevatedButton(
       onPressed: () {
@@ -328,6 +362,8 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
     );
   }
 
+  // Helper method for building the Farm-Based form section
+  // Pass l10n instance as parameter
   Widget _buildFarmBasedForm(AppLocalizations l10n) {
     return Form(
       key: _farmFormKey,
@@ -335,47 +371,53 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTextField(
+                _buildTextField( // Pass l10n to _buildTextField
                   _areaController,
                   l10n.farmAreaLabel,
                   0,
                   100000,
                   l10n.farmAreaTooltip,
+                  l10n, // Pass l10n
                 ),
-                _buildTextField(
+                _buildTextField( // Pass l10n
                   _biomassController,
                   l10n.shrimpBiomassLabel,
                   0,
                   10000,
                   l10n.shrimpBiomassTooltip,
+                  l10n, // Pass l10n
                 ),
-                _buildTextField(
+                _buildTextField( // Pass l10n
                   _farmTemperatureController,
                   l10n.waterTemperatureLabel,
                   0,
                   40,
                   l10n.waterTemperatureTooltip,
+                  l10n, // Pass l10n
                 ),
-                _buildTextField(
+                _buildTextField( // Pass l10n
                   _farmSalinityController,
                   l10n.salinityLabel,
                   0,
                   40,
                   l10n.salinityTooltip,
+                  l10n, // Pass l10n
                 ),
-                _buildTextField(
+                _buildTextField( // Pass l10n
                   _farmShrimpWeightController,
                   l10n.averageShrimpWeightLabel,
                   0,
                   50,
                   l10n.averageShrimpWeightTooltip,
+                  l10n, // Pass l10n
                 ),
-                _buildTextField(
+                _buildTextField( // Pass l10n
                   _safetyMarginController,
                   l10n.safetyMarginLabel,
                   1,
                   2,
                   l10n.safetyMarginTooltip,
+                  l10n, // Pass l10n
                 ),
               ],
             )
@@ -385,26 +427,29 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
                 Expanded(
                   child: Column(
                     children: [
-                      _buildTextField(
+                      _buildTextField( // Pass l10n
                         _areaController,
                         l10n.farmAreaLabel,
                         0,
                         100000,
                         l10n.farmAreaTooltip,
+                        l10n, // Pass l10n
                       ),
-                      _buildTextField(
+                      _buildTextField( // Pass l10n
                         _biomassController,
                         l10n.shrimpBiomassLabel,
                         0,
                         10000,
                         l10n.shrimpBiomassTooltip,
+                        l10n, // Pass l10n
                       ),
-                      _buildTextField(
+                      _buildTextField( // Pass l10n
                         _farmTemperatureController,
                         l10n.waterTemperatureLabel,
                         0,
                         40,
                         l10n.waterTemperatureTooltip,
+                        l10n, // Pass l10n
                       ),
                     ],
                   ),
@@ -413,26 +458,29 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
                 Expanded(
                   child: Column(
                     children: [
-                      _buildTextField(
+                      _buildTextField( // Pass l10n
                         _farmSalinityController,
                         l10n.salinityLabel,
                         0,
                         40,
                         l10n.salinityTooltip,
+                        l10n, // Pass l10n
                       ),
-                      _buildTextField(
+                      _buildTextField( // Pass l10n
                         _farmShrimpWeightController,
                         l10n.averageShrimpWeightLabel,
                         0,
                         50,
                         l10n.averageShrimpWeightTooltip,
+                        l10n, // Pass l10n
                       ),
-                      _buildTextField(
+                      _buildTextField( // Pass l10n
                         _safetyMarginController,
                         l10n.safetyMarginLabel,
                         1,
                         2,
                         l10n.safetyMarginTooltip,
+                        l10n, // Pass l10n
                       ),
                     ],
                   ),
@@ -442,6 +490,8 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
     );
   }
 
+  // Helper method for building the Experimental form section
+  // Pass l10n instance as parameter
   Widget _buildExperimentalForm(AppLocalizations l10n) {
     return Form(
       key: _experimentalFormKey,
@@ -449,21 +499,21 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTextField(_expShrimpWeightController,
-                    l10n.averageShrimpWeightLabel, 0, 50, l10n.averageShrimpWeightTooltip),
-                _buildTextField(_startO2ColumnController,
-                    l10n.startO2ColumnLabel, 0, 15, l10n.startO2ColumnTooltip),
-                _buildTextField(_finalO2ColumnController,
-                    l10n.finalO2ColumnLabel, 0, 15, l10n.finalO2ColumnTooltip),
-                _buildTextField(_startO2BottomController,
-                    l10n.startO2BottomLabel, 0, 15, l10n.startO2BottomTooltip),
-                _buildTextField(_finalO2BottomController,
-                    l10n.finalO2BottomLabel, 0, 15, l10n.finalO2BottomTooltip),
-                _buildTextField(_timeController, l10n.timeLabel, 0.1, 24, l10n.timeTooltip),
-                _buildTextField(_expTemperatureController, l10n.waterTemperatureLabel, 0, 40, l10n.waterTemperatureTooltip),
-                _buildTextField(_expSalinityController, l10n.salinityLabel, 0, 40, l10n.salinityTooltip),
-                _buildTextField(_sotrController, l10n.sotrLabel, 0, 10, l10n.sotrTooltip),
-                _buildTextField(_depthController, l10n.pondDepthLabel, 0.5, 5, l10n.pondDepthTooltip),
+                _buildTextField(_expShrimpWeightController, // Pass l10n
+                    l10n.averageShrimpWeightLabel, 0, 50, l10n.averageShrimpWeightTooltip, l10n),
+                _buildTextField(_startO2ColumnController, // Pass l10n
+                    l10n.startO2ColumnLabel, 0, 15, l10n.startO2ColumnTooltip, l10n),
+                _buildTextField(_finalO2ColumnController, // Pass l10n
+                    l10n.finalO2ColumnLabel, 0, 15, l10n.finalO2ColumnTooltip, l10n),
+                _buildTextField(_startO2BottomController, // Pass l10n
+                    l10n.startO2BottomLabel, 0, 15, l10n.startO2BottomTooltip, l10n),
+                _buildTextField(_finalO2BottomController, // Pass l10n
+                    l10n.finalO2BottomLabel, 0, 15, l10n.finalO2BottomTooltip, l10n),
+                _buildTextField(_timeController, l10n.timeLabel, 0.1, 24, l10n.timeTooltip, l10n), // Pass l10n
+                _buildTextField(_expTemperatureController, l10n.waterTemperatureLabel, 0, 40, l10n.waterTemperatureTooltip, l10n), // Pass l10n
+                _buildTextField(_expSalinityController, l10n.salinityLabel, 0, 40, l10n.salinityTooltip, l10n), // Pass l10n
+                _buildTextField(_sotrController, l10n.sotrLabel, 0, 10, l10n.sotrTooltip, l10n), // Pass l10n
+                _buildTextField(_depthController, l10n.pondDepthLabel, 0.5, 5, l10n.pondDepthTooltip, l10n), // Pass l10n
               ],
             )
           : Row(
@@ -472,16 +522,16 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
                 Expanded(
                   child: Column(
                     children: [
-                      _buildTextField(_expShrimpWeightController,
-                          l10n.averageShrimpWeightLabel, 0, 50, l10n.averageShrimpWeightTooltip),
-                      _buildTextField(_startO2ColumnController,
-                          l10n.startO2ColumnLabel, 0, 15, l10n.startO2ColumnTooltip),
-                      _buildTextField(_finalO2ColumnController,
-                          l10n.finalO2ColumnLabel, 0, 15, l10n.finalO2ColumnTooltip),
-                      _buildTextField(_startO2BottomController,
-                          l10n.startO2BottomLabel, 0, 15, l10n.startO2BottomTooltip),
-                      _buildTextField(_finalO2BottomController,
-                          l10n.finalO2BottomLabel, 0, 15, l10n.finalO2BottomTooltip),
+                      _buildTextField(_expShrimpWeightController, // Pass l10n
+                          l10n.averageShrimpWeightLabel, 0, 50, l10n.averageShrimpWeightTooltip, l10n),
+                      _buildTextField(_startO2ColumnController, // Pass l10n
+                          l10n.startO2ColumnLabel, 0, 15, l10n.startO2ColumnTooltip, l10n),
+                      _buildTextField(_finalO2ColumnController, // Pass l10n
+                          l10n.finalO2ColumnLabel, 0, 15, l10n.finalO2ColumnTooltip, l10n),
+                      _buildTextField(_startO2BottomController, // Pass l10n
+                          l10n.startO2BottomLabel, 0, 15, l10n.startO2BottomTooltip, l10n),
+                      _buildTextField(_finalO2BottomController, // Pass l10n
+                          l10n.finalO2BottomLabel, 0, 15, l10n.finalO2BottomTooltip, l10n),
                     ],
                   ),
                 ),
@@ -489,11 +539,11 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
                 Expanded(
                   child: Column(
                     children: [
-                      _buildTextField(_timeController, l10n.timeLabel, 0.1, 24, l10n.timeTooltip),
-                      _buildTextField(_expTemperatureController, l10n.waterTemperatureLabel, 0, 40, l10n.waterTemperatureTooltip),
-                      _buildTextField(_expSalinityController, l10n.salinityLabel, 0, 40, l10n.salinityTooltip),
-                      _buildTextField(_sotrController, l10n.sotrLabel, 0, 10, l10n.sotrTooltip),
-                      _buildTextField(_depthController, l10n.pondDepthLabel, 0.5, 5, l10n.pondDepthTooltip),
+                      _buildTextField(_timeController, l10n.timeLabel, 0.1, 24, l10n.timeTooltip, l10n), // Pass l10n
+                      _buildTextField(_expTemperatureController, l10n.waterTemperatureLabel, 0, 40, l10n.waterTemperatureTooltip, l10n), // Pass l10n
+                      _buildTextField(_expSalinityController, l10n.salinityLabel, 0, 40, l10n.salinityTooltip, l10n), // Pass l10n
+                      _buildTextField(_sotrController, l10n.sotrLabel, 0, 10, l10n.sotrTooltip, l10n), // Pass l10n
+                      _buildTextField(_depthController, l10n.pondDepthLabel, 0.5, 5, l10n.pondDepthTooltip, l10n), // Pass l10n
                     ],
                   ),
                 ),
@@ -502,8 +552,10 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
     );
   }
 
+  // Helper method for building text fields
+  // Pass l10n instance as parameter for validation messages
   Widget _buildTextField(
-      TextEditingController controller, String label, double min, double max, String tooltip) {
+      TextEditingController controller, String label, double min, double max, String tooltip, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
@@ -520,11 +572,14 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
                 contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
               ),
               style: const TextStyle(fontSize: 16),
+              // Use numberWithOptions for better mobile keyboard experience
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              // Allow comma and period for decimal input
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
               ],
-              validator: (value) => _validateInput(value, min, max, controller),
+              // Pass l10n to validator
+              validator: (value) => _validateInput(value, min, max, controller, l10n),
             ),
           ),
           const SizedBox(width: 8),
@@ -537,19 +592,30 @@ class _OxygenDemandAndEstimationFormState extends State<OxygenDemandAndEstimatio
     );
   }
 
-  String? _validateInput(String? value, double min, double max, TextEditingController controller) {
-    final l10n = AppLocalizations.of(context)!;
+  // Validator method
+  // Pass l10n instance as parameter
+  String? _validateInput(String? value, double min, double max, TextEditingController controller, AppLocalizations l10n) {
+    // Use passed l10n instance
     if (value == null || value.isEmpty) return l10n.requiredField;
-    final cleanedValue = value.replaceAll(',', '');
+    // Handle both comma and period as decimal separators
+    final cleanedValue = value.replaceAll(',', '.');
     final numValue = double.tryParse(cleanedValue);
     if (numValue == null) return l10n.invalidNumber;
     if (numValue < min || numValue > max) return l10n.rangeError(min, max);
-    if (controller == _finalO2ColumnController && numValue >= double.parse(_startO2ColumnController.text.replaceAll(',', ''))) {
-      return l10n.finalO2MustBeLessThanStartO2;
+
+    // Specific validation for experimental O2 fields
+    if (controller == _finalO2ColumnController) {
+       final startO2 = double.tryParse(_startO2ColumnController.text.replaceAll(',', '.')) ?? double.infinity;
+       if (numValue >= startO2) {
+         return l10n.finalO2MustBeLessThanStartO2;
+       }
     }
-    if (controller == _finalO2BottomController && numValue >= double.parse(_startO2BottomController.text.replaceAll(',', ''))) {
-      return l10n.finalO2MustBeLessThanStartO2;
+     if (controller == _finalO2BottomController) {
+       final startO2 = double.tryParse(_startO2BottomController.text.replaceAll(',', '.')) ?? double.infinity;
+       if (numValue >= startO2) {
+         return l10n.finalO2MustBeLessThanStartO2;
+       }
     }
-    return null;
+    return null; // Return null if validation passes
   }
 }

@@ -21,6 +21,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
+    // Initialize TabController with the correct number of tabs
     _tabController = TabController(length: 3, vsync: this);
   }
 
@@ -32,14 +33,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    // Get l10n instance once for the build method
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.appTitle),
+        title: Text(l10n.appTitle), // Use localized title
         bottom: TabBar(
           controller: _tabController,
+          // Make tabs scrollable if they might overflow on smaller screens
+          isScrollable: true,
           tabs: [
+            // Use localized tab labels
             Tab(text: l10n.aeratorPerformanceCalculator),
             Tab(text: l10n.aeratorComparisonCalculator),
             Tab(text: l10n.oxygenDemandAndEstimationCalculator),
@@ -48,31 +53,39 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
       body: TabBarView(
         controller: _tabController,
+        // Disable swiping between tabs if desired
         physics: const NeverScrollableScrollPhysics(),
         children: [
           // Aerator Performance Tab
+          // Use a consistent key for AppState results for this tab
           _LazyTab(
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   const CalculatorForm(),
+                  // Pass the correct key used in CalculatorForm
                   ResultsDisplay(tab: 'Aerator Performance'),
                 ],
               ),
             ),
           ),
+
           // Aerator Comparison Tab
+          // Use a consistent key for AppState results for this tab
           _LazyTab(
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   const AeratorComparisonForm(),
-                  ResultsDisplay(tab: 'Aerator Comparison'), // Replaced ComparisonResultsDisplay
+                  // Pass the correct key used in AeratorComparisonForm
+                  ResultsDisplay(tab: 'Aerator Comparison'),
                 ],
               ),
             ),
           ),
+
           // Oxygen Demand and Estimation Tab
+          // Use a consistent key for AppState results for this tab
           _LazyTab(
             child: SingleChildScrollView(
               child: Column(
@@ -80,13 +93,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   const OxygenDemandAndEstimationForm(),
                   Consumer<AppState>(
                     builder: (context, appState, child) {
+                      // Use the correct key used in OxygenDemandAndEstimationForm
                       final results = appState.getResults('Oxygen Demand and Estimation');
+                      // Handle null or empty results gracefully
                       if (results == null || results.isEmpty) {
+                        // Show the generic results display if no results yet
                         return ResultsDisplay(tab: 'Oxygen Demand and Estimation');
                       }
-                      if (results.containsKey(l10n.numberOfAeratorsPerHectareLabel)) {
+                      // **FIX:** Check for the key using the string literal used in the form
+                      // Check if the results map contains the key indicating experimental results
+                      if (results.containsKey('numberOfAeratorsPerHectareLabel')) {
+                         // If it has experimental results, show the generic ResultsDisplay
+                         // (assuming it can handle both farm-based and experimental keys now)
+                         // OR create a specific display widget if needed.
                         return ResultsDisplay(tab: 'Oxygen Demand and Estimation');
                       } else {
+                        // Otherwise, assume it's farm-based results and show the specific display
                         return const OxygenDemandResultsDisplay();
                       }
                     },
@@ -101,6 +123,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 }
 
+// Helper widget to lazily build tab content (keeps state)
 class _LazyTab extends StatefulWidget {
   final Widget child;
 
@@ -111,18 +134,16 @@ class _LazyTab extends StatefulWidget {
 }
 
 class _LazyTabState extends State<_LazyTab> with AutomaticKeepAliveClientMixin {
-  bool _hasBuilt = false;
+  // No need for _hasBuilt flag when using AutomaticKeepAliveClientMixin
+  // bool _hasBuilt = false;
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => true; // Keep the state of the tab
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    if (!_hasBuilt) {
-      _hasBuilt = true;
-      return widget.child;
-    }
+    super.build(context); // Important: call super.build(context)
+    // The child is built only once and kept alive
     return widget.child;
   }
 }

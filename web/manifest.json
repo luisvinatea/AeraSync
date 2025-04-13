@@ -16,9 +16,19 @@
       "type": "image/webp"
     },
     {
+      "src": "/icons/aerasync64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
       "src": "/icons/aerasync180.webp",
       "sizes": "180x180",
       "type": "image/webp"
+    },
+    {
+       "src": "/icons/aerasync180.png",
+       "sizes": "180x180",
+       "type": "image/png"
     },
     {
       "src": "/icons/aerasync512.webp",
@@ -27,9 +37,32 @@
       "purpose": "maskable"
     },
     {
+      "src": "/icons/aerasync512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/aerasync512.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/aerasync512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "/icons/aerasync1024.webp",
       "sizes": "1024x1024",
       "type": "image/webp"
+    },
+    {
+      "src": "/icons/aerasync1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
     }
   ]
 }

@@ -81,15 +81,21 @@
   "couldNotOpenPrivacyPolicy": "Could not open privacy policy",
   "calculateButton": "Calculate",
   "enterValuesToCalculate": "Enter values and click Calculate to see results",
-  "downloadCsvButton": "Download as CSV (only values)",
+  "downloadCsvButton": "Download as CSV",
   "requiredField": "Required",
   "invalidNumber": "Invalid number",
   "rangeError": "Must be between {min} and {max}",
   "@rangeError": {
     "description": "Error message for range validation",
     "placeholders": {
-      "min": {"type": "double"},
-      "max": {"type": "double"}
+      "min": {
+        "type": "double",
+         "format": "compact"
+      },
+      "max": {
+        "type": "double",
+         "format": "compact"
+      }
     }
   },
   "farmAreaLabel": "Farm Area (ha)",
@@ -136,7 +142,7 @@
   "sotrCopied": "SOTR copied to clipboard",
   "numberOfAeratorsCopied": "Number of Aerators copied to clipboard",
   "discountRateInflationRateError": "Discount rate and inflation rate cannot be equal.",
-  "sotrZeroError": "SOTR values cannot be zero.",
+  "sotrZeroError": "SOTR values must be positive.",
   "integerError": "This value must be an integer.",
   "recommendationChooseAerator1": "Recommendation: Choose Aerator 1 to save {amount} USD over the analysis horizon.",
   "@recommendationChooseAerator1": {
@@ -144,7 +150,8 @@
     "placeholders": {
       "amount": {
         "type": "double",
-        "format": "decimalPattern"
+        "format": "currency",
+        "symbol": "$"
       }
     }
   },
@@ -154,7 +161,8 @@
     "placeholders": {
       "amount": {
         "type": "double",
-        "format": "decimalPattern"
+        "format": "currency",
+        "symbol": "$"
       }
     }
   },
@@ -170,16 +178,51 @@
   },
   "totalAnnualCostAerator1LabelShort": "Cost Aerator 1",
   "totalAnnualCostAerator2LabelShort": "Cost Aerator 2",
-  "costOfOpportunityLabelShort": "Cost of Opportunity",
+  "costOfOpportunityLabelShort": "Opportunity Cost",
   "totalAnnualCostAerator1Tooltip": "Total annual cost for Aerator 1, including energy, maintenance, and capital costs.",
   "totalAnnualCostAerator2Tooltip": "Total annual cost for Aerator 2, including energy, maintenance, and capital costs.",
   "costOfOpportunityTooltip": "The present value of savings by choosing the more cost-effective aerator.",
   "costBreakdownTableTitle": "Cost Breakdown",
   "costComponentLabel": "Cost Component",
-  "energyCostLabel": "Energy Cost (USD/year)",
-  "maintenanceCostLabel": "Maintenance Cost (USD/year)",
-  "capitalCostLabel": "Capital Cost (USD/year)",
-
+  "energyCostLabel": "Energy Cost",
+  "maintenanceCostLabel": "Maintenance Cost",
+  "capitalCostLabel": "Capital Cost",
   "useManualTODLabel": "Use Manual Total Oxygen Demand",
-  "finalO2MustBeLessThanStartO2": "Final O₂ must be less than Start O₂"
+  "finalO2MustBeLessThanStartO2": "Final O₂ must be less than Start O₂",
+  "pleaseFixErrors": "Please fix the errors in the form.",
+  "consentRequiredMessage": "Please consent to data collection to proceed.",
+  "noDataForChart": "No data available for chart.",
+  "noPositiveDataForChart": "No positive data available for chart.",
+  "barChartLabel": "Bar Chart",
+  "pieChartLabel": "Pie Chart",
+  "oxygenDemandGroup": "Oxygen Demand",
+  "aeratorMetricsGroup": "Aerator Metrics",
+  "financialMetricsGroup": "Financial Metrics",
+   "shrimpDemandLabel": "Shrimp Demand",
+   "waterDemandLabel": "Water Demand",
+   "bottomDemandLabel": "Bottom Demand",
+   "oxygenDemandBreakdownChartTitle": "Oxygen Demand Breakdown (kg O₂/h for 1000 ha)",
+   "costBreakdownChartTitle": "Cost Breakdown Visualization",
+   "manualTODLabel": "Manual Total Oxygen Demand (kg O₂/h for 1000 ha)",
+   "manualTODTooltip": "Manually specified total oxygen demand for 1000 hectares",
+   "useCustomShrimpRespirationLabel": "Use Custom Shrimp Respiration Rate",
+   "shrimpRespirationRateLabel": "Shrimp Respiration Rate (mg O₂/g/h)",
+   "shrimpRespirationRateTooltip": "Custom respiration rate for shrimp in mg O₂ per gram per hour",
+   "useCustomWaterRespirationLabel": "Use Custom Water Respiration Rate",
+   "waterRespirationRateLabel": "Water Respiration Rate (mg/L/h)",
+   "waterRespirationRateTooltip": "Custom respiration rate for water in mg O₂ per liter per hour",
+   "useCustomBottomRespirationLabel": "Use Custom Bottom Respiration Rate",
+   "bottomRespirationRateLabel": "Bottom Respiration Rate (mg/L/h)",
+   "bottomRespirationRateTooltip": "Custom respiration rate for bottom in mg O₂ per liter per hour",
+   "discountRateLabel": "Discount Rate (%)",
+   "discountRateTooltip": "Annual discount rate for present value calculations",
+   "inflationRateLabel": "Inflation Rate (%)",
+   "inflationRateTooltip": "Annual inflation rate for cost adjustments",
+   "analysisHorizonLabel": "Analysis Horizon (years)",
+   "analysisHorizonTooltip": "Time horizon for the financial analysis",
+
+   "paybackNever": "Never",
+   "@paybackNever": {
+       "description": "Label indicating payback period is never reached"
+   }
 }

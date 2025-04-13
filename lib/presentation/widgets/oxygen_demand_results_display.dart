@@ -1,3 +1,5 @@
+import 'dart:math'; // Import needed for reduce(max)
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,14 +12,51 @@ import '../../core/services/app_state.dart';
 class OxygenDemandResultsDisplay extends StatelessWidget {
   const OxygenDemandResultsDisplay({super.key});
 
+  // Helper method to safely get localized string based on string key
+  // Maintain this map consistent with keys used in OxygenDemandAndEstimationForm
+  String _getL10nString(AppLocalizations l10n, String key, {String defaultValue = ''}) {
+    switch (key) {
+      case 'farmAreaLabel': return l10n.farmAreaLabel;
+      case 'shrimpBiomassLabel': return l10n.shrimpBiomassLabel;
+      case 'waterTemperatureLabel': return l10n.waterTemperatureLabel;
+      case 'salinityLabel': return l10n.salinityLabel;
+      case 'averageShrimpWeightLabel': return l10n.averageShrimpWeightLabel;
+      case 'safetyMarginLabel': return l10n.safetyMarginLabel;
+      case 'respirationRateLabel': return l10n.respirationRateLabel;
+      case 'oxygenDemandFromShrimpLabel': return l10n.oxygenDemandFromShrimpLabel;
+      case 'environmentalOxygenDemandLabel': return l10n.environmentalOxygenDemandLabel;
+      case 'totalOxygenDemandLabel': return l10n.totalOxygenDemandLabel;
+      case 'startO2ColumnLabel': return l10n.startO2ColumnLabel;
+      case 'finalO2ColumnLabel': return l10n.finalO2ColumnLabel;
+      case 'startO2BottomLabel': return l10n.startO2BottomLabel;
+      case 'finalO2BottomLabel': return l10n.finalO2BottomLabel;
+      case 'timeLabel': return l10n.timeLabel;
+      case 'sotrLabel': return l10n.sotrLabel;
+      case 'pondDepthLabel': return l10n.pondDepthLabel;
+      case 'shrimpRespirationLabel': return l10n.shrimpRespirationLabel;
+      case 'columnRespirationLabel': return l10n.columnRespirationLabel;
+      case 'bottomRespirationLabel': return l10n.bottomRespirationLabel;
+      case 'totalOxygenDemandMgPerLPerHLabel': return l10n.totalOxygenDemandMgPerLPerHLabel;
+      case 'todPerHectareLabel': return l10n.todPerHectareLabel;
+      case 'otr20Label': return l10n.otr20Label;
+      case 'otrTLabel': return l10n.otrTLabel;
+      case 'numberOfAeratorsPerHectareLabel': return l10n.numberOfAeratorsPerHectareLabel;
+      // Add other keys if necessary
+      default:
+        debugPrint("Warning: Missing localization mapping for key '$key' in OxygenDemandResultsDisplay");
+        return key; // Return the key itself if no mapping found
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    // Get l10n object from context
+    // Get l10n object from context *once*
     final l10n = AppLocalizations.of(context)!;
 
     return Consumer<AppState>(
       builder: (context, appState, child) {
-        // Updated key to match the merged form
+        // Use the consistent key used in the form
         final results = appState.getResults('Oxygen Demand and Estimation');
         final inputs = appState.getInputs('Oxygen Demand and Estimation');
 
@@ -26,16 +65,17 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Text(
               l10n.enterValuesToCalculate,
-              // Consider using Theme.of(context).textTheme style
               style: const TextStyle(color: Colors.black54, fontSize: 16),
               textAlign: TextAlign.center,
             ),
           );
         }
 
-        // Safely get the value, providing a default if null or wrong type
-        final totalOxygenDemand = results[l10n.totalOxygenDemandLabel] is double
-            ? results[l10n.totalOxygenDemandLabel] as double
+        // Safely get the value using the string key
+        // Check if the key exists and the value is a number
+        final totalOxygenDemandValue = results['totalOxygenDemandLabel'];
+        final totalOxygenDemand = totalOxygenDemandValue is num
+            ? totalOxygenDemandValue.toDouble()
             : 0.0;
 
         return Card(
@@ -63,30 +103,35 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
                   // Add a bar chart for visualization
                   _buildOxygenDemandChart(results, l10n),
                   const SizedBox(height: 16),
-                  // Display results using a ListView for better structure if many items
+                  // Display results using a ListView
                   ListView.separated(
-                    shrinkWrap: true, // Important inside SingleChildScrollView
-                    physics: const NeverScrollableScrollPhysics(), // Disable scrolling
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       final entry = results.entries.elementAt(index);
+                      // Get the localized label using the helper function
+                      final displayLabel = _getL10nString(l10n, entry.key, defaultValue: entry.key);
+                      // Check if this is the total demand key for the copy button
+                      final isTotalDemandKey = entry.key == 'totalOxygenDemandLabel';
+
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0), // Reduced padding
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: Row(
                           children: [
                             Expanded(
-                              flex: 3, // Adjust flex for better spacing
+                              flex: 3,
                               child: Text(
-                                entry.key,
+                                displayLabel, // Display localized label
                                 style: const TextStyle(fontWeight: FontWeight.w600),
                               ),
                             ),
                             Expanded(
-                              flex: 2, // Adjust flex for better spacing
+                              flex: 2,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Flexible( // Allow text to wrap if needed
+                                  Flexible(
                                     child: Text(
                                       _formatValueWithThousandSeparator(entry.value),
                                       textAlign: TextAlign.end,
@@ -94,24 +139,25 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
                                         fontWeight: FontWeight.bold,
                                         color: Color(0xFF1E40AF),
                                       ),
-                                      overflow: TextOverflow.ellipsis, // Prevent overflow
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  // Only show copy button for the specific key
-                                  if (entry.key == l10n.totalOxygenDemandLabel) ...[
-                                    const SizedBox(width: 4), // Reduced spacing
+                                  // Show copy button only for the total demand key
+                                  if (isTotalDemandKey) ...[
+                                    const SizedBox(width: 4),
                                     IconButton(
-                                      icon: const Icon(Icons.copy, size: 18, color: Color(0xFF1E40AF)), // Smaller icon
-                                      padding: EdgeInsets.zero, // Remove default padding
-                                      constraints: const BoxConstraints(), // Remove constraints
+                                      icon: const Icon(Icons.copy, size: 18, color: Color(0xFF1E40AF)),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
                                       onPressed: () {
                                         // Use the correctly retrieved totalOxygenDemand
-                                        FlutterClipboard.copy(_formatValue(totalOxygenDemand)).then((value) {
+                                        final formattedValue = _formatValue(totalOxygenDemand);
+                                        FlutterClipboard.copy(formattedValue).then((_) {
+                                          // FIX: Use positional argument for valueCopied
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
                                               content: Text(
-                                                // FIX: Pass the required 'value' argument
-                                                l10n.valueCopied(value: l10n.totalOxygenDemandLabel),
+                                                l10n.valueCopied(formattedValue), // Pass value positionally
                                               ),
                                               duration: const Duration(seconds: 2),
                                             ),
@@ -128,16 +174,16 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
                         ),
                       );
                     },
-                    separatorBuilder: (context, index) => const Divider(height: 1), // Add dividers
+                    separatorBuilder: (context, index) => const Divider(height: 1),
                   ),
                   const SizedBox(height: 16),
-                  if (inputs != null) // Ensure inputs are not null before enabling button
+                  if (inputs != null)
                     Align(
                       alignment: Alignment.center,
                       child: ElevatedButton.icon(
-                        // FIX: Pass l10n object to _downloadAsCsv
+                        // Pass l10n object to _downloadAsCsv
                         onPressed: () => _downloadAsCsv(inputs, results, l10n),
-                        icon: const Icon(Icons.download), // Standard size is fine
+                        icon: const Icon(Icons.download),
                         label: Text(l10n.downloadCsvButton),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -158,32 +204,33 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
 
   // Helper method to build the chart
   Widget _buildOxygenDemandChart(Map<String, dynamic> results, AppLocalizations l10n) {
-    // Safely access results with default values
-    final shrimpDemand = results[l10n.oxygenDemandFromShrimpLabel] is double
-        ? results[l10n.oxygenDemandFromShrimpLabel] as double
-        : 0.0;
-    final envDemand = results[l10n.environmentalOxygenDemandLabel] is double
-        ? results[l10n.environmentalOxygenDemandLabel] as double
-        : 0.0;
-    final totalDemand = results[l10n.totalOxygenDemandLabel] is double
-        ? results[l10n.totalOxygenDemandLabel] as double
-        : 0.0;
+    // Safely access results using string keys and check types
+    final shrimpDemandValue = results['oxygenDemandFromShrimpLabel'];
+    final shrimpDemand = shrimpDemandValue is num ? shrimpDemandValue.toDouble() : 0.0;
 
-    // Ensure metrics list only contains valid data
+    final envDemandValue = results['environmentalOxygenDemandLabel'];
+    final envDemand = envDemandValue is num ? envDemandValue.toDouble() : 0.0;
+
+    final totalDemandValue = results['totalOxygenDemandLabel'];
+    final totalDemand = totalDemandValue is num ? totalDemandValue.toDouble() : 0.0;
+
+    // Use localized short labels for chart titles
     final metrics = [
       if (shrimpDemand >= 0) {'title': l10n.oxygenDemandFromShrimpLabelShort, 'value': shrimpDemand},
       if (envDemand >= 0) {'title': l10n.environmentalOxygenDemandLabelShort, 'value': envDemand},
       if (totalDemand >= 0) {'title': l10n.totalOxygenDemandLabelShort, 'value': totalDemand},
     ];
 
-    // Handle case where there are no valid metrics to display
     if (metrics.isEmpty) {
-      return const SizedBox(height: 200, child: Center(child: Text("No data for chart")));
+      return SizedBox(height: 200, child: Center(child: Text(l10n.noDataForChart))); // Localized
     }
 
     // Calculate maxY safely
-    final maxYValue = metrics.map((e) => e['value'] as double).reduce(max);
-    final maxY = maxYValue > 0 ? maxYValue * 1.2 : 1.0; // Avoid maxY being 0
+    final maxYValue = metrics.map((e) => e['value'] as double).fold(0.0, max); // Use fold for safety
+    final maxY = maxYValue > 0 ? maxYValue * 1.2 : 1.0;
+
+    // Calculate interval safely
+    final double interval = maxY / 5 > 0 ? maxY / 5 : 1;
 
     return SizedBox(
       height: 200,
@@ -212,8 +259,8 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
                 showTitles: true,
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) {
-                  // Avoid showing 0.0 if maxY is 1.0 due to no data
                    if (maxY == 1.0 && value == 0) return const SizedBox.shrink();
+                   // Use compact format for potentially large numbers
                    return Text(
                      NumberFormat.compact().format(value),
                      style: const TextStyle(color: Colors.black54, fontSize: 12),
@@ -225,14 +272,14 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
-                   // Check bounds before accessing metrics list
-                   if (value.toInt() >= 0 && value.toInt() < metrics.length) {
+                   final index = value.toInt();
+                   if (index >= 0 && index < metrics.length) {
                      return Text(
-                       metrics[value.toInt()]['title'] as String,
+                       metrics[index]['title'] as String,
                        style: const TextStyle(color: Colors.black54, fontSize: 12),
                      );
                    }
-                   return const SizedBox.shrink(); // Return empty for invalid index
+                   return const SizedBox.shrink();
                 },
               ),
             ),
@@ -240,84 +287,89 @@ class OxygenDemandResultsDisplay extends StatelessWidget {
             rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           borderData: FlBorderData(show: false),
-          gridData: const FlGridData(
+          gridData: FlGridData( // Removed const
             drawHorizontalLine: true,
             drawVerticalLine: false,
-            horizontalInterval: maxY / 5 > 0 ? maxY / 5 : 1, // Dynamic interval
+            horizontalInterval: interval, // Use calculated interval
           ),
-          barTouchData: BarTouchData(enabled: false), // Keep disabled for simplicity
+          barTouchData: BarTouchData(enabled: false),
         ),
-        swapAnimationDuration: const Duration(milliseconds: 0), // Keep disabled
+        swapAnimationDuration: const Duration(milliseconds: 0),
       ),
     );
   }
 
-  // Helper method for formatting values (remains the same)
+  // Helper method for formatting values
   String _formatValue(dynamic value) {
     if (value is double) {
-      // Handle potential NaN or Infinity
       if (value.isNaN || value.isInfinite) return "N/A";
       return value.toStringAsFixed(2);
+    } else if (value is int) {
+      return value.toString();
     }
-    return value.toString();
+    return value.toString(); // Handle other types
   }
 
-  // Helper method for formatting values with separators (remains the same)
+  // Helper method for formatting values with separators
   String _formatValueWithThousandSeparator(dynamic value) {
      if (value is double) {
-      if (value.isNaN || value.isInfinite) return "N/A";
-      if (value.abs() >= 1000000) {
-        return NumberFormat.compact().format(value);
-      }
-      return NumberFormat('#,##0.00').format(value);
-    } else if (value is int) {
-       if (value.abs() >= 1000000) {
-        return NumberFormat.compact().format(value);
-      }
-      return NumberFormat('#,##0').format(value);
-    }
-    return value.toString();
+        if (value.isNaN || value.isInfinite) return "N/A";
+        if (value.abs() >= 1e6) { // Compact for millions or more
+          return NumberFormat.compact().format(value);
+        }
+        return NumberFormat('#,##0.00').format(value); // Standard format
+     } else if (value is int) {
+        if (value.abs() >= 1e6) {
+          return NumberFormat.compact().format(value);
+        }
+        return NumberFormat('#,##0').format(value); // Format integers with separators
+     }
+     return value.toString(); // Fallback
   }
 
-  // FIX: Modify method signature to accept l10n
+  // Helper method for CSV download
   void _downloadAsCsv(Map<String, dynamic> inputs, Map<String, dynamic> results, AppLocalizations l10n) {
     final csvRows = <String>[];
 
-    // Use l10n for headers if desired, e.g., csvRows.add('"${l10n.inputsCategory}"');
-    // Inputs Section
+    // --- Inputs Section ---
     csvRows.add('"Inputs"');
     csvRows.add('"Category","Value"');
     inputs.forEach((key, value) {
-      // Escape quotes within key and value
-      final escapedKey = key.replaceAll('"', '""');
+      // Get localized label using the helper
+      final displayKey = _getL10nString(l10n, key, defaultValue: key);
+      final escapedKey = displayKey.replaceAll('"', '""');
       final escapedValue = _formatValue(value).replaceAll('"', '""');
       csvRows.add('"$escapedKey","$escapedValue"');
     });
 
-    // Results Section
-    csvRows.add(''); // Add empty row for spacing
+    // --- Results Section ---
+    csvRows.add('');
     csvRows.add('"Results"');
     csvRows.add('"Category","Value"');
     results.forEach((key, value) {
-      final escapedKey = key.replaceAll('"', '""');
+      // Get localized label using the helper
+      final displayKey = _getL10nString(l10n, key, defaultValue: key);
+      final escapedKey = displayKey.replaceAll('"', '""');
       final escapedValue = _formatValue(value).replaceAll('"', '""');
       csvRows.add('"$escapedKey","$escapedValue"');
     });
 
+    // --- CSV Generation and Download ---
     final csvContent = csvRows.join('\n');
-    // Use universal_html for web compatibility
     final blob = html.Blob([csvContent], 'text/csv;charset=utf-8');
     final url = html.Url.createObjectUrlFromBlob(blob);
 
-    // Create an anchor element and trigger download
+    final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+    final filename = 'aerasync_oxygen_demand_$timestamp.csv';
+
     final anchor = html.AnchorElement(href: url)
-      ..setAttribute('download', 'aerasync_oxygen_demand_${DateTime.now().toIso8601String()}.csv')
+      ..setAttribute('download', filename)
       ..click();
 
-    // Release the object URL
     html.Url.revokeObjectUrl(url);
   }
 }
 
-// Helper function to find max value in a list (needed for maxY calculation)
-double max(double a, double b) => a > b ? a : b;
+// Helper function needed if using .reduce(max) or .fold(0.0, max)
+// Already imported dart:math
+// double max(double a, double b) => a > b ? a : b;

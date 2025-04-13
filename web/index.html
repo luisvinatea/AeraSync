@@ -13,45 +13,39 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="AeraSync">
   <meta name="theme-color" content="#1E40AF">
-  
-  <!-- Open Graph Meta Tags -->
+
   <meta property="og:title" content="AeraSync - Aerator Performance & Estimation Calculator">
   <meta property="og:description" content="AeraSync: Calculate aerator performance and estimate the number of aerators per hectare for shrimp ponds, with interactive charts for key metrics.">
-  <meta property="og:image" content="/icons/aerasync512.webp">
-  <meta property="og:url" content="https://luisvinatea.github.io/AeraSync/">
+  <meta property="og:image" content="/icons/aerasync512.webp"> <meta property="og:url" content="https://luisvinatea.github.io/AeraSync/">
   <meta property="og:type" content="website">
-  
-  <!-- Twitter Card Meta Tags -->
+
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AeraSync - Aerator Performance & Estimation Calculator">
   <meta name="twitter:description" content="AeraSync: Calculate aerator performance and estimate the number of aerators per hectare for shrimp ponds, with interactive charts for key metrics.">
-  <meta name="twitter:image" content="/icons/aerasync512.webp">
-
-  <!-- Icons with PNG Fallbacks -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.webp">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.png" media="(image/webp)">
-  <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.webp">
-  <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.png" media="(image/webp)">
-  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.webp">
-  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.png" media="(image/webp)">
-  <link rel="icon" type="image/webp" href="/icons/aerasync64.webp">
-  <link rel="icon" type="image/png" href="/icons/aerasync64.png" media="(image/webp)">
-
-  <title>AeraSync - Aerator Performance & Estimation Calculator</title>
+  <meta name="twitter:image" content="/icons/aerasync512.webp"> <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.webp">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.png"> <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.webp">
+  <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.png"> <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.webp">
+  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.png"> <link rel="icon" type="image/webp" href="/icons/aerasync64.webp">
+  <link rel="icon" type="image/png" href="/icons/aerasync64.png"> <title>AeraSync - Aerator Performance & Estimation Calculator</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="preload" href="/flutter_bootstrap.js" as="script">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
   <style>
+    /* Basic reset and font setting */
     body, html {
+      /* Allows Flutter to handle touch actions like scrolling/zooming */
       touch-action: pan-x pan-y pinch-zoom !important;
+      /* Allow user scaling (though Flutter usually handles viewport) */
       -webkit-user-scalable: yes;
       margin: 0;
       padding: 0;
       height: 100%;
+      /* Prevent body scrolling, Flutter handles internal scrolling */
       overflow: hidden;
       font-family: 'Montserrat', Arial, sans-serif;
     }
+    /* Loading screen styles */
     #loading-screen {
       position: fixed;
       top: 0;
@@ -62,13 +56,13 @@
       justify-content: center;
       align-items: center;
       background: linear-gradient(180deg, #60A5FA 0%, #1E40AF 100%);
-      z-index: 9999;
-      transition: opacity 0.5s ease-out;
+      z-index: 9999; /* Ensure it's on top */
+      transition: opacity 0.5s ease-out; /* Fade out effect */
     }
     .loading {
       text-align: center;
       color: #FFFFFF;
-      position: relative;
+      position: relative; /* Ensure text is above overlay */
       z-index: 1;
     }
     .loading h1 {
@@ -83,6 +77,7 @@
       margin-bottom: 20px;
       opacity: 0.9;
     }
+    /* Custom CSS spinner */
     .spinner {
       width: 50px;
       height: 50px;
@@ -95,6 +90,7 @@
       width: 100%;
       height: 100%;
       border: 4px solid #FFFFFF;
+      /* Hexagonal clip path */
       clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
       animation: spin 1.5s linear infinite;
     }
@@ -107,35 +103,41 @@
       left: 10%;
       border: 2px solid #60A5FA;
       clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      animation: spin 1s linear infinite reverse;
+      animation: spin 1s linear infinite reverse; /* Inner part spins reverse */
     }
+    /* Animated wave overlay */
     .wave-overlay {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 70%;
-      background: url('/assets/wave.svg') repeat-x;
-      background-size: 200% 100%;
+      height: 70%; /* Adjust height as needed */
+      background: url('/assets/wave.svg') repeat-x; /* Ensure wave.svg exists */
+      background-size: 200% 100%; /* Adjust for seamless repeat */
       animation: wave 30s linear infinite;
-      z-index: 0;
+      z-index: 0; /* Behind loading content */
+      opacity: 0.3; /* Make it subtle */
     }
+    /* Container for the Flutter app */
     #flutter-app {
-      display: none;
+      display: none; /* Hidden initially */
       width: 100%;
       height: 100%;
-      overflow-y: auto;
+      overflow-y: auto; /* Allow scrolling within the app if needed */
     }
+    /* Optional: Style canvas - might be overridden by Flutter */
     canvas {
       max-width: 100% !important;
       height: auto !important;
     }
+    /* Keyframe animations */
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
     @keyframes wave {
       0% { background-position: 0 0; }
+      /* Adjust the x-position based on image width for seamless loop */
       100% { background-position: 1440px 0; }
     }
   </style>
@@ -150,9 +152,13 @@
       <div class="spinner" aria-hidden="true"></div>
     </div>
   </div>
+
   <div id="flutter-app"></div>
+
   <script src="flutter_bootstrap.js" async></script>
+
   <script>
+    // Register Service Worker for PWA capabilities
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('/flutter_service_worker.js')
@@ -165,21 +171,31 @@
       });
     }
 
+    // Prevent default browser handling for multi-touch to let Flutter manage gestures
     document.addEventListener('touchstart', function(event) {
       if (event.touches.length > 1) {
+         // Stop the browser from interfering with pinch-zoom etc.
         event.stopPropagation();
       }
-    }, { passive: false });
+    }, { passive: false }); // passive:false is needed for stopPropagation
 
+    // Listen for Flutter's first frame event to hide loading screen
     window.addEventListener('flutter-first-frame', function() {
       var loadingScreen = document.getElementById('loading-screen');
       var flutterApp = document.getElementById('flutter-app');
-      loadingScreen.style.opacity = '0';
-      flutterApp.style.display = 'block';
-      
+      if (loadingScreen) {
+        loadingScreen.style.opacity = '0'; // Start fade out
+      }
+      if (flutterApp) {
+        flutterApp.style.display = 'block'; // Show Flutter app container
+      }
+
+      // Remove loading screen from DOM after transition
       setTimeout(function() {
-        loadingScreen.style.display = 'none';
-      }, 500);
+        if (loadingScreen) {
+          loadingScreen.style.display = 'none';
+        }
+      }, 500); // Match CSS transition duration
     });
   </script>
 </body>
