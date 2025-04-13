@@ -24,19 +24,13 @@ void main() {
 
     // Act: Build the widget tree for testing
     await tester.pumpWidget(
-      // Provide the initialized AppState to the widget tree
-      Provider<AppState>.value(
-        value: appState,
-        // Wrap the MyApp widget within a MaterialApp configured for testing
-        // This provides necessary context like Directionality and localization support.
+      ChangeNotifierProvider<AppState>(
+        create: (_) => appState,
         child: MaterialApp(
-          // Set up localization delegates for the test environment
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          // Force a specific locale for predictable testing
           locale: const Locale('en'),
-          // The widget under test
-          home: const MyApp(), // Note: MyApp itself returns a MaterialApp
+          home: const MyApp(),
         ),
       ),
     );

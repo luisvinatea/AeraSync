@@ -95,11 +95,9 @@ class ShrimpPondCalculator implements SaturationCalculator {
     return result;
   }
 
-  // Helper function to normalize common brand name variations
   String _normalizeBrand(String brand) {
-    // Consider making this map external or more easily configurable if it grows large
     const brandNormalization = {
-      // Add more variations as needed
+      // ... (your existing map) ...
       'pentair': 'Pentair', 'beraqua': 'Beraqua', 'maof madam': 'Maof Madam',
       'maofmadam': 'Maof Madam', 'cosumisa': 'Cosumisa', 'pioneer': 'Pioneer',
       'ecuasino': 'Ecuasino', 'diva': 'Diva', 'gps': 'GPS', 'wangfa': 'WangFa',
@@ -113,10 +111,18 @@ class ShrimpPondCalculator implements SaturationCalculator {
     };
 
     if (brand.isEmpty) return 'Generic'; // Default to Generic if empty
-    // Normalize by converting to lowercase and trimming whitespace
-    final brandLower = brand.toLowerCase().trim();
-    // Return normalized name or the original (title-cased) if not found
-    return brandNormalization[brandLower] ?? brand.split(' ').map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}' : '').join(' ');
+
+    final brandLower = brand.toLowerCase().trim(); // Still trim and lowercase for lookup
+
+    // Return normalized name if found in map
+    if (brandNormalization.containsKey(brandLower)) {
+        return brandNormalization[brandLower]!;
+    }
+
+    // FIX: Refined fallback for unknown brands
+    // Replace multiple spaces with single, trim again, then title case
+    final cleanedUnknownBrand = brand.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return cleanedUnknownBrand.split(' ').map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}' : '').join(' ');
   }
 
   @override
@@ -131,13 +137,19 @@ class ShrimpPondCalculator implements SaturationCalculator {
     required String aeratorId, // Expected format "Brand Type" or just "Brand"
   }) {
     // --- Input Processing & Normalization ---
-    final parts = aeratorId.split(' ');
-    // Handle cases where aeratorId might just be a brand or empty
-    final brand = parts.isNotEmpty ? parts[0] : 'Generic';
-    final aeratorType = parts.length > 1 ? parts.sublist(1).join(' ') : 'Unknown';
-    final normalizedBrand = _normalizeBrand(brand);
+    // FIX: Trim input and filter empty parts after splitting
+    final cleanedId = aeratorId.trim(); // Trim leading/trailing spaces
+    final parts = cleanedId.split(' ').where((part) => part.isNotEmpty).toList(); // Split and remove empty strings
+
+    final brand = parts.isNotEmpty ? parts[0] : ''; // Use empty string if no parts
+    final aeratorType = parts.length > 1 ? parts.sublist(1).join(' ') : 'Unknown'; // Type is the rest
+    final normalizedBrand = _normalizeBrand(brand); // Normalize the extracted brand
+
     // Reconstruct normalized ID
-    final normalizedAeratorId = '$normalizedBrand ${aeratorType == 'Unknown' && normalizedBrand != 'Generic' ? '' : aeratorType}'.trim();
+    // If brand was empty, normalizedBrand will be 'Generic'
+    final normalizedAeratorId = (normalizedBrand == 'Generic' && aeratorType == 'Unknown')
+        ? 'Generic Unknown' // Handle case of empty/generic input resulting in unknown type
+        : '$normalizedBrand $aeratorType'.trim(); // Combine and trim potential extra space if type was Unknown initially
 
     // --- Intermediate Calculations ---
     // Power in kW, rounded to 2 decimal places

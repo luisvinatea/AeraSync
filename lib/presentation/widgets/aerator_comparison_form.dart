@@ -217,7 +217,7 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
          return double.nan; // Indicate failure
       }
 
-      if (math.abs(f) < tolerance) break; // Converged
+      if (f.abs() < tolerance) break; // Use f.abs() instead of math.abs(f)
 
       tir -= f / derivative; // Newton-Raphson update
 
@@ -225,7 +225,10 @@ class _AeratorComparisonFormState extends State<AeratorComparisonForm> {
       if (tir <= -1.0) {
         tir = -0.99; // Adjust if TIR goes below -100%
       }
-       // Add upper bound check if necessary, e.g., if (tir > 10) tir = 10;
+      // Add upper bound check if necessary, e.g., if (tir > 10) tir = 10;
+      if (tir > 10) {
+        tir = 10; // Adjust if TIR goes above 100%
+      }
     }
 
      // Check for convergence failure

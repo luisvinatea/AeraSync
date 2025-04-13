@@ -14,9 +14,8 @@ void main() async {
   await appState.initialize(); // Ensure data is loaded
 
   runApp(
-    // Provide the AppState instance to the widget tree
-    Provider<AppState>.value(
-      value: appState,
+    ChangeNotifierProvider(
+      create: (_) => appState,
       child: const MyApp(),
     ),
   );

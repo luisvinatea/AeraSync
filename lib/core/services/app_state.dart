@@ -4,7 +4,7 @@ import '../calculators/shrimp_respiration_calculator.dart';
 
 /// Manages the application's state, including calculators, results, and loading status.
 /// Uses ChangeNotifier to notify listeners (like UI widgets via Provider) about state changes.
-class AppState with ChangeNotifier {
+class AppState extends ChangeNotifier {
   // Private instances of the calculators
   SaturationCalculator? _calculator;
   ShrimpRespirationCalculator? _respirationCalculator;
