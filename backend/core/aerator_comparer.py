@@ -123,25 +123,25 @@ class AeratorComparer:
             "bottom_demand_kg_h_ha": bottom_demand_kg_h_ha,
         }
 
-    def _calculate_tir(self, initial_investment_diff: float, annual_savings: float,
+    def _calculate_irr(self, initial_investment_diff: float, annual_savings: float,
                        inflation_rate: float, analysis_horizon_years: int) -> float:
-        """Calculates the Internal Rate of Return (TIR) using Newton-Raphson."""
+        """Calculates the Internal Rate of Return (IRR) using Newton-Raphson."""
         if initial_investment_diff == 0:
-            return float('inf') if annual_savings > 0 else 0.0 # Or NaN? TIR is undefined if cost diff is 0
+            return float('inf') if annual_savings > 0 else 0.0 # Or NaN? IRR is undefined if cost diff is 0
         if initial_investment_diff < 0 and annual_savings <= 0:
-             return float('-inf') # Negative investment yields negative savings -> negative infinity TIR
+             return float('-inf') # Negative investment yields negative savings -> negative infinity IRR
         if initial_investment_diff > 0 and annual_savings <= 0:
-             return float('-inf') # Positive investment yields negative savings -> negative infinity TIR
+             return float('-inf') # Positive investment yields negative savings -> negative infinity IRR
 
         # Newton-Raphson method
-        tir = 0.10  # Initial guess (10%)
+        irr = 0.10  # Initial guess (10%)
         max_iterations = 100
         tolerance = 1e-7
 
         for _ in range(max_iterations):
             present_value = 0.0
             derivative = 0.0
-            effective_discount_rate = 1 + tir
+            effective_discount_rate = 1 + irr
 
             for t in range(1, int(analysis_horizon_years) + 1):
                 try:
@@ -152,25 +152,25 @@ class AeratorComparer:
                     present_value += cash_flow / discount_factor
                     derivative += -t * cash_flow / (discount_factor * effective_discount_rate)
                 except OverflowError:
-                    print("Warning: Overflow encountered during TIR calculation. TIR might be very large.")
+                    print("Warning: Overflow encountered during IRR calculation. IRR might be very large.")
                     return float('inf') # Or handle as appropriate
 
             # Check if derivative is valid for Newton-Raphson step
             if derivative == 0 or not math.isfinite(derivative):
-                 print("Warning: TIR derivative is zero or invalid. Cannot continue Newton-Raphson.")
+                 print("Warning: IRR derivative is zero or invalid. Cannot continue Newton-Raphson.")
                  return float('nan') # Cannot calculate
 
             f = present_value - initial_investment_diff
             if abs(f) < tolerance:
-                return tir * 100.0  # Converged, return as percentage
+                return irr * 100.0  # Converged, return as percentage
 
-            tir -= f / derivative
+            irr -= f / derivative
 
-            # Prevent unreasonable TIR values during iteration
-            if tir <= -1.0: # TIR cannot be less than -100%
-                 tir = -0.9999
+            # Prevent unreasonable IRR values during iteration
+            if irr <= -1.0: # IRR cannot be less than -100%
+                 irr = -0.9999
 
-        print(f"Warning: TIR calculation did not converge within {max_iterations} iterations.")
+        print(f"Warning: IRR calculation did not converge within {max_iterations} iterations.")
         return float('nan') # Failed to converge
 
 
@@ -311,7 +311,7 @@ class AeratorComparer:
 
 
             roi = (annual_savings / initial_investment_diff) * 100 if initial_investment_diff != 0 else float('inf')
-            tir = self._calculate_tir(initial_investment_diff, annual_savings, inflation_rate, horizon)
+            irr = self._calculate_irr(initial_investment_diff, annual_savings, inflation_rate, horizon)
 
             # Cost of Opportunity & Real Price
             cost_of_opportunity = abs(vpn)
@@ -351,7 +351,7 @@ class AeratorComparer:
                 "netPresentValue": round(vpn, 2),
                 "paybackPeriodDays": payback_days if math.isfinite(payback_days) else 'inf',
                 "returnOnInvestment": roi if math.isfinite(roi) else ('inf' if roi > 0 else '-inf'),
-                "internalRateOfReturn": round(tir, 2) if math.isfinite(tir) else ('inf' if tir > 0 else ('-inf' if tir < 0 else 'nan')), # Handle NaN/Inf TIR
+                "internalRateOfReturn": round(irr, 2) if math.isfinite(irr) else ('inf' if irr > 0 else ('-inf' if irr < 0 else 'nan')), # Handle NaN/Inf IRR
                 "costOfOpportunity": round(cost_of_opportunity, 2),
                 "realPriceLosingAerator": round(real_price_loser, 2) if math.isfinite(real_price_loser) else 'inf',
                 "loserLabel": loser_label,
