@@ -17,12 +17,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _hasAgreedToDataDisclosure = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialize TabController with the correct number of tabs
     _tabController = TabController(length: 3, vsync: this);
+    // Show popup on first load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showDataDisclosurePopup();
+    });
   }
 
   @override
@@ -31,61 +35,92 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
+  void _showDataDisclosurePopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing without agreeing
+      builder: (BuildContext context) {
+        final l10n = AppLocalizations.of(context)!;
+        return AlertDialog(
+          title: Text(l10n.dataDisclosureTitle),
+          content: Text(l10n.dataDisclosureMessage),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Exit app if user doesn't agree
+                Navigator.of(context).pop();
+                // Note: SystemNavigator.pop() doesn't work on web
+                // For web, show a message or redirect
+                setState(() {
+                  _hasAgreedToDataDisclosure = false;
+                });
+              },
+              child: Text(l10n.disagreeButton),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _hasAgreedToDataDisclosure = true;
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text(l10n.agreeButton),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Get l10n instance once for the build method
     final l10n = AppLocalizations.of(context)!;
+
+    if (!_hasAgreedToDataDisclosure) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.appTitle), // Use localized title
+        title: Text(l10n.appTitle),
         bottom: TabBar(
           controller: _tabController,
-          // Make tabs scrollable if they might overflow on smaller screens
           isScrollable: true,
           tabs: [
-            // Use localized tab labels
-            Tab(text: l10n.aeratorPerformanceCalculator),
             Tab(text: l10n.aeratorComparisonCalculator),
-            Tab(text: l10n.oxygenDemandAndEstimationCalculator),
+            Tab(text: l10n.sotrCalculator),
+            Tab(text: l10n.todCalculator),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        // Disable swiping between tabs if desired
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          // Aerator Performance Tab
-          // Use a consistent key for AppState results for this tab
-          _LazyTab(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const CalculatorForm(),
-                  // Pass the correct key used in CalculatorForm
-                  ResultsDisplay(tab: 'Aerator Performance'),
-                ],
-              ),
-            ),
-          ),
-
-          // Aerator Comparison Tab
-          // Use a consistent key for AppState results for this tab
           _LazyTab(
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   const AeratorComparisonForm(),
-                  // Pass the correct key used in AeratorComparisonForm
                   ResultsDisplay(tab: 'Aerator Comparison'),
                 ],
               ),
             ),
           ),
-
-          // Oxygen Demand and Estimation Tab
-          // Use a consistent key for AppState results for this tab
+          _LazyTab(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const CalculatorForm(),
+                  ResultsDisplay(tab: 'Aerator Performance'),
+                ],
+              ),
+            ),
+          ),
           _LazyTab(
             child: SingleChildScrollView(
               child: Column(
@@ -93,22 +128,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   const OxygenDemandAndEstimationForm(),
                   Consumer<AppState>(
                     builder: (context, appState, child) {
-                      // Use the correct key used in OxygenDemandAndEstimationForm
                       final results = appState.getResults('Oxygen Demand and Estimation');
-                      // Handle null or empty results gracefully
                       if (results == null || results.isEmpty) {
-                        // Show the generic results display if no results yet
                         return ResultsDisplay(tab: 'Oxygen Demand and Estimation');
                       }
-                      // **FIX:** Check for the key using the string literal used in the form
-                      // Check if the results map contains the key indicating experimental results
                       if (results.containsKey('numberOfAeratorsPerHectareLabel')) {
-                         // If it has experimental results, show the generic ResultsDisplay
-                         // (assuming it can handle both farm-based and experimental keys now)
-                         // OR create a specific display widget if needed.
                         return ResultsDisplay(tab: 'Oxygen Demand and Estimation');
                       } else {
-                        // Otherwise, assume it's farm-based results and show the specific display
                         return const OxygenDemandResultsDisplay();
                       }
                     },
@@ -123,7 +149,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 }
 
-// Helper widget to lazily build tab content (keeps state)
 class _LazyTab extends StatefulWidget {
   final Widget child;
 
@@ -134,16 +159,12 @@ class _LazyTab extends StatefulWidget {
 }
 
 class _LazyTabState extends State<_LazyTab> with AutomaticKeepAliveClientMixin {
-  // No need for _hasBuilt flag when using AutomaticKeepAliveClientMixin
-  // bool _hasBuilt = false;
-
   @override
-  bool get wantKeepAlive => true; // Keep the state of the tab
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Important: call super.build(context)
-    // The child is built only once and kept alive
+    super.build(context);
     return widget.child;
   }
 }

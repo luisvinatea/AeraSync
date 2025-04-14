@@ -220,6 +220,10 @@
    "inflationRateTooltip": "Annual inflation rate for cost adjustments",
    "analysisHorizonLabel": "Analysis Horizon (years)",
    "analysisHorizonTooltip": "Time horizon for the financial analysis",
+   "dataDisclosureTitle": "Data Disclosure Agreement",
+   "dataDisclosureMessage": "We may use anonymized data for research purposes to improve aquaculture practices. Do you agree to this use of your data?",
+   "agreeButton": "Agree",
+   "disagreeButton": "Disagree",
 
    "paybackNever": "Never",
    "@paybackNever": {
