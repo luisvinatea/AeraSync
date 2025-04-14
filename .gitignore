@@ -1,64 +1,84 @@
-### Node.js / React Native / Flutter / Swift / Kotlin specific .gitignore
-
-# Node.js dependencies
-node_modules/
-npm-debug.log
-yarn-error.log
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Logs
-logs/
-*.log
-
-# Build files
+# =====================
+# FLUTTER / DART
+# =====================
+.dart_tool/
+.packages
+.pub/
 build/
+*.flutter-plugins
+*.flutter-plugins-dependencies
+*.flutter-plugins-dependencies
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# =====================
+# PYTHON
+# =====================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+*.env
+.env
+env/
+venv/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# =====================
+# NODE / WEB
+# =====================
+node_modules/
+npm-debug.log*
+yarn-error.log
+package-lock.json
 dist/
 out/
 
-# React Native specific
-android/
-ios/
+# =====================
+# OS / SYSTEM FILES
+# =====================
+.DS_Store
+Thumbs.db
+
+# =====================
+# IDEs
+# =====================
+.vscode/
+.idea/
+*.iml
+
+# =====================
+# EXPO (optional for Flutter web/mobile)
+# =====================
 .expo/
 
-# Flutter specific
-*.flutter-plugins
-*.flutter-plugins-dependencies
-.dart_tool/
-build/
-
-# Swift specific
+# =====================
+# XCODE / SWIFT
+# =====================
 DerivedData/
 *.xcworkspace
 *.xcodeproj/
 *.xcuserdata/
 
-# Kotlin specific
-*.iml
-.idea/
-*.kts
+# =====================
+# GRADLE / ANDROID
+# =====================
 .gradle/
-/local.properties
+*.kts
+local.properties
 
-# IDE files
-.vscode/
-.idea/
-*.iml
-
-# System files
-.DS_Store
-Thumbs.db
-
-
-# Python specific
-__pycache__/
-*.pyc
-venv/
-.env
-
-# Data files
+# =====================
+# DATA / TEMP OUTPUT
+# =====================
+*.log
+*.tmp
+*.bak
+test_temp/
 backend/data/*.csv
 backend/data/*.log

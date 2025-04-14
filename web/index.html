@@ -5,8 +5,8 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <meta name="description" content="AeraSync: Calculate aerator performance and estimate the number of aerators per hectare for shrimp ponds, with interactive charts for key metrics.">
-  <meta name="keywords" content="AeraSync, aerator, shrimp pond, calculator, aquaculture, aerator performance, aerator estimation, shrimp farming, data visualization">
+  <meta name="description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey, view ranked results, and download a detailed PDF report.">
+  <meta name="keywords" content="AeraSync, aerator comparison, shrimp farming, aquaculture, cost optimization, data visualization, PDF report">
   <meta name="author" content="Luis Vinatea">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,133 +14,31 @@
   <meta name="apple-mobile-web-app-title" content="AeraSync">
   <meta name="theme-color" content="#1E40AF">
 
-  <meta property="og:title" content="AeraSync - Aerator Performance & Estimation Calculator">
-  <meta property="og:description" content="AeraSync: Calculate aerator performance and estimate the number of aerators per hectare for shrimp ponds, with interactive charts for key metrics.">
-  <meta property="og:image" content="/icons/aerasync512.webp"> <meta property="og:url" content="https://luisvinatea.github.io/AeraSync/">
+  <meta property="og:title" content="AeraSync - Aerator Comparison for Shrimp Farming">
+  <meta property="og:description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey, view ranked results, and download a detailed PDF report.">
+  <meta property="og:image" content="/icons/aerasync512.webp">
+  <meta property="og:url" content="https://luisvinatea.github.io/AeraSync/">
   <meta property="og:type" content="website">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AeraSync - Aerator Performance & Estimation Calculator">
-  <meta name="twitter:description" content="AeraSync: Calculate aerator performance and estimate the number of aerators per hectare for shrimp ponds, with interactive charts for key metrics.">
-  <meta name="twitter:image" content="/icons/aerasync512.webp"> <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.webp">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.png"> <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.webp">
-  <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.png"> <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.webp">
-  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.png"> <link rel="icon" type="image/webp" href="/icons/aerasync64.webp">
-  <link rel="icon" type="image/png" href="/icons/aerasync64.png"> <title>AeraSync - Aerator Performance & Estimation Calculator</title>
+  <meta name="twitter:title" content="AeraSync - Aerator Comparison for Shrimp Farming">
+  <meta name="twitter:description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey, view ranked results, and download a detailed PDF report.">
+  <meta name="twitter:image" content="/icons/aerasync512.webp">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.webp">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.webp">
+  <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.png">
+  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.webp">
+  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.png">
+  <link rel="icon" type="image/webp" href="/icons/aerasync64.webp">
+  <link rel="icon" type="image/png" href="/icons/aerasync64.png">
+  <title>AeraSync - Aerator Comparison for Shrimp Farming</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="preload" href="/flutter_bootstrap.js" as="script">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="/styles.css">
 
-  <style>
-    /* Basic reset and font setting */
-    body, html {
-      /* Allows Flutter to handle touch actions like scrolling/zooming */
-      touch-action: pan-x pan-y pinch-zoom !important;
-      /* Allow user scaling (though Flutter usually handles viewport) */
-      -webkit-user-scalable: yes;
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      /* Prevent body scrolling, Flutter handles internal scrolling */
-      overflow: hidden;
-      font-family: 'Montserrat', Arial, sans-serif;
-    }
-    /* Loading screen styles */
-    #loading-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(180deg, #60A5FA 0%, #1E40AF 100%);
-      z-index: 9999; /* Ensure it's on top */
-      transition: opacity 0.5s ease-out; /* Fade out effect */
-    }
-    .loading {
-      text-align: center;
-      color: #FFFFFF;
-      position: relative; /* Ensure text is above overlay */
-      z-index: 1;
-    }
-    .loading h1 {
-      font-size: 28px;
-      font-weight: 600;
-      margin-bottom: 10px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-    .loading p {
-      font-size: 16px;
-      font-weight: 400;
-      margin-bottom: 20px;
-      opacity: 0.9;
-    }
-    /* Custom CSS spinner */
-    .spinner {
-      width: 50px;
-      height: 50px;
-      position: relative;
-      margin: 0 auto;
-    }
-    .spinner::before {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border: 4px solid #FFFFFF;
-      /* Hexagonal clip path */
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      animation: spin 1.5s linear infinite;
-    }
-    .spinner::after {
-      content: '';
-      position: absolute;
-      width: 80%;
-      height: 80%;
-      top: 10%;
-      left: 10%;
-      border: 2px solid #60A5FA;
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      animation: spin 1s linear infinite reverse; /* Inner part spins reverse */
-    }
-    /* Animated wave overlay */
-    .wave-overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 70%; /* Adjust height as needed */
-      background: url('/assets/wave.svg') repeat-x; /* Ensure wave.svg exists */
-      background-size: 200% 100%; /* Adjust for seamless repeat */
-      animation: wave 30s linear infinite;
-      z-index: 0; /* Behind loading content */
-      opacity: 0.3; /* Make it subtle */
-    }
-    /* Container for the Flutter app */
-    #flutter-app {
-      display: none; /* Hidden initially */
-      width: 100%;
-      height: 100%;
-      overflow-y: auto; /* Allow scrolling within the app if needed */
-    }
-    /* Optional: Style canvas - might be overridden by Flutter */
-    canvas {
-      max-width: 100% !important;
-      height: auto !important;
-    }
-    /* Keyframe animations */
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    @keyframes wave {
-      0% { background-position: 0 0; }
-      /* Adjust the x-position based on image width for seamless loop */
-      100% { background-position: 1440px 0; }
-    }
-  </style>
 </head>
 <body>
   <div id="loading-screen" role="status" aria-label="Loading AeraSync application">
@@ -148,12 +46,27 @@
     <div class="loading">
       <img src="/icons/aerasync.webp" alt="AeraSync Logo - A stylized wave representing water and aeration" style="width: 200px; height: auto; margin-bottom: 20px;" loading="lazy">
       <h1 lang="en">AeraSync</h1>
-      <p lang="en">Aerator Performance & Estimation for Shrimp Ponds</p>
+      <p lang="en">Aerator Comparison for Shrimp Farming</p>
       <div class="spinner" aria-hidden="true"></div>
     </div>
   </div>
 
-  <div id="flutter-app"></div>
+  <div id="cookies-consent">
+    <p>We use cookies and tracking to improve your experience and analyze usage. Your data will help us enhance AeraSync.</p>
+    <label>
+      <input type="checkbox" id="data-disclosure" onchange="handleDataDisclosure()">
+      I agree to the use of cookies and data tracking (required to view results).
+    </label>
+    <button onclick="acceptCookies()">Accept</button>
+  </div>
+
+  <div id="survey-container">
+    <!-- Survey steps will be dynamically generated -->
+  </div>
+
+  <div id="results-container">
+    <!-- Results will be dynamically generated -->
+  </div>
 
   <script src="flutter_bootstrap.js" async></script>
 
@@ -171,32 +84,409 @@
       });
     }
 
-    // Prevent default browser handling for multi-touch to let Flutter manage gestures
+    // Prevent default browser handling for multi-touch
     document.addEventListener('touchstart', function(event) {
       if (event.touches.length > 1) {
-         // Stop the browser from interfering with pinch-zoom etc.
         event.stopPropagation();
       }
-    }, { passive: false }); // passive:false is needed for stopPropagation
+    }, { passive: false });
 
-    // Listen for Flutter's first frame event to hide loading screen
+    // Handle loading screen
     window.addEventListener('flutter-first-frame', function() {
       var loadingScreen = document.getElementById('loading-screen');
-      var flutterApp = document.getElementById('flutter-app');
+      var surveyContainer = document.getElementById('survey-container');
       if (loadingScreen) {
-        loadingScreen.style.opacity = '0'; // Start fade out
+        loadingScreen.style.opacity = '0';
       }
-      if (flutterApp) {
-        flutterApp.style.display = 'block'; // Show Flutter app container
+      if (surveyContainer) {
+        surveyContainer.style.display = 'block';
       }
-
-      // Remove loading screen from DOM after transition
       setTimeout(function() {
         if (loadingScreen) {
           loadingScreen.style.display = 'none';
         }
-      }, 500); // Match CSS transition duration
+      }, 500);
     });
+
+    // Cookies consent logic
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!localStorage.getItem('cookiesAccepted')) {
+        document.getElementById('cookies-consent').style.display = 'block';
+      }
+    });
+
+    let dataDisclosureAgreed = false;
+    function handleDataDisclosure() {
+      dataDisclosureAgreed = document.getElementById('data-disclosure').checked;
+    }
+
+    function acceptCookies() {
+      localStorage.setItem('cookiesAccepted', 'true');
+      document.getElementById('cookies-consent').style.display = 'none';
+      initializeSurvey();
+    }
+
+    // Survey logic
+    const surveySteps = [
+      {
+        id: 'aerator-selection',
+        title: 'Aerator Selection',
+        content: `
+          <p>Add the aerators you want to compare (up to 5).</p>
+          <div id="aerator-entries"></div>
+          <button onclick="addAeratorEntry()">Add Aerator</button>
+        `
+      },
+      {
+        id: 'farm-specifications',
+        title: 'Farm Specifications',
+        content: `
+          <label for="total-area">Total Farm Area (ha)</label>
+          <input type="number" id="total-area" placeholder="e.g., 1000" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Total area of your shrimp farm in hectares.</span></span>
+          <label for="production-per-ha">Production per Hectare (ton/ha/year)</label>
+          <input type="number" id="production-per-ha" placeholder="e.g., 10" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Annual shrimp production per hectare in tons.</span></span>
+          <label for="cycles-per-year">Cycles per Year</label>
+          <input type="number" id="cycles-per-year" placeholder="e.g., 3" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Number of production cycles per year.</span></span>
+        `
+      },
+      {
+        id: 'oxygen-demand',
+        title: 'Oxygen Demand Inputs',
+        content: `
+          <label for="temperature">Average Pond Temperature (°C)</label>
+          <input type="number" id="temperature" placeholder="e.g., 31.5" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Average temperature of the pond water in Celsius.</span></span>
+          <label for="salinity">Salinity (ppt)</label>
+          <input type="number" id="salinity" placeholder="e.g., 20" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Salinity of the pond water in parts per thousand.</span></span>
+          <label for="pond-depth">Pond Depth (m)</label>
+          <input type="number" id="pond-depth" placeholder="e.g., 1" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Average depth of the pond in meters.</span></span>
+          <label for="shrimp-weight">Average Shrimp Weight (g)</label>
+          <input type="number" id="shrimp-weight" placeholder="e.g., 10" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Average weight of the shrimp in grams.</span></span>
+        `
+      },
+      {
+        id: 'financial-aspects',
+        title: 'Financial Aspects',
+        content: `
+          <label for="shrimp-price">Shrimp Price (USD/kg)</label>
+          <input type="number" id="shrimp-price" placeholder="e.g., 5" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Selling price of shrimp per kilogram in USD.</span></span>
+          <label for="energy-cost">Energy Cost (USD/kWh)</label>
+          <input type="number" id="energy-cost" placeholder="e.g., 0.05" step="0.01" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Cost of electricity per kilowatt-hour in USD.</span></span>
+          <label for="operating-hours">Operating Hours per Day</label>
+          <input type="number" id="operating-hours" placeholder="e.g., 8" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Number of hours aerators operate per day.</span></span>
+          <label for="interest-rate">Interest Rate (%)</label>
+          <input type="number" id="interest-rate" placeholder="e.g., 10" step="0.1" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Annual interest rate for financial calculations.</span></span>
+          <label for="inflation-rate">Inflation Rate (%)</label>
+          <input type="number" id="inflation-rate" placeholder="e.g., 2.5" step="0.1" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Annual inflation rate for cost adjustments.</span></span>
+          <label for="analysis-horizon">Analysis Horizon (years)</label>
+          <input type="number" id="analysis-horizon" placeholder="e.g., 9" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Time period for financial analysis in years.</span></span>
+        `
+      }
+    ];
+
+    let currentStep = 0;
+    let aerators = [];
+    let resultsData = null;
+
+    function initializeSurvey() {
+      showSurveyStep(currentStep);
+    }
+
+    function showSurveyStep(stepIndex) {
+      const container = document.getElementById('survey-container');
+      const step = surveySteps[stepIndex];
+      const totalSteps = surveySteps.length;
+      const progress = ((stepIndex + 1) / totalSteps) * 100;
+
+      let buttons = '';
+      if (stepIndex > 0) {
+        buttons += `<button onclick="previousStep()">Back</button>`;
+      }
+      if (stepIndex < totalSteps - 1) {
+        buttons += `<button onclick="nextStep()">Next</button>`;
+      } else {
+        buttons += `<button onclick="submitSurvey()" id="view-results-btn" ${!dataDisclosureAgreed ? 'disabled' : ''}>View Results</button>`;
+      }
+
+      container.innerHTML = `
+        <div class="progress-bar">
+          <div style="width: ${progress}%"></div>
+        </div>
+        <div class="survey-step">
+          <h2>${step.title}</h2>
+          ${step.content}
+          <div>${buttons}</div>
+        </div>
+      `;
+
+      if (step.id === 'aerator-selection') {
+        addAeratorEntry(); // Add the first aerator entry by default
+      }
+    }
+
+    function addAeratorEntry() {
+      const entries = document.getElementById('aerator-entries');
+      const aeratorCount = entries.children.length + 1;
+      if (aeratorCount > 5) {
+        alert('You can compare up to 5 aerators.');
+        return;
+      }
+
+      const entry = document.createElement('div');
+      entry.className = 'aerator-entry';
+      entry.innerHTML = `
+        <h3>Aerator ${aeratorCount}</h3>
+        <label for="aerator-brand-${aeratorCount}">Brand (Optional)</label>
+        <input type="text" id="aerator-brand-${aeratorCount}" placeholder="e.g., Brand X">
+        <span class="tooltip">ℹ️<span class="tooltip-text">Brand of the aerator (optional).</span></span>
+        <label for="aerator-model-${aeratorCount}">Model (Optional)</label>
+        <input type="text" id="aerator-model-${aeratorCount}" placeholder="e.g., Model Y">
+        <span class="tooltip">ℹ️<span class="tooltip-text">Model of the aerator (optional).</span></span>
+        <label for="aerator-power-${aeratorCount}">Power (HP)</label>
+        <input type="number" id="aerator-power-${aeratorCount}" placeholder="e.g., 3" required>
+        <span class="tooltip">ℹ️<span class="tooltip-text">Power of the aerator in horsepower.</span></span>
+        <label for="sotr-source-${aeratorCount}">SOTR Source</label>
+        <select id="sotr-source-${aeratorCount}" onchange="toggleSOTRInput(${aeratorCount})">
+          <option value="supplier">Use Supplier-Informed SOTR</option>
+          <option value="experimental">Use Experimental Data</option>
+        </select>
+        <span class="tooltip">ℹ️<span class="tooltip-text">Choose how to determine the Standard Oxygen Transfer Rate (SOTR).</span></span>
+        <div id="sotr-input-${aeratorCount}">
+          <label for="aerator-sotr-${aeratorCount}">SOTR (kg O₂/h)</label>
+          <input type="number" id="aerator-sotr-${aeratorCount}" placeholder="e.g., 1.4" required>
+          <span class="tooltip">ℹ️<span class="tooltip-text">Standard Oxygen Transfer Rate in kg O₂ per hour.</span></span>
+        </div>
+        <div id="experimental-input-${aeratorCount}" style="display: none;">
+          <label for="experimental-klat-${aeratorCount}">KLaT (h⁻¹)</label>
+          <input type="number" id="experimental-klat-${aeratorCount}" placeholder="e.g., 0.10536">
+          <span class="tooltip">ℹ️<span class="tooltip-text">Mass transfer coefficient at test temperature.</span></span>
+        </div>
+        <label for="aerator-cost-${aeratorCount}">Initial Cost (USD)</label>
+        <input type="number" id="aerator-cost-${aeratorCount}" placeholder="e.g., 500" required>
+        <span class="tooltip">ℹ️<span class="tooltip-text">Initial purchase cost of the aerator in USD.</span></span>
+        <label for="aerator-durability-${aeratorCount}">Durability (years)</label>
+        <input type="number" id="aerator-durability-${aeratorCount}" placeholder="e.g., 2" required>
+        <span class="tooltip">ℹ️<span class="tooltip-text">Expected lifespan of the aerator in years.</span></span>
+        <label for="aerator-maintenance-${aeratorCount}">Annual Maintenance Cost (USD)</label>
+        <input type="number" id="aerator-maintenance-${aeratorCount}" placeholder="e.g., 50" required>
+        <span class="tooltip">ℹ️<span class="tooltip-text">Annual maintenance cost of the aerator in USD.</span></span>
+      `;
+      entries.appendChild(entry);
+    }
+
+    function toggleSOTRInput(aeratorIndex) {
+      const source = document.getElementById(`sotr-source-${aeratorIndex}`).value;
+      const sotrInput = document.getElementById(`sotr-input-${aeratorIndex}`);
+      const experimentalInput = document.getElementById(`experimental-input-${aeratorIndex}`);
+      if (source === 'experimental') {
+        sotrInput.style.display = 'none';
+        experimentalInput.style.display = 'block';
+      } else {
+        sotrInput.style.display = 'block';
+        experimentalInput.style.display = 'none';
+      }
+    }
+
+    function previousStep() {
+      if (currentStep > 0) {
+        currentStep--;
+        showSurveyStep(currentStep);
+      }
+    }
+
+    function nextStep() {
+      const inputs = document.querySelectorAll('.survey-step input[required]');
+      let allFilled = true;
+      inputs.forEach(input => {
+        if (!input.value) {
+          allFilled = false;
+          input.style.borderColor = 'red';
+        } else {
+          input.style.borderColor = '#60A5FA';
+        }
+      });
+
+      if (!allFilled) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      if (currentStep === 0) {
+        collectAeratorData();
+      }
+
+      if (currentStep < surveySteps.length - 1) {
+        currentStep++;
+        showSurveyStep(currentStep);
+      }
+    }
+
+    function collectAeratorData() {
+      aerators = [];
+      const entries = document.querySelectorAll('.aerator-entry');
+      entries.forEach((entry, index) => {
+        const aerator = {
+          brand: document.getElementById(`aerator-brand-${index + 1}`).value,
+          model: document.getElementById(`aerator-model-${index + 1}`).value,
+          power: parseFloat(document.getElementById(`aerator-power-${index + 1}`).value),
+          sotrSource: document.getElementById(`sotr-source-${index + 1}`).value,
+          sotr: document.getElementById(`sotr-source-${index + 1}`).value === 'supplier'
+            ? parseFloat(document.getElementById(`aerator-sotr-${index + 1}`).value)
+            : null,
+          klat: document.getElementById(`sotr-source-${index + 1}`).value === 'experimental'
+            ? parseFloat(document.getElementById(`experimental-klat-${index + 1}`).value)
+            : null,
+          cost: parseFloat(document.getElementById(`aerator-cost-${index + 1}`).value),
+          durability: parseFloat(document.getElementById(`aerator-durability-${index + 1}`).value),
+          maintenance: parseFloat(document.getElementById(`aerator-maintenance-${index + 1}`).value)
+        };
+        aerators.push(aerator);
+      });
+    }
+
+    function submitSurvey() {
+      if (!dataDisclosureAgreed) {
+        alert('You must agree to data disclosure to view results.');
+        return;
+      }
+
+      const farmData = {
+        totalArea: parseFloat(document.getElementById('total-area').value),
+        productionPerHa: parseFloat(document.getElementById('production-per-ha').value),
+        cyclesPerYear: parseFloat(document.getElementById('cycles-per-year').value)
+      };
+
+      const oxygenDemandData = {
+        temperature: parseFloat(document.getElementById('temperature').value),
+        salinity: parseFloat(document.getElementById('salinity').value),
+        pondDepth: parseFloat(document.getElementById('pond-depth').value),
+        shrimpWeight: parseFloat(document.getElementById('shrimp-weight').value)
+      };
+
+      const financialData = {
+        shrimpPrice: parseFloat(document.getElementById('shrimp-price').value),
+        energyCost: parseFloat(document.getElementById('energy-cost').value),
+        operatingHours: parseFloat(document.getElementById('operating-hours').value),
+        interestRate: parseFloat(document.getElementById('interest-rate').value) / 100,
+        inflationRate: parseFloat(document.getElementById('inflation-rate').value) / 100,
+        analysisHorizon: parseFloat(document.getElementById('analysis-horizon').value)
+      };
+
+      // Simulate calculation (to be replaced with actual backend call)
+      resultsData = calculateResults(aerators, farmData, oxygenDemandData, financialData);
+      displayResults();
+    }
+
+    function calculateResults(aerators, farmData, oxygenDemandData, financialData) {
+      // Placeholder calculation logic (to be replaced with backend integration)
+      const results = aerators.map((aerator, index) => {
+        // Simplified calculations for demonstration
+        const powerKW = aerator.power * 0.746;
+        const sotr = aerator.sotr || 1.0; // Placeholder for experimental SOTR calculation
+        const sae = sotr / powerKW;
+        const otrt = sotr * 0.5 * Math.pow(1.024, oxygenDemandData.temperature - 20);
+        const biomass = (farmData.totalArea * farmData.productionPerHa * 1000) / farmData.cyclesPerYear;
+        const shrimpRespiration = biomass * 0.3436 / 1000; // Simplified
+        const pondRespiration = farmData.totalArea * 4.298; // Simplified
+        const tod = shrimpRespiration + pondRespiration;
+        const numAerators = Math.ceil(tod / otrt);
+        const energyCostAnnual = powerKW * financialData.energyCost * financialData.operatingHours * 365;
+        const totalAnnualCost = (numAerators * energyCostAnnual) + (numAerators * aerator.maintenance) + (numAerators * aerator.cost / aerator.durability);
+        const annualRevenue = farmData.totalArea * farmData.productionPerHa * financialData.shrimpPrice * farmData.cyclesPerYear * 1000;
+        const costPercentage = (totalAnnualCost / annualRevenue) * 100;
+
+        return {
+          name: aerator.brand || aerator.model || `Aerator ${index + 1}`,
+          sae,
+          numAerators,
+          totalAnnualCost,
+          costPercentage,
+          npv: 0, // Placeholder
+          irr: 0, // Placeholder
+          paybackPeriod: 0, // Placeholder
+          roi: 0, // Placeholder
+          profitabilityIndex: 0 // Placeholder
+        };
+      });
+
+      // Sort by total annual cost (ascending: most advantageous first)
+      results.sort((a, b) => a.totalAnnualCost - b.totalAnnualCost);
+
+      return {
+        aeratorResults: results,
+        tod: results[0].tod,
+        annualRevenue: farmData.totalArea * farmData.productionPerHa * financialData.shrimpPrice * farmData.cyclesPerYear * 1000
+      };
+    }
+
+    function displayResults() {
+      const surveyContainer = document.getElementById('survey-container');
+      const resultsContainer = document.getElementById('results-container');
+      surveyContainer.style.display = 'none';
+      resultsContainer.style.display = 'block';
+
+      let tableRows = '';
+      resultsData.aeratorResults.forEach((result, index) => {
+        tableRows += `
+          <tr>
+            <td>${result.name}</td>
+            <td>${result.numAerators}</td>
+            <td>$${result.totalAnnualCost.toFixed(2)}</td>
+            <td>${result.costPercentage.toFixed(2)}%</td>
+            <td>${result.sae.toFixed(4)}</td>
+            <td>$${result.npv.toFixed(2)}</td>
+            <td>${result.irr.toFixed(2)}%</td>
+            <td>${result.paybackPeriod.toFixed(2)} days</td>
+            <td>${result.roi.toFixed(2)}%</td>
+            <td>${result.profitabilityIndex.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      resultsContainer.innerHTML = `
+        <div class="results-section">
+          <h2>Aerator Comparison Results</h2>
+          <p>Ranked from most to least advantageous based on total annual cost.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Aerator</th>
+                <th>Units Needed</th>
+                <th>Total Annual Cost</th>
+                <th>Cost as % of Revenue</th>
+                <th>SAE (kg O₂/kWh)</th>
+                <th>NPV (USD)</th>
+                <th>IRR (%)</th>
+                <th>Payback Period</th>
+                <th>ROI (%)</th>
+                <th>Profitability Index</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+          <button onclick="downloadPDF()">Download PDF Report</button>
+        </div>
+      `;
+    }
+
+    function downloadPDF() {
+      // Placeholder for PDF generation (requires a library like jsPDF)
+      alert('PDF download functionality to be implemented.');
+    }
   </script>
 </body>
 </html>
