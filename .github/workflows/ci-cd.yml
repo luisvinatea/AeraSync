@@ -80,10 +80,11 @@ jobs:
 
       - name: Check ARB Key Consistency
         run: |
-            echo "Checking consistency of localization keys..."
-            python3 scripts/verify_arb.py
+          echo "Checking consistency of localization keys..."
+          python3 scripts/verify_arb.py
+        working-directory: .
         env:
-            PYTHONPATH: .
+          PYTHONPATH: .
 
       # Step 10: Build web release (Correct command and base-href)
       - name: Build web release
