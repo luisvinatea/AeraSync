@@ -1,25 +1,49 @@
 from abc import ABC, abstractmethod
 import json
 import math
-import numpy as np # type: ignore # Assuming numpy is installed (pip install numpy)
+import numpy as np
 from functools import lru_cache
+import os
+import sys
+from typing import Dict, Any
 
 class SaturationCalculator(ABC):
-    """Abstract base class for oxygen saturation and related calculations."""
-    def __init__(self, data_path):
-        self.data_path = data_path
+    """Abstract base class for oxygen saturation calculations."""
+    def __init__(self, data_path: str = None):
+        """
+        Initializes the calculator with the path to the JSON data file.
+        If no data_path is provided, it will be computed dynamically relative to the script location.
+
+        Args:
+            data_path (str, optional): The path to the JSON data file. If None, computed dynamically.
+        """
+        # Dynamically compute the default data path if not provided
+        if data_path is None:
+            # Get the directory of the current script (backend/sotr_calculator.py)
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            # Navigate to the repo root (one level up from backend/)
+            repo_root = os.path.dirname(script_dir)
+            # Define the path to assets/data/
+            self.data_path = os.path.join(repo_root, "assets", "data", "oxygen_saturation.json")
+        else:
+            self.data_path = data_path
+
+        # Verify that the data file exists
+        if not os.path.exists(self.data_path):
+            raise FileNotFoundError(f"Oxygen saturation data file not found at: {self.data_path}")
+
         self.matrix = None
         self.metadata = None
-        self.temp_step = 1.0 # Default
-        self.sal_step = 5.0  # Default
-        self.unit = "mg/L" # Default
-        self.load_data() # Load data upon initialization
+        self.temp_step = 1.0  # Default
+        self.sal_step = 5.0   # Default
+        self.unit = "mg/L"    # Default
+        self.load_data()      # Load data upon initialization
 
     def load_data(self):
         """Load oxygen saturation data from a JSON file into a NumPy array."""
         print(f"Attempting to load data from: {self.data_path}")
         try:
-            with open(self.data_path, 'r', encoding='utf-8') as f: # Specify encoding
+            with open(self.data_path, 'r', encoding='utf-8') as f:  # Specify encoding
                 data = json.load(f)
                 self.metadata = data.get("metadata")
                 if not self.metadata:
@@ -34,7 +58,7 @@ class SaturationCalculator(ABC):
                 self.unit = self.metadata.get("unit", "mg/L")
 
                 if "data" not in data:
-                     raise ValueError("'data' field missing in JSON file")
+                    raise ValueError("'data' field missing in JSON file")
 
                 # Use NumPy for potential performance benefits, ensure float type
                 self.matrix = np.array(data["data"], dtype=np.float32)
@@ -51,10 +75,10 @@ class SaturationCalculator(ABC):
             raise Exception(f"Missing expected key in JSON metadata: {e}")
         except Exception as e:
             print(f"An unexpected error occurred during data loading: {e}")
-            raise # Re-raise the exception after logging
+            raise  # Re-raise the exception after logging
 
-    @lru_cache(maxsize=1000) # Cache results for faster subsequent lookups
-    def get_o2_saturation(self, temperature, salinity):
+    @lru_cache(maxsize=1000)  # Cache results for faster subsequent lookups
+    def get_o2_saturation(self, temperature: float, salinity: float) -> float:
         """
         Get oxygen saturation (mg/L) for given temperature (°C) and salinity (‰).
         Uses linear interpolation for temperature based on the loaded data grid.
@@ -85,7 +109,7 @@ class SaturationCalculator(ABC):
         if temp_lower_idx == temp_upper_idx:
             temp_fraction = 0.0
         else:
-            temp_fraction = (temperature - temp_lower_idx) # / (temp_upper_idx - temp_lower_idx) which is 1
+            temp_fraction = (temperature - temp_lower_idx)  # / (temp_upper_idx - temp_lower_idx) which is 1
 
         # Salinity index (direct lookup based on steps)
         # Ensure index stays within bounds [0, num_salinity_steps - 1]
@@ -98,7 +122,6 @@ class SaturationCalculator(ABC):
         # Handle edge case where temp_upper might exceed 40
         temp_upper_idx = min(max_temp_idx, temp_upper_idx)
 
-
         # Get saturation values at the lower and upper temperature bounds for the given salinity index
         try:
             sat_lower = float(self.matrix[temp_lower_idx, sal_idx])
@@ -106,30 +129,19 @@ class SaturationCalculator(ABC):
             sat_upper = float(self.matrix[temp_upper_idx, sal_idx]) if temp_upper_idx != temp_lower_idx else sat_lower
 
         except IndexError:
-             raise IndexError(f"Index out of bounds when accessing matrix. T_low={temp_lower_idx}, T_up={temp_upper_idx}, Sal_idx={sal_idx}. Matrix shape={self.matrix.shape}")
-
+            raise IndexError(f"Index out of bounds when accessing matrix. T_low={temp_lower_idx}, T_up={temp_upper_idx}, Sal_idx={sal_idx}. Matrix shape={self.matrix.shape}")
 
         # Linear interpolation along the temperature axis
         interpolated_saturation = sat_lower + (sat_upper - sat_lower) * temp_fraction
         return interpolated_saturation
 
-    # @abstractmethod # Removed abstract calculate_sotr as it's misleading here
-    # def calculate_sotr(self, temperature, salinity, *args, **kwargs):
-    #     pass
-
     @abstractmethod
-    def calculate_metrics(self, temperature, salinity, hp, volume, t10, t70, kwh_price, aerator_id):
+    def calculate_metrics(self, temperature: float, salinity: float, hp: float, volume: float, t10: float, t70: float, kwh_price: float, aerator_id: str) -> Dict[str, Any]:
         """Calculates key performance metrics for an aerator."""
         pass
 
-
 class ShrimpPondCalculator(SaturationCalculator):
     """Concrete implementation for calculating shrimp pond aerator metrics."""
-
-    # Consider making these external/configurable if they change often
-    SOTR_PER_HP = {
-        "Generic Paddlewheel": 1.8
-    }
 
     BRAND_NORMALIZATION = {
         "pentair": "Pentair", "beraqua": "Beraqua", "maof madam": "Maof Madam",
@@ -144,10 +156,10 @@ class ShrimpPondCalculator(SaturationCalculator):
         "sagr": "Sagar", "hcpp": "HCP", "yiyuan1": "Yiyuan",
     }
 
-    def __init__(self, data_path):
+    def __init__(self, data_path: str = None):
         super().__init__(data_path)
 
-    def normalize_brand(self, brand):
+    def normalize_brand(self, brand: str) -> str:
         """
         Normalize the brand name to a standard format.
 
@@ -157,26 +169,17 @@ class ShrimpPondCalculator(SaturationCalculator):
         Returns:
             str: The normalized brand name, or "Generic" if the input is empty or None.
         """
-        if not brand or not brand.strip(): # Check for None or empty/whitespace string
+        if not brand or not brand.strip():  # Check for None or empty/whitespace string
             return "Generic"
         brand_lower = brand.lower().strip()
         # Return normalized name or the original (title-cased) if not found
         return self.BRAND_NORMALIZATION.get(brand_lower, brand.title())
 
-    # Removed incorrect calculate_sotr method.
-    # The actual SOTR calculation is part of calculate_metrics.
-    # def calculate_sotr(self, temperature, salinity, volume, efficiency=0.9):
-    #     """
-    #     Incorrect SOTR Calculation - DO NOT USE.
-    #     This calculates mass at saturation, not rate.
-    #     """
-    #     # ... incorrect logic ...
-    #     pass
-
-
-    def calculate_metrics(self, temperature, salinity, hp, volume, t10, t70, kwh_price, aerator_id):
+    def calculate_metrics(self, temperature: float, salinity: float, hp: float, volume: float, t10: float, t70: float, kwh_price: float, aerator_id: str) -> Dict[str, Any]:
         """
         Calculate performance metrics for an aerator in a shrimp pond.
+        Note: This method is not used by aerator_comparer.py, which only needs get_o2_saturation.
+        Retained for potential future use or standalone calculations.
 
         Args:
             temperature (float): Water temperature in °C.
@@ -200,30 +203,30 @@ class ShrimpPondCalculator(SaturationCalculator):
             parts = aerator_id.split(" ", 1)
             brand = parts[0] if parts else "Generic"
             aerator_type = parts[1] if len(parts) > 1 else "Unknown"
-        except Exception: # Catch potential errors if aerator_id is not a string
-             brand = "Generic"
-             aerator_type = "Unknown"
+        except Exception:  # Catch potential errors if aerator_id is not a string
+            brand = "Generic"
+            aerator_type = "Unknown"
 
         normalized_brand = self.normalize_brand(brand)
-        normalized_aerator_id = f"{normalized_brand} {aerator_type}".strip() # Ensure no trailing space if type is Unknown
+        normalized_aerator_id = f"{normalized_brand} {aerator_type}".strip()  # Ensure no trailing space if type is Unknown
 
         # --- Intermediate Calculations ---
-        power_kw = round(hp * 0.746, 2) # Use round() for standard rounding
-        cs = self.get_o2_saturation(temperature, salinity) # mg/L at T, Sal
-        cs20 = self.get_o2_saturation(20, salinity)       # mg/L at 20°C, Sal
-        cs20_kg_m3 = cs20 * 0.001                         # kg/m³ at 20°C, Sal
+        power_kw = round(hp * 0.746, 2)  # Use round() for standard rounding
+        cs = self.get_o2_saturation(temperature, salinity)  # mg/L at T, Sal
+        cs20 = self.get_o2_saturation(20, salinity)         # mg/L at 20°C, Sal
+        cs20_kg_m3 = cs20 * 0.001                           # kg/m³ at 20°C, Sal
 
-        # --- KLa Calculation (Corrected) ---
+        # --- KLa Calculation ---
         # KLaT = -ln(1 - fraction_deficit_covered) / time_hours
         # Using T70 means fraction covered is 0.7
         if t70 <= 0:
-             raise ValueError("T70 must be positive to calculate KLa.")
+            raise ValueError("T70 must be positive to calculate KLa.")
         t70_hours = t70 / 60.0
         # Using math.log (natural logarithm)
-        kla_t = -math.log(1 - 0.7) / t70_hours # Correct formula (h⁻¹)
+        kla_t = -math.log(1 - 0.7) / t70_hours  # Correct formula (h⁻¹)
 
         # KLa at standard temperature 20°C (h⁻¹)
-        theta = 1.024 # Standard temperature correction factor
+        theta = 1.024  # Standard temperature correction factor
         kla20 = kla_t * (theta ** (20.0 - temperature))
 
         # --- Core Metrics Calculation ---
@@ -248,16 +251,13 @@ class ShrimpPondCalculator(SaturationCalculator):
             "Kla20 (h⁻¹)": round(kla20, 2),
             "SOTR (kg O₂/h)": sotr,
             "SAE (kg O₂/kWh)": sae,
-            "Cost per kg O₂ (USD/kg O₂)": cost_per_kg, # Renamed key for clarity
+            "Cost per kg O₂ (USD/kg O₂)": cost_per_kg,  # Renamed key for clarity
             "Power (kW)": power_kw,
             "Annual Energy Cost (USD/year)": annual_energy_cost,
-            "Aerator ID": normalized_aerator_id # Use the normalized ID
-            # Add Cs20 if needed for display/reference
-            # "Cs20 (mg/L)": round(cs20, 2),
+            "Aerator ID": normalized_aerator_id  # Use the normalized ID
         }
 
-    # --- Helper Methods (Rules of Thumb) ---
-    def get_ideal_volume(self, hp):
+    def get_ideal_volume(self, hp: float) -> float:
         """
         Get the ideal pond volume (m³) for a given horsepower based on simple rules.
 
@@ -267,13 +267,13 @@ class ShrimpPondCalculator(SaturationCalculator):
         Returns:
             float: Ideal pond volume in m³.
         """
-        if hp <= 0: return 0 # Handle non-positive HP
+        if hp <= 0: return 0  # Handle non-positive HP
         if hp == 2: return 40.0
         if hp == 3: return 70.0
         # General rule for other HP values
-        return round(hp * 25.0, 0) # Return as float
+        return round(hp * 25.0, 0)  # Return as float
 
-    def get_ideal_hp(self, volume):
+    def get_ideal_hp(self, volume: float) -> float:
         """
         Get the ideal horsepower for a given pond volume (m³) based on simple rules.
 
@@ -283,9 +283,8 @@ class ShrimpPondCalculator(SaturationCalculator):
         Returns:
             float: Ideal horsepower.
         """
-        if volume <= 0: return 0.0 # Handle non-positive volume
+        if volume <= 0: return 0.0  # Handle non-positive volume
         if volume <= 40: return 2.0
         if volume <= 70: return 3.0
         # General rule, ensure minimum HP (e.g., 2) and return as float
         return max(2.0, round(volume / 25.0, 0))
-

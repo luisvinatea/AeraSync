@@ -1,5 +1,7 @@
 import json
 import math
+import os
+import sys
 from typing import List, Dict, Optional, Any
 
 class ShrimpRespirationCalculator:
@@ -8,19 +10,34 @@ class ShrimpRespirationCalculator:
     Loads data from a JSON file structured similarly to the Dart version's input.
     """
 
-    def __init__(self, data_path: str):
+    def __init__(self, data_path: str = None):
         """
         Initializes the calculator with the path to the JSON data file.
+        If no data_path is provided, it will be computed dynamically relative to the script location.
 
         Args:
-            data_path (str): The path to the JSON data file.
+            data_path (str, optional): The path to the JSON data file. If None, computed dynamically.
         """
-        self.data_path: str = data_path
+        # Dynamically compute the default data path if not provided
+        if data_path is None:
+            # Get the directory of the current script (backend/shrimp_respiration_calculator.py)
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            # Navigate to the repo root (one level up from backend/)
+            repo_root = os.path.dirname(script_dir)
+            # Define the path to assets/data/
+            self.data_path = os.path.join(repo_root, "assets", "data", "shrimp_respiration_salinity_temperature_weight.json")
+        else:
+            self.data_path = data_path
+
+        # Verify that the data file exists
+        if not os.path.exists(self.data_path):
+            raise FileNotFoundError(f"Shrimp respiration data file not found at: {self.data_path}")
+
         self._respiration_data: Optional[Dict[str, Any]] = None
         self._salinity_values: List[float] = []
         self._temperature_values: List[float] = []
         self._biomass_values: List[float] = []
-        self.load_data() # Load data immediately on initialization
+        self.load_data()  # Load data immediately on initialization
 
     def load_data(self) -> None:
         """Loads and parses the respiration data from the JSON file."""
@@ -46,8 +63,7 @@ class ShrimpRespirationCalculator:
             ])
 
             if not all([self._salinity_values, self._temperature_values, self._biomass_values]):
-                 raise ValueError("Metadata arrays (salinity, temperature, biomass) cannot be empty")
-
+                raise ValueError("Metadata arrays (salinity, temperature, biomass) cannot be empty")
 
             # Store the main data grid
             self._respiration_data = json_data.get('data')
@@ -67,7 +83,7 @@ class ShrimpRespirationCalculator:
             raise Exception(f"Error parsing JSON data or metadata: {e}")
         except Exception as e:
             print(f"An unexpected error occurred during data loading: {e}")
-            raise # Re-raise other exceptions
+            raise  # Re-raise other exceptions
 
     def _find_bounds(self, value: float, sorted_values: List[float]) -> tuple[float, float]:
         """Finds the lower and upper bounds for a value in a sorted list."""
@@ -83,7 +99,7 @@ class ShrimpRespirationCalculator:
                 low = sorted_values[i]
             if sorted_values[i] >= value:
                 high = sorted_values[i]
-                break # Found the upper bound
+                break  # Found the upper bound
 
         return low, high
 
@@ -94,14 +110,13 @@ class ShrimpRespirationCalculator:
             if self._respiration_data:
                 val = self._respiration_data.get(sal_key, {}).get(temp_key, {}).get(weight_key)
             if val is None:
-                 print(f"Warning: Key path not found: {sal_key} -> {temp_key} -> {weight_key}")
-                 return None
+                print(f"Warning: Key path not found: {sal_key} -> {temp_key} -> {weight_key}")
+                return None
             # Ensure the value is treated as a number (float)
             return float(val)
         except (TypeError, ValueError) as e:
             print(f"Warning: Could not convert value to float at {sal_key}.{temp_key}.{weight_key}: {e}")
             return None
-
 
     def get_respiration_rate(self, salinity: float, temperature: float, shrimp_weight: float) -> float:
         """
@@ -184,13 +199,9 @@ class ShrimpRespirationCalculator:
 
         return respiration_rate
 
-
 if __name__ == '__main__':
-    # Relative path example, adjust as needed
-    data_file_path = '../../assets/data/shrimp_respiration_salinity_temperature_weight.json'
-
     try:
-        calculator = ShrimpRespirationCalculator(data_file_path)
+        calculator = ShrimpRespirationCalculator()
 
         # Test case 1: Inside the data range
         sal = 20.0
@@ -215,4 +226,3 @@ if __name__ == '__main__':
 
     except Exception as e:
         print(f"An error occurred: {e}")
-
