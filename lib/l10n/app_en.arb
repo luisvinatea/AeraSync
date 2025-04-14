@@ -90,11 +90,11 @@
     "placeholders": {
       "min": {
         "type": "double",
-         "format": "compact"
+        "format": "compact"
       },
       "max": {
         "type": "double",
-         "format": "compact"
+        "format": "compact"
       }
     }
   },
@@ -198,51 +198,130 @@
   "oxygenDemandGroup": "Oxygen Demand",
   "aeratorMetricsGroup": "Aerator Metrics",
   "financialMetricsGroup": "Financial Metrics",
-   "shrimpDemandLabel": "Shrimp Demand",
-   "waterDemandLabel": "Water Demand",
-   "bottomDemandLabel": "Bottom Demand",
-   "oxygenDemandBreakdownChartTitle": "Oxygen Demand Breakdown (kg O₂/h for 1000 ha)",
-   "costBreakdownChartTitle": "Cost Breakdown Visualization",
-   "manualTODLabel": "Manual Total Oxygen Demand (kg O₂/h for 1000 ha)",
-   "manualTODTooltip": "Manually specified total oxygen demand for 1000 hectares",
-   "useCustomShrimpRespirationLabel": "Use Custom Shrimp Respiration Rate",
-   "shrimpRespirationRateLabel": "Shrimp Respiration Rate (mg O₂/g/h)",
-   "shrimpRespirationRateTooltip": "Custom respiration rate for shrimp in mg O₂ per gram per hour",
-   "useCustomWaterRespirationLabel": "Use Custom Water Respiration Rate",
-   "waterRespirationRateLabel": "Water Respiration Rate (mg/L/h)",
-   "waterRespirationRateTooltip": "Custom respiration rate for water in mg O₂ per liter per hour",
-   "useCustomBottomRespirationLabel": "Use Custom Bottom Respiration Rate",
-   "bottomRespirationRateLabel": "Bottom Respiration Rate (mg/L/h)",
-   "bottomRespirationRateTooltip": "Custom respiration rate for bottom in mg O₂ per liter per hour",
-   "discountRateLabel": "Discount Rate (%)",
-   "discountRateTooltip": "Annual discount rate for present value calculations",
-   "inflationRateLabel": "Inflation Rate (%)",
-   "inflationRateTooltip": "Annual inflation rate for cost adjustments",
-   "analysisHorizonLabel": "Analysis Horizon (years)",
-   "analysisHorizonTooltip": "Time horizon for the financial analysis",
-   "dataDisclosureTitle": "Data Disclosure Agreement",
-   "dataDisclosureMessage": "We may use anonymized data for research purposes to improve aquaculture practices. Do you agree to this use of your data?",
-   "agreeButton": "Agree",
-   "disagreeButton": "Disagree",
-   "farmSizeLabel": "Farm Size (ha)",
-   "farmSizeTooltip": "Enter the size of your farm in hectares (ha).",
-   "farmSizeZeroError": "Farm size must be greater than zero.",
-   "shrimpPriceLabel": "Shrimp Price (USD/kg)",
-   "shrimpPriceTooltip": "Enter the market price of shrimp in USD per kilogram.",
-   "shrimpPriceZeroError": "Shrimp price must be greater than zero.",
-   "hpAerator1Label": "Horsepower Aerator 1 (HP)",
-   "hpAerator1Tooltip": "Enter the horsepower (HP) of Aerator 1.",
-   "hpAerator2Label": "Horsepower Aerator 2 (HP)",
-   "hpAerator2Tooltip": "Enter the horsepower (HP) of Aerator 2.",
-   "hpZeroError": "Horsepower must be greater than zero.",
-   "durabilityZeroError": "Durability must be greater than zero.",
-   "totalOxygenDemandZeroError": "Total Oxygen Demand must be positive.",
-   "annualRevenueLabel": "Annual Revenue (USD/year)",
-   "netProfitAerator1Label": "Net Profit Aerator 1 (USD/year)",
-   "netProfitAerator2Label": "Net Profit Aerator 2 (USD/year)",
-
-   "paybackNever": "Never",
-   "@paybackNever": {
-       "description": "Label indicating payback period is never reached"
-   }
+  "shrimpDemandLabel": "Shrimp Demand",
+  "waterDemandLabel": "Water Demand",
+  "bottomDemandLabel": "Bottom Demand",
+  "oxygenDemandBreakdownChartTitle": "Oxygen Demand Breakdown (kg O₂/h for 1000 ha)",
+  "costBreakdownChartTitle": "Cost Breakdown Visualization",
+  "manualTODLabel": "Manual Total Oxygen Demand (kg O₂/h for 1000 ha)",
+  "manualTODTooltip": "Manually specified total oxygen demand for 1000 hectares",
+  "useCustomShrimpRespirationLabel": "Use Custom Shrimp Respiration Rate",
+  "shrimpRespirationRateLabel": "Shrimp Respiration Rate (mg O₂/g/h)",
+  "shrimpRespirationRateTooltip": "Custom respiration rate for shrimp in mg O₂ per gram per hour",
+  "useCustomWaterRespirationLabel": "Use Custom Water Respiration Rate",
+  "waterRespirationRateLabel": "Water Respiration Rate (mg/L/h)",
+  "waterRespirationRateTooltip": "Custom respiration rate for water in mg O₂ per liter per hour",
+  "useCustomBottomRespirationLabel": "Use Custom Bottom Respiration Rate",
+  "bottomRespirationRateLabel": "Bottom Respiration Rate (mg/L/h)",
+  "bottomRespirationRateTooltip": "Custom respiration rate for bottom in mg O₂ per liter per hour",
+  "discountRateLabel": "Discount Rate (%)",
+  "discountRateTooltip": "Annual discount rate for present value calculations",
+  "inflationRateLabel": "Inflation Rate (%)",
+  "inflationRateTooltip": "Annual inflation rate for cost adjustments",
+  "analysisHorizonLabel": "Analysis Horizon (years)",
+  "analysisHorizonTooltip": "Time horizon for the financial analysis",
+  "dataDisclosureTitle": "Data Disclosure Agreement",
+  "dataDisclosureMessage": "We may use anonymized data for research purposes to improve aquaculture practices. Do you agree to this use of your data?",
+  "agreeButton": "Agree",
+  "disagreeButton": "Disagree",
+  "farmSizeLabel": "Farm Size (ha)",
+  "farmSizeTooltip": "Enter the size of your farm in hectares (ha).",
+  "farmSizeZeroError": "Farm size must be greater than zero.",
+  "@farmSizeLabel": {
+    "description": "Label for the farm size input field in hectares"
+  },
+  "@farmSizeTooltip": {
+    "description": "Tooltip explaining the farm size input"
+  },
+  "@farmSizeZeroError": {
+    "description": "Error message when farm size is zero or negative"
+  },
+  "shrimpPriceLabel": "Shrimp Price (USD/kg)",
+  "shrimpPriceTooltip": "Enter the market price of shrimp in USD per kilogram.",
+  "shrimpPriceZeroError": "Shrimp price must be greater than zero.",
+  "@shrimpPriceLabel": {
+    "description": "Label for the shrimp price input field in USD per kg"
+  },
+  "@shrimpPriceTooltip": {
+    "description": "Tooltip explaining the shrimp price input"
+  },
+  "@shrimpPriceZeroError": {
+    "description": "Error message when shrimp price is zero or negative"
+  },
+  "hpAerator1Label": "Horsepower Aerator 1 (HP)",
+  "hpAerator1Tooltip": "Enter the horsepower (HP) of Aerator 1.",
+  "@hpAerator1Label": {
+    "description": "Label for the horsepower input field of Aerator 1"
+  },
+  "@hpAerator1Tooltip": {
+    "description": "Tooltip explaining the horsepower input for Aerator 1"
+  },
+  "hpAerator2Label": "Horsepower Aerator 2 (HP)",
+  "hpAerator2Tooltip": "Enter the horsepower (HP) of Aerator 2.",
+  "@hpAerator2Label": {
+    "description": "Label for the horsepower input field of Aerator 2"
+  },
+  "@hpAerator2Tooltip": {
+    "description": "Tooltip explaining the horsepower input for Aerator 2"
+  },
+  "hpZeroError": "Horsepower must be greater than zero.",
+  "@hpZeroError": {
+    "description": "Error message when horsepower is zero or negative"
+  },
+  "durabilityZeroError": "Durability must be greater than zero.",
+  "@durabilityZeroError": {
+    "description": "Error message when durability is zero or negative"
+  },
+  "totalOxygenDemandZeroError": "Total Oxygen Demand must be positive.",
+  "@totalOxygenDemandZeroError": {
+    "description": "Error message when total oxygen demand is zero or negative"
+  },
+  "annualRevenueLabel": "Annual Revenue (USD/year)",
+  "annualRevenueTooltip": "Annual revenue from shrimp production in USD per year.",
+  "@annualRevenueLabel": {
+    "description": "Label for the annual revenue result in USD per year"
+  },
+  "@annualRevenueTooltip": {
+    "description": "Tooltip explaining the annual revenue metric"
+  },
+  "netProfitAerator1Label": "Net Profit Aerator 1 (USD/year)",
+  "netProfitAerator1Tooltip": "Net profit using Aerator 1 after subtracting total annual costs from revenue.",
+  "@netProfitAerator1Label": {
+    "description": "Label for the net profit of Aerator 1 in USD per year"
+  },
+  "@netProfitAerator1Tooltip": {
+    "description": "Tooltip explaining the net profit for Aerator 1"
+  },
+  "profitabilityIndexTooltip": "Ratio of present value of savings to initial investment difference.",
+  "@profitabilityIndexTooltip": {
+    "description": "Tooltip explaining the Profitability Index metric"
+  },
+  "netPresentValueTooltip": "Net present value of savings over the analysis horizon (USD).",
+  "@netPresentValueTooltip": {
+    "description": "Tooltip explaining the Net Present Value metric"
+  },
+  "otrTAerator1Tooltip": "Oxygen Transfer Rate for Aerator 1 at operating temperature (kg O₂/h per aerator).",
+  "@otrTAerator1Tooltip": {
+    "description": "Tooltip explaining the OTRt for Aerator 1"
+  },
+  "netProfitAerator2Label": "Net Profit Aerator 2 (USD/year)",
+  "netProfitAerator2Tooltip": "Net profit using Aerator 2 after subtracting total annual costs from revenue.",
+  "@netProfitAerator2Label": {
+    "description": "Label for the net profit of Aerator 2 in USD per year"
+  },
+  "@netProfitAerator2Tooltip": {
+    "description": "Tooltip explaining the net profit for Aerator 2"
+  },
+  "internalRateOfReturn": "Internal Rate of Return (%)",
+  "internalRateOfReturnTooltip": "The discount rate that makes the net present value of all cash flows equal to zero, expressed as a percentage.",
+  "@internalRateOfReturn": {
+    "description": "Label for the Internal Rate of Return metric in percentage"
+  },
+  "@internalRateOfReturnTooltip": {
+    "description": "Tooltip explaining the Internal Rate of Return metric"
+  },
+  "paybackNever": "Never",
+  "@paybackNever": {
+    "description": "Label indicating payback period is never reached"
+  }
 }

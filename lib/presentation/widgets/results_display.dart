@@ -56,8 +56,8 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
       case 'useCustomShrimpRespiration': return l10n.useCustomShrimpRespirationLabel;
       case 'useCustomWaterRespiration': return l10n.useCustomWaterRespirationLabel;
       case 'useCustomBottomRespiration': return l10n.useCustomBottomRespirationLabel;
-      case 'otrTAerator1': return 'OTRt Aerator 1 (kg O₂/h)';
-      case 'otrTAerator2': return 'OTRt Aerator 2 (kg O₂/h)';
+      case 'otrTAerator1': return l10n.otrTLabel;
+      case 'otrTAerator2': return l10n.otrTLabel;
       case 'shrimpDemandTotal': return l10n.shrimpDemandLabel;
       case 'waterDemandPerHa': return l10n.waterDemandLabel;
       case 'bottomDemandPerHa': return l10n.bottomDemandLabel;
@@ -65,7 +65,7 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
       case 'netPresentValue': return 'Net Present Value (VPN, USD)';
       case 'paybackPeriodDays': return 'Payback Period (days)';
       case 'returnOnInvestment': return 'Return On Investment (ROI, %)';
-      case 'internalRateOfReturn': return 'Internal Rate of Return (IRR, %)';
+      case 'internalRateOfReturn': return l10n.internalRateOfReturn;
       case 'costOfOpportunity': return l10n.costOfOpportunityLabelShort;
       case 'realPriceLosingAerator': return 'Real Price of Losing Aerator (USD)';
       case 'loserLabel': return 'Less Optimal Aerator';
@@ -130,6 +130,109 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
       default:
         debugPrint("Warning: Missing localization mapping for key '$key' in ResultsDisplay");
         return key;
+    }
+  }
+
+  // Helper method to get tooltips for result metrics
+  String _getL10nTooltip(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'totalOxygenDemand':
+        return l10n.totalOxygenDemandTooltip;
+      case 'farmSize':
+        return l10n.farmSizeTooltip;
+      case 'shrimpPrice':
+        return l10n.shrimpPriceTooltip;
+      case 'sotrAerator1':
+        return l10n.sotrAerator1Tooltip;
+      case 'sotrAerator2':
+        return l10n.sotrAerator2Tooltip;
+      case 'hpAerator1':
+        return l10n.hpAerator1Tooltip;
+      case 'hpAerator2':
+        return l10n.hpAerator2Tooltip;
+      case 'priceAerator1':
+        return l10n.priceAerator1Tooltip;
+      case 'priceAerator2':
+        return l10n.priceAerator2Tooltip;
+      case 'maintenanceCostAerator1':
+        return l10n.maintenanceCostAerator1Tooltip;
+      case 'maintenanceCostAerator2':
+        return l10n.maintenanceCostAerator2Tooltip;
+      case 'durabilityAerator1':
+        return l10n.durabilityAerator1Tooltip;
+      case 'durabilityAerator2':
+        return l10n.durabilityAerator2Tooltip;
+      case 'annualEnergyCostAerator1':
+        return l10n.annualEnergyCostTooltip;
+      case 'annualEnergyCostAerator2':
+        return l10n.annualEnergyCostTooltip;
+      case 'temperature':
+        return l10n.waterTemperatureTooltip;
+      case 'salinity':
+        return l10n.salinityTooltip;
+      case 'biomass':
+        return l10n.shrimpBiomassTooltip;
+      case 'shrimpRespirationRate':
+        return l10n.shrimpRespirationRateTooltip;
+      case 'waterRespirationRate':
+        return l10n.waterRespirationRateTooltip;
+      case 'bottomRespirationRate':
+        return l10n.bottomRespirationRateTooltip;
+      case 'discountRate':
+        return l10n.discountRateTooltip;
+      case 'inflationRate':
+        return l10n.inflationRateTooltip;
+      case 'analysisHorizon':
+        return l10n.analysisHorizonTooltip;
+      // Results
+      case 'otrTAerator1':
+        return 'Oxygen Transfer Rate for Aerator 1 at operating temperature (kg O₂/h per aerator).';
+      case 'otrTAerator2':
+        return 'Oxygen Transfer Rate for Aerator 2 at operating temperature (kg O₂/h per aerator).';
+      case 'shrimpDemandTotal':
+        return 'Total oxygen demand from shrimp for the farm (kg O₂/h).';
+      case 'waterDemandPerHa':
+        return 'Oxygen demand from the water column per hectare (kg O₂/h/ha).';
+      case 'bottomDemandPerHa':
+        return 'Oxygen demand from the pond bottom per hectare (kg O₂/h/ha).';
+      case 'numberOfAerator1Units':
+        return 'Total number of Aerator 1 units required for the farm.';
+      case 'numberOfAerator2Units':
+        return 'Total number of Aerator 2 units required for the farm.';
+      case 'totalAnnualCostAerator1Label':
+        return l10n.totalAnnualCostAerator1Tooltip;
+      case 'totalAnnualCostAerator2Label':
+        return l10n.totalAnnualCostAerator2Tooltip;
+      case 'annualRevenue':
+        return l10n.annualRevenueTooltip;
+      case 'netProfitAerator1':
+        return l10n.netProfitAerator1Tooltip;
+      case 'netProfitAerator2':
+        return l10n.netProfitAerator2Tooltip;
+      case 'equilibriumPriceP2':
+        return 'Price at which Aerator 2’s total annual cost equals Aerator 1’s.';
+      case 'actualPriceP2':
+        return 'Current price of Aerator 2 for comparison.';
+      case 'profitabilityIndex':
+        return 'Ratio of present value of savings to initial investment difference.';
+      case 'netPresentValue':
+        return 'Net present value of savings over the analysis horizon (USD).';
+      case 'paybackPeriodDays':
+        return 'Time required to recover the initial investment difference (days).';
+      case 'returnOnInvestment':
+        return 'Simple return on investment based on annual savings (%).';
+      case 'internalRateOfReturn':
+        return l10n.internalRateOfReturnTooltip;
+      case 'costOfOpportunity':
+        return l10n.costOfOpportunityTooltip;
+      case 'realPriceLosingAerator':
+        return 'Effective price of the less optimal aerator including opportunity cost (USD).';
+      case 'loserLabel':
+        return 'The aerator that is less cost-effective.';
+      case 'numberOfUnitsLosingAerator':
+        return 'Number of units required for the less optimal aerator.';
+      default:
+        return '';
     }
   }
 
@@ -327,6 +430,7 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                                   entry.key == 'realPriceLosingAerator';
                               final displayLabel = _getL10nString(l10n, entry.key, defaultValue: entry.key);
                               String displayValue = _formatValueWithThousandSeparator(entry.key, entry.value, l10n);
+                              final tooltip = _getL10nTooltip(l10n, entry.key);
                               if (entry.key == 'realPriceLosingAerator') {
                                 final loserName = results['loserLabel'] ?? '?';
                                 final loserDisplay = loserName == 'Aerator 1'
@@ -366,6 +470,12 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
+                                          const SizedBox(width: 4),
+                                          if (tooltip.isNotEmpty)
+                                            Tooltip(
+                                              message: tooltip,
+                                              child: const Icon(Icons.info_outline, size: 18, color: Colors.grey),
+                                            ),
                                           if (isKeyMetric) ...[
                                             const SizedBox(width: 4),
                                             IconButton(
@@ -410,6 +520,7 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                         final isKeyMetric = (widget.tab == 'Aerator Performance' && entry.key == 'SOTR (kg O₂/h)') ||
                             (widget.tab == 'Oxygen Demand and Estimation' && entry.key == 'numberOfAeratorsPerHectareLabel');
                         final displayLabel = _getL10nString(l10n, entry.key, defaultValue: entry.key);
+                        final tooltip = _getL10nTooltip(l10n, entry.key);
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -438,6 +549,12 @@ class _ResultsDisplayState extends State<ResultsDisplay> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
+                                    const SizedBox(width: 4),
+                                    if (tooltip.isNotEmpty)
+                                      Tooltip(
+                                        message: tooltip,
+                                        child: const Icon(Icons.info_outline, size: 18, color: Colors.grey),
+                                      ),
                                     if (isKeyMetric) ...[
                                       const SizedBox(width: 4),
                                       IconButton(
