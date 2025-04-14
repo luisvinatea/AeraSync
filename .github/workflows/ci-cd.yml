@@ -80,60 +80,10 @@ jobs:
 
       - name: Check ARB Key Consistency
         run: |
-          echo "Checking consistency of localization keys..."
-          PYTHON_EXE="python3" # Explicitly use python3
-          reference_file="lib/l10n/app_en.arb"
-          if [ -f "$reference_file" ]; then
-            # Python script to compare keys
-            read -r -d '' PY_SCRIPT << EOM
-          import json, sys, os
-          mismatch = False
-          ref_keys = set()
-          try:
-              ref_file = sys.argv[1]
-              l10n_dir = os.path.dirname(ref_file)
-              print(f"Reference file: {ref_file}")
-              print(f"Checking directory: {l10n_dir}")
-              with open(ref_file, 'r', encoding='utf-8') as f:
-                  ref_keys = set(json.load(f).keys())
-              print(f"Found {len(ref_keys)} keys in reference file.")
-      
-              for filename in os.listdir(l10n_dir):
-                  if filename.startswith('app_') and filename.endswith('.arb') and filename != os.path.basename(ref_file):
-                      file_path = os.path.join(l10n_dir, filename)
-                      print(f"Checking file: {filename}")
-                      try:
-                          with open(file_path, 'r', encoding='utf-8') as f:
-                              file_keys = set(json.load(f).keys())
-                          if ref_keys != file_keys:
-                              mismatch = True
-                              missing_in_file = sorted(list(ref_keys - file_keys))
-                              extra_in_file = sorted(list(file_keys - ref_keys))
-                              print(f"ERROR: Key mismatch in {filename}")
-                              if missing_in_file:
-                                  print(f"  Missing keys: {missing_in_file}")
-                              if extra_in_file:
-                                  print(f"  Extra keys: {extra_in_file}")
-                      except Exception as e:
-                          print(f"ERROR processing {filename}: {e}")
-                          mismatch = True
-              if mismatch:
-                  print("ARB key consistency check failed.")
-                  sys.exit(1)
-              else:
-                  print("ARB key consistency check passed.")
-                  sys.exit(0)
-          except Exception as e:
-              print(f"Python script error: {e}")
-              sys.exit(1)
-          EOM
-            if ! $PYTHON_EXE -c "$PY_SCRIPT" "$reference_file"; then
-                echo "::error::ARB key consistency check failed."
-                exit 1
-            fi
-          else
-              echo "::warning::Reference localization file $reference_file not found. Skipping key consistency check."
-          fi
+            echo "Checking consistency of localization keys..."
+            python3 scripts/verify_arb.py
+        env:
+            PYTHONPATH: .
 
       # Step 10: Build web release (Correct command and base-href)
       - name: Build web release
