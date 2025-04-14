@@ -81,10 +81,10 @@ jobs:
       - name: Check ARB Key Consistency
         run: |
           echo "Checking consistency of localization keys..."
-          PYTHON_EXE="python" # GitHub Actions runner usually has python mapped to python3
+          PYTHON_EXE="python3" # Explicitly use python3
           reference_file="lib/l10n/app_en.arb"
           if [ -f "$reference_file" ]; then
-            # Python script to compare keys (ensure proper indentation in YAML)
+            # Python script to compare keys
             read -r -d '' PY_SCRIPT << EOM
           import json, sys, os
           mismatch = False
@@ -97,7 +97,7 @@ jobs:
               with open(ref_file, 'r', encoding='utf-8') as f:
                   ref_keys = set(json.load(f).keys())
               print(f"Found {len(ref_keys)} keys in reference file.")
-
+      
               for filename in os.listdir(l10n_dir):
                   if filename.startswith('app_') and filename.endswith('.arb') and filename != os.path.basename(ref_file):
                       file_path = os.path.join(l10n_dir, filename)
@@ -110,20 +110,22 @@ jobs:
                               missing_in_file = sorted(list(ref_keys - file_keys))
                               extra_in_file = sorted(list(file_keys - ref_keys))
                               print(f"ERROR: Key mismatch in {filename}")
-                              if missing_in_file: print(f"  Missing keys: {missing_in_file}")
-                              if extra_in_file: print(f"  Extra keys: {extra_in_file}")
+                              if missing_in_file:
+                                  print(f"  Missing keys: {missing_in_file}")
+                              if extra_in_file:
+                                  print(f"  Extra keys: {extra_in_file}")
                       except Exception as e:
                           print(f"ERROR processing {filename}: {e}")
-                          mismatch = True # Treat parse errors as mismatch
+                          mismatch = True
+              if mismatch:
+                  print("ARB key consistency check failed.")
+                  sys.exit(1)
+              else:
+                  print("ARB key consistency check passed.")
+                  sys.exit(0)
           except Exception as e:
               print(f"Python script error: {e}")
               sys.exit(1)
-
-          if mismatch:
-              sys.exit(1)
-          else:
-              print("ARB key consistency check passed.")
-              sys.exit(0)
           EOM
             if ! $PYTHON_EXE -c "$PY_SCRIPT" "$reference_file"; then
                 echo "::error::ARB key consistency check failed."
