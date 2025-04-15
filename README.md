@@ -20,29 +20,42 @@ AeraSync is built using Dart and Flutter, enabling cross-platform support for mo
 
 AeraSync is a Flutter project. Follow these steps to set up and run the application locally:
 
-1.  **Clone the Repository**:
+1. **Clone the Repository**:
+
     ```sh
-    git clone [https://github.com/luisvinatea/AeraSync.git](https://github.com/luisvinatea/AeraSync.git)
+    git clone https://github.com/luisvinatea/AeraSync.git
     ```
-2.  **Navigate to the Project Directory**:
+
+2. **Navigate to the Project Directory**:
+
     ```sh
     cd AeraSync
     ```
-3.  **Install Flutter Dependencies**:
+
+3. **Install Flutter Dependencies**:
+
     Ensure you have Flutter installed (see [Flutter installation guide](https://flutter.dev/docs/get-started/install)). Then, install the project dependencies:
+
     ```sh
     flutter pub get
     ```
-4.  **Run the Application**:
+
+4. **Run the Application**:
+
     * Using the Makefile:
+
         ```sh
         make run-flutter
         ```
+
     * Or directly:
+
         ```sh
         flutter run -d chrome
         ```
+
     * For mobile (Android/iOS emulator or device):
+
         ```sh
         flutter run
         ```
@@ -50,31 +63,43 @@ AeraSync is a Flutter project. Follow these steps to set up and run the applicat
 ## Development Tasks
 
 * **Generate Localization Files**:
+
     After updating the `.arb` files in `lib/l10n/`, regenerate the localization classes:
+
     ```sh
     make gen-l10n
     ```
+
     Or:
+
     ```sh
     flutter gen-l10n
     ```
 
 * **Run Tests**:
+
     Run the unit and widget tests:
+
     ```sh
     make test
     ```
+
     Or:
+
     ```sh
     flutter test
     ```
 
 * **Build for Web**:
+
     Create a release build for web deployment:
+
     ```sh
     make build-web
     ```
+
     Or:
+
     ```sh
     flutter build web --release
     ```
@@ -84,10 +109,13 @@ AeraSync is a Flutter project. Follow these steps to set up and run the applicat
 The web version of AeraSync is hosted on GitHub Pages. You can use the provided `deploy.sh` script (ensure it's executable: `chmod +x deploy.sh`) or the Makefile target:
 
 * Using the Makefile:
+
     ```sh
     make deploy
     ```
+
 * Or directly using the script:
+
     ```sh
     ./deploy.sh
     ```
@@ -106,7 +134,7 @@ Visit <https://luisvinatea.github.io/AeraSync/> to see the deployed site.
 
 ## Project Structure
 
-```
+````markdown
 AeraSync/
 ├── assets/                 # Static assets (e.g., JSON data)
 ├── lib/                    # Flutter source code
@@ -130,17 +158,17 @@ AeraSync/
 ├── pubspec.lock
 ├── pubspec.yaml            # Project dependencies and metadata
 └── README.md
-```
+````
 
 ## Contribution
 
 Contributions are welcome! Feel free to submit issues and pull requests. To contribute:
 
-1.  Fork the repository.
-2.  Create a new branch (`git checkout -b feature/your-feature`).
-3.  Make your changes and commit (`git commit -m "Add your feature"`).
-4.  Push to your branch (`git push origin feature/your-feature`).
-5.  Open a pull request.
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/your-feature`).
+3. Make your changes and commit (`git commit -m "Add your feature"`).
+4. Push to your branch (`git push origin feature/your-feature`).
+5. Open a pull request.
 
 ## License
 

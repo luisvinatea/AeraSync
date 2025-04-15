@@ -1,11 +1,13 @@
 import json
 import os
-import sys
+
 
 def check_arb_consistency(reference_file, l10n_dir):
     """
-    Checks the consistency of localization keys between a reference ARB file and other ARB files
-    in a specified directory. Reports missing or extra keys for each file compared to the reference.
+    Checks the consistency of localization keys between
+    a reference ARB file and other ARB files
+    in a specified directory.
+    Reports missing or extra keys for each file compared to the reference.
     """
     print("Starting ARB consistency check...")
     print(f"Reference file: {reference_file}")
@@ -18,7 +20,11 @@ def check_arb_consistency(reference_file, l10n_dir):
         print(f"Found {len(ref_keys)} keys in reference file.")
 
         for filename in os.listdir(l10n_dir):
-            if filename.startswith('app_') and filename.endswith('.arb') and filename != os.path.basename(reference_file):
+            if (
+                filename.startswith('app_')
+                and filename.endswith('.arb')
+                and filename != os.path.basename(reference_file)
+            ):
                 file_path = os.path.join(l10n_dir, filename)
                 print(f"Checking file: {filename}")
                 try:
@@ -45,6 +51,7 @@ def check_arb_consistency(reference_file, l10n_dir):
     except (json.JSONDecodeError, OSError) as e:
         print(f"Error processing reference file {reference_file}: {e}")
         return 1
+
 
 if __name__ == "__main__":
     # Get the directory of the script
