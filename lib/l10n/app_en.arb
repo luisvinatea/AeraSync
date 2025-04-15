@@ -1,13 +1,500 @@
 {
   "@@locale": "en",
   "appTitle": "AeraSync",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
   "aeratorComparisonCalculator": "Aerator Comparison Calculator",
   "@aeratorComparisonCalculator": {
     "description": "Label for the Aerator Comparison Calculator"
   },
-  "totalOxygenDemandLabel": "Total Oxygen Demand (kg O₂/h)",
-  "@totalOxygenDemandLabel": {
-    "description": "Label for total oxygen demand in kg O₂ per hour"
+  "aeratorPerformanceCalculator": "Aerator Performance Calculator",
+  "@aeratorPerformanceCalculator": {
+    "description": "Label for the Aerator Performance Calculator"
+  },
+  "oxygenDemandAndEstimationCalculator": "Oxygen Demand and Estimation Calculator",
+  "@oxygenDemandAndEstimationCalculator": {
+    "description": "Label for the Oxygen Demand and Estimation Calculator"
+  },
+  "dataDisclosureTitle": "Data Disclosure",
+  "@dataDisclosureTitle": {
+    "description": "Title for the data disclosure popup"
+  },
+  "dataDisclosureMessage": "We collect anonymous usage data to improve the app. Please review our privacy policy.",
+  "@dataDisclosureMessage": {
+    "description": "Message explaining data collection in the disclosure popup"
+  },
+  "privacyPolicyLink": "View Privacy Policy",
+  "@privacyPolicyLink": {
+    "description": "Label for the privacy policy link in the disclosure popup"
+  },
+  "agreeButton": "Agree",
+  "@agreeButton": {
+    "description": "Label for the agree button in the disclosure popup"
+  },
+  "disagreeMessage": "You must agree to the data disclosure to use the app",
+  "@disagreeMessage": {
+    "description": "Message shown when the user disagrees with the data disclosure"
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "Label for the English language option"
+  },
+  "languageSpanish": "Spanish",
+  "@languageSpanish": {
+    "description": "Label for the Spanish language option"
+  },
+  "languagePortuguese": "Portuguese",
+  "@languagePortuguese": {
+    "description": "Label for the Portuguese language option"
+  },
+  "changeLanguageTooltip": "Switch language for a personalized experience",
+  "@changeLanguageTooltip": {
+    "description": "Tooltip for the language switcher button"
+  },
+  "welcomeTitle": "Welcome to AeraSync",
+  "@welcomeTitle": {
+    "description": "Title for the welcome section on the home page"
+  },
+  "welcomeMessage": "Optimize your aquaculture operations with our aerator comparison tool. Analyze costs, oxygen demand, and financial metrics to make informed decisions.",
+  "@welcomeMessage": {
+    "description": "Message describing the app's purpose in the welcome section"
+  },
+  "startSurveyTooltip": "Begin the survey to compare aerators and analyze your farm's performance",
+  "@startSurveyTooltip": {
+    "description": "Tooltip for the button to start the aerator comparison survey"
+  },
+  "startAeratorComparison": "Start Aerator Comparison",
+  "@startAeratorComparison": {
+    "description": "Label for the button to start the aerator comparison survey"
+  },
+  "featuresTitle": "Features",
+  "@featuresTitle": {
+    "description": "Title for the features section on the home page"
+  },
+  "featureCompareAerators": "Compare Aerators",
+  "@featureCompareAerators": {
+    "description": "Title for the aerator comparison feature"
+  },
+  "featureCompareAeratorsDesc": "Evaluate multiple aerators based on performance and cost efficiency.",
+  "@featureCompareAeratorsDesc": {
+    "description": "Description of the aerator comparison feature"
+  },
+  "featureFinancialAnalysis": "Financial Analysis",
+  "@featureFinancialAnalysis": {
+    "description": "Title for the financial analysis feature"
+  },
+  "featureFinancialAnalysisDesc": "Calculate NPV, IRR, and profitability for informed investments.",
+  "@featureFinancialAnalysisDesc": {
+    "description": "Description of the financial analysis feature"
+  },
+  "featureOxygenDemand": "Oxygen Demand Estimation",
+  "@featureOxygenDemand": {
+    "description": "Title for the oxygen demand estimation feature"
+  },
+  "featureOxygenDemandDesc": "Estimate oxygen needs for shrimp and environmental factors.",
+  "@featureOxygenDemandDesc": {
+    "description": "Description of the oxygen demand estimation feature"
+  },
+  "back": "Back",
+  "@back": {
+    "description": "Label for the back button in the survey stepper"
+  },
+  "next": "Next",
+  "@next": {
+    "description": "Label for the next button in the survey stepper"
+  },
+  "submit": "Submit",
+  "@submit": {
+    "description": "Label for the submit button to process the survey"
+  },
+  "aeratorDetails": "Aerator Details",
+  "@aeratorDetails": {
+    "description": "Title for the aerator details section in the survey"
+  },
+  "aerator1": "Aerator",
+  "@aerator1": {
+    "description": "Label for an aerator in the survey"
+  },
+  "brandLabel": "Brand (Optional)",
+  "@brandLabel": {
+    "description": "Label for the brand of the aerator (optional)"
+  },
+  "brandTooltip": "Brand of the aerator",
+  "@brandTooltip": {
+    "description": "Tooltip for the aerator brand input field"
+  },
+  "modelLabel": "Model (Optional)",
+  "@modelLabel": {
+    "description": "Label for the aerator model input field (optional)"
+  },
+  "specifyAeratorTypeLabel": "Specify Aerator Type (Optional)",
+  "@specifyAeratorTypeLabel": {
+    "description": "Label for specifying the aerator type (optional)"
+  },
+  "aeratorTypeLabel": "Aerator Type (Optional)",
+  "@aeratorTypeLabel": {
+    "description": "Label for the aerator type input field (optional)"
+  },
+  "aeratorTypeTooltip": "Type of aerator (e.g., paddlewheel, aspirator)",
+  "@aeratorTypeTooltip": {
+    "description": "Tooltip for the aerator type input field"
+  },
+  "paddlewheel": "Paddlewheel",
+  "@paddlewheel": {
+    "description": "Label for paddlewheel aerator type"
+  },
+  "propeller": "Propeller",
+  "@propeller": {
+    "description": "Label for propeller aerator type"
+  },
+  "splash": "Splash",
+  "@splash": {
+    "description": "Label for splash aerator type"
+  },
+  "diffused": "Diffused",
+  "@diffused": {
+    "description": "Label for diffused aerator type"
+  },
+  "injector": "Injector",
+  "@injector": {
+    "description": "Label for injector aerator type"
+  },
+  "other": "Other",
+  "@other": {
+    "description": "Label for other aerator type"
+  },
+  "horsepowerLabel": "Horsepower (HP)",
+  "@horsepowerLabel": {
+    "description": "Label for the power rating of the aerator in horsepower (HP)"
+  },
+  "horsepowerTooltip": "Aerator power in horsepower (0.1 to 100 HP)",
+  "@horsepowerTooltip": {
+    "description": "Tooltip for the aerator horsepower input field"
+  },
+  "sotrLabel": "SOTR (kg O₂/h)",
+  "@sotrLabel": {
+    "description": "Label for the Standard Oxygen Transfer Rate of the aerator in kg O₂ per hour"
+  },
+  "sotrTooltip": "Standard Oxygen Transfer Rate (0.1 to 10 kg O₂/h) as provided by supplier",
+  "@sotrTooltip": {
+    "description": "Tooltip for the SOTR input field"
+  },
+  "sotrSourceLabel": "SOTR Source",
+  "@sotrSourceLabel": {
+    "description": "Label for selecting the source of SOTR data (supplier or experimental)"
+  },
+  "klatLabel": "KLaT (h⁻¹)",
+  "@klatLabel": {
+    "description": "Label for the experimental oxygen transfer rate input field"
+  },
+  "klatTooltip": "Oxygen transfer coefficient (0.1 to 100 h⁻¹)",
+  "@klatTooltip": {
+    "description": "Tooltip for the KLaT input field"
+  },
+  "priceLabel": "Price (USD)",
+  "@priceLabel": {
+    "description": "Label for the aerator price input field"
+  },
+  "priceAerator1Tooltip": "Purchase price of the aerator (0 to 10000 USD)",
+  "@priceAerator1Tooltip": {
+    "description": "Tooltip for the aerator price input field"
+  },
+  "durabilityLabel": "Durability (years)",
+  "@durabilityLabel": {
+    "description": "Label for the aerator durability input field"
+  },
+  "durabilityAerator1Tooltip": "Expected lifespan of the aerator (0.1 to 20 years)",
+  "@durabilityAerator1Tooltip": {
+    "description": "Tooltip for the aerator durability input field"
+  },
+  "maintenanceCostLabel": "Maintenance Cost (USD/year)",
+  "@maintenanceCostLabel": {
+    "description": "Label for the aerator maintenance cost input field"
+  },
+  "maintenanceCostAerator1Tooltip": "Annual maintenance cost of the aerator (0 to 1000 USD)",
+  "@maintenanceCostAerator1Tooltip": {
+    "description": "Tooltip for the aerator maintenance cost input field"
+  },
+  "addAerator": "Add Aerator",
+  "@addAerator": {
+    "description": "Label for the button to add a new aerator"
+  },
+  "farmAndOxygenDemand": "Farm Specs & Oxygen Demand",
+  "@farmAndOxygenDemand": {
+    "description": "Title for the farm specifications and oxygen demand section"
+  },
+  "farmAreaLabel": "Farm Area (ha)",
+  "@farmAreaLabel": {
+    "description": "Label for the farm area input field"
+  },
+  "farmAreaTooltip": "Total area of the farm (0.1 to 100000 ha)",
+  "@farmAreaTooltip": {
+    "description": "Tooltip for the farm area input field"
+  },
+  "productionPerHaLabel": "Production per Hectare (kg/ha)",
+  "@productionPerHaLabel": {
+    "description": "Label for the shrimp production per hectare input field"
+  },
+  "productionPerHaTooltip": "Total shrimp production per hectare (0 to 100000 kg/ha)",
+  "@productionPerHaTooltip": {
+    "description": "Tooltip for the shrimp production per hectare input field"
+  },
+  "cyclesPerYearLabel": "Cycles per Year",
+  "@cyclesPerYearLabel": {
+    "description": "Label for the number of production cycles per year input field"
+  },
+  "cyclesPerYearTooltip": "Number of production cycles per year (1 to 10)",
+  "@cyclesPerYearTooltip": {
+    "description": "Tooltip for the production cycles per year input field"
+  },
+  "waterTemperatureLabel": "Water Temperature (°C)",
+  "@waterTemperatureLabel": {
+    "description": "Label for the water temperature input field"
+  },
+  "waterTemperatureTooltip": "Temperature of the pond water (0 to 40 °C)",
+  "@waterTemperatureTooltip": {
+    "description": "Tooltip for the water temperature input field"
+  },
+  "salinityLabel": "Salinity (ppt)",
+  "@salinityLabel": {
+    "description": "Label for the water salinity input field"
+  },
+  "salinityTooltip": "Salinity of the water in parts per thousand (0 to 40 ppt)",
+  "@salinityTooltip": {
+    "description": "Tooltip for the water salinity input field"
+  },
+  "pondDepthLabel": "Pond Depth (m)",
+  "@pondDepthLabel": {
+    "description": "Label for the depth of the pond in meters"
+  },
+  "pondDepthTooltip": "Depth of the pond (0.5 to 5 m)",
+  "@pondDepthTooltip": {
+    "description": "Tooltip for the pond depth input field"
+  },
+  "averageShrimpWeightLabel": "Average Shrimp Weight (g)",
+  "@averageShrimpWeightLabel": {
+    "description": "Label for the average shrimp weight input field"
+  },
+  "averageShrimpWeightTooltip": "Average weight of shrimp (0 to 50 g)",
+  "@averageShrimpWeightTooltip": {
+    "description": "Tooltip for the average shrimp weight input field"
+  },
+  "shrimpBiomassLabel": "Shrimp Biomass (kg/ha)",
+  "@shrimpBiomassLabel": {
+    "description": "Label for the shrimp biomass input field"
+  },
+  "shrimpBiomassTooltip": "Total shrimp biomass per hectare (0 to 100000 kg/ha)",
+  "@shrimpBiomassTooltip": {
+    "description": "Tooltip for the shrimp biomass input field"
+  },
+  "safetyMarginLabel": "Safety Margin",
+  "@safetyMarginLabel": {
+    "description": "Label for the safety margin input field"
+  },
+  "safetyMarginTooltip": "Factor to account for unexpected oxygen demand (1 to 2)",
+  "@safetyMarginTooltip": {
+    "description": "Tooltip for the safety margin input field"
+  },
+  "financialAspects": "Financial Aspects",
+  "@financialAspects": {
+    "description": "Title for the financial aspects section"
+  },
+  "shrimpPriceLabel": "Shrimp Price (USD/kg)",
+  "@shrimpPriceLabel": {
+    "description": "Label for the shrimp price input field"
+  },
+  "shrimpPriceTooltip": "Market price of shrimp per kg (0.1 to 50 USD)",
+  "@shrimpPriceTooltip": {
+    "description": "Tooltip for the shrimp price input field"
+  },
+  "electricityCostLabel": "Electricity Cost (USD/kWh)",
+  "@electricityCostLabel": {
+    "description": "Label for the cost of electricity per kilowatt-hour in USD"
+  },
+  "electricityCostTooltip": "Cost of electricity per kWh (0 to 1 USD)",
+  "@electricityCostTooltip": {
+    "description": "Tooltip for the electricity cost input field"
+  },
+  "operatingHoursLabel": "Operating Hours (h/day)",
+  "@operatingHoursLabel": {
+    "description": "Label for the aerator operating hours input field"
+  },
+  "operatingHoursTooltip": "Number of hours aerators operate per day (1 to 24)",
+  "@operatingHoursTooltip": {
+    "description": "Tooltip for the aerator operating hours input field"
+  },
+  "discountRateLabel": "Discount Rate (%)",
+  "@discountRateLabel": {
+    "description": "Label for the discount rate input field"
+  },
+  "discountRateTooltip": "Discount rate for NPV calculation (0 to 100%)",
+  "@discountRateTooltip": {
+    "description": "Tooltip for the discount rate input field"
+  },
+  "inflationRateLabel": "Inflation Rate (%)",
+  "@inflationRateLabel": {
+    "description": "Label for the inflation rate input field"
+  },
+  "inflationRateTooltip": "Expected annual inflation rate (0 to 100%)",
+  "@inflationRateTooltip": {
+    "description": "Tooltip for the inflation rate input field"
+  },
+  "analysisHorizonLabel": "Analysis Horizon (years)",
+  "@analysisHorizonLabel": {
+    "description": "Label for the analysis horizon input field"
+  },
+  "analysisHorizonTooltip": "Number of years for financial analysis (1 to 50)",
+  "@analysisHorizonTooltip": {
+    "description": "Tooltip for the analysis horizon input field"
+  },
+  "dataCollectionConsentLabel": "I consent to my data being collected securely for research purposes, in accordance with applicable laws",
+  "@dataCollectionConsentLabel": {
+    "description": "Label for data collection consent checkbox"
+  },
+  "learnMore": "Learn More",
+  "@learnMore": {
+    "description": "Label for the learn more link"
+  },
+  "consentRequiredError": "Consent is required to proceed",
+  "@consentRequiredError": {
+    "description": "Error message when data collection consent is not given"
+  },
+  "minimumAeratorsError": "At least two aerators are required",
+  "@minimumAeratorsError": {
+    "description": "Error message when fewer than two aerators are provided"
+  },
+  "noDataAvailable": "No data available",
+  "@noDataAvailable": {
+    "description": "Message shown when no survey data is available"
+  },
+  "downloadCSV": "Download CSV",
+  "@downloadCSV": {
+    "description": "Label for the button to download results as CSV"
+  },
+  "csvExportNotSupported": "CSV export not supported on this platform",
+  "@csvExportNotSupported": {
+    "description": "Message shown when CSV export is not supported on the platform"
+  },
+  "results": "Results",
+  "@results": {
+    "description": "Title for the results page"
+  },
+  "aeratorComparisonResults": "Aerator Comparison Results",
+  "@aeratorComparisonResults": {
+    "description": "Title for the aerator comparison results section"
+  },
+  "oxygenDemandBreakdown": "Oxygen Demand Breakdown",
+  "@oxygenDemandBreakdown": {
+    "description": "Title for the oxygen demand breakdown chart"
+  },
+  "shrimpDemandLabel": "Shrimp Demand",
+  "@shrimpDemandLabel": {
+    "description": "Label for shrimp oxygen demand in the chart"
+  },
+  "envDemandLabel": "Environmental Demand",
+  "@envDemandLabel": {
+    "description": "Label for environmental oxygen demand in the chart"
+  },
+  "totalDemandLabel": "Total Demand",
+  "@totalDemandLabel": {
+    "description": "Label for total oxygen demand in the chart"
+  },
+  "downloadReport": "Download Report",
+  "@downloadReport": {
+    "description": "Label for the button to download the PDF report"
+  },
+  "annualRevenueLabel": "Annual Revenue",
+  "@annualRevenueLabel": {
+    "description": "Label for the annual revenue metric"
+  },
+  "requiredField": "This field is required",
+  "@requiredField": {
+    "description": "Validation message for required input fields"
+  },
+  "invalidNumber": "Please enter a valid number",
+  "@invalidNumber": {
+    "description": "Validation message for invalid numeric input"
+  },
+  "rangeError": "Value must be between {min} and {max}",
+  "@rangeError": {
+    "description": "Validation message for input out of range",
+    "placeholders": {
+      "min": {},
+      "max": {}
+    }
+  },
+  "summaryMetrics": "Summary Metrics",
+  "@summaryMetrics": {
+    "description": "Title for the summary metrics section"
+  },
+  "recommendedAerator": "Recommended Aerator",
+  "@recommendedAerator": {
+    "description": "Label for the recommended aerator"
+  },
+  "aeratorLabel": "Aerator",
+  "@aeratorLabel": {
+    "description": "Label for the aerator column in the comparison table"
+  },
+  "unitsNeeded": "Units Needed",
+  "@unitsNeeded": {
+    "description": "Label for the units needed column in the comparison table"
+  },
+  "totalAnnualCostLabel": "Total Annual Cost (USD)",
+  "@totalAnnualCostLabel": {
+    "description": "Label for the total annual cost column in the comparison table"
+  },
+  "costPercentage": "Cost as % of Revenue",
+  "@costPercentage": {
+    "description": "Label for the cost percentage column in the comparison table"
+  },
+  "saeLabel": "SAE (kg O₂/kWh)",
+  "@saeLabel": {
+    "description": "Label for the SAE column in the comparison table"
+  },
+  "npvLabel": "NPV (USD)",
+  "@npvLabel": {
+    "description": "Label for the NPV column in the comparison table"
+  },
+  "irrLabel": "IRR (%)",
+  "@irrLabel": {
+    "description": "Label for the IRR column in the comparison table"
+  },
+  "paybackPeriod": "Payback Period",
+  "@paybackPeriod": {
+    "description": "Label for the payback period column in the comparison table"
+  },
+  "roiLabel": "ROI (%)",
+  "@roiLabel": {
+    "description": "Label for the ROI column in the comparison table"
+  },
+  "profitabilityIndex": "Profitability Index",
+  "@profitabilityIndex": {
+    "description": "Label for the profitability index column in the comparison table"
+  },
+  "detailedFinancialMetrics": "Detailed Financial Metrics",
+  "@detailedFinancialMetrics": {
+    "description": "Title for the detailed financial metrics section"
+  },
+  "equilibriumPriceP2Label": "Equilibrium Price (Aerator 2)",
+  "@equilibriumPriceP2Label": {
+    "description": "Label for the equilibrium price of Aerator 2"
+  },
+  "costOfOpportunity": "Cost of Opportunity",
+  "@costOfOpportunity": {
+    "description": "Label for the cost of opportunity metric"
+  },
+  "annualSavings": "Annual Savings",
+  "@annualSavings": {
+    "description": "Label for the annual savings metric"
+  },
+  "years": "years",
+  "@years": {
+    "description": "Label for years unit"
+  },
+  "pdfGenerationFailed": "Failed to generate PDF",
+  "@pdfGenerationFailed": {
+    "description": "Message shown when PDF generation fails"
   },
   "sotrAerator1Label": "SOTR Aerator 1 (kg O₂/h per aerator)",
   "@sotrAerator1Label": {
@@ -16,9 +503,6 @@
   "sotrAerator2Label": "SOTR Aerator 2 (kg O₂/h per aerator)",
   "@sotrAerator2Label": {
     "description": "Label for Standard Oxygen Transfer Rate of Aerator 2"
-  },
-  "@appTitle": {
-    "description": "The title of the application"
   },
   "priceAerator1Label": "Price Aerator 1 (USD per aerator)",
   "@priceAerator1Label": {
@@ -64,17 +548,9 @@
   "@totalAnnualCostAerator2Label": {
     "description": "Label for the total annual cost of Aerator 2 in USD per year"
   },
-  "equilibriumPriceP2Label": "Equilibrium Price P₂ (USD)",
-  "@equilibriumPriceP2Label": {
-    "description": "Label for the equilibrium price P₂ in USD"
-  },
-  "actualPriceP2Label": "Actual Price P₂ (USD)",
+  "actualPriceP2Label": "Actual Price Aerator 2 (USD)",
   "@actualPriceP2Label": {
-    "description": "Label for the actual price P₂ in USD"
-  },
-  "oxygenDemandAndEstimationCalculator": "Oxygen Demand and Estimation Calculator",
-  "@oxygenDemandAndEstimationCalculator": {
-    "description": "Label for the Oxygen Demand and Estimation Calculator"
+    "description": "Label for the actual price of Aerator 2 in USD"
   },
   "farmBasedTabLabel": "Farm-Based",
   "@farmBasedTabLabel": {
@@ -107,14 +583,6 @@
   "volumeLabel": "Volume (m³)",
   "@volumeLabel": {
     "description": "Label for the volume of the pond in cubic meters"
-  },
-  "sotrLabel": "SOTR (kg O₂/h)",
-  "@sotrLabel": {
-    "description": "Label for the Standard Oxygen Transfer Rate of the aerator in kg O₂ per hour"
-  },
-  "pondDepthLabel": "Pond Depth (m)",
-  "@pondDepthLabel": {
-    "description": "Label for the depth of the pond in meters"
   },
   "shrimpRespirationLabel": "Shrimp Respiration (mg/L/h)",
   "@shrimpRespirationLabel": {
@@ -164,14 +632,6 @@
   "@aeratorsLabelShort": {
     "description": "Short label for aerators"
   },
-  "aeratorPerformanceCalculator": "Aerator Performance Calculator",
-  "@aeratorPerformanceCalculator": {
-    "description": "Label for the Aerator Performance Calculator"
-  },
-  "horsepowerLabel": "Horsepower (HP)",
-  "@horsepowerLabel": {
-    "description": "Label for the power rating of the aerator in horsepower (HP)"
-  },
   "t10Label": "T10 (minutes)",
   "@t10Label": {
     "description": "Label for the time to reach 10% of oxygen saturation in minutes"
@@ -180,11 +640,6 @@
   "@t70Label": {
     "description": "Label for the time to reach 70% of oxygen saturation in minutes"
   },
-  "electricityCostLabel": "Electricity Cost (USD/kWh)",
-  "@electricityCostLabel": {
-    "description": "Label for the cost of electricity per kilowatt-hour in USD"
-  },
-
   "aeratorIdLabel": "Aerator ID",
   "@aeratorIdLabel": {
     "description": "Label for the Aerator ID"
@@ -192,42 +647,6 @@
   "pondVolumeLabel": "Pond Volume (m³)",
   "@pondVolumeLabel": {
     "description": "Label for the pond volume in cubic meters"
-  },
-  "brandLabel": "Brand (Optional)",
-  "@brandLabel": {
-    "description": "Label for the brand of the aerator (optional)"
-  },
-  "aeratorTypeLabel": "Aerator Type",
-  "@aeratorTypeLabel": {
-    "description": "Label for the aerator type"
-  },
-  "specifyAeratorTypeLabel": "Specify Aerator Type",
-  "@specifyAeratorTypeLabel": {
-    "description": "Label for specifying the aerator type"
-  },
-  "paddlewheel": "Paddlewheel",
-  "@paddlewheel": {
-    "description": "Label for paddlewheel aerator type"
-  },
-  "propeller": "Propeller",
-  "@propeller": {
-    "description": "Label for propeller aerator type"
-  },
-  "splash": "Splash",
-  "@splash": {
-    "description": "Label for splash aerator type"
-  },
-  "diffused": "Diffused",
-  "@diffused": {
-    "description": "Label for diffused aerator type"
-  },
-  "injector": "Injector",
-  "@injector": {
-    "description": "Label for injector aerator type"
-  },
-  "other": "Other",
-  "@other": {
-    "description": "Label for other aerator type"
   },
   "respirationRateLabelShort": "Respiration Rate",
   "@respirationRateLabelShort": {
@@ -245,14 +664,6 @@
   "@totalOxygenDemandLabelShort": {
     "description": "Short label for total oxygen demand"
   },
-  "dataCollectionConsentLabel": "I consent to my data being collected securely for research purposes, in accordance with applicable laws.",
-  "@dataCollectionConsentLabel": {
-    "description": "Label for data collection consent checkbox"
-  },
-  "learnMore": "Learn More",
-  "@learnMore": {
-    "description": "Label for the learn more link"
-  },
   "forPlottingOnly": "For plotting only",
   "@forPlottingOnly": {
     "description": "Label indicating the value is for plotting only"
@@ -265,23 +676,11 @@
   "@numberOfAeratorsNeeded": {
     "description": "Label for the number of aerators needed"
   },
-  "totalAnnualCostLabel": "Total Annual Cost (USD/year)",
-  "@totalAnnualCostLabel": {
-    "description": "Label for the total annual cost in USD per year"
-  },
-  "aerator1": "Aerator 1",
-  "@aerator1": {
-    "description": "Label for Aerator 1"
-  },
-  "aerator2": "Aerator 2",
-  "@aerator2": {
-    "description": "Label for Aerator 2"
-  },
-  "aerator2MoreCostEffective": "Aerator 2 is more cost-effective at the current price.",
+  "aerator2MoreCostEffective": "Aerator 2 is more cost-effective at the current price",
   "@aerator2MoreCostEffective": {
     "description": "Label indicating Aerator 2 is more cost-effective"
   },
-  "aerator1MoreCostEffective": "Aerator 1 may be more cost-effective at the current price.",
+  "aerator1MoreCostEffective": "Aerator 1 may be more cost-effective at the current price",
   "@aerator1MoreCostEffective": {
     "description": "Label indicating Aerator 1 may be more cost-effective"
   },
@@ -301,5 +700,4 @@
   "@calculatorNotInitialized": {
     "description": "Label indicating the calculator is not initialized"
   }
-  }
-
+}

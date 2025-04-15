@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class Aerator {
   final String? brand;
@@ -209,17 +209,30 @@ class AeratorResult {
 }
 
 class AppState extends ChangeNotifier {
+  // Application locale for UI language
+  Locale _locale = const Locale('en', 'US');
+  // Error message for API or calculation failures (null if no error)
   String? _error;
+  // Loading state for async operations
   bool _isLoading = false;
+  // List of aerators configured by the user (null until set)
   List<Aerator>? _aerators;
+  // Farm configuration data (null until set)
   FarmData? _farmData;
+  // Oxygen demand parameters (null until set)
   OxygenDemandData? _oxygenDemandData;
+  // Financial parameters (null until set)
   FinancialData? _financialData;
+  // Results of aerator comparison (null until calculated)
   List<AeratorResult>? _aeratorResults;
+  // Total oxygen demand in kg O₂/h (null until calculated)
   double? _tod;
+  // Estimated annual revenue in USD (null until calculated)
   double? _annualRevenue;
+  // Raw API response for debugging or advanced use (null until received)
   Map<String, dynamic>? _apiResults;
 
+  Locale get locale => _locale;
   String? get error => _error;
   bool get isLoading => _isLoading;
   List<Aerator>? get aerators => _aerators;
@@ -249,6 +262,13 @@ class AppState extends ChangeNotifier {
       'annualRevenue': _annualRevenue,
       'apiResults': _apiResults,
     };
+  }
+
+  void setLocale(Locale newLocale) {
+    if (_locale != newLocale) {
+      _locale = newLocale;
+      notifyListeners();
+    }
   }
 
   void setSurveyData(Map<String, dynamic> data) {
@@ -296,17 +316,6 @@ class AppState extends ChangeNotifier {
 
   @override
   void dispose() {
-    print("AppState disposing.");
-    _aerators = null;
-    _farmData = null;
-    _oxygenDemandData = null;
-    _financialData = null;
-    _aeratorResults = null;
-    _tod = null;
-    _annualRevenue = null;
-    _apiResults = null;
     super.dispose();
   }
-
-  initialize() {}
 }
