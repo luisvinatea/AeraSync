@@ -1,168 +1,245 @@
+import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logging/logging.dart';
 
-class Aerator {
-  final String? brand;
-  final String? model;
-  final double power;
-  final String sotrSource;
-  final double? sotr;
-  final double? klat;
-  final double cost;
-  final double durability;
-  final double maintenance;
+class AppState extends ChangeNotifier {
+  // Initialize logger
+  static final Logger _logger = Logger('AppState');
 
-  Aerator({
-    this.brand,
-    this.model,
-    required this.power,
-    required this.sotrSource,
-    this.sotr,
-    this.klat,
-    required this.cost,
-    required this.durability,
-    required this.maintenance,
-  });
+  // --- State Variables ---
+  double? tod;
+  double? shrimpRespiration;
+  double? pondRespiration;
+  double? pondWaterRespiration;
+  double? pondBottomRespiration;
+  double? annualRevenue;
+  String? winnerLabel;
+  List<AeratorResult> aeratorResults = [];
+  Map<String, dynamic>? apiResults;
 
-  factory Aerator.fromJson(Map<String, dynamic> json) {
-    return Aerator(
-      brand: json['brand'] as String?,
-      model: json['model'] as String?,
-      power: (json['power'] as num).toDouble(),
-      sotrSource: json['sotrSource'] as String,
-      sotr: json['sotr'] != null ? (json['sotr'] as num).toDouble() : null,
-      klat: json['klat'] != null ? (json['klat'] as num).toDouble() : null,
-      cost: (json['cost'] as num).toDouble(),
-      durability: (json['durability'] as num).toDouble(),
-      maintenance: (json['maintenance'] as num).toDouble(),
-    );
+  // Locale state
+  Locale _locale;
+
+  // Error state
+  String? _error;
+
+  // API health state
+  bool _isApiHealthy = true;
+
+  // Data disclosure state
+  bool _hasAgreedToDisclosure = false;
+
+  // Backend URL
+  final String _baseUrl = 'http://localhost:8000';
+
+  // --- Constructor ---
+  AppState({required Locale locale}) : _locale = locale {
+    // Set up logging level
+    Logger.root.level = Level.ALL;
+    Logger.root.onRecord.listen((record) {
+      debugPrint('${record.level.name}: ${record.time}: ${record.message}');
+    });
+    // Load disclosure agreement state
+    _loadDisclosurePreference();
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'brand': brand,
-      'model': model,
-      'power': power,
-      'sotrSource': sotrSource,
-      'sotr': sotr,
-      'klat': klat,
-      'cost': cost,
-      'durability': durability,
-      'maintenance': maintenance,
-    };
+  // --- Getters ---
+  Locale get locale => _locale;
+  String? get error => _error;
+  bool get hasAgreedToDisclosure => _hasAgreedToDisclosure;
+
+  // --- Setters and Methods ---
+
+  /// Updates the application locale and saves it to preferences.
+  set locale(Locale newLocale) {
+    if (_locale != newLocale) {
+      _locale = newLocale;
+      _saveLocalePreference(newLocale.languageCode);
+      notifyListeners();
+    }
+  }
+
+  /// Saves the selected language code to SharedPreferences.
+  Future<void> _saveLocalePreference(String languageCode) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('locale', languageCode);
+    } catch (e) {
+      _logger.severe('Error saving locale preference: $e');
+    }
+  }
+
+  /// Loads the disclosure agreement state from SharedPreferences.
+  Future<void> _loadDisclosurePreference() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _hasAgreedToDisclosure = prefs.getBool('hasAgreedToDisclosure') ?? false;
+      notifyListeners();
+    } catch (e) {
+      _logger.severe('Error loading disclosure preference: $e');
+    }
+  }
+
+  /// Sets the disclosure agreement state and saves it to preferences.
+  void setDisclosureAgreed(bool value) {
+    if (_hasAgreedToDisclosure != value) {
+      _hasAgreedToDisclosure = value;
+      _saveDisclosurePreference(value);
+      _logger.info('Disclosure agreement set to: $value');
+      notifyListeners();
+    }
+  }
+
+  /// Saves the disclosure agreement state to SharedPreferences.
+  Future<void> _saveDisclosurePreference(bool value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('hasAgreedToDisclosure', value);
+    } catch (e) {
+      _logger.severe('Error saving disclosure preference: $e');
+    }
+  }
+
+  /// Sets the API health state for testing purposes.
+  void setApiHealth(bool value) {
+    if (_isApiHealthy != value) {
+      _isApiHealthy = value;
+      _logger.info('API health set to: $value');
+      notifyListeners();
+    }
+  }
+
+  /// Sets the current error message.
+  void setError(String message) {
+    _error = message;
+    notifyListeners();
+  }
+
+  /// Clears the current error message.
+  void clearError() {
+    if (_error != null) {
+      _error = null;
+      notifyListeners();
+    }
+  }
+
+  /// Sets the results data received from the API.
+  void setResults({
+    required double tod,
+    required double shrimpRespiration,
+    required double pondRespiration,
+    required double pondWaterRespiration,
+    required double pondBottomRespiration,
+    required double annualRevenue,
+    required String winnerLabel,
+    required List<AeratorResult> aeratorResults,
+    required Map<String, dynamic> apiResults,
+  }) {
+    this.tod = tod;
+    this.shrimpRespiration = shrimpRespiration;
+    this.pondRespiration = pondRespiration;
+    this.pondWaterRespiration = pondWaterRespiration;
+    this.pondBottomRespiration = pondBottomRespiration;
+    this.annualRevenue = annualRevenue;
+    this.winnerLabel = winnerLabel;
+    this.aeratorResults = aeratorResults;
+    this.apiResults = apiResults;
+    clearError();
+    notifyListeners();
+  }
+
+  /// Checks if the backend API is reachable and healthy.
+  Future<bool> checkApiHealth() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/health'),
+      ).timeout(const Duration(seconds: 5));
+
+      _isApiHealthy = (response.statusCode >= 200 && response.statusCode < 300);
+      _logger.info('API health check: $_isApiHealthy');
+      notifyListeners();
+      return _isApiHealthy;
+    } catch (e) {
+      _logger.severe('API Health Check Failed: $e');
+      _isApiHealthy = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Sends survey data to the backend API to compare aerators.
+  Future<void> compareAerators(Map<String, dynamic> surveyData) async {
+    clearError();
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/compare-aerators'),
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(surveyData),
+      ).timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        late final Map<String, dynamic> results;
+        try {
+          results = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        } catch (e) {
+          setError('Failed to parse server response: $e');
+          return;
+        }
+
+        if (results['tod'] != null && results['winnerLabel'] != null && results['aeratorResults'] != null) {
+          setResults(
+            tod: (results['tod'] as num?)?.toDouble() ?? 0.0,
+            shrimpRespiration: (results['shrimpRespiration'] as num?)?.toDouble() ?? 0.0,
+            pondRespiration: (results['pondRespiration'] as num?)?.toDouble() ?? 0.0,
+            pondWaterRespiration: (results['pondWaterRespiration'] as num?)?.toDouble() ?? 0.0,
+            pondBottomRespiration: (results['pondBottomRespiration'] as num?)?.toDouble() ?? 0.0,
+            annualRevenue: (results['annualRevenue'] as num?)?.toDouble() ?? 0.0,
+            winnerLabel: results['winnerLabel'] as String? ?? 'N/A',
+            aeratorResults: (results['aeratorResults'] as List<dynamic>? ?? [])
+                .map((r) {
+                  if (r is Map<String, dynamic>) {
+                    return AeratorResult.fromJson(r);
+                  } else {
+                    _logger.warning('Skipping invalid item in aeratorResults list: $r');
+                    return null;
+                  }
+                })
+                .whereType<AeratorResult>()
+                .toList(),
+            apiResults: Map<String, dynamic>.from(results['apiResults'] ?? {}),
+          );
+        } else {
+          setError('Incomplete data received from server.');
+        }
+      } else {
+        String responseBody = utf8.decode(response.bodyBytes, allowMalformed: true);
+        setError('API Error (${response.statusCode}): ${responseBody.isNotEmpty ? responseBody : response.reasonPhrase ?? "Unknown error"}');
+      }
+    } on TimeoutException catch (_) {
+      setError('The request timed out. Please check your connection or try again later.');
+    } on http.ClientException catch (e) {
+      setError('Network error: ${e.message}');
+    } catch (e) {
+      setError('An unexpected error occurred: $e');
+    }
   }
 }
 
-class FarmData {
-  final double totalArea;
-  final double productionPerHa;
-  final double cyclesPerYear;
-
-  FarmData({
-    required this.totalArea,
-    required this.productionPerHa,
-    required this.cyclesPerYear,
-  });
-
-  factory FarmData.fromJson(Map<String, dynamic> json) {
-    return FarmData(
-      totalArea: (json['totalArea'] as num).toDouble(),
-      productionPerHa: (json['productionPerHa'] as num).toDouble(),
-      cyclesPerYear: (json['cyclesPerYear'] as num).toDouble(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'totalArea': totalArea,
-      'productionPerHa': productionPerHa,
-      'cyclesPerYear': cyclesPerYear,
-    };
-  }
-}
-
-class OxygenDemandData {
-  final double temperature;
-  final double salinity;
-  final double pondDepth;
-  final double shrimpWeight;
-
-  OxygenDemandData({
-    required this.temperature,
-    required this.salinity,
-    required this.pondDepth,
-    required this.shrimpWeight,
-  });
-
-  factory OxygenDemandData.fromJson(Map<String, dynamic> json) {
-    return OxygenDemandData(
-      temperature: (json['temperature'] as num).toDouble(),
-      salinity: (json['salinity'] as num).toDouble(),
-      pondDepth: (json['pondDepth'] as num).toDouble(),
-      shrimpWeight: (json['shrimpWeight'] as num).toDouble(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'temperature': temperature,
-      'salinity': salinity,
-      'pondDepth': pondDepth,
-      'shrimpWeight': shrimpWeight,
-    };
-  }
-}
-
-class FinancialData {
-  final double shrimpPrice;
-  final double energyCost;
-  final double operatingHours;
-  final double discountRate;
-  final double inflationRate;
-  final double analysisHorizon;
-
-  FinancialData({
-    required this.shrimpPrice,
-    required this.energyCost,
-    required this.operatingHours,
-    required this.discountRate,
-    required this.inflationRate,
-    required this.analysisHorizon,
-  });
-
-  factory FinancialData.fromJson(Map<String, dynamic> json) {
-    return FinancialData(
-      shrimpPrice: (json['shrimpPrice'] as num).toDouble(),
-      energyCost: (json['energyCost'] as num).toDouble(),
-      operatingHours: (json['operatingHours'] as num).toDouble(),
-      discountRate: (json['discountRate'] as num).toDouble(),
-      inflationRate: (json['inflationRate'] as num).toDouble(),
-      analysisHorizon: (json['analysisHorizon'] as num).toDouble(),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'shrimpPrice': shrimpPrice,
-      'energyCost': energyCost,
-      'operatingHours': operatingHours,
-      'discountRate': discountRate,
-      'inflationRate': inflationRate,
-      'analysisHorizon': analysisHorizon,
-    };
-  }
-}
-
+// --- AeratorResult Data Class ---
 class AeratorResult {
   final String name;
   final double sae;
-  final double numAerators;
+  final int numAerators;
   final double totalAnnualCost;
   final double costPercentage;
   final double npv;
   final double irr;
   final double paybackPeriod;
   final double roi;
-  final double profitabilityIndex;
+  final double profitabilityCoefficient;
 
   AeratorResult({
     required this.name,
@@ -174,144 +251,33 @@ class AeratorResult {
     required this.irr,
     required this.paybackPeriod,
     required this.roi,
-    required this.profitabilityIndex,
+    required this.profitabilityCoefficient,
   });
 
   factory AeratorResult.fromJson(Map<String, dynamic> json) {
+    double parseDouble(dynamic value, [double defaultValue = 0.0]) {
+      if (value is num) return value.toDouble();
+      if (value is String) return double.tryParse(value) ?? defaultValue;
+      return defaultValue;
+    }
+
+    int parseInt(dynamic value, [int defaultValue = 0]) {
+      if (value is num) return value.toInt();
+      if (value is String) return int.tryParse(value) ?? defaultValue;
+      return defaultValue;
+    }
+
     return AeratorResult(
-      name: json['name'] as String,
-      sae: (json['sae'] as num).toDouble(),
-      numAerators: (json['numAerators'] as num).toDouble(),
-      totalAnnualCost: (json['totalAnnualCost'] as num).toDouble(),
-      costPercentage: (json['costPercentage'] as num).toDouble(),
-      npv: (json['npv'] as num).toDouble(),
-      irr: (json['irr'] as num).toDouble(),
-      paybackPeriod: (json['paybackPeriod'] as num).toDouble(),
-      roi: (json['roi'] as num).toDouble(),
-      profitabilityIndex: (json['profitabilityIndex'] as num).toDouble(),
+      name: json['name'] as String? ?? 'Unknown Aerator',
+      sae: parseDouble(json['sae']),
+      numAerators: parseInt(json['numAerators']),
+      totalAnnualCost: parseDouble(json['totalAnnualCost']),
+      costPercentage: parseDouble(json['costPercentage']),
+      npv: parseDouble(json['npv']),
+      irr: parseDouble(json['irr'], double.nan),
+      paybackPeriod: parseDouble(json['paybackPeriod'], double.infinity),
+      roi: parseDouble(json['roi']),
+      profitabilityCoefficient: parseDouble(json['profitabilityCoefficient']),
     );
   }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'sae': sae,
-      'numAerators': numAerators,
-      'totalAnnualCost': totalAnnualCost,
-      'costPercentage': costPercentage,
-      'npv': npv,
-      'irr': irr,
-      'paybackPeriod': paybackPeriod,
-      'roi': roi,
-      'profitabilityIndex': profitabilityIndex,
-    };
-  }
-}
-
-class AppState extends ChangeNotifier {
-  // Application locale for UI language
-  Locale _locale = const Locale('en', 'US');
-  // Error message for API or calculation failures (null if no error)
-  String? _error;
-  // Loading state for async operations
-  bool _isLoading = false;
-  // List of aerators configured by the user (null until set)
-  List<Aerator>? _aerators;
-  // Farm configuration data (null until set)
-  FarmData? _farmData;
-  // Oxygen demand parameters (null until set)
-  OxygenDemandData? _oxygenDemandData;
-  // Financial parameters (null until set)
-  FinancialData? _financialData;
-  // Results of aerator comparison (null until calculated)
-  List<AeratorResult>? _aeratorResults;
-  // Total oxygen demand in kg O₂/h (null until calculated)
-  double? _tod;
-  // Estimated annual revenue in USD (null until calculated)
-  double? _annualRevenue;
-  // Raw API response for debugging or advanced use (null until received)
-  Map<String, dynamic>? _apiResults;
-
-  Locale get locale => _locale;
-  String? get error => _error;
-  bool get isLoading => _isLoading;
-  List<Aerator>? get aerators => _aerators;
-  FarmData? get farmData => _farmData;
-  OxygenDemandData? get oxygenDemandData => _oxygenDemandData;
-  FinancialData? get financialData => _financialData;
-  List<AeratorResult>? get aeratorResults => _aeratorResults;
-  double? get tod => _tod;
-  double? get annualRevenue => _annualRevenue;
-  Map<String, dynamic>? get apiResults => _apiResults;
-
-  Map<String, dynamic>? get surveyData {
-    if (_aerators == null ||
-        _farmData == null ||
-        _oxygenDemandData == null ||
-        _financialData == null ||
-        _aeratorResults == null) {
-      return null;
-    }
-    return {
-      'aerators': _aerators!.map((a) => a.toJson()).toList(),
-      'farmData': _farmData!.toJson(),
-      'oxygenDemandData': _oxygenDemandData!.toJson(),
-      'financialData': _financialData!.toJson(),
-      'aeratorResults': _aeratorResults!.map((r) => r.toJson()).toList(),
-      'tod': _tod,
-      'annualRevenue': _annualRevenue,
-      'apiResults': _apiResults,
-    };
-  }
-
-  void setLocale(Locale newLocale) {
-    if (_locale != newLocale) {
-      _locale = newLocale;
-      notifyListeners();
-    }
-  }
-
-  void setSurveyData(Map<String, dynamic> data) {
-    _aerators = (data['aerators'] as List<dynamic>)
-        .map((a) => Aerator.fromJson(Map<String, dynamic>.from(a)))
-        .toList();
-    _farmData = FarmData.fromJson(Map<String, dynamic>.from(data['farmData']));
-    _oxygenDemandData =
-        OxygenDemandData.fromJson(Map<String, dynamic>.from(data['oxygenDemandData']));
-    _financialData =
-        FinancialData.fromJson(Map<String, dynamic>.from(data['financialData']));
-    _aeratorResults = (data['aeratorResults'] as List<dynamic>)
-        .map((r) => AeratorResult.fromJson(Map<String, dynamic>.from(r)))
-        .toList();
-    _tod = (data['tod'] as num?)?.toDouble();
-    _annualRevenue = (data['annualRevenue'] as num?)?.toDouble();
-    _apiResults = data['apiResults'] != null
-        ? Map<String, dynamic>.from(data['apiResults'])
-        : null;
-    notifyListeners();
-  }
-
-  void setError(String error) {
-    _error = error;
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  void clearError() {
-    if (_error != null) {
-      _error = null;
-      notifyListeners();
-    }
-  }
-
-  void setLoading(bool loading) {
-    if (_isLoading != loading) {
-      _isLoading = loading;
-      if (_isLoading) {
-        _error = null;
-      }
-      notifyListeners();
-    }
-  }
-
 }

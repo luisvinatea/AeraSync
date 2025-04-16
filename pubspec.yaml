@@ -15,11 +15,16 @@ dependencies:
   fl_chart: ^0.68.0
   pdf: ^3.10.0
   printing: ^5.12.0
+  
   flutter_localizations:
     sdk: flutter
-  http: ^1.2.0
+  http: ^1.2.2
   url_launcher: ^6.3.0
   html: ^0.15.4
+  universal_html: ^2.2.4
+  dio: ^5.0.0
+  shared_preferences: ^2.3.0
+  logging: ^1.2.0
 
 dev_dependencies:
   flutter_test:
