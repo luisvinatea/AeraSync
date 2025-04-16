@@ -1,6 +1,7 @@
+"""Shrimp respiration rate calculator with trilinear interpolation."""
 import json
 import os
-from typing import List, Dict, Optional, Any
+from typing import Any, Dict, List, Optional
 
 
 class ShrimpRespirationCalculator:
@@ -49,10 +50,9 @@ class ShrimpRespirationCalculator:
     def load_data(self) -> None:
         """Loads and parses the respiration data from the JSON file."""
         print(
-            f"Attempting to load shrimp respiration data from: {
-                self.data_path
-                }"
-            )
+            f"Attempting to load shrimp respiration data from: "
+            f"{self.data_path}"
+        )
         try:
             with open(self.data_path, 'r', encoding='utf-8') as f:
                 json_data: Dict[str, Any] = json.load(f)
@@ -91,20 +91,23 @@ class ShrimpRespirationCalculator:
 
             print("Shrimp respiration data loaded successfully.")
 
-        except FileNotFoundError:
+        except FileNotFoundError as exc:
             print(f"Error: Data file not found at {self.data_path}")
-            raise Exception(f"Data file not found at {self.data_path}")
-        except json.JSONDecodeError:
+            raise FileNotFoundError(
+                f"Data file not found at {self.data_path}") from exc
+        except json.JSONDecodeError as exc:
             print(
                 f"Error: Invalid JSON format in data file: {self.data_path}")
-            raise Exception(
-                f"Invalid JSON format in data file: {self.data_path}")
+            raise ValueError(
+                f"Invalid JSON format in data file: {self.data_path}") from exc
         except (KeyError, ValueError, TypeError) as e:
             print(f"Error parsing JSON data or metadata: {e}")
-            raise Exception(f"Error parsing JSON data or metadata: {e}")
-        except Exception as e:
-            print(f"An unexpected error occurred during data loading: {e}")
-            raise  # Re-raise other exceptions
+            raise ValueError(
+                f"Error parsing JSON data or metadata: {e}") from e
+        except Exception as exc:
+            print(f"An unexpected error occurred during data loading: {exc}")
+            raise RuntimeError(
+                f"Unexpected error during data loading: {exc}") from exc
 
     def _find_bounds(
             self, value: float, sorted_values: List[float]) -> tuple[
@@ -113,16 +116,15 @@ class ShrimpRespirationCalculator:
         if not sorted_values:
             raise ValueError("Cannot find bounds in empty list")
 
-        # Simple linear search for bounds
-        # (similar to Dart's lastWhere/firstWhere logic)
         low = sorted_values[0]
         high = sorted_values[-1]
 
-        for i in range(len(sorted_values)):
-            if sorted_values[i] <= value:
-                low = sorted_values[i]
-            if sorted_values[i] >= value:
-                high = sorted_values[i]
+        for val in enumerate(sorted_values):
+            val = val[1]
+            if val <= value:
+                low = val
+            if val >= value:
+                high = val
                 break  # Found the upper bound
 
         return low, high
@@ -173,10 +175,10 @@ class ShrimpRespirationCalculator:
                 [self._salinity_values,
                  self._temperature_values,
                  self._biomass_values]):
-            raise Exception(
-                "Respiration data not loaded or invalid."
-                "Call load_data() first."
-                )
+            raise ValueError(
+                ("Respiration data not loaded or invalid. "
+                 "Call load_data() first.")
+            )
 
         # 1. Clamp input values to the range covered by the data
         clamped_salinity = max(
@@ -226,7 +228,7 @@ class ShrimpRespirationCalculator:
         # Check if any corner value could not be retrieved
         corner_values = [r000, r001, r010, r011, r100, r101, r110, r111]
         if any(r is None for r in corner_values):
-            raise Exception(
+            raise ValueError(
                 f"Missing respiration data for"
                 f"interpolation corner points near S={salinity}, "
                 f"T={temperature}, W={shrimp_weight}. "
@@ -234,9 +236,10 @@ class ShrimpRespirationCalculator:
                 )
 
         # Cast checked values to float (mypy compatibility)
-        r000, r001, r010, r011,
-        r100, r101, r110, r111 = map(
-            float, (val for val in corner_values if val is not None))
+        (
+            r000, r001, r010, r011,
+            r100, r101, r110, r111
+        ) = map(float, corner_values)
 
         # 5. Calculate interpolation factors (s, t, w)
         # - relative position within the cube [0, 1]
@@ -275,34 +278,35 @@ if __name__ == '__main__':
         calculator = ShrimpRespirationCalculator()
 
         # Test case 1: Inside the data range
-        sal = 20.0
-        temp = 28.0
-        weight = 12.0
-        rate1 = calculator.get_respiration_rate(sal, temp, weight)
+        SAL = 20.0
+        TEMP = 28.0
+        WEIGHT = 12.0
+        rate1 = calculator.get_respiration_rate(SAL, TEMP, WEIGHT)
         print(
-            f"Respiration Rate at S={sal}‰,"
-            f"T={temp}°C,"
-            f"W={weight}g: {rate1:.4f} mg O₂/g/h")
+            f"Respiration Rate at S={SAL}‰,"
+            f"T={TEMP}°C,"
+            f"W={WEIGHT}g: {rate1:.4f} mg O₂/g/h"
+        )
 
         # Test case 2: Values matching grid points
-        sal = 25.0
-        temp = 30.0
-        weight = 15.0
-        rate2 = calculator.get_respiration_rate(sal, temp, weight)
+        SAL = 25.0
+        TEMP = 30.0
+        WEIGHT = 15.0
+        rate2 = calculator.get_respiration_rate(SAL, TEMP, WEIGHT)
         print(
-            f"Respiration Rate at S={sal}‰,"
-            f"T={temp}°C,"
-            f"W={weight}g: {rate2:.4f} mg O₂/g/h")
+            f"Respiration Rate at S={SAL}‰,"
+            f"T={TEMP}°C,"
+            f"W={WEIGHT}g: {rate2:.4f} mg O₂/g/h")
 
         # Test case 3: Values outside the range (will be clamped)
-        sal = 50.0
-        temp = 5.0
-        weight = 1.0
-        rate3 = calculator.get_respiration_rate(sal, temp, weight)
+        SAL = 50.0
+        TEMP = 5.0
+        WEIGHT = 1.0
+        rate3 = calculator.get_respiration_rate(SAL, TEMP, WEIGHT)
         print(
-            f"Respiration Rate at S={sal}‰,"
-            f"T={temp}°C,"
-            f"W={weight}g (clamped): {rate3:.4f} mg O₂/g/h")
+            f"Respiration Rate at S={SAL}‰,"
+            f"T={TEMP}°C,"
+            f"W={WEIGHT}g (clamped): {rate3:.4f} mg O₂/g/h")
 
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    except RuntimeError as exc:
+        print(f"An error occurred: {exc}")

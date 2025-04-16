@@ -1,11 +1,16 @@
+"""Aerator comparison module for shrimp pond aeration analysis."""
+import json
 import math
 import sqlite3
-from typing import Dict, Any, Optional, List
-from sotr_calculator import ShrimpPondCalculator as SaturationCalculator
-from shrimp_respiration_calculator import ShrimpRespirationCalculator
+from typing import Any, Dict, List, Optional
+
 from scipy.optimize import newton
+from shrimp_respiration_calculator import ShrimpRespirationCalculator
+from sotr_calculator import ShrimpPondCalculator as SaturationCalculator
+
 
 class AeratorComparer:
+    """Compares aerators for shrimp pond aeration and financial analysis."""
     def __init__(
         self,
         saturation_calculator: SaturationCalculator,
@@ -13,15 +18,21 @@ class AeratorComparer:
         db_path: str = "aerasync.db"
     ):
         if not isinstance(saturation_calculator, SaturationCalculator):
-            raise TypeError("saturation_calculator must be an instance of SaturationCalculator")
+            raise TypeError(
+                "saturation_calculator must be an instance of "
+                "SaturationCalculator"
+            )
         if not isinstance(respiration_calculator, ShrimpRespirationCalculator):
-            raise TypeError("respiration_calculator must be an instance of ShrimpRespirationCalculator")
+            raise TypeError(
+                "respiration_calculator must be an instance of "
+                "ShrimpRespirationCalculator"
+            )
+        self.kw_conversion_factor: float = 0.746  # HP to kW
+        self.theta: float = 1.024  # Temperature correction factor
+        self.standard_temp: float = 20.0  # °C
+        self.bottom_volume_factor: float = 0.05  # Adjusted per PDF
         self.saturation_calc = saturation_calculator
         self.respiration_calc = respiration_calculator
-        self.KW_CONVERSION_FACTOR: float = 0.746  # HP to kW
-        self.THETA: float = 1.024  # Temperature correction factor
-        self.STANDARD_TEMP: float = 20.0  # °C
-        self.BOTTOM_VOLUME_FACTOR: float = 0.05  # Adjusted per PDF
         self.db_path = db_path
         self._init_database()
 
@@ -41,25 +52,37 @@ class AeratorComparer:
             )
             conn.commit()
 
-    def _log_comparison(self, inputs: Dict[str, Any], results: Dict[str, Any]):
+    def _log_comparison(
+        self,
+        inputs: Dict[str, Any],
+        log_results: Dict[str, Any]
+    ):
         """Log inputs and results to SQLite database."""
-        import json
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO aerator_comparisons (inputs, results) VALUES (?, ?)",
-                (json.dumps(inputs, default=str), json.dumps(results, default=str))
+                (
+                    "INSERT INTO aerator_comparisons (inputs, results) "
+                    "VALUES (?, ?)",
+                    (json.dumps(inputs, default=str),
+                     json.dumps(log_results, default=str))
+                )
             )
             conn.commit()
 
-    def _calculate_otrt(self, sotr: float, temperature: float, salinity: float) -> float:
+    def _calculate_otrt(
+        self, sotr: float, temperature: float, salinity: float
+    ) -> float:
         """Calculate Oxygen Transfer Rate at temperature T (OTRt)."""
-        cs_t = self.saturation_calc.get_o2_saturation(temperature, salinity)
-        cs_20 = self.saturation_calc.get_o2_saturation(self.STANDARD_TEMP, salinity)
+        cs_20 = self.saturation_calc.get_o2_saturation(
+            self.standard_temp, salinity
+        )
         if cs_20 <= 0:
-            raise ValueError(f"O2 saturation at 20°C is {cs_20} for salinity {salinity}")
-        temp_corr = self.THETA ** (temperature - self.STANDARD_TEMP)
-        sat_corr = 0.5  # Fixed per PDF, not cs_t/cs_20
+            raise ValueError(
+                f"O2 saturation at 20°C is {cs_20} for salinity {salinity}"
+            )
+        temp_corr = self.theta ** (temperature - self.standard_temp)
+        sat_corr = 0.5  # Fixed per PDF
         otrt = sotr * temp_corr * sat_corr
         if otrt <= 0:
             raise ValueError("OTRt must be positive")
@@ -77,14 +100,19 @@ class AeratorComparer:
     ) -> Dict[str, float]:
         """Calculate Total Oxygen Demand (TOD) in kg O₂/h."""
         water_vol_ha = 10000.0 * pond_depth  # m³/ha
-        resp_rate = self.respiration_calc.get_respiration_rate(salinity, temperature, shrimp_weight)
+        resp_rate = self.respiration_calc.get_respiration_rate(
+            salinity, temperature, shrimp_weight
+        )
         if resp_rate is None:
             raise ValueError("Shrimp respiration rate cannot be None")
-        shrimp_demand = resp_rate * biomass_kg_ha * 1000.0 / 1_000_000.0  # kg O₂/h/ha
+        shrimp_demand = resp_rate * biomass_kg_ha * 1000.0 / 1_000_000.0
         water_rate = 0.49125  # kg O₂/m³/h, per PDF
-        water_demand = water_rate * water_vol_ha * 1000.0 / 1_000_000.0  # kg O₂/h/ha
+        water_demand = water_rate * water_vol_ha * 1000.0 / 1_000_000.0
         bottom_rate = 0.245625  # kg O₂/m³/h, per PDF
-        bottom_demand = bottom_rate * water_vol_ha * self.BOTTOM_VOLUME_FACTOR * 1000.0 / 1_000_000.0
+        bottom_demand = (
+            bottom_rate * water_vol_ha * self.bottom_volume_factor
+            * 1000.0 / 1_000_000.0
+        )
         pond_demand = water_demand + bottom_demand
         total_per_ha = shrimp_demand + pond_demand
         total_demand = total_per_ha * total_area
@@ -107,8 +135,11 @@ class AeratorComparer:
         shrimp_price_usd_kg: float
     ) -> float:
         """Calculate annual revenue."""
-        if production_kg_ha_year < 0 or total_area < 0 or shrimp_price_usd_kg < 0:
-            raise ValueError("Production, area, and price must be non-negative")
+        if production_kg_ha_year < 0 or total_area < 0 or \
+                shrimp_price_usd_kg < 0:
+            raise ValueError(
+                "Production, area, and price must be non-negative"
+            )
         total_yield_kg = production_kg_ha_year * total_area
         return total_yield_kg * shrimp_price_usd_kg
 
@@ -157,7 +188,6 @@ class AeratorComparer:
             total_area = float(farm['area_ha'])
             pond_depth = float(farm['pond_depth_m'])
             production_kg_ha_year = float(farm['production_kg_ha_year'])
-            cycles_per_year = float(farm['cycles_per_year'])
             temperature = float(oxygen['temperature_c'])
             salinity = float(oxygen['salinity_ppt'])
             shrimp_weight = float(oxygen['shrimp_weight_g'])
@@ -173,7 +203,9 @@ class AeratorComparer:
             if not aerators or len(aerators) < 2:
                 raise ValueError("At least two aerators are required")
             if discount_rate == inflation_rate:
-                raise ValueError("Discount rate cannot equal inflation rate")
+                raise ValueError(
+                    "Discount rate cannot equal inflation rate"
+                )
             if horizon <= 0:
                 raise ValueError("Analysis horizon must be positive")
 
@@ -211,7 +243,7 @@ class AeratorComparer:
                     raise ValueError(f"Invalid aerator data for {name}")
 
                 # Calculate SAE
-                power_kw = power_hp * self.KW_CONVERSION_FACTOR
+                power_kw = power_hp * self.kw_conversion_factor
                 sae = sotr / power_kw if power_kw > 0 else float('inf')
 
                 # Calculate OTRt
@@ -223,11 +255,16 @@ class AeratorComparer:
                 # Annual costs
                 energy_cost_year = power_kw * energy_cost * operating_hours
                 capital_cost_year = initial_cost / durability
-                total_unit_cost = energy_cost_year + maintenance + capital_cost_year
+                total_unit_cost = (
+                    energy_cost_year + maintenance + capital_cost_year
+                )
                 total_annual_cost = num_aerators * total_unit_cost
 
                 # Cost percentage
-                cost_percentage = (total_annual_cost / annual_revenue * 100) if annual_revenue > 0 else float('inf')
+                cost_percentage = (
+                    total_annual_cost / annual_revenue * 100
+                    if annual_revenue > 0 else float('inf')
+                )
 
                 aerator_results.append({
                     'name': name,
@@ -236,39 +273,62 @@ class AeratorComparer:
                     'totalAnnualCost': total_annual_cost,
                     'costPercentage': cost_percentage
                 })
-                annual_costs.append((total_annual_cost, name, num_aerators, initial_cost))
+                annual_costs.append(
+                    (total_annual_cost, name, num_aerators, initial_cost)
+                )
 
             # Financial metrics (relative to least efficient aerator)
-            baseline_cost, baseline_name, baseline_units, baseline_price = max(annual_costs)
-            winner_cost, winner_name, winner_units, winner_price = min(annual_costs)
+            baseline_cost, baseline_name, baseline_units, _ = max(annual_costs)
+            winner_cost, winner_name, winner_units, winner_price = \
+                min(annual_costs)
             annual_savings = baseline_cost - winner_cost
             initial_investment = winner_units * winner_price
             cash_flows = [annual_savings] * horizon
 
             # NPV
-            npv = self._calculate_npv(cash_flows, discount_rate, inflation_rate, horizon)
+            npv_value = self._calculate_npv(
+                cash_flows, discount_rate, inflation_rate, horizon
+            )
 
             # IRR
-            irr = self._calculate_irr(initial_investment, cash_flows, horizon) if initial_investment > 0 else float('inf')
+            irr_value = (
+                self._calculate_irr(initial_investment, cash_flows, horizon)
+                if initial_investment > 0 else float('inf')
+            )
 
             # Payback Period (simplified)
-            payback_period = initial_investment / annual_savings * 12 if annual_savings > 0 else float('inf')
+            payback_period = (
+                initial_investment / annual_savings * 12
+                if annual_savings > 0 else float('inf')
+            )
 
             # ROI
-            roi = (npv / initial_investment * 100) if initial_investment > 0 else float('inf')
+            roi = (
+                npv_value / initial_investment * 100
+                if initial_investment > 0 else float('inf')
+            )
 
             # Profitability Coefficient (k)
-            k = npv / initial_investment if initial_investment > 0 else float('inf')
+            k = (
+                npv_value / initial_investment
+                if initial_investment > 0 else float('inf')
+            )
 
             # Equilibrium price for winner (relative to baseline)
             equilibrium_price = float('inf')
             if winner_units > 0:
-                baseline_unit_cost = baseline_cost / baseline_units if baseline_units > 0 else float('inf')
-                winner_unit_cost = winner_cost / winner_units
-                equilibrium_price = baseline_unit_cost * winner_units - winner_cost + winner_price
+                baseline_unit_cost = (
+                    baseline_cost / baseline_units
+                    if baseline_units > 0 else float('inf')
+                )
+                equilibrium_price = (
+                    baseline_unit_cost * winner_units
+                    - winner_cost
+                    + winner_price
+                )
 
             # Cost of opportunity
-            cost_of_opportunity = npv if npv > 0 else 0.0
+            cost_of_opportunity = npv_value if npv_value > 0 else 0.0
 
             # Update aerator results with financial metrics
             for result in aerator_results:
@@ -282,8 +342,8 @@ class AeratorComparer:
                     })
                 else:
                     result.update({
-                        'npv': npv,
-                        'irr': irr,
+                        'npv': npv_value,
+                        'irr': irr_value,
                         'paybackPeriod': payback_period,
                         'roi': roi,
                         'profitabilityCoefficient': k
@@ -291,10 +351,14 @@ class AeratorComparer:
 
             results = {
                 'tod': round(total_demand_kg_h, 4),
-                'shrimpRespiration': round(tod_results['shrimp_demand_kg_h_ha'], 4),
-                'pondRespiration': round(tod_results['pond_demand_kg_h_ha'], 4),
-                'pondWaterRespiration': round(tod_results['water_demand_kg_h_ha'], 4),
-                'pondBottomRespiration': round(tod_results['bottom_demand_kg_h_ha'], 4),
+                'shrimpRespiration': round(
+                    tod_results['shrimp_demand_kg_h_ha'], 4),
+                'pondRespiration': round(
+                    tod_results['pond_demand_kg_h_ha'], 4),
+                'pondWaterRespiration': round(
+                    tod_results['water_demand_kg_h_ha'], 4),
+                'pondBottomRespiration': round(
+                    tod_results['bottom_demand_kg_h_ha'], 4),
                 'annualRevenue': round(annual_revenue, 2),
                 'winnerLabel': winner_name,
                 'aeratorResults': aerator_results,
@@ -308,14 +372,18 @@ class AeratorComparer:
             self._log_comparison(inputs, results)
             return results
 
-        except Exception as e:
+        except (ValueError, TypeError, RuntimeError) as e:
             print(f"Error during aerator comparison: {e}")
             raise
+
 
 if __name__ == "__main__":
     sat_calc = SaturationCalculator()
     resp_calc = ShrimpRespirationCalculator()
-    comparer = AeratorComparer(saturation_calculator=sat_calc, respiration_calculator=resp_calc)
+    comparer = AeratorComparer(
+        saturation_calculator=sat_calc,
+        respiration_calculator=resp_calc
+    )
     test_inputs = {
         'farm': {
             'area_ha': 1000.0,
@@ -353,14 +421,15 @@ if __name__ == "__main__":
             'operating_hours_year': 2920.0,
             'discount_rate_percent': 10.0,
             'inflation_rate_percent': 2.5,
-            'analysis_horizon_years': 9
+            'analysis_horizon_years': 9,
+            'safety_margin_percent': 0.0  # Added default value
         }
     }
     try:
-        results = comparer.compare_aerators(test_inputs)
+        comparison_results = comparer.compare_aerators(test_inputs)
         print("\n--- Aerator Comparison Results ---")
-        for key, value in results.items():
+        for key, value in comparison_results.items():
             print(f"{key}: {value}")
-    except Exception as e:
+    except (ValueError, TypeError, RuntimeError) as e:
         print("\n--- Error ---")
         print(e)

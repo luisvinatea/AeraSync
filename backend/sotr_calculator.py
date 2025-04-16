@@ -1,10 +1,12 @@
-from abc import ABC, abstractmethod
+"""Oxygen saturation and shrimp pond aerator performance calculations."""
 import json
 import math
-import numpy as np
-from functools import lru_cache
 import os
-from typing import Dict, Any
+from abc import ABC, abstractmethod
+from functools import lru_cache
+from typing import Any, Dict
+
+import numpy as np
 
 
 class SaturationCalculator(ABC):
@@ -77,19 +79,22 @@ class SaturationCalculator(ABC):
                     f"Matrix shape: {self.matrix.shape}"
                 )
 
-        except FileNotFoundError:
+        except FileNotFoundError as exc:
             print(f"Error: Data file not found at {self.data_path}")
-            raise Exception(f"Data file not found at {self.data_path}")
-        except json.JSONDecodeError:
+            raise FileNotFoundError(
+                f"Data file not found at {self.data_path}") from exc
+        except json.JSONDecodeError as exc:
             print(f"Error: Invalid JSON format in data file: {self.data_path}")
-            raise Exception(
-                f"Invalid JSON format in data file: {self.data_path}")
+            raise ValueError(
+                f"Invalid JSON format in data file: {self.data_path}") from exc
         except KeyError as e:
             print(f"Error: Missing expected key in JSON metadata: {e}")
-            raise Exception(f"Missing expected key in JSON metadata: {e}")
-        except Exception as e:
-            print(f"An unexpected error occurred during data loading: {e}")
-            raise  # Re-raise the exception after logging
+            raise KeyError(
+                f"Missing expected key in JSON metadata: {e}") from e
+        except Exception as exc:
+            print(f"An unexpected error occurred during data loading: {exc}")
+            raise RuntimeError(
+                f"Unexpected error during data loading: {exc}") from exc
 
     @lru_cache(maxsize=1000)  # Cache results for faster subsequent lookups
     def get_o2_saturation(self, temperature: float, salinity: float) -> float:
@@ -111,7 +116,7 @@ class SaturationCalculator(ABC):
             Exception: If data matrix is not loaded.
         """
         if self.matrix is None:
-            raise Exception(
+            raise RuntimeError(
                 "Saturation data matrix not loaded. Call load_data() first."
             )
 
@@ -130,7 +135,10 @@ class SaturationCalculator(ABC):
         if temp_lower_idx == temp_upper_idx:
             temp_fraction = 0.0
         else:
-            temp_fraction = (temperature - temp_lower_idx)
+            temp_fraction = (
+                (temperature - temp_lower_idx) /
+                (temp_upper_idx - temp_lower_idx)
+            )
 
         # Salinity index (direct lookup based on steps)
         # Ensure index stays within bounds [0, num_salinity_steps - 1]
@@ -151,12 +159,12 @@ class SaturationCalculator(ABC):
             # use lower value
             sat_upper = float(self.matrix[temp_upper_idx, sal_idx]) \
                 if temp_upper_idx != temp_lower_idx else sat_lower
-        except IndexError:
+        except IndexError as exc:
             raise IndexError(
                 f"Index out of bounds when accessing matrix. "
                 f"T_low={temp_lower_idx}, T_up={temp_upper_idx}, "
                 f"Sal_idx={sal_idx}. Matrix shape={self.matrix.shape}"
-            )
+            ) from exc
 
         # Linear interpolation along the temperature axis
         interpolated_saturation = (
@@ -170,7 +178,6 @@ class SaturationCalculator(ABC):
         t10: float, t70: float, kwh_price: float, aerator_id: str
     ) -> Dict[str, Any]:
         """Calculates key performance metrics for an aerator."""
-        pass
 
 
 class ShrimpPondCalculator(SaturationCalculator):
@@ -192,9 +199,6 @@ class ShrimpPondCalculator(SaturationCalculator):
         "oxy guard": "OxyGuard", "lin": "LINN", "sagr": "Sagar",
         "hcpp": "HCP", "yiyuan1": "Yiyuan",
     }
-
-    def __init__(self, data_path: str = None):
-        super().__init__(data_path)
 
     def normalize_brand(self, brand: str) -> str:
         """
@@ -247,7 +251,7 @@ class ShrimpPondCalculator(SaturationCalculator):
             parts = aerator_id.split(" ", 1)
             brand = parts[0] if parts else "Generic"
             aerator_type = parts[1] if len(parts) > 1 else "Unknown"
-        except Exception:
+        except (AttributeError, IndexError):
             brand = "Generic"
             aerator_type = "Unknown"
 
