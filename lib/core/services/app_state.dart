@@ -1,13 +1,15 @@
-import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logging/logging.dart';
+import 'api_service.dart';
 
 class AppState extends ChangeNotifier {
   // Initialize logger
   static final Logger _logger = Logger('AppState');
+
+  // API service
+  final ApiService _apiService;
 
   // --- State Variables ---
   double? tod;
@@ -32,11 +34,10 @@ class AppState extends ChangeNotifier {
   // Data disclosure state
   bool _hasAgreedToDisclosure = false;
 
-  // Backend URL
-  final String _baseUrl = 'http://localhost:8000';
-
   // --- Constructor ---
-  AppState({required Locale locale}) : _locale = locale {
+  AppState({required Locale locale, ApiService? apiService})
+      : _locale = locale,
+        _apiService = apiService ?? ApiService() {
     // Set up logging level
     Logger.root.level = Level.ALL;
     Logger.root.onRecord.listen((record) {
@@ -154,16 +155,12 @@ class AppState extends ChangeNotifier {
   /// Checks if the backend API is reachable and healthy.
   Future<bool> checkApiHealth() async {
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/health'),
-      ).timeout(const Duration(seconds: 5));
-
-      _isApiHealthy = (response.statusCode >= 200 && response.statusCode < 300);
-      _logger.info('API health check: $_isApiHealthy');
+      _isApiHealthy = await _apiService.checkHealth();
+      _logger.info('API health check result: $_isApiHealthy');
       notifyListeners();
       return _isApiHealthy;
-    } catch (e) {
-      _logger.severe('API Health Check Failed: $e');
+    } catch (e, stackTrace) {
+      _logger.severe('API Health Check Failed: $e\n$stackTrace');
       _isApiHealthy = false;
       notifyListeners();
       return false;
@@ -174,55 +171,36 @@ class AppState extends ChangeNotifier {
   Future<void> compareAerators(Map<String, dynamic> surveyData) async {
     clearError();
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/compare-aerators'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode(surveyData),
-      ).timeout(const Duration(seconds: 30));
+      final results = await _apiService.compareAerators(surveyData);
+      _logger.info('Received compare-aerators response: $results');
 
-      if (response.statusCode == 200) {
-        late final Map<String, dynamic> results;
-        try {
-          results = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
-        } catch (e) {
-          setError('Failed to parse server response: $e');
-          return;
-        }
-
-        if (results['tod'] != null && results['winnerLabel'] != null && results['aeratorResults'] != null) {
-          setResults(
-            tod: (results['tod'] as num?)?.toDouble() ?? 0.0,
-            shrimpRespiration: (results['shrimpRespiration'] as num?)?.toDouble() ?? 0.0,
-            pondRespiration: (results['pondRespiration'] as num?)?.toDouble() ?? 0.0,
-            pondWaterRespiration: (results['pondWaterRespiration'] as num?)?.toDouble() ?? 0.0,
-            pondBottomRespiration: (results['pondBottomRespiration'] as num?)?.toDouble() ?? 0.0,
-            annualRevenue: (results['annualRevenue'] as num?)?.toDouble() ?? 0.0,
-            winnerLabel: results['winnerLabel'] as String? ?? 'N/A',
-            aeratorResults: (results['aeratorResults'] as List<dynamic>? ?? [])
-                .map((r) {
-                  if (r is Map<String, dynamic>) {
-                    return AeratorResult.fromJson(r);
-                  } else {
-                    _logger.warning('Skipping invalid item in aeratorResults list: $r');
-                    return null;
-                  }
-                })
-                .whereType<AeratorResult>()
-                .toList(),
-            apiResults: Map<String, dynamic>.from(results['apiResults'] ?? {}),
-          );
-        } else {
-          setError('Incomplete data received from server.');
-        }
+      if (results['tod'] != null && results['winnerLabel'] != null && results['aeratorResults'] != null) {
+        setResults(
+          tod: (results['tod'] as num?)?.toDouble() ?? 0.0,
+          shrimpRespiration: (results['shrimpRespiration'] as num?)?.toDouble() ?? 0.0,
+          pondRespiration: (results['pondRespiration'] as num?)?.toDouble() ?? 0.0,
+          pondWaterRespiration: (results['pondWaterRespiration'] as num?)?.toDouble() ?? 0.0,
+          pondBottomRespiration: (results['pondBottomRespiration'] as num?)?.toDouble() ?? 0.0,
+          annualRevenue: (results['annualRevenue'] as num?)?.toDouble() ?? 0.0,
+          winnerLabel: results['winnerLabel'] as String? ?? 'N/A',
+          aeratorResults: (results['aeratorResults'] as List<dynamic>? ?? [])
+              .map((r) {
+                if (r is Map<String, dynamic>) {
+                  return AeratorResult.fromJson(r);
+                } else {
+                  _logger.warning('Skipping invalid item in aeratorResults list: $r');
+                  return null;
+                }
+              })
+              .whereType<AeratorResult>()
+              .toList(),
+          apiResults: Map<String, dynamic>.from(results['apiResults'] ?? {}),
+        );
       } else {
-        String responseBody = utf8.decode(response.bodyBytes, allowMalformed: true);
-        setError('API Error (${response.statusCode}): ${responseBody.isNotEmpty ? responseBody : response.reasonPhrase ?? "Unknown error"}');
+        setError('Incomplete data received from server.');
       }
-    } on TimeoutException catch (_) {
-      setError('The request timed out. Please check your connection or try again later.');
-    } on http.ClientException catch (e) {
-      setError('Network error: ${e.message}');
-    } catch (e) {
+    } catch (e, stackTrace) {
+      _logger.severe('CompareAerators Failed: $e\n$stackTrace');
       setError('An unexpected error occurred: $e');
     }
   }

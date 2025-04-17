@@ -11,33 +11,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Flutter environment
-      # Pinning version ensures consistency. cache: true enables dependency caching.
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.2' # Updated from 3.22.2
+          flutter-version: '3.29.2'
           channel: 'stable'
-          cache: true # Cache dependencies for faster builds
+          cache: true
 
-      # Step 3: Verify Flutter version
       - name: Verify Flutter version
         run: flutter --version
 
-      # Step 4: Clean the project (Good practice)
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.pub-cache
+          key: flutter-pub-${{ runner.os }}-stable-${{ env.FLUTTER_VERSION }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            flutter-pub-${{ runner.os }}-stable-${{ env.FLUTTER_VERSION }}-
+        env:
+          FLUTTER_VERSION: '3.29.2'
+
       - name: Clean project
         run: flutter clean
 
-      # Step 5: Get dependencies (Removed risky fallback logic)
-      # Ensure pubspec.yaml is correct before committing. If this fails, the workflow should fail.
+      - name: Validate pubspec.yaml
+        run: flutter pub get --dry-run
+
       - name: Get dependencies
         run: flutter pub get
 
-      # Step 6: Verify required assets (Good check)
       - name: Verify required assets
         run: |
           MISSING=false
@@ -54,9 +59,10 @@ jobs:
             web/assets/wave.svg \
             web/manifest.json \
             web/privacy.html \
+            assets/fonts/Montserrat/static/Montserrat.ttf \
             assets/data/shrimp_respiration_salinity_temperature_weight.json \
             assets/data/o2_temp_sal_100_sat.json \
-            lib/l10n/app_en.arb; do # Added a few more critical files
+            lib/l10n/app_en.arb; do
             if [ ! -f "$asset" ]; then
               echo "Error: Required asset/file '$asset' is missing"
               MISSING=true
@@ -64,19 +70,35 @@ jobs:
           done
           if [ "$MISSING" = true ]; then exit 1; fi
 
-      # Step 7: Generate localization files (Necessary)
-      - name: Generate localization files
-        run: flutter gen-l10n
-
-      # Step 8: Run tests (Good practice)
-      - name: Run tests
-        run: flutter test
-
-      # Step 8: Check ARB File Consistency (Requires Python)
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x' # Use a recent Python 3 version
+          python-version: '3.10'
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install fastapi[all] uvicorn scipy numpy sqlite3
+        working-directory: backend
+
+      - name: Start FastAPI backend
+        run: |
+          uvicorn main:app --host 0.0.0.0 --port 8000 &
+          sleep 10
+          curl --retry 5 --retry-delay 2 http://localhost:8000/health
+        working-directory: backend
+
+      - name: Generate localization files
+        run: flutter gen-l10n
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Lint Python backend
+        run: |
+          pip install flake8
+          flake8 backend/ --max-line-length=79
+        working-directory: .
 
       - name: Check ARB Key Consistency
         run: |
@@ -86,24 +108,16 @@ jobs:
         env:
           PYTHONPATH: .
 
-      # Step 10: Build web release (Correct command and base-href)
       - name: Build web release
-        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/
+        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ --dart-define=API_BASE_URL=http://localhost:8000
 
-      # Step 11: Deploy to GitHub Pages (Uses standard action)
-      # Now only runs on push events to the main branch
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Condition added
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
           publish_branch: gh-pages
-          # Optional: Add commit message, user name/email if needed
           commit_message: "Deploy build for commit ${{ github.sha }}"
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
-          # Optional: Keep history or force push (use force push with caution)
-          # keep_files: false # Default is false (cleans destination branch)
-          # force_orphan: true # Creates a clean history each time
-

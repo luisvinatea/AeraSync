@@ -1,16 +1,41 @@
 """FastAPI backend for AeraSync Aerator Comparison API."""
 import os
 from typing import Any, Dict, List, Optional
-
+import logging
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from aerator_comparer import (
     AeratorComparer,
     SaturationCalculator,
     ShrimpRespirationCalculator,
 )
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('uvicorn.log')
+    ]
+)
+logger = logging.getLogger("AeraSyncAPI")
 
 app = FastAPI(title="AeraSync Aerator Comparison API")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "https://*.github.io"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Dynamically compute data file paths
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -87,28 +112,39 @@ class AeratorComparisonRequest(BaseModel):
     financial: FinancialData
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    logger.info("Received /health request")
+    response = {"status": "healthy", "message": "Service is running smoothly."}
+    logger.info("Sent /health response: %s", response)
+    return response
+
+
 @app.post("/compare-aerators", response_model=Dict[str, Any])
 async def compare_aerators(
     request: AeratorComparisonRequest,
 ) -> Dict[str, Any]:
     """Compare aerators based on the provided request data."""
+    request_data = request.dict()
+    logger.info(
+        "Received /compare-aerators request with data: %s",
+        request_data
+    )
     try:
         inputs = request.dict()
         results = comparer.compare_aerators(inputs)
+        logger.info("Sent /compare-aerators response: %s", results)
         return results
     except ValueError as ve:
+        logger.error("Invalid input in /compare-aerators: %s", str(ve))
         raise HTTPException(
             status_code=400,
             detail=f"Invalid input: {str(ve)}"
         ) from ve
     except Exception as e:
+        logger.error("Error in /compare-aerators: %s", str(e))
         raise HTTPException(
             status_code=500,
             detail=f"Error during comparison: {str(e)}"
         ) from e
-
-
-@app.get("/health")
-async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy"}

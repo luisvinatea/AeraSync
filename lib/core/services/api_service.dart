@@ -1,35 +1,35 @@
-import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ApiService {
-  static const String _baseUrl = 'http://localhost:8000'; // Update for production
+  final http.Client client;
+  final String baseUrl;
 
-  Future<Map<String, dynamic>> compareAerators(Map<String, dynamic> inputs) async {
-    final url = Uri.parse('$_baseUrl/compare-aerators');
+  ApiService({http.Client? client, this.baseUrl = 'http://127.0.0.1:8000'})
+      : client = client ?? http.Client();
+
+  Future<bool> checkHealth() async {
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(inputs),
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
-      } else {
-        throw Exception('Failed to compare aerators: ${response.statusCode} - ${response.body}');
-      }
+      final response = await client.get(Uri.parse('$baseUrl/health'));
+      return response.statusCode == 200;
     } catch (e) {
-      throw Exception('Error during API call: $e');
+      return false;
     }
   }
 
-  Future<bool> checkHealth() async {
-    final url = Uri.parse('$_baseUrl/health');
+  Future<Map<String, dynamic>> compareAerators(Map<String, dynamic> surveyData) async {
     try {
-      final response = await http.get(url);
-      return response.statusCode == 200;
+      final response = await client.post(
+        Uri.parse('$baseUrl/compare'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(surveyData),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      throw Exception('Failed to compare aerators: ${response.statusCode}');
     } catch (e) {
-      throw Exception('Health check failed: $e');
+      throw Exception('Failed to compare aerators: $e');
     }
   }
 }
