@@ -78,9 +78,12 @@ class AppState extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       _hasAgreedToDisclosure = prefs.getBool('hasAgreedToDisclosure') ?? false;
+      _logger.info('Loaded disclosure preference: $_hasAgreedToDisclosure');
       notifyListeners();
     } catch (e) {
       _logger.severe('Error loading disclosure preference: $e');
+      _hasAgreedToDisclosure = false; // Fallback to false
+      notifyListeners();
     }
   }
 

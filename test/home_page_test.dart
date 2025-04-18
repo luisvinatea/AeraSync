@@ -8,10 +8,19 @@ import 'package:aerasync/core/services/api_service.dart';
 import 'package:aerasync/core/services/app_state.dart';
 import 'package:aerasync/l10n/l10n.dart';
 import 'package:aerasync/presentation/pages/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockApiService extends Mock implements ApiService {}
 
 void main() {
+  setUpAll(() {
+    // Mock SharedPreferences to avoid MissingPluginException
+    SharedPreferences.setMockInitialValues({
+      'hasAgreedToDisclosure': true,
+      'locale': 'en',
+    });
+  });
+
   group('HomePage Localization Tests', () {
     late MockApiService mockApiService;
     late AppState appState;
@@ -20,12 +29,13 @@ void main() {
       mockApiService = MockApiService();
       appState = AppState(locale: const Locale('en'), apiService: mockApiService);
       when(() => mockApiService.checkHealth()).thenAnswer((_) async => true);
+      appState.setDisclosureAgreed(true); // Avoid disclosure dialog
     });
 
     Future<void> pumpHomePage(WidgetTester tester, String locale) async {
       appState.locale = Locale(locale);
       await tester.pumpWidget(
-        Provider<AppState>(
+        ChangeNotifierProvider<AppState>(
           create: (_) => appState,
           child: MaterialApp(
             locale: Locale(locale),
@@ -60,13 +70,14 @@ void main() {
     setUp(() {
       mockApiService = MockApiService();
       appState = AppState(locale: const Locale('en'), apiService: mockApiService);
+      appState.setDisclosureAgreed(true); // Avoid disclosure dialog
     });
 
     Future<void> pumpHomePageWithApi(WidgetTester tester, String locale, {required bool isHealthy}) async {
       when(() => mockApiService.checkHealth()).thenAnswer((_) async => isHealthy);
       appState.locale = Locale(locale);
       await tester.pumpWidget(
-        Provider<AppState>(
+        ChangeNotifierProvider<AppState>(
           create: (_) => appState,
           child: MaterialApp(
             locale: Locale(locale),
@@ -81,6 +92,8 @@ void main() {
           ),
         ),
       );
+      // Additional pump to ensure async API health check completes
+      await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
     }
 
