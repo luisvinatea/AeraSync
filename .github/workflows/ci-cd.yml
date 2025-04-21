@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'  # Match local environment (Python 3.12.7)
+          python-version: '3.12'
 
       - name: Install backend dependencies
         run: |
@@ -58,23 +58,23 @@ jobs:
 
       - name: Verify Flutter version
         run: flutter --version
-        working-directory: AeraSync/AeraSync
+        working-directory: AeraSync
 
       - name: Cache Flutter dependencies
         uses: actions/cache@v4
         with:
           path: /home/runner/.pub-cache
-          key: flutter-pub-${{ runner.os }}-stable-3.29.2-${{ hashFiles('AeraSync/AeraSync/pubspec.lock') }}
+          key: flutter-pub-${{ runner.os }}-stable-3.29.2-${{ hashFiles('AeraSync/pubspec.lock') }}
           restore-keys: |
             flutter-pub-${{ runner.os }}-stable-3.29.2-
 
       - name: Clean project
         run: flutter clean
-        working-directory: AeraSync/AeraSync
+        working-directory: AeraSync
 
       - name: Get dependencies
         run: flutter pub get
-        working-directory: AeraSync/AeraSync
+        working-directory: AeraSync
 
       - name: Verify required assets
         run: |
@@ -102,19 +102,19 @@ jobs:
             fi
           done
           if [ "$MISSING" = true ]; then exit 1; fi
-        working-directory: AeraSync/AeraSync
+        working-directory: AeraSync
 
       - name: Generate localization files
         run: flutter gen-l10n
-        working-directory: AeraSync/AeraSync
+        working-directory: AeraSync
 
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
-        working-directory: AeraSync/AeraSync
+        working-directory: AeraSync
 
       - name: Run Flutter tests
         run: flutter test
-        working-directory: AeraSync/AeraSync
+        working-directory: AeraSync
 
       - name: Check ARB Key Consistency
         run: |
@@ -126,14 +126,14 @@ jobs:
 
       - name: Build web release
         run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ --dart-define=API_BASE_URL=http://localhost:8000
-        working-directory: AeraSync/AeraSync
+        working-directory: AeraSync
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: AeraSync/AeraSync/build/web
+          publish_dir: AeraSync/build/web
           publish_branch: gh-pages
           commit_message: "Deploy build for commit ${{ github.sha }}"
           user_name: 'github-actions[bot]'

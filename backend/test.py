@@ -2,21 +2,18 @@
 
 from typing import TypedDict, List
 import warnings
-import pytest
+import subprocess
+import sys
+
 from fastapi.testclient import TestClient
 from main import app
 
 
-# Suppress warnings early
+# Suppress warnings aggressively
 warnings.filterwarnings(
     "ignore",
-    category=pytest.PytestAssertRewriteWarning,
-    module=".*anyio.*"
-)
-warnings.filterwarnings(
-    "ignore",
-    category=DeprecationWarning,
-    module=".*starlette.*"
+    category=Warning,
+    module=".*"
 )
 
 client = TestClient(app)
@@ -125,11 +122,11 @@ class TestAeraSyncAPI:
         }
         response = client.post("/compare-aerators", json=valid_input)
         assert response.status_code == 200
-        result = response.json()
-        assert "tod" in result
-        assert "aeratorResults" in result
-        assert len(result["aeratorResults"]) == 2
-        assert result["winnerLabel"] in ["Aerator1", "Aerator2"]
+        response_data = response.json()
+        assert "tod" in response_data
+        assert "aeratorResults" in response_data
+        assert len(response_data["aeratorResults"]) == 2
+        assert response_data["winnerLabel"] in ["Aerator1", "Aerator2"]
 
     def test_compare_aerators_invalid(self):
         """Test the compare-aerators endpoint with invalid input."""
@@ -311,12 +308,12 @@ class TestAeraSyncAPI:
 
 
 if __name__ == "__main__":
-    pytest.main([
-        "-v",
-        __file__,
-        "--log-cli-level=INFO",
-        "-W",
-        "ignore::pytest.PytestAssertRewriteWarning",
-        "-W",
-        "ignore::DeprecationWarning:starlette"
-    ])
+    # Run pytest via subprocess to ensure pytest.ini is respected
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", "-v", __file__],
+        check=True,
+        capture_output=True,
+        text=True
+    )
+    print(result.stdout)
+    sys.exit(result.returncode)
