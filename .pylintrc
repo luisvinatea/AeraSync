@@ -1,0 +1,10 @@
+[MASTER]
+disable=
+    R0913,  # too-many-arguments
+    R0917,  # too-many-positional-arguments
+    R0914,  # too-many-locals
+    R0801,  # duplicate-code
+    C0301   # line-too-long
+
+[MESSAGES CONTROL]
+max-line-length=79

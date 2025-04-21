@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from aerator_comparer import (
     AeratorComparer,
     SaturationCalculator,
@@ -67,41 +67,41 @@ comparer = AeratorComparer(
 
 class FarmData(BaseModel):
     """Pydantic model for farm input data."""
-    area_ha: float
-    production_kg_ha_year: float
-    cycles_per_year: float
-    pond_depth_m: float
+    area_ha: float = Field(ge=0)  # Non-negative
+    production_kg_ha_year: float = Field(ge=0)
+    cycles_per_year: float = Field(ge=0)
+    pond_depth_m: float = Field(ge=0)
 
 
 class OxygenData(BaseModel):
     """Pydantic model for oxygen input data."""
-    temperature_c: float
-    salinity_ppt: float
-    shrimp_weight_g: float
-    biomass_kg_ha: float
+    temperature_c: float = Field(ge=-10, le=50)  # Reasonable temperature range
+    salinity_ppt: float = Field(ge=0)
+    shrimp_weight_g: float = Field(ge=0)
+    biomass_kg_ha: float = Field(ge=0)
 
 
 class AeratorData(BaseModel):
     """Pydantic model for aerator input data."""
     name: str
-    power_hp: float
-    sotr_kg_o2_h: float
-    initial_cost_usd: float
-    durability_years: float
-    maintenance_usd_year: float
+    power_hp: float = Field(ge=0)
+    sotr_kg_o2_h: float = Field(ge=0)
+    initial_cost_usd: float = Field(ge=0)
+    durability_years: float = Field(ge=0)
+    maintenance_usd_year: float = Field(ge=0)
     brand: Optional[str] = None
     type: Optional[str] = None
 
 
 class FinancialData(BaseModel):
     """Pydantic model for financial input data."""
-    shrimp_price_usd_kg: float
-    energy_cost_usd_kwh: float
-    operating_hours_year: float
-    discount_rate_percent: float
-    inflation_rate_percent: float
-    analysis_horizon_years: int
-    safety_margin_percent: Optional[float] = None
+    shrimp_price_usd_kg: float = Field(ge=0)
+    energy_cost_usd_kwh: float = Field(ge=0)
+    operating_hours_year: float = Field(ge=0)
+    discount_rate_percent: float = Field(ge=0)
+    inflation_rate_percent: float = Field(ge=0)
+    analysis_horizon_years: int = Field(ge=1)
+    safety_margin_percent: Optional[float] = Field(None, ge=0)
 
 
 class AeratorComparisonRequest(BaseModel):
@@ -126,16 +126,16 @@ async def compare_aerators(
     request: AeratorComparisonRequest,
 ) -> Dict[str, Any]:
     """Compare aerators based on the provided request data."""
-    request_data = request.dict()
+    request_data = request.model_dump()  # Use model_dump instead of dict
     logger.info(
         "Received /compare-aerators request with data: %s",
         request_data
     )
     try:
-        inputs = request.dict()
+        inputs = request.model_dump()  # Use model_dump instead of dict
         results = comparer.compare_aerators(inputs)
         logger.info("Sent /compare-aerators response: %s", results)
-        return results
+        return results  # type: ignore
     except ValueError as ve:
         logger.error("Invalid input in /compare-aerators: %s", str(ve))
         raise HTTPException(

@@ -1,51 +1,45 @@
 """Shrimp respiration rate calculator with trilinear interpolation."""
-import json
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
+
+from utils import load_json_data
 
 
 class ShrimpRespirationCalculator:
     """
-    Calculates shrimp respiration rate
-    based on loaded data using trilinear interpolation.
-    Loads data from a JSON file
-    structured similarly to the Dart version's input.
+    Calculates shrimp respiration rate based on loaded data using
+    trilinear interpolation. Loads data from a JSON file structured
+    similarly to the Dart version's input.
     """
 
-    def __init__(self, data_path: str = None):
+    def __init__(self, data_path: Optional[str] = None):
         """
         Initializes the calculator with the path to the JSON data file.
-        If no data_path is provided,
-        it will be computed dynamically relative to the script location.
 
         Args:
-            data_path (str, optional): The path to the JSON data file.
+            data_path: The path to the JSON data file.
             If None, computed dynamically.
         """
-        # Dynamically compute the default data path if not provided
         if data_path is None:
-            # Get the directory of the current script
-            # (backend/shrimp_respiration_calculator.py)
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            # Navigate to the repo root (one level up from backend/)
             repo_root = os.path.dirname(script_dir)
-            # Define the path to assets/data/
             self.data_path = os.path.join(
-                repo_root, "assets",
-                "data", "shrimp_respiration_salinity_temperature_weight.json")
+                repo_root, "assets", "data",
+                "shrimp_respiration_salinity_temperature_weight.json"
+            )
         else:
             self.data_path = data_path
 
-        # Verify that the data file exists
         if not os.path.exists(self.data_path):
             raise FileNotFoundError(
-                f"Shrimp respiration data file not found at: {self.data_path}")
+                f"Shrimp respiration data file not found at: {self.data_path}"
+            )
 
-        self._respiration_data: Optional[Dict[str, Any]] = None
+        self._respiration_data: Dict[str, Any] = {}
         self._salinity_values: List[float] = []
         self._temperature_values: List[float] = []
         self._biomass_values: List[float] = []
-        self.load_data()  # Load data immediately on initialization
+        self.load_data()
 
     def load_data(self) -> None:
         """Loads and parses the respiration data from the JSON file."""
@@ -53,65 +47,46 @@ class ShrimpRespirationCalculator:
             f"Attempting to load shrimp respiration data from: "
             f"{self.data_path}"
         )
-        try:
-            with open(self.data_path, 'r', encoding='utf-8') as f:
-                json_data: Dict[str, Any] = json.load(f)
+        json_data = load_json_data(self.data_path)
 
-            # Extract metadata
-            metadata = json_data.get('metadata')
-            if not isinstance(metadata, dict):
-                raise ValueError("Metadata missing or invalid in JSON")
+        metadata: Dict[str, Any] = json_data.get('metadata', {})
+        if not metadata:
+            raise ValueError("Metadata missing or invalid in JSON")
 
-            # Parse and store the discrete values for each dimension,
-            # ensuring they are sorted
-            self._salinity_values = sorted([
-                float(str(s).replace('%', '')) for s in metadata.get(
-                    'salinity_values', [])
-            ])
-            self._temperature_values = sorted([
-                float(str(t).replace('°C', '')) for t in metadata.get(
-                    'temperature_values', [])
-            ])
-            self._biomass_values = sorted([
-                float(str(b).replace('g', '')) for b in metadata.get(
-                    'shrimp_biomass', [])
-            ])
+        self._salinity_values = sorted([
+            float(str(s).replace('%', ''))
+            for s in metadata.get('salinity_values', [])
+        ])
+        self._temperature_values = sorted([
+            float(str(t).replace('°C', ''))
+            for t in metadata.get('temperature_values', [])
+        ])
+        self._biomass_values = sorted([
+            float(str(b).replace('g', ''))
+            for b in metadata.get('shrimp_biomass', [])
+        ])
 
-            if not all([self._salinity_values,
-                        self._temperature_values, self._biomass_values]):
-                raise ValueError(
-                    "Metadata arrays (salinity, temperature, biomass)"
-                    "cannot be empty"
-                    )
-
-            # Store the main data grid
-            self._respiration_data = json_data.get('data')
-            if not isinstance(self._respiration_data, dict):
-                raise ValueError("Data grid missing or invalid in JSON")
-
-            print("Shrimp respiration data loaded successfully.")
-
-        except FileNotFoundError as exc:
-            print(f"Error: Data file not found at {self.data_path}")
-            raise FileNotFoundError(
-                f"Data file not found at {self.data_path}") from exc
-        except json.JSONDecodeError as exc:
-            print(
-                f"Error: Invalid JSON format in data file: {self.data_path}")
+        if not all([
+            self._salinity_values,
+            self._temperature_values,
+            self._biomass_values
+        ]):
             raise ValueError(
-                f"Invalid JSON format in data file: {self.data_path}") from exc
-        except (KeyError, ValueError, TypeError) as e:
-            print(f"Error parsing JSON data or metadata: {e}")
+                "Metadata arrays (salinity, temperature, biomass) "
+                "cannot be empty"
+            )
+
+        self._respiration_data = json_data.get('data', {})
+        if not self._respiration_data:
             raise ValueError(
-                f"Error parsing JSON data or metadata: {e}") from e
-        except Exception as exc:
-            print(f"An unexpected error occurred during data loading: {exc}")
-            raise RuntimeError(
-                f"Unexpected error during data loading: {exc}") from exc
+                "Data grid missing or invalid in JSON"
+            )
+
+        print("Shrimp respiration data loaded successfully.")
 
     def _find_bounds(
-            self, value: float, sorted_values: List[float]) -> tuple[
-                float, float]:
+        self, value: float, sorted_values: List[float]
+    ) -> Tuple[float, float]:
         """Finds the lower and upper bounds for a value in a sorted list."""
         if not sorted_values:
             raise ValueError("Cannot find bounds in empty list")
@@ -119,86 +94,137 @@ class ShrimpRespirationCalculator:
         low = sorted_values[0]
         high = sorted_values[-1]
 
-        for val in enumerate(sorted_values):
-            val = val[1]
+        for val in sorted_values:
             if val <= value:
                 low = val
             if val >= value:
                 high = val
-                break  # Found the upper bound
+                break
 
         return low, high
 
     def _get_value_from_data(
-            self, sal_key: str, temp_key: str, weight_key: str) -> Optional[
-                float]:
-        """Safely retrieves a value
-        from the nested respiration data dictionary."""
+        self, sal_key: str, temp_key: str, weight_key: str
+    ) -> float:
+        """
+        Safely retrieves a value from the nested respiration data dictionary.
+        """
         try:
-            val = None
-            if self._respiration_data:
-                val = self._respiration_data.get(
-                    sal_key, {}).get(temp_key, {}).get(weight_key)
+            val = self._respiration_data.get(sal_key, {}).get(temp_key, {}) \
+                .get(weight_key)
             if val is None:
-                print(
-                    f"Warning: Key path not found: "
-                    f"{sal_key} -> {temp_key} -> {weight_key}"
+                raise ValueError(
+                    (
+                        f"Key path not found: {sal_key} -> {temp_key} -> "
+                        f"{weight_key}"
                     )
-                return None
-            # Ensure the value is treated as a number (float)
+                )
             return float(val)
         except (TypeError, ValueError) as e:
-            print(
-                f"Warning: Could not convert value to float at"
-                f"{sal_key}.{temp_key}.{weight_key}: {e}")
-            return None
+            raise ValueError(
+                f"Could not convert value at {sal_key}.{temp_key}."
+                f"{weight_key}: {e}"
+            ) from e
+
+    def _get_cube_values(
+        self,
+        salinity_low_key: str,
+        salinity_high_key: str,
+        temp_low_key: str,
+        temp_high_key: str,
+        weight_low_key: str,
+        weight_high_key: str
+    ) -> List[float]:
+        """Retrieves the 8 corner values for the interpolation cube."""
+        corners = [
+            (salinity_low_key, temp_low_key, weight_low_key),
+            (salinity_low_key, temp_low_key, weight_high_key),
+            (salinity_low_key, temp_high_key, weight_low_key),
+            (salinity_low_key, temp_high_key, weight_high_key),
+            (salinity_high_key, temp_low_key, weight_low_key),
+            (salinity_high_key, temp_low_key, weight_high_key),
+            (salinity_high_key, temp_high_key, weight_low_key),
+            (salinity_high_key, temp_high_key, weight_high_key)
+        ]
+        values = [
+            self._get_value_from_data(sal, temp, weight)
+            for sal, temp, weight in corners
+        ]
+        return values
+
+    def _trilinear_interpolation(
+        self,
+        corner_values: List[float],
+        s: float,
+        t: float,
+        w: float
+    ) -> float:
+        """
+        Performs trilinear interpolation using the corner values and
+        interpolation factors.
+        """
+        r000, r001, r010, r011, r100, r101, r110, r111 = corner_values
+        r00 = r000 + (r001 - r000) * w
+        r01 = r010 + (r011 - r010) * w
+        r10 = r100 + (r101 - r100) * w
+        r11 = r110 + (r111 - r110) * w
+        r0 = r00 + (r01 - r00) * t
+        r1 = r10 + (r11 - r10) * t
+        return r0 + (r1 - r0) * s
 
     def get_respiration_rate(
-            self, salinity: float, temperature: float, shrimp_weight: float
-            ) -> float:
+        self, salinity: float, temperature: float, shrimp_weight: float
+    ) -> float:
         """
-        Calculates the respiration rate (mg O₂/g/h) for the given conditions
-        using trilinear interpolation based on the loaded data.
+        Calculates the respiration rate (mg O₂/g/h) using trilinear
+        interpolation.
 
         Args:
-            salinity (float): Water salinity in ppt (parts per thousand).
-            temperature (float): Water temperature in °C.
-            shrimp_weight (float): Average shrimp weight in grams.
+            salinity: Water salinity in ppt.
+            temperature: Water temperature in °C.
+            shrimp_weight: Average shrimp weight in grams.
 
         Returns:
-            float: The estimated respiration rate in mg O₂/g/h.
+            The estimated respiration rate in mg O₂/g/h.
 
         Raises:
-            Exception: If data is not loaded or interpolation fails.
+            ValueError: If data is not loaded or interpolation fails.
         """
-        if self._respiration_data is None or not all(
-                [self._salinity_values,
-                 self._temperature_values,
-                 self._biomass_values]):
+        if not all([
+            self._salinity_values,
+            self._temperature_values,
+            self._biomass_values
+        ]):
             raise ValueError(
-                ("Respiration data not loaded or invalid. "
-                 "Call load_data() first.")
+                "Respiration data not loaded. Call load_data() first."
             )
 
-        # 1. Clamp input values to the range covered by the data
+        # Clamp input values
         clamped_salinity = max(
-            self._salinity_values[0], min(salinity,
-                                          self._salinity_values[-1]))
+            self._salinity_values[0],
+            min(salinity, self._salinity_values[-1])
+        )
         clamped_temperature = max(
-            self._temperature_values[0], min(temperature,
-                                             self._temperature_values[-1]))
-        clamped_weight = max(self._biomass_values[0], min(
-            shrimp_weight, self._biomass_values[-1]))
+            self._temperature_values[0],
+            min(temperature, self._temperature_values[-1])
+        )
+        clamped_weight = max(
+            self._biomass_values[0],
+            min(shrimp_weight, self._biomass_values[-1])
+        )
 
-        # 2. Find the surrounding grid points (lower and upper bounds)
+        # Find bounds
         salinity_low, salinity_high = self._find_bounds(
-            clamped_salinity, self._salinity_values)
+            clamped_salinity, self._salinity_values
+        )
         temp_low, temp_high = self._find_bounds(
-            clamped_temperature, self._temperature_values)
+            clamped_temperature, self._temperature_values
+        )
         weight_low, weight_high = self._find_bounds(
-            clamped_weight, self._biomass_values)
+            clamped_weight, self._biomass_values
+        )
 
-        # 3. Convert boundary values to the string keys used in the JSON data
+        # Convert to JSON keys
         salinity_low_key = f'{int(salinity_low)}%'
         salinity_high_key = f'{int(salinity_high)}%'
         temp_low_key = f'{int(temp_low)}°C'
@@ -206,107 +232,52 @@ class ShrimpRespirationCalculator:
         weight_low_key = f'{int(weight_low)}g'
         weight_high_key = f'{int(weight_high)}g'
 
-        # 4. Retrieve the respiration rate values
-        # at the 8 corners of the interpolation cube.
-        r000 = self._get_value_from_data(
-            salinity_low_key, temp_low_key, weight_low_key)
-        r001 = self._get_value_from_data(
-            salinity_low_key, temp_low_key, weight_high_key)
-        r010 = self._get_value_from_data(
-            salinity_low_key, temp_high_key, weight_low_key)
-        r011 = self._get_value_from_data(
-            salinity_low_key, temp_high_key, weight_high_key)
-        r100 = self._get_value_from_data(
-            salinity_high_key, temp_low_key, weight_low_key)
-        r101 = self._get_value_from_data(
-            salinity_high_key, temp_low_key, weight_high_key)
-        r110 = self._get_value_from_data(
-            salinity_high_key, temp_high_key, weight_low_key)
-        r111 = self._get_value_from_data(
-            salinity_high_key, temp_high_key, weight_high_key)
+        # Get corner values
+        corner_values = self._get_cube_values(
+            salinity_low_key, salinity_high_key, temp_low_key, temp_high_key,
+            weight_low_key, weight_high_key
+        )
 
-        # Check if any corner value could not be retrieved
-        corner_values = [r000, r001, r010, r011, r100, r101, r110, r111]
-        if any(r is None for r in corner_values):
-            raise ValueError(
-                f"Missing respiration data for"
-                f"interpolation corner points near S={salinity}, "
-                f"T={temperature}, W={shrimp_weight}. "
-                f"Check JSON structure and keys."
-                )
-
-        # Cast checked values to float (mypy compatibility)
-        (
-            r000, r001, r010, r011,
-            r100, r101, r110, r111
-        ) = map(float, corner_values)
-
-        # 5. Calculate interpolation factors (s, t, w)
-        # - relative position within the cube [0, 1]
+        # Calculate interpolation factors
         sal_diff = salinity_high - salinity_low
         temp_diff = temp_high - temp_low
         weight_diff = weight_high - weight_low
-
-        # Avoid division by zero if bounds are the same
-        # (input matches a grid point)
         s = 0.0 if sal_diff == 0 else (
-            clamped_salinity - salinity_low) / sal_diff
+            clamped_salinity - salinity_low
+        ) / sal_diff
         t = 0.0 if temp_diff == 0 else (
-            clamped_temperature - temp_low) / temp_diff
+            clamped_temperature - temp_low
+        ) / temp_diff
         w = 0.0 if weight_diff == 0 else (
-            clamped_weight - weight_low) / weight_diff
+            clamped_weight - weight_low
+        ) / weight_diff
 
-        # 6. Perform trilinear interpolation
-        #    Interpolate along weight axis (w)
-        r00 = r000 + (r001 - r000) * w
-        r01 = r010 + (r011 - r010) * w
-        r10 = r100 + (r101 - r100) * w
-        r11 = r110 + (r111 - r110) * w
-
-        #    Interpolate along temperature axis (t)
-        r0 = r00 + (r01 - r00) * t
-        r1 = r10 + (r11 - r10) * t
-
-        #    Interpolate along salinity axis (s)
-        respiration_rate = r0 + (r1 - r0) * s
-
-        return respiration_rate
+        # Perform interpolation
+        return self._trilinear_interpolation(corner_values, s, t, w)
 
 
 if __name__ == '__main__':
     try:
         calculator = ShrimpRespirationCalculator()
-
-        # Test case 1: Inside the data range
-        SAL = 20.0
-        TEMP = 28.0
-        WEIGHT = 12.0
-        rate1 = calculator.get_respiration_rate(SAL, TEMP, WEIGHT)
+        SAL1, TEMP1, WEIGHT1 = 20.0, 28.0, 12.0
+        rate1 = calculator.get_respiration_rate(SAL1, TEMP1, WEIGHT1)
         print(
-            f"Respiration Rate at S={SAL}‰,"
-            f"T={TEMP}°C,"
-            f"W={WEIGHT}g: {rate1:.4f} mg O₂/g/h"
+            f"Respiration Rate at S={SAL1}‰, T={TEMP1}°C, W={WEIGHT1}g: "
+            f"{rate1:.4f} mg O₂/g/h"
         )
 
-        # Test case 2: Values matching grid points
-        SAL = 25.0
-        TEMP = 30.0
-        WEIGHT = 15.0
-        rate2 = calculator.get_respiration_rate(SAL, TEMP, WEIGHT)
+        SAL2, TEMP2, WEIGHT2 = 25.0, 30.0, 15.0
+        rate2 = calculator.get_respiration_rate(SAL2, TEMP2, WEIGHT2)
         print(
-            f"Respiration Rate at S={SAL}‰,"
-            f"T={TEMP}°C,"
-            f"W={WEIGHT}g: {rate2:.4f} mg O₂/g/h")
+            f"Respiration Rate at S={SAL2}‰, T={TEMP2}°C, W={WEIGHT2}g: "
+            f"{rate2:.4f} mg O₂/g/h"
+        )
 
-        # Test case 3: Values outside the range (will be clamped)
-        SAL = 50.0
-        TEMP = 5.0
-        WEIGHT = 1.0
-        rate3 = calculator.get_respiration_rate(SAL, TEMP, WEIGHT)
+        SAL3, TEMP3, WEIGHT3 = 50.0, 5.0, 1.0
+        rate3 = calculator.get_respiration_rate(SAL3, TEMP3, WEIGHT3)
         print(
-            f"Respiration Rate at S={SAL}‰,"
-            f"T={TEMP}°C,"
-            f"W={WEIGHT}g (clamped): {rate3:.4f} mg O₂/g/h")
-
-    except RuntimeError as exc:
+            f"Respiration Rate at S={SAL3}‰, T={TEMP3}°C, W={WEIGHT3}g "
+            f"(clamped): {rate3:.4f} mg O₂/g/h"
+        )
+    except (FileNotFoundError, ValueError, TypeError) as exc:
         print(f"An error occurred: {exc}")

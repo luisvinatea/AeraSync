@@ -8,7 +8,7 @@
     "@welcomeToAeraSync": {
       "description": "Mensaje de bienvenida en la página principal"
     },
-    "welcomeDescription": "Optimiza tu granja de camarones con herramientas avanzadas de comparación de aireadores.",
+    "welcomeDescription": "Optimize su camaronera con herramientas avanzadas para comparación de aireadores.",
     "@welcomeDescription": {
       "description": "Descripción en la página principal"
     },

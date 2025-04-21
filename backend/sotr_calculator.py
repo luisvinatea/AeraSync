@@ -1,41 +1,35 @@
 """Oxygen saturation and shrimp pond aerator performance calculations."""
-import json
 import math
 import os
 from abc import ABC, abstractmethod
 from functools import lru_cache
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import numpy as np
+from pydantic import BaseModel, Field
+
+from utils import load_json_data
 
 
 class SaturationCalculator(ABC):
     """Abstract base class for oxygen saturation calculations."""
-    def __init__(self, data_path: str = None):
+    def __init__(self, data_path: Optional[str] = None):
         """
         Initializes the calculator with the path to the JSON data file.
-        If no data_path is provided, it will be computed dynamically
-        relative to the script location.
 
         Args:
-            data_path (str, optional): The path to the JSON data file. If None,
-                computed dynamically.
+            data_path: The path to the JSON data file.
+                If None, computed dynamically.
         """
-        # Dynamically compute the default data path if not provided
         if data_path is None:
-            # Get the directory of the current script
-            # (backend/sotr_calculator.py)
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            # Navigate to the repo root (one level up from backend/)
             repo_root = os.path.dirname(script_dir)
-            # Define the path to assets/data/
             self.data_path = os.path.join(
-                repo_root, "assets", "data", "oxygen_saturation.json"
+                repo_root, "assets", "data", "o2_temp_sal_100_sat.json"
             )
         else:
             self.data_path = data_path
 
-        # Verify that the data file exists
         if not os.path.exists(self.data_path):
             raise FileNotFoundError(
                 f"Oxygen saturation data file not found at: {self.data_path}"
@@ -43,77 +37,47 @@ class SaturationCalculator(ABC):
 
         self.matrix = None
         self.metadata = None
-        self.temp_step = 1.0  # Default
-        self.sal_step = 5.0   # Default
-        self.unit = "mg/L"    # Default
-        self.load_data()      # Load data upon initialization
+        self.temp_step = 1.0
+        self.sal_step = 5.0
+        self.unit = "mg/L"
+        self.load_data()
 
     def load_data(self):
         """Load oxygen saturation data from a JSON file into a NumPy array."""
         print(f"Attempting to load data from: {self.data_path}")
-        try:
-            with open(
-                self.data_path, 'r', encoding='utf-8'
-            ) as f:  # Specify encoding
-                data = json.load(f)
-                self.metadata = data.get("metadata")
-                if not self.metadata:
-                    raise ValueError("Metadata missing in JSON file")
+        data = load_json_data(self.data_path)
+        self.metadata = data.get("metadata")
+        if not self.metadata:
+            raise ValueError("Metadata missing in JSON file")
 
-                # Validate metadata structure before accessing keys
-                temp_range = self.metadata.get("temperature_range", {})
-                sal_range = self.metadata.get("salinity_range", {})
+        temp_range = self.metadata.get("temperature_range", {})
+        sal_range = self.metadata.get("salinity_range", {})
+        self.temp_step = float(temp_range.get("step", 1.0))
+        self.sal_step = float(sal_range.get("step", 5.0))
+        self.unit = self.metadata.get("unit", "mg/L")
 
-                self.temp_step = float(temp_range.get("step", 1.0))
-                self.sal_step = float(sal_range.get("step", 5.0))
-                self.unit = self.metadata.get("unit", "mg/L")
+        if "data" not in data:
+            raise ValueError("'data' field missing in JSON file")
 
-                if "data" not in data:
-                    raise ValueError("'data' field missing in JSON file")
+        self.matrix = np.array(data["data"], dtype=np.float32)
+        print(f"Data loaded successfully. Matrix shape: {self.matrix.shape}")
 
-                # Use NumPy for potential performance benefits.
-                # Ensure float type.
-                self.matrix = np.array(data["data"], dtype=np.float32)
-                print(
-                    f"Data loaded successfully. "
-                    f"Matrix shape: {self.matrix.shape}"
-                )
-
-        except FileNotFoundError as exc:
-            print(f"Error: Data file not found at {self.data_path}")
-            raise FileNotFoundError(
-                f"Data file not found at {self.data_path}") from exc
-        except json.JSONDecodeError as exc:
-            print(f"Error: Invalid JSON format in data file: {self.data_path}")
-            raise ValueError(
-                f"Invalid JSON format in data file: {self.data_path}") from exc
-        except KeyError as e:
-            print(f"Error: Missing expected key in JSON metadata: {e}")
-            raise KeyError(
-                f"Missing expected key in JSON metadata: {e}") from e
-        except Exception as exc:
-            print(f"An unexpected error occurred during data loading: {exc}")
-            raise RuntimeError(
-                f"Unexpected error during data loading: {exc}") from exc
-
-    @lru_cache(maxsize=1000)  # Cache results for faster subsequent lookups
+    @lru_cache(maxsize=1000)
     def get_o2_saturation(self, temperature: float, salinity: float) -> float:
         """
-        Get oxygen saturation (mg/L)
-        for given temperature (°C) and salinity (‰).
-        Uses linear interpolation
-        for temperature based on the loaded data grid.
+        Get oxygen saturation (mg/L) for given temperature (°C)
+        and salinity (‰).
 
         Args:
-            temperature (float): Water temperature in °C (0 to 40).
-            salinity (float): Salinity in parts per thousand (‰) (0 to 40).
+            temperature: Water temperature in °C (0 to 40).
+            salinity: Salinity in parts per thousand (‰) (0 to 40).
 
         Returns:
-            float: Oxygen saturation in mg/L.
+            Oxygen saturation in mg/L.
 
         Raises:
             ValueError: If temperature or salinity is out of range.
-            Exception: If data matrix is not loaded.
+            RuntimeError: If data matrix is not loaded.
         """
         if self.matrix is None:
             raise RuntimeError(
@@ -125,174 +89,150 @@ class SaturationCalculator(ABC):
                 "Temperature and salinity must be between 0 and 40"
             )
 
-        # --- Interpolation Logic ---
-        # Temperature bounds (using floor/ceil for linear interpolation)
         temp_lower_idx = math.floor(temperature)
         temp_upper_idx = math.ceil(temperature)
+        temp_fraction = 0.0 if temp_lower_idx == temp_upper_idx else (
+            (temperature - temp_lower_idx) / (temp_upper_idx - temp_lower_idx)
+        )
 
-        # Handle edge case: If temperature is an integer,
-        # no interpolation needed
-        if temp_lower_idx == temp_upper_idx:
-            temp_fraction = 0.0
-        else:
-            temp_fraction = (
-                (temperature - temp_lower_idx) /
-                (temp_upper_idx - temp_lower_idx)
-            )
-
-        # Salinity index (direct lookup based on steps)
-        # Ensure index stays within bounds [0, num_salinity_steps - 1]
         max_sal_idx = self.matrix.shape[1] - 1
         sal_idx = min(max_sal_idx, int(salinity / self.sal_step))
 
-        # Ensure temperature indices are within bounds [0, num_temp_steps - 1]
         max_temp_idx = self.matrix.shape[0] - 1
         temp_lower_idx = min(max_temp_idx, temp_lower_idx)
-        # Handle edge case where temp_upper might exceed 40
         temp_upper_idx = min(max_temp_idx, temp_upper_idx)
 
-        # Get saturation values at the lower and upper temperature bounds
-        # for the given salinity index
         try:
             sat_lower = float(self.matrix[temp_lower_idx, sal_idx])
-            # If upper temp index is same as lower, or exceeds bounds,
-            # use lower value
-            sat_upper = float(self.matrix[temp_upper_idx, sal_idx]) \
-                if temp_upper_idx != temp_lower_idx else sat_lower
+            sat_upper = (
+                float(self.matrix[temp_upper_idx, sal_idx])
+                if temp_upper_idx != temp_lower_idx
+                else sat_lower
+            )
         except IndexError as exc:
             raise IndexError(
-                f"Index out of bounds when accessing matrix. "
-                f"T_low={temp_lower_idx}, T_up={temp_upper_idx}, "
+                f"Index out of bounds: T_low={temp_lower_idx}, "
+                f"T_up={temp_upper_idx}, "
                 f"Sal_idx={sal_idx}. Matrix shape={self.matrix.shape}"
             ) from exc
 
-        # Linear interpolation along the temperature axis
-        interpolated_saturation = (
-            sat_lower + (sat_upper - sat_lower) * temp_fraction
-        )
-        return interpolated_saturation
+        return sat_lower + (sat_upper - sat_lower) * temp_fraction
 
     @abstractmethod
-    def calculate_metrics(
-        self, temperature: float, salinity: float, hp: float, volume: float,
-        t10: float, t70: float, kwh_price: float, aerator_id: str
-    ) -> Dict[str, Any]:
+    def calculate_metrics(self, params: Any) -> Dict[str, Any]:
         """Calculates key performance metrics for an aerator."""
+
+
+class AeratorMetricsInput(BaseModel):
+    """Pydantic model for aerator metrics calculation inputs."""
+    temperature: float = Field(ge=0, le=40)
+    salinity: float = Field(ge=0, le=40)
+    hp: float = Field(ge=0)
+    volume: float = Field(ge=0)
+    t10: float = Field(ge=0)
+    t70: float = Field(ge=0)
+    kwh_price: float = Field(ge=0)
+    aerator_id: str
 
 
 class ShrimpPondCalculator(SaturationCalculator):
     """Concrete implementation for calculating shrimp pond aerator metrics."""
-
     BRAND_NORMALIZATION = {
-        "pentair": "Pentair", "beraqua": "Beraqua",
-        "maof madam": "Maof Madam", "maofmadam": "Maof Madam",
-        "cosumisa": "Cosumisa", "pioneer": "Pioneer",
-        "ecuasino": "Ecuasino", "diva": "Diva", "gps": "GPS",
-        "wangfa": "WangFa", "akva": "AKVA", "xylem": "Xylem",
-        "newterra": "Newterra", "tsurumi": "TSURUMI",
-        "oxyguard": "OxyGuard", "linn": "LINN", "hunan": "Hunan",
-        "sagar": "Sagar", "hcp": "HCP", "yiyuan": "Yiyuan",
-        "generic": "Generic", "pentairr": "Pentair",
-        "beraqua1": "Beraqua", "maof-madam": "Maof Madam",
-        "cosumissa": "Cosumisa", "pionner": "Pioneer",
-        "ecuacino": "Ecuasino", "divva": "Diva", "wang fa": "WangFa",
-        "oxy guard": "OxyGuard", "lin": "LINN", "sagr": "Sagar",
-        "hcpp": "HCP", "yiyuan1": "Yiyuan",
+        "pentair": "Pentair",
+        "beraqua": "Beraqua",
+        "maof madam": "Maof Madam",
+        "maofmadam": "Maof Madam",
+        "cosumisa": "Cosumisa",
+        "pioneer": "Pioneer",
+        "ecuasino": "Ecuasino",
+        "diva": "Diva",
+        "gps": "GPS",
+        "wangfa": "WangFa",
+        "akva": "AKVA",
+        "xylem": "Xylem",
+        "newterra": "Newterra",
+        "tsurumi": "TSURUMI",
+        "oxyguard": "OxyGuard",
+        "linn": "LINN",
+        "hunan": "Hunan",
+        "sagar": "Sagar",
+        "hcp": "HCP",
+        "yiyuan": "Yiyuan",
+        "generic": "Generic",
+        "pentairr": "Pentair",
+        "beraqua1": "Beraqua",
+        "maof-madam": "Maof Madam",
+        "cosumissa": "Cosumisa",
+        "pionner": "Pioneer",
+        "ecuacino": "Ecuasino",
+        "divva": "Diva",
+        "wang fa": "WangFa",
+        "oxy guard": "OxyGuard",
+        "lin": "LINN",
+        "sagr": "Sagar",
+        "hcpp": "HCP", "yiyuan1": "Yiyuan"
     }
 
     def normalize_brand(self, brand: str) -> str:
-        """
-        Normalize the brand name to a standard format.
-
-        Args:
-            brand (str): The brand name to normalize.
-
-        Returns:
-            str: The normalized brand name, or "Generic" if the input is empty
-                or None.
-        """
+        """Normalize the brand name to a standard format."""
         if not brand or not brand.strip():
             return "Generic"
         brand_lower = brand.lower().strip()
-        # Return normalized name or the original (title-cased) if not found
         return self.BRAND_NORMALIZATION.get(brand_lower, brand.title())
 
-    def calculate_metrics(
-        self, temperature: float, salinity: float, hp: float, volume: float,
-        t10: float, t70: float, kwh_price: float, aerator_id: str
-    ) -> Dict[str, Any]:
-        """
-        Calculate performance metrics for an aerator in a shrimp pond.
-        Note: This method is not used by aerator_comparer.py, which only needs
-        get_o2_saturation. Retained for potential future use or standalone
-        calculations.
-
-        Args:
-            temperature (float): Water temperature in °C.
-            salinity (float): Salinity in ‰.
-            hp (float): Horsepower of the aerator.
-            volume (float): Pond volume in m³.
-            t10 (float): Time to reach 10% saturation deficit (minutes).
-            t70 (float): Time to reach 70% saturation deficit (minutes).
-            kwh_price (float): Electricity cost in e.g., USD/kWh.
-            aerator_id (str): Identifier for the aerator (
-                e.g., "Pentair Paddlewheel").
-
-        Returns:
-            dict: A dictionary containing the calculated metrics.
-
-        Raises:
-            ValueError: If t70 is not positive
-            or other calculation issues occur.
-        """
-        # --- Input Processing & Normalization ---
-        try:
-            # Split aerator_id into brand and type, handle cases with no type
-            parts = aerator_id.split(" ", 1)
-            brand = parts[0] if parts else "Generic"
-            aerator_type = parts[1] if len(parts) > 1 else "Unknown"
-        except (AttributeError, IndexError):
-            brand = "Generic"
-            aerator_type = "Unknown"
-
-        normalized_brand = self.normalize_brand(brand)
-        normalized_aerator_id = f"{normalized_brand} {aerator_type}".strip()
-
-        # --- Intermediate Calculations ---
-        power_kw = round(hp * 0.746, 2)
-        cs = self.get_o2_saturation(temperature, salinity)
-        cs20 = self.get_o2_saturation(20, salinity)
-        cs20_kg_m3 = cs20 * 0.001
-
-        # --- KLa Calculation ---
-        # KLaT = -ln(1 - fraction_deficit_covered) / time_hours
-        # Using T70 means fraction covered is 0.7
+    def _calculate_kla(
+        self, t70: float, temperature: float
+    ) -> tuple[float, float]:
+        """Calculate KLa at temperature T and standard 20°C."""
         if t70 <= 0:
             raise ValueError("T70 must be positive to calculate KLa.")
         t70_hours = t70 / 60.0
         kla_t = -math.log(1 - 0.7) / t70_hours
-
-        # KLa at standard temperature 20°C (h⁻¹)
-        theta = 1.024  # Standard temperature correction factor
+        theta = 1.024
         kla20 = kla_t * (theta ** (20.0 - temperature))
+        return kla_t, kla20
 
-        # --- Core Metrics Calculation ---
-        # SOTR (Standard Oxygen Transfer Rate) in kg O₂/h
-        # Formula: SOTR = KLa20 * Cs20(kg/m³) * Volume(m³)
+    def _calculate_sotr_and_sae(
+        self, kla20: float, cs20: float, volume: float, power_kw: float
+    ) -> tuple[float, float]:
+        """Calculate SOTR and SAE."""
+        cs20_kg_m3 = cs20 * 0.001
         sotr = round(kla20 * cs20_kg_m3 * volume, 2)
-
-        # SAE (Standard Aeration Efficiency) in kg O₂/kWh
         sae = round(sotr / power_kw, 2) if power_kw > 0 else 0.0
+        return sotr, sae
 
-        # Cost per kg O2 (e.g., USD/kg O₂)
-        cost_per_kg = round(kwh_price / sae, 2) if sae > 0 else float('inf')
+    def calculate_metrics(self, params: AeratorMetricsInput) -> Dict[str, Any]:
+        """
+        Calculate performance metrics for an aerator in a shrimp pond.
 
-        # Annual Energy Cost (assuming 24/7 operation)
-        annual_energy_cost = round(power_kw * kwh_price * 24 * 365, 2)
+        Args:
+            params: Input parameters for metrics calculation.
 
-        # --- Return Results ---
+        Returns:
+            A dictionary containing the calculated metrics.
+        """
+        parts = params.aerator_id.split(" ", 1)
+        brand = parts[0] if parts else "Generic"
+        aerator_type = parts[1] if len(parts) > 1 else "Unknown"
+        normalized_brand = self.normalize_brand(brand)
+        normalized_aerator_id = f"{normalized_brand} {aerator_type}".strip()
+
+        power_kw = round(params.hp * 0.746, 2)
+        cs = self.get_o2_saturation(params.temperature, params.salinity)
+        cs20 = self.get_o2_saturation(20, params.salinity)
+
+        kla_t, kla20 = self._calculate_kla(params.t70, params.temperature)
+        sotr, sae = self._calculate_sotr_and_sae(
+            kla20, cs20, params.volume, power_kw
+        )
+
+        cost_per_kg = (
+            round(params.kwh_price / sae, 2) if sae > 0 else float('inf')
+        )
+        annual_energy_cost = round(power_kw * params.kwh_price * 24 * 365, 2)
+
         return {
-            "Pond Volume (m³)": volume,
+            "Pond Volume (m³)": params.volume,
             "Cs (mg/L)": round(cs, 2),
             "KlaT (h⁻¹)": round(kla_t, 2),
             "Kla20 (h⁻¹)": round(kla20, 2),
@@ -305,41 +245,21 @@ class ShrimpPondCalculator(SaturationCalculator):
         }
 
     def get_ideal_volume(self, hp: float) -> float:
-        """
-        Get the ideal pond volume (m³) for a given horsepower based on simple
-        rules.
-
-        Args:
-            hp (float): Horsepower of the aerator.
-
-        Returns:
-            float: Ideal pond volume in m³.
-        """
+        """Get the ideal pond volume (m³) for a given horsepower."""
         if hp <= 0:
             return 0
         if hp == 2:
             return 40.0
         if hp == 3:
             return 70.0
-        # General rule for other HP values
         return round(hp * 25.0, 0)
 
     def get_ideal_hp(self, volume: float) -> float:
-        """
-        Get the ideal horsepower for a given pond volume (m³) based on simple
-        rules.
-
-        Args:
-            volume (float): Pond volume in m³.
-
-        Returns:
-            float: Ideal horsepower.
-        """
+        """Get the ideal horsepower for a given pond volume (m³)."""
         if volume <= 0:
             return 0.0
         if volume <= 40:
             return 2.0
         if volume <= 70:
             return 3.0
-        # General rule, ensure minimum HP (e.g., 2) and return as float
         return max(2.0, round(volume / 25.0, 0))
