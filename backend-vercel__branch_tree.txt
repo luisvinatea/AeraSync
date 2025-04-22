@@ -1,0 +1,18 @@
+.
+├── api
+│   ├── aerator_calculations.py
+│   ├── aerator_comparer.py
+│   ├── aerator_types.py
+│   ├── main.py
+│   ├── requirements.txt
+│   ├── shrimp_respiration_calculator.py
+│   ├── sotr_calculator.py
+│   ├── utils.py
+│   └── vercel.json
+├── assets
+│   └── data
+│       ├── o2_temp_sal_100_sat.json
+│       └── shrimp_respiration_salinity_temperature_weight.json
+└── runtime.txt
+
+4 directories, 12 files

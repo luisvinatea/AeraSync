@@ -1,0 +1,271 @@
+.
+├── android
+│   ├── app
+│   │   └── src
+│   │       └── main
+│   │           └── java
+│   │               └── io
+│   │                   └── flutter
+│   │                       └── plugins
+│   │                           └── GeneratedPluginRegistrant.java
+│   └── local.properties
+├── assets
+│   ├── AssetManifest.bin
+│   ├── AssetManifest.bin.json
+│   ├── AssetManifest.json
+│   ├── assets
+│   │   ├── data
+│   │   │   └── o2_temp_sal_100_sat.json
+│   │   └── images
+│   │       └── aerasync.png
+│   ├── FontManifest.json
+│   ├── fonts
+│   │   └── MaterialIcons-Regular.otf
+│   ├── NOTICES
+│   ├── packages
+│   │   └── cupertino_icons
+│   │       └── assets
+│   │           └── CupertinoIcons.ttf
+│   └── shaders
+│       └── ink_sparkle.frag
+├── backend
+│   ├── app.log
+│   └── __pycache__
+│       ├── aerator_calculations.cpython-312.pyc
+│       ├── aerator_comparer.cpython-312.pyc
+│       ├── aerator_types.cpython-312.pyc
+│       ├── main.cpython-312.pyc
+│       ├── shrimp_respiration_calculator.cpython-312.pyc
+│       ├── sotr_calculator.cpython-312.pyc
+│       └── utils.cpython-312.pyc
+├── backend-worktree
+│   ├── api
+│   │   ├── aerator_calculations.py
+│   │   ├── aerator_comparer.py
+│   │   ├── aerator_types.py
+│   │   ├── main.py
+│   │   ├── requirements.txt
+│   │   ├── shrimp_respiration_calculator.py
+│   │   ├── sotr_calculator.py
+│   │   ├── utils.py
+│   │   └── vercel.json
+│   ├── assets
+│   │   └── data
+│   │       ├── o2_temp_sal_100_sat.json
+│   │       └── shrimp_respiration_salinity_temperature_weight.json
+│   └── runtime.txt
+├── build
+│   ├── 82a2e39a92464f26a4af05e357c4e841
+│   │   ├── _composite.stamp
+│   │   ├── gen_dart_plugin_registrant.stamp
+│   │   └── gen_localizations.stamp
+│   ├── a797fb4871d5d645d118a3a3ddd7413e.cache.dill.track.dill
+│   ├── ae30582a806dc4248fd237072391b5a0
+│   │   ├── gen_localizations.stamp
+│   │   └── outputs.json
+│   ├── cache.dill.track.dill
+│   ├── flutter_assets
+│   │   ├── AssetManifest.bin
+│   │   ├── AssetManifest.bin.json
+│   │   ├── AssetManifest.json
+│   │   ├── assets
+│   │   │   ├── data
+│   │   │   │   ├── o2_temp_sal_100_sat.json
+│   │   │   │   └── shrimp_respiration_salinity_temperature_weight.json
+│   │   │   └── fonts
+│   │   │       └── Montserrat
+│   │   │           └── static
+│   │   │               ├── Montserrat-Bold.ttf
+│   │   │               └── Montserrat-Regular.ttf
+│   │   ├── FontManifest.json
+│   │   ├── fonts
+│   │   │   └── MaterialIcons-Regular.otf
+│   │   ├── NOTICES
+│   │   ├── shaders
+│   │   │   └── ink_sparkle.frag
+│   │   └── web
+│   │       ├── assets
+│   │       │   └── wave.svg
+│   │       ├── icons
+│   │       │   ├── aerasync1024.png
+│   │       │   ├── aerasync1024.webp
+│   │       │   ├── aerasync180.png
+│   │       │   ├── aerasync180.webp
+│   │       │   ├── aerasync512.png
+│   │       │   ├── aerasync512.webp
+│   │       │   ├── aerasync64.png
+│   │       │   ├── aerasync64.webp
+│   │       │   └── aerasync.webp
+│   │       └── manifest.json
+│   └── web
+│       ├── assets
+│       │   ├── AssetManifest.bin
+│       │   ├── AssetManifest.bin.json
+│       │   ├── AssetManifest.json
+│       │   ├── assets
+│       │   │   ├── data
+│       │   │   │   ├── o2_temp_sal_100_sat.json
+│       │   │   │   └── shrimp_respiration_salinity_temperature_weight.json
+│       │   │   └── fonts
+│       │   │       └── Montserrat
+│       │   │           └── static
+│       │   │               ├── Montserrat-Bold.ttf
+│       │   │               └── Montserrat-Regular.ttf
+│       │   ├── FontManifest.json
+│       │   ├── fonts
+│       │   │   └── MaterialIcons-Regular.otf
+│       │   ├── NOTICES
+│       │   ├── shaders
+│       │   │   └── ink_sparkle.frag
+│       │   ├── wave.svg
+│       │   └── web
+│       │       ├── assets
+│       │       │   └── wave.svg
+│       │       ├── icons
+│       │       │   ├── aerasync1024.png
+│       │       │   ├── aerasync1024.webp
+│       │       │   ├── aerasync180.png
+│       │       │   ├── aerasync180.webp
+│       │       │   ├── aerasync512.png
+│       │       │   ├── aerasync512.webp
+│       │       │   ├── aerasync64.png
+│       │       │   ├── aerasync64.webp
+│       │       │   └── aerasync.webp
+│       │       └── manifest.json
+│       ├── canvaskit
+│       │   ├── canvaskit.js
+│       │   ├── canvaskit.js.symbols
+│       │   ├── canvaskit.wasm
+│       │   ├── chromium
+│       │   │   ├── canvaskit.js
+│       │   │   ├── canvaskit.js.symbols
+│       │   │   └── canvaskit.wasm
+│       │   ├── skwasm.js
+│       │   ├── skwasm.js.symbols
+│       │   ├── skwasm_st.js
+│       │   ├── skwasm_st.js.symbols
+│       │   ├── skwasm_st.wasm
+│       │   └── skwasm.wasm
+│       ├── favicon.webp
+│       ├── flutter_bootstrap.js
+│       ├── flutter.js
+│       ├── flutter_service_worker.js
+│       ├── icons
+│       │   ├── aerasync1024.png
+│       │   ├── aerasync1024.webp
+│       │   ├── aerasync1500-500.png
+│       │   ├── aerasync1500-500.webp
+│       │   ├── aerasync16.png
+│       │   ├── aerasync16.webp
+│       │   ├── aerasync180.png
+│       │   ├── aerasync180.webp
+│       │   ├── aerasync300-100.png
+│       │   ├── aerasync300-100.webp
+│       │   ├── aerasync400.png
+│       │   ├── aerasync400.webp
+│       │   ├── aerasync512.png
+│       │   ├── aerasync512.webp
+│       │   ├── aerasync64.png
+│       │   ├── aerasync64.webp
+│       │   ├── aerasync.png
+│       │   └── aerasync.webp
+│       ├── index.html
+│       ├── main.dart.js
+│       ├── manifest.json
+│       ├── privacy.html
+│       ├── styles.css
+│       └── version.json
+├── canvaskit
+│   ├── canvaskit.js
+│   ├── canvaskit.js.symbols
+│   ├── canvaskit.wasm
+│   ├── chromium
+│   │   ├── canvaskit.js
+│   │   ├── canvaskit.js.symbols
+│   │   └── canvaskit.wasm
+│   ├── skwasm.js
+│   ├── skwasm.js.symbols
+│   ├── skwasm_st.js
+│   ├── skwasm_st.js.symbols
+│   ├── skwasm_st.wasm
+│   └── skwasm.wasm
+├── favicon.png
+├── flutter_bootstrap.js
+├── flutter.js
+├── flutter_service_worker.js
+├── gh_branch_tree.txt
+├── gh-pages.log
+├── icons
+│   ├── aerasync1024.png
+│   ├── aerasync1500-500.png
+│   ├── aerasync16.png
+│   ├── aerasync180.png
+│   ├── aerasync300-100.png
+│   ├── aerasync400.png
+│   ├── aerasync512.png
+│   ├── aerasync64.png
+│   └── aerasync.png
+├── index.html
+├── linux
+│   └── flutter
+│       └── ephemeral
+├── log
+│   ├── 0_test.txt
+│   ├── 1_deploy.txt
+│   ├── deploy
+│   │   ├── 16_Post Cache Flutter dependencies.txt
+│   │   ├── 17_Post Set up Flutter.txt
+│   │   ├── 18_Post Checkout repository.txt
+│   │   ├── 19_Complete job.txt
+│   │   ├── 1_Set up job.txt
+│   │   ├── 2_Checkout repository.txt
+│   │   ├── 3_Set up Flutter.txt
+│   │   ├── 4_Cache Flutter dependencies.txt
+│   │   ├── 5_Get dependencies.txt
+│   │   ├── 6_Generate localization files.txt
+│   │   ├── 7_Run build_runner.txt
+│   │   ├── 8_Build web for production.txt
+│   │   ├── 9_Deploy to GitHub Pages.txt
+│   │   └── system.txt
+│   └── test
+│       ├── 10_Verify Flutter version.txt
+│       ├── 11_Cache Flutter dependencies.txt
+│       ├── 12_Clean project.txt
+│       ├── 13_Get dependencies.txt
+│       ├── 14_Verify required assets.txt
+│       ├── 15_Generate localization files.txt
+│       ├── 16_Run build_runner.txt
+│       ├── 17_Run Flutter tests.txt
+│       ├── 18_Check ARB Key Consistency.txt
+│       ├── 19_Build web for testing.txt
+│       ├── 1_Set up job.txt
+│       ├── 2_Checkout repository.txt
+│       ├── 35_Post Cache Flutter dependencies.txt
+│       ├── 36_Post Set up Flutter.txt
+│       ├── 37_Post Set up Python.txt
+│       ├── 38_Post Checkout repository.txt
+│       ├── 39_Complete job.txt
+│       ├── 3_Set up Python.txt
+│       ├── 4_Install backend dependencies.txt
+│       ├── 5_Run Flake8.txt
+│       ├── 6_Run Pylint.txt
+│       ├── 7_Run backend tests.txt
+│       ├── 8_Start FastAPI backend.txt
+│       ├── 9_Set up Flutter.txt
+│       └── system.txt
+├── macos
+│   └── Flutter
+│       └── ephemeral
+│           ├── flutter_export_environment.sh
+│           └── Flutter-Generated.xcconfig
+├── main_branch_tree.txt
+├── main.dart.js
+├── main_log.txt
+├── manifest.json
+├── privacy.html
+├── version.json
+└── windows
+    └── flutter
+        └── ephemeral
+
+68 directories, 201 files
