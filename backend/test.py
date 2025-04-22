@@ -1,13 +1,10 @@
 """Unit tests for the AeraSync API."""
-
-from typing import TypedDict, List
+from typing import TypedDict, List, Optional
 import warnings
 import subprocess
 import sys
-
 from fastapi.testclient import TestClient
 from main import app
-
 
 # Suppress warnings aggressively
 warnings.filterwarnings(
@@ -32,7 +29,7 @@ class TestAeraSyncAPI:
         }
 
     def test_compare_aerators_valid(self):
-        """Test the compare-aerators endpoint with valid input."""
+        """Test the compare endpoint with valid input."""
         class FarmInput(TypedDict):
             """Farm input parameters."""
             area_ha: float
@@ -55,8 +52,8 @@ class TestAeraSyncAPI:
             initial_cost_usd: float
             durability_years: float
             maintenance_usd_year: float
-            brand: str
-            type: str
+            brand: Optional[str]
+            type: Optional[str]
 
         class FinancialInput(TypedDict):
             """Financial input parameters."""
@@ -120,7 +117,7 @@ class TestAeraSyncAPI:
                 "safety_margin_percent": 10.0
             }
         }
-        response = client.post("/compare-aerators", json=valid_input)
+        response = client.post("/compare", json=valid_input)
         assert response.status_code == 200
         response_data = response.json()
         assert "tod" in response_data
@@ -129,7 +126,7 @@ class TestAeraSyncAPI:
         assert response_data["winnerLabel"] in ["Aerator1", "Aerator2"]
 
     def test_compare_aerators_invalid(self):
-        """Test the compare-aerators endpoint with invalid input."""
+        """Test the compare endpoint with invalid input."""
         class FarmInput(TypedDict):
             """Farm input parameters."""
             area_ha: float
@@ -152,6 +149,8 @@ class TestAeraSyncAPI:
             initial_cost_usd: float
             durability_years: float
             maintenance_usd_year: float
+            brand: Optional[str]
+            type: Optional[str]
 
         class FinancialInput(TypedDict):
             """Financial input parameters."""
@@ -190,7 +189,9 @@ class TestAeraSyncAPI:
                     "sotr_kg_o2_h": 1.5,
                     "initial_cost_usd": 1000.0,
                     "durability_years": 5.0,
-                    "maintenance_usd_year": 200.0
+                    "maintenance_usd_year": 200.0,
+                    "brand": None,
+                    "type": None
                 },
                 {
                     "name": "Aerator2",
@@ -198,7 +199,9 @@ class TestAeraSyncAPI:
                     "sotr_kg_o2_h": 2.0,
                     "initial_cost_usd": 1500.0,
                     "durability_years": 6.0,
-                    "maintenance_usd_year": 300.0
+                    "maintenance_usd_year": 300.0,
+                    "brand": None,
+                    "type": None
                 }
             ],
             "financial": {
@@ -211,12 +214,12 @@ class TestAeraSyncAPI:
                 "safety_margin_percent": 10.0
             }
         }
-        response = client.post("/compare-aerators", json=invalid_input)
+        response = client.post("/compare", json=invalid_input)
         assert response.status_code == 422
         assert "greater_than_equal" in response.json()["detail"][0]["type"]
 
     def test_compare_aerators_single_aerator(self):
-        """Test the compare-aerators endpoint with only one aerator."""
+        """Test the compare endpoint with only one aerator."""
         class FarmInput(TypedDict):
             """Farm input parameters."""
             area_ha: float
@@ -239,6 +242,8 @@ class TestAeraSyncAPI:
             initial_cost_usd: float
             durability_years: float
             maintenance_usd_year: float
+            brand: Optional[str]
+            type: Optional[str]
 
         class FinancialInput(TypedDict):
             """Financial input parameters."""
@@ -277,7 +282,9 @@ class TestAeraSyncAPI:
                     "sotr_kg_o2_h": 1.5,
                     "initial_cost_usd": 1000.0,
                     "durability_years": 5.0,
-                    "maintenance_usd_year": 200.0
+                    "maintenance_usd_year": 200.0,
+                    "brand": None,
+                    "type": None
                 }
             ],
             "financial": {
@@ -290,7 +297,7 @@ class TestAeraSyncAPI:
                 "safety_margin_percent": 10.0
             }
         }
-        response = client.post("/compare-aerators", json=single_aerator_input)
+        response = client.post("/compare", json=single_aerator_input)
         assert response.status_code == 400
         assert response.json()["detail"] == (
             "Invalid input: At least two aerators are required"
