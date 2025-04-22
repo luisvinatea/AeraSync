@@ -167,7 +167,7 @@ jobs:
         working-directory: AeraSync
 
       - name: Build web for production
-        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ --dart-define=API_URL=https://aerasync-backend-2kd116cnu-devinatea.vercel.app
+        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ --dart-define=API_URL=https://aerasync-backend-r8st5akz7-devinatea.vercel.app
         working-directory: AeraSync
 
       - name: Deploy to GitHub Pages
