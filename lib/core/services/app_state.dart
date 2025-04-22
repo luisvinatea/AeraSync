@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logging/logging.dart';
@@ -31,8 +32,9 @@ class AppState extends ChangeNotifier {
   // API health state
   bool _isApiHealthy = true;
 
-  // Data disclosure state
+  // Data disclosure and cookies state
   bool _hasAgreedToDisclosure = false;
+  bool _cookiesAccepted = false;
 
   // --- Constructor ---
   AppState({required Locale locale, ApiService? apiService})
@@ -41,16 +43,20 @@ class AppState extends ChangeNotifier {
     // Set up logging level
     Logger.root.level = Level.ALL;
     Logger.root.onRecord.listen((record) {
-      debugPrint('${record.level.name}: ${record.time}: ${record.message}');
+      if (kDebugMode) {
+        debugPrint('${record.level.name}: ${record.time}: ${record.message}');
+      }
     });
-    // Load disclosure agreement state
-    _loadDisclosurePreference();
+    // Load disclosure and cookies state
+    _loadPreferences();
   }
 
   // --- Getters ---
   Locale get locale => _locale;
   String? get error => _error;
   bool get hasAgreedToDisclosure => _hasAgreedToDisclosure;
+  bool get cookiesAccepted => _cookiesAccepted;
+  bool get isApiHealthy => _isApiHealthy;
 
   // --- Setters and Methods ---
 
@@ -59,6 +65,7 @@ class AppState extends ChangeNotifier {
     if (_locale != newLocale) {
       _locale = newLocale;
       _saveLocalePreference(newLocale.languageCode);
+      _logger.info('Locale updated to: ${newLocale.languageCode}');
       notifyListeners();
     }
   }
@@ -73,16 +80,19 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  /// Loads the disclosure agreement state from SharedPreferences.
-  Future<void> _loadDisclosurePreference() async {
+  /// Loads the disclosure agreement and cookies acceptance state from SharedPreferences.
+  Future<void> _loadPreferences() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       _hasAgreedToDisclosure = prefs.getBool('hasAgreedToDisclosure') ?? false;
+      _cookiesAccepted = prefs.getBool('cookiesAccepted') ?? false;
       _logger.info('Loaded disclosure preference: $_hasAgreedToDisclosure');
+      _logger.info('Loaded cookies preference: $_cookiesAccepted');
       notifyListeners();
     } catch (e) {
-      _logger.severe('Error loading disclosure preference: $e');
-      _hasAgreedToDisclosure = false; // Fallback to false
+      _logger.severe('Error loading preferences: $e');
+      _hasAgreedToDisclosure = false;
+      _cookiesAccepted = false;
       notifyListeners();
     }
   }
@@ -97,6 +107,16 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  /// Sets the cookies acceptance state and saves it to preferences.
+  void setCookiesAccepted(bool value) {
+    if (_cookiesAccepted != value) {
+      _cookiesAccepted = value;
+      _saveCookiesPreference(value);
+      _logger.info('Cookies acceptance set to: $value');
+      notifyListeners();
+    }
+  }
+
   /// Saves the disclosure agreement state to SharedPreferences.
   Future<void> _saveDisclosurePreference(bool value) async {
     try {
@@ -107,7 +127,17 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  /// Sets the API health state for testing purposes.
+  /// Saves the cookies acceptance state to SharedPreferences.
+  Future<void> _saveCookiesPreference(bool value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('cookiesAccepted', value);
+    } catch (e) {
+      _logger.severe('Error saving cookies preference: $e');
+    }
+  }
+
+  /// Sets the API health state for testing purposes or after a health check.
   void setApiHealth(bool value) {
     if (_isApiHealthy != value) {
       _isApiHealthy = value;
@@ -119,6 +149,7 @@ class AppState extends ChangeNotifier {
   /// Sets the current error message.
   void setError(String message) {
     _error = message;
+    _logger.warning('Error set: $message');
     notifyListeners();
   }
 
@@ -126,8 +157,25 @@ class AppState extends ChangeNotifier {
   void clearError() {
     if (_error != null) {
       _error = null;
+      _logger.info('Error cleared');
       notifyListeners();
     }
+  }
+
+  /// Resets the results state, useful for testing or restarting the survey.
+  void resetResults() {
+    tod = null;
+    shrimpRespiration = null;
+    pondRespiration = null;
+    pondWaterRespiration = null;
+    pondBottomRespiration = null;
+    annualRevenue = null;
+    winnerLabel = null;
+    aeratorResults = [];
+    apiResults = null;
+    clearError();
+    _logger.info('Results state reset');
+    notifyListeners();
   }
 
   /// Sets the results data received from the API.
@@ -152,6 +200,7 @@ class AppState extends ChangeNotifier {
     this.aeratorResults = aeratorResults;
     this.apiResults = apiResults;
     clearError();
+    _logger.info('Results set: TOD=$tod, Winner=$winnerLabel, Aerators=${aeratorResults.length}');
     notifyListeners();
   }
 
@@ -177,34 +226,51 @@ class AppState extends ChangeNotifier {
       final results = await _apiService.compareAerators(surveyData);
       _logger.info('Received compare-aerators response: $results');
 
-      if (results['tod'] != null && results['winnerLabel'] != null && results['aeratorResults'] != null) {
-        setResults(
-          tod: (results['tod'] as num?)?.toDouble() ?? 0.0,
-          shrimpRespiration: (results['shrimpRespiration'] as num?)?.toDouble() ?? 0.0,
-          pondRespiration: (results['pondRespiration'] as num?)?.toDouble() ?? 0.0,
-          pondWaterRespiration: (results['pondWaterRespiration'] as num?)?.toDouble() ?? 0.0,
-          pondBottomRespiration: (results['pondBottomRespiration'] as num?)?.toDouble() ?? 0.0,
-          annualRevenue: (results['annualRevenue'] as num?)?.toDouble() ?? 0.0,
-          winnerLabel: results['winnerLabel'] as String? ?? 'N/A',
-          aeratorResults: (results['aeratorResults'] as List<dynamic>? ?? [])
-              .map((r) {
-                if (r is Map<String, dynamic>) {
-                  return AeratorResult.fromJson(r);
-                } else {
-                  _logger.warning('Skipping invalid item in aeratorResults list: $r');
-                  return null;
-                }
-              })
-              .whereType<AeratorResult>()
-              .toList(),
-          apiResults: Map<String, dynamic>.from(results['apiResults'] ?? {}),
-        );
-      } else {
-        setError('Incomplete data received from server.');
+      // Validate required fields
+      if (results['tod'] == null ||
+          results['shrimpRespiration'] == null ||
+          results['pondRespiration'] == null ||
+          results['winnerLabel'] == null ||
+          results['aeratorResults'] == null) {
+        setError('Incomplete data received from server: missing required fields.');
+        return;
       }
+
+      final aeratorResultsList = (results['aeratorResults'] as List<dynamic>? ?? [])
+          .map((r) {
+            if (r is Map<String, dynamic>) {
+              return AeratorResult.fromJson(r);
+            } else {
+              _logger.warning('Skipping invalid item in aeratorResults list: $r');
+              return null;
+            }
+          })
+          .whereType<AeratorResult>()
+          .toList();
+
+      if (aeratorResultsList.isEmpty) {
+        setError('No valid aerator results received from server.');
+        return;
+      }
+
+      setResults(
+        tod: (results['tod'] as num).toDouble(),
+        shrimpRespiration: (results['shrimpRespiration'] as num).toDouble(),
+        pondRespiration: (results['pondRespiration'] as num).toDouble(),
+        pondWaterRespiration: (results['pondWaterRespiration'] as num?)?.toDouble() ?? 0.0,
+        pondBottomRespiration: (results['pondBottomRespiration'] as num?)?.toDouble() ?? 0.0,
+        annualRevenue: (results['annualRevenue'] as num?)?.toDouble() ?? 0.0,
+        winnerLabel: results['winnerLabel'] as String,
+        aeratorResults: aeratorResultsList,
+        apiResults: Map<String, dynamic>.from(results['apiResults'] ?? {}),
+      );
     } catch (e, stackTrace) {
       _logger.severe('CompareAerators Failed: $e\n$stackTrace');
-      setError('An unexpected error occurred: $e');
+      if (e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
+        setError('Failed to connect to the server. Please check your internet connection and try again.');
+      } else {
+        setError('An unexpected error occurred: $e');
+      }
     }
   }
 }

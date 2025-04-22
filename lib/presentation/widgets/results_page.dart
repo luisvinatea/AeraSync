@@ -7,8 +7,10 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
-import '../../core/services/app_state.dart';
+import 'package:path_provider/path_provider.dart'; // For mobile CSV export
+import 'dart:io' show File; // For file handling on mobile
 import 'package:universal_html/html.dart' as html; // Conditional import for web
+import '../../core/services/app_state.dart';
 
 double _parseDouble(dynamic value, [double defaultValue = 0.0]) {
   if (value is num) return value.toDouble();
@@ -26,6 +28,7 @@ class ResultsPage extends StatefulWidget {
 class _ResultsPageState extends State<ResultsPage> {
   static pw.Font? _regularFont;
   static pw.Font? _boldFont;
+  bool _isLoadingFonts = false;
 
   @override
   void initState() {
@@ -34,8 +37,14 @@ class _ResultsPageState extends State<ResultsPage> {
   }
 
   Future<void> _loadFonts() async {
-    if (_regularFont == null || _boldFont == null) {
-      if (!mounted) return;
+    if (_regularFont != null && _boldFont != null) return;
+    if (_isLoadingFonts) return;
+
+    setState(() {
+      _isLoadingFonts = true;
+    });
+
+    try {
       final assetBundle = DefaultAssetBundle.of(context);
       final regularFontData = await assetBundle.load('assets/fonts/Montserrat-Regular.ttf');
       final boldFontData = await assetBundle.load('assets/fonts/Montserrat-Bold.ttf');
@@ -44,6 +53,17 @@ class _ResultsPageState extends State<ResultsPage> {
         _regularFont = pw.Font.ttf(regularFontData);
         _boldFont = pw.Font.ttf(boldFontData);
       });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.fontLoadFailed(e.toString()))),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingFonts = false;
+        });
+      }
     }
   }
 
@@ -54,8 +74,12 @@ class _ResultsPageState extends State<ResultsPage> {
 
     final pdf = pw.Document();
 
+    // Ensure fonts are loaded
     if (_regularFont == null || _boldFont == null) {
       await _loadFonts();
+      if (_regularFont == null || _boldFont == null) {
+        throw Exception('Failed to load fonts for PDF generation');
+      }
     }
 
     pdf.addPage(
@@ -76,15 +100,15 @@ class _ResultsPageState extends State<ResultsPage> {
             ),
             pw.SizedBox(height: 10),
             pw.Text(
-              '${l10n.totalDemandLabel}: ${appState.tod!.toStringAsFixed(2)} kg O₂/h',
+              '${l10n.totalDemandLabel}: ${(appState.tod ?? 0.0).toStringAsFixed(2)} kg O₂/h',
               style: pw.TextStyle(font: _regularFont),
             ),
             pw.Text(
-              '${l10n.shrimpRespirationLabel}: ${appState.shrimpRespiration!.toStringAsFixed(2)} kg O₂/h',
+              '${l10n.shrimpRespirationLabel}: ${(appState.shrimpRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
               style: pw.TextStyle(font: _regularFont),
             ),
             pw.Text(
-              '${l10n.pondRespirationLabel}: ${appState.pondRespiration!.toStringAsFixed(2)} kg O₂/h',
+              '${l10n.pondRespirationLabel}: ${(appState.pondRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
               style: pw.TextStyle(font: _regularFont),
             ),
             pw.Text(
@@ -96,7 +120,7 @@ class _ResultsPageState extends State<ResultsPage> {
               style: pw.TextStyle(font: _regularFont),
             ),
             pw.Text(
-              '${l10n.annualRevenueLabel}: \$${appState.annualRevenue!.toStringAsFixed(2)}',
+              '${l10n.annualRevenueLabel}: \$${appState.annualRevenue?.toStringAsFixed(2) ?? "0.00"}',
               style: pw.TextStyle(font: _regularFont),
             ),
             pw.Text(
@@ -165,7 +189,7 @@ class _ResultsPageState extends State<ResultsPage> {
     return pdf;
   }
 
-  void _downloadCSV(BuildContext context) {
+  Future<void> _downloadCSV(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     final appState = Provider.of<AppState>(context, listen: false);
     final results = appState.aeratorResults;
@@ -173,12 +197,12 @@ class _ResultsPageState extends State<ResultsPage> {
 
     final csvData = [
       [l10n.summaryMetrics],
-      [l10n.totalDemandLabel, '${appState.tod!.toStringAsFixed(2)} kg O₂/h'],
-      [l10n.shrimpRespirationLabel, '${appState.shrimpRespiration!.toStringAsFixed(2)} kg O₂/h'],
-      [l10n.pondRespirationLabel, '${appState.pondRespiration!.toStringAsFixed(2)} kg O₂/h'],
+      [l10n.totalDemandLabel, '${(appState.tod ?? 0.0).toStringAsFixed(2)} kg O₂/h'],
+      [l10n.shrimpRespirationLabel, '${(appState.shrimpRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h'],
+      [l10n.pondRespirationLabel, '${(appState.pondRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h'],
       [l10n.pondWaterRespirationLabel, '${(appState.pondWaterRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h'],
       [l10n.pondBottomRespirationLabel, '${(appState.pondBottomRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h'],
-      [l10n.annualRevenueLabel, '\$${appState.annualRevenue!.toStringAsFixed(2)}'],
+      [l10n.annualRevenueLabel, '\$${appState.annualRevenue?.toStringAsFixed(2) ?? "0.00"}'],
       [l10n.recommendedAerator, appState.winnerLabel ?? 'None'],
       [],
       [l10n.aeratorComparisonResults],
@@ -235,9 +259,15 @@ class _ResultsPageState extends State<ResultsPage> {
         anchor.click();
         html.Url.revokeObjectUrl(url);
       } else {
+        // Mobile platforms: Save to device storage
+        final directory = await getTemporaryDirectory();
+        final filePath = '${directory.path}/aerator_comparison.csv';
+        final file = File(filePath);
+        await file.writeAsString(csvString);
         if (!mounted) return;
+        // Notify user of file location
         messenger.showSnackBar(
-          SnackBar(content: Text(l10n.csvExportNotSupported)),
+          SnackBar(content: Text(l10n.csvSaved(filePath))),
         );
       }
     } catch (e) {
@@ -258,11 +288,10 @@ class _ResultsPageState extends State<ResultsPage> {
       return Scaffold(
         appBar: AppBar(
           title: Text(l10n.results),
-          backgroundColor: const Color(0xFF1E40AF),
         ),
         body: Center(
           child: Semantics(
-            label: l10n.noDataAvailable,
+            label: l10n.noDataAvailableDescription,
             child: Text(l10n.noDataAvailable),
           ),
         ),
@@ -270,9 +299,9 @@ class _ResultsPageState extends State<ResultsPage> {
     }
 
     final maxY = [
-      appState.tod!,
-      appState.shrimpRespiration!,
-      appState.pondRespiration!,
+      appState.tod ?? 0.0,
+      appState.shrimpRespiration ?? 0.0,
+      appState.pondRespiration ?? 0.0,
       appState.pondWaterRespiration ?? 0.0,
       appState.pondBottomRespiration ?? 0.0,
     ].reduce((a, b) => a > b ? a : b) * 1.2;
@@ -280,7 +309,6 @@ class _ResultsPageState extends State<ResultsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.results),
-        backgroundColor: const Color(0xFF1E40AF),
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -328,24 +356,26 @@ class _ResultsPageState extends State<ResultsPage> {
                     spacing: 16,
                     children: [
                       ElevatedButton(
-                        onPressed: () async {
-                          final messenger = ScaffoldMessenger.of(context);
-                          try {
-                            final pdf = await _generatePDF(context);
-                            if (!mounted) return;
-                            await Printing.sharePdf(
-                              bytes: await pdf.save(),
-                              filename: 'aerator_comparison_report.pdf',
-                            );
-                          } catch (e) {
-                            if (!mounted) return;
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.pdfGenerationFailed(e.toString())),
-                              ),
-                            );
-                          }
-                        },
+                        onPressed: _isLoadingFonts
+                            ? null
+                            : () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                try {
+                                  final pdf = await _generatePDF(context);
+                                  if (!mounted) return;
+                                  await Printing.sharePdf(
+                                    bytes: await pdf.save(),
+                                    filename: 'aerator_comparison_report.pdf',
+                                  );
+                                } catch (e) {
+                                  if (!mounted) return;
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(l10n.pdfGenerationFailed(e.toString())),
+                                    ),
+                                  );
+                                }
+                              },
                         child: Text(l10n.downloadReport),
                       ),
                       ElevatedButton(
@@ -377,11 +407,10 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      color: Colors.white.withValues(alpha: 0.9),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Semantics(
-          label: l10n.summaryMetrics,
+          label: l10n.summaryMetricsDescription,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -391,15 +420,15 @@ class _SummaryCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '${l10n.totalDemandLabel}: ${appState.tod!.toStringAsFixed(2)} kg O₂/h',
+                '${l10n.totalDemandLabel}: ${(appState.tod ?? 0.0).toStringAsFixed(2)} kg O₂/h',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               Text(
-                '${l10n.shrimpRespirationLabel}: ${appState.shrimpRespiration!.toStringAsFixed(2)} kg O₂/h',
+                '${l10n.shrimpRespirationLabel}: ${(appState.shrimpRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               Text(
-                '${l10n.pondRespirationLabel}: ${appState.pondRespiration!.toStringAsFixed(2)} kg O₂/h',
+                '${l10n.pondRespirationLabel}: ${(appState.pondRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               Text(
@@ -411,7 +440,7 @@ class _SummaryCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               Text(
-                '${l10n.annualRevenueLabel}: \$${appState.annualRevenue!.toStringAsFixed(2)}',
+                '${l10n.annualRevenueLabel}: \$${appState.annualRevenue?.toStringAsFixed(2) ?? "0.00"}',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               Text(
@@ -439,17 +468,20 @@ class _OxygenDemandCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (appState.tod == null || appState.shrimpRespiration == null || appState.pondRespiration == null) {
+    final hasData = appState.tod != null &&
+        appState.shrimpRespiration != null &&
+        appState.pondRespiration != null;
+
+    if (!hasData) {
       return const SizedBox.shrink();
     }
 
     return Card(
       elevation: 4,
-      color: Colors.white.withValues(alpha: 0.9),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Semantics(
-          label: l10n.oxygenDemandBreakdown,
+          label: l10n.oxygenDemandBreakdownDescription,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -463,13 +495,13 @@ class _OxygenDemandCard extends StatelessWidget {
                 child: BarChart(
                   BarChartData(
                     alignment: BarChartAlignment.spaceAround,
-                    maxY: maxY,
+                    maxY: maxY > 0 ? maxY : 1.0, // Prevent zero maxY
                     barGroups: [
                       BarChartGroupData(
                         x: 0,
                         barRods: [
                           BarChartRodData(
-                            toY: appState.tod!,
+                            toY: appState.tod ?? 0.0,
                             color: Colors.redAccent,
                             width: 15,
                           ),
@@ -479,7 +511,7 @@ class _OxygenDemandCard extends StatelessWidget {
                         x: 1,
                         barRods: [
                           BarChartRodData(
-                            toY: appState.shrimpRespiration!,
+                            toY: appState.shrimpRespiration ?? 0.0,
                             color: const Color(0xFF1E40AF),
                             width: 15,
                           ),
@@ -489,7 +521,7 @@ class _OxygenDemandCard extends StatelessWidget {
                         x: 2,
                         barRods: [
                           BarChartRodData(
-                            toY: appState.pondRespiration!,
+                            toY: appState.pondRespiration ?? 0.0,
                             color: const Color(0xFF60A5FA),
                             width: 15,
                           ),
@@ -579,11 +611,10 @@ class _AeratorComparisonCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      color: Colors.white.withValues(alpha: 0.9),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Semantics(
-          label: l10n.aeratorComparisonResults,
+          label: l10n.aeratorComparisonResultsDescription,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -662,11 +693,10 @@ class _FinancialMetricsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      color: Colors.white.withValues(alpha: 0.9),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Semantics(
-          label: l10n.detailedFinancialMetrics,
+          label: l10n.detailedFinancialMetricsDescription,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -719,11 +749,10 @@ class _FinancialPieChartCard extends StatelessWidget {
 
     return Card(
       elevation: 4,
-      color: Colors.white.withValues(alpha: 0.9),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Semantics(
-          label: l10n.financialBreakdown,
+          label: l10n.financialBreakdownDescription,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

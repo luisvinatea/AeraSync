@@ -11,8 +11,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final localeCode = prefs.getString('locale') ?? 'en';
-  // Validate localeCode to ensure it's supported
-  final validLocaleCode = ['en', 'es', 'pt'].contains(localeCode) ? localeCode : 'en';
+  // Validate localeCode against supported locales
+  final supportedLocales = AppLocalizations.supportedLocales.map((l) => l.languageCode).toSet();
+  final validLocaleCode = supportedLocales.contains(localeCode) ? localeCode : 'en';
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppState(locale: Locale(validLocaleCode)),
@@ -57,7 +58,18 @@ class MyApp extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
+            cardTheme: const CardTheme(
+              elevation: 4,
+              color: Colors.white, // Will use surface color from colorScheme
+              margin: EdgeInsets.symmetric(vertical: 8),
+            ),
             textTheme: const TextTheme(
+              headlineSmall: TextStyle(
+                fontFamily: 'Montserrat',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E40AF),
+              ),
               headlineMedium: TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 20,

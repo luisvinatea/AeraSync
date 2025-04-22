@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:logging/logging.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/services/app_state.dart';
+import '../../js_interop_stub.dart' as js_interop;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,14 +14,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static final Logger _logger = Logger('HomePage');
   bool _isApiHealthy = true;
   bool _isCheckingHealth = false;
 
   @override
   void initState() {
     super.initState();
+    _setupJsInterop();
     _checkApiHealth();
     _showDataDisclosureIfNeeded();
+  }
+
+  void _setupJsInterop() {
+    final appState = Provider.of<AppState>(context, listen: false);
+    js_interop.setupHandlers((data) {
+      final map = js_interop.jsObjectToMap(data);
+      if (map.containsKey('disclosureAgreed')) {
+        appState.setDisclosureAgreed(map['disclosureAgreed'] as bool);
+      }
+      if (map.containsKey('cookiesAccepted')) {
+        appState.setCookiesAccepted(true);
+      }
+      return js_interop.jsify({}); // Return an empty JavaScript object
+    });
   }
 
   Future<void> _checkApiHealth() async {
@@ -50,7 +69,39 @@ class _HomePageState extends State<HomePage> {
           final l10n = AppLocalizations.of(context)!;
           return AlertDialog(
             title: Text(l10n.dataDisclosure),
-            content: Text(l10n.dataDisclosureMessage),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.dataDisclosureMessage),
+                const SizedBox(height: 8),
+                InkWell(
+                  onTap: () async {
+                    const url = 'https://luisvinatea.github.io/AeraSync/privacy.html';
+                    _logger.info('Attempting to navigate to privacy policy: $url');
+                    try {
+                      if (await canLaunchUrl(Uri.parse(url))) {
+                        await launchUrl(
+                          Uri.parse(url),
+                          mode: LaunchMode.externalApplication,
+                        );
+                      } else {
+                        _logger.warning('Could not launch URL: $url');
+                      }
+                    } catch (e) {
+                      _logger.severe('Error launching URL: $e');
+                    }
+                  },
+                  child: Text(
+                    l10n.learnMore,
+                    style: const TextStyle(
+                      color: Color(0xFF1E40AF),
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             actions: [
               TextButton(
                 onPressed: () {
@@ -126,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 16),
                       ],
                       ElevatedButton(
-                        onPressed: _isApiHealthy
+                        onPressed: _isApiHealthy && appState.hasAgreedToDisclosure
                             ? () => Navigator.pushNamed(context, '/survey')
                             : null,
                         child: Text(l10n.startSurvey),

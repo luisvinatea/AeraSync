@@ -48,6 +48,10 @@
   "@dataDisclosureMessage": {
     "description": "Message explaining data collection in the disclosure popup"
   },
+  "learnMore": "Learn More",
+  "@learnMore": {
+    "description": "Label for the learn more link in the disclosure popup"
+  },
   "privacyPolicyLink": "View Privacy Policy",
   "@privacyPolicyLink": {
     "description": "Label for the privacy policy link in the disclosure popup"
@@ -463,5 +467,111 @@
         "example": "File system error"
       }
     }
+  },
+  "fontLoadFailed": "Failed to load fonts: {errorDetails}",
+  "csvSaved": "CSV file saved to: {filePath}",
+  "noDataAvailableDescription": "No data available to display",
+  "summaryMetricsDescription": "Summary metrics for aerator comparison",
+  "oxygenDemandBreakdownDescription": "Breakdown of oxygen demand in kg O₂ per hour",
+  "aeratorComparisonResultsDescription": "Comparison table of aerator results",
+  "detailedFinancialMetricsDescription": "Detailed financial metrics for the recommended aerator",
+  "financialBreakdownDescription": "Financial breakdown pie chart",
+  "@fontLoadFailed": {
+    "description": "Error message when font loading fails, with error details as a parameter",
+    "placeholders": {
+      "errorDetails": {}
+    }
+  },
+  "@csvSaved": {
+    "description": "Message indicating the CSV file has been saved, with file path as a parameter",
+    "placeholders": {
+      "filePath": {}
+    }
+  },
+  "@noDataAvailableDescription": {
+    "description": "Accessibility description for no data available message"
+  },
+  "@summaryMetricsDescription": {
+    "description": "Accessibility description for summary metrics section"
+  },
+  "@oxygenDemandBreakdownDescription": {
+    "description": "Accessibility description for oxygen demand breakdown chart"
+  },
+  "@aeratorComparisonResultsDescription": {
+    "description": "Accessibility description for aerator comparison results table"
+  },
+  "@detailedFinancialMetricsDescription": {
+    "description": "Accessibility description for detailed financial metrics section"
+  },
+  "@financialBreakdownDescription": {
+    "description": "Accessibility description for financial breakdown pie chart"
+  },
+  "aeratorLoadFailed": "Failed to load aerator data: {error}",
+  "@aeratorLoadFailed": {
+    "description": "Error message when loading aerator data fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "File not found"
+      }
+    }
+  },
+  "surveySubmissionFailed": "Failed to submit survey: {error}",
+  "@surveySubmissionFailed": {
+    "description": "Error message when survey submission fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "survey": "Survey",
+  "@survey": {
+    "description": "Title for the survey page"
+  },
+  "pondDetails": "Pond Details",
+  "@pondDetails": {
+    "description": "Title for the pond details section in the survey"
+  },
+  "pondAreaLabel": "Pond Area",
+  "@pondAreaLabel": {
+    "description": "Label for the pond area input field"
+  },
+  "positiveNumberRequired": "Please enter a positive number",
+  "@positiveNumberRequired": {
+    "description": "Validation message for requiring a positive number"
+  },
+  "shrimpDetails": "Shrimp Details",
+  "@shrimpDetails": {
+    "description": "Title for the shrimp details section in the survey"
+  },
+  "shrimpDensityLabel": "Shrimp Density",
+  "@shrimpDensityLabel": {
+    "description": "Label for the shrimp density input field"
+  },
+  "shrimpWeightLabel": "Shrimp Weight",
+  "@shrimpWeightLabel": {
+    "description": "Label for the shrimp weight input field"
+  },
+  "cultureDaysLabel": "Culture Days",
+  "@cultureDaysLabel": {
+    "description": "Label for the culture days input field"
+  },
+  "days": "days",
+  "@days": {
+    "description": "Unit label for days"
+  },
+  "additionalInfo": "Additional Information",
+  "@additionalInfo": {
+    "description": "Title for the additional information section in the survey"
+  },
+  "nonNegativeNumberRequired": "Please enter a non-negative number",
+  "@nonNegativeNumberRequired": {
+    "description": "Validation message for requiring a non-negative number"
+  },
+  "selectAerator": "Select Aerator",
+  "@selectAerator": {
+    "description": "Label for the aerator selection dropdown"
   }
 }
