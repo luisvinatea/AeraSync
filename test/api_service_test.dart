@@ -116,13 +116,19 @@ void main() {
 
       expect(
         () async => await apiService.compareAerators(inputs),
-        throwsA(isA<FormatException>()),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'toString',
+            contains('FormatException: Unexpected character'),
+          ),
+        ),
       );
     });
 
     test('ApiService compareAerators handles invalid inputs', () async {
       final inputs = {
-        'farm': {'area_ha': -1.0}, // Negative value
+        'farm': {'area_ha': -1.0},
         'oxygen': {},
         'aerators': [],
         'financial': {},
