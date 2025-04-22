@@ -79,6 +79,8 @@ local.properties
 *.log
 *.tmp
 *.bak
+*.log/
+log/
 test_temp/
 backend/data/*.csv
 backend/data/*.log
