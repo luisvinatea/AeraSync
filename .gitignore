@@ -82,3 +82,5 @@ local.properties
 test_temp/
 backend/data/*.csv
 backend/data/*.log
+backend-repo
+backend-worktree
