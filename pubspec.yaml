@@ -34,12 +34,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   mocktail: ^1.0.4
   build_runner: ^2.4.15
-  build_web_compilers: ^4.1.4
-  mockito: ^5.4.5
   analyzer: ^6.8.0
-
-dependency_overrides:
-  js: ^0.7.2
 
 flutter:
   generate: true

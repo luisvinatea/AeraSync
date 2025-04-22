@@ -1,3 +1,4 @@
+import 'dart:convert' show jsonEncode;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
@@ -14,6 +15,7 @@ void main() {
       mockClient = MockClient();
       apiService = ApiService(client: mockClient);
       registerFallbackValue(Uri.parse('http://127.0.0.1:8000/health'));
+      registerFallbackValue(Uri.parse('http://127.0.0.1:8000/compare'));
     });
 
     test('ApiService checks health successfully', () async {
@@ -22,6 +24,14 @@ void main() {
 
       final result = await apiService.checkHealth();
       expect(result, isTrue);
+    });
+
+    test('ApiService checkHealth fails on 500 status', () async {
+      when(() => mockClient.get(Uri.parse('http://127.0.0.1:8000/health')))
+          .thenAnswer((_) async => http.Response('Internal Server Error', 500));
+
+      final result = await apiService.checkHealth();
+      expect(result, isFalse);
     });
 
     test('ApiService compares aerators successfully', () async {
@@ -66,19 +76,66 @@ void main() {
         },
       };
 
+      final mockResponse = {
+        'tod': 10.0,
+        'winnerLabel': 'Aerator 1',
+        'aeratorResults': [],
+        'shrimpRespiration': 5.0,
+        'pondRespiration': 3.0,
+        'pondWaterRespiration': 2.0,
+        'pondBottomRespiration': 1.0,
+        'annualRevenue': 1000.0,
+        'apiResults': {},
+      };
+
       when(() => mockClient.post(
             Uri.parse('http://127.0.0.1:8000/compare'),
             headers: {'Content-Type': 'application/json'},
             body: any(named: 'body'),
-          )).thenAnswer((_) async => http.Response(
-            '{"tod": 10.0, "winnerLabel": "Aerator 1", "aeratorResults": [], "shrimpRespiration": 5.0, "pondRespiration": 3.0, "pondWaterRespiration": 2.0, "pondBottomRespiration": 1.0, "annualRevenue": 1000.0, "apiResults": {}}',
-            200,
-          ));
+          )).thenAnswer((_) async => http.Response(jsonEncode(mockResponse), 200));
 
       final result = await apiService.compareAerators(inputs);
       expect(result['winnerLabel'], isNotNull);
       expect(result['tod'], isA<double>());
       expect(result['aeratorResults'], isA<List>());
+    });
+
+    test('ApiService compareAerators throws on malformed JSON', () async {
+      final inputs = {
+        'farm': {'area_ha': 1000.0},
+        'oxygen': {},
+        'aerators': [],
+        'financial': {},
+      };
+
+      when(() => mockClient.post(
+            Uri.parse('http://127.0.0.1:8000/compare'),
+            headers: {'Content-Type': 'application/json'},
+            body: any(named: 'body'),
+          )).thenAnswer((_) async => http.Response('{"invalid": json}', 200));
+
+      expect(
+        () async => await apiService.compareAerators(inputs),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('ApiService compareAerators handles invalid inputs', () async {
+      final inputs = {
+        'farm': {'area_ha': -1.0}, // Negative value
+        'oxygen': {},
+        'aerators': [],
+        'financial': {},
+      };
+
+      when(() => mockClient.post(
+            Uri.parse('http://127.0.0.1:8000/compare'),
+            headers: {'Content-Type': 'application/json'},
+            body: any(named: 'body'),
+          )).thenAnswer((_) async => http.Response('{"error": "Invalid input"}', 400));
+
+      final result = await apiService.compareAerators(inputs);
+      expect(result['error'], 'Invalid input');
     });
   });
 }
