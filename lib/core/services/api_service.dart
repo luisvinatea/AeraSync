@@ -11,7 +11,7 @@ class ApiService {
   })  : client = client ?? http.Client(),
         baseUrl = baseUrl ?? const String.fromEnvironment(
           'API_URL',
-          defaultValue: 'http://127.0.0.1:8000',
+          defaultValue: 'https://aerasync-backend.vercel.app',
         );
 
   Future<bool> checkHealth() async {
