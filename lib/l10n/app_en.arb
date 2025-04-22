@@ -479,13 +479,19 @@
   "@fontLoadFailed": {
     "description": "Error message when font loading fails, with error details as a parameter",
     "placeholders": {
-      "errorDetails": {}
+      "errorDetails": {
+        "type": "String",
+        "example": "Font not found"
+      }
     }
   },
   "@csvSaved": {
     "description": "Message indicating the CSV file has been saved, with file path as a parameter",
     "placeholders": {
-      "filePath": {}
+      "filePath": {
+        "type": "String",
+        "example": "C:/path/to/the/file.csv"
+      }
     }
   },
   "@noDataAvailableDescription": {

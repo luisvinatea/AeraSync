@@ -479,13 +479,19 @@
   "@fontLoadFailed": {
     "description": "Mensagem de erro quando falha a carga de fontes, com detalhes do erro como parâmetro",
     "placeholders": {
-      "errorDetails": {}
+      "errorDetails": {
+        "type": "String",
+        "example": "Erro ao carregar a fonte"
+      }
     }
   },
   "@csvSaved": {
     "description": "Mensagem que indica que o arquivo CSV foi salvo, com o caminho do arquivo como parâmetro",
     "placeholders": {
-      "filePath": {}
+      "filePath": {
+        "type": "String",
+        "example": "C:/caminho/para/o/arquivo.csv"
+      }
     }
   },
   "@noDataAvailableDescription": {
