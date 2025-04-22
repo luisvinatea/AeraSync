@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build-and-deploy:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -124,12 +124,53 @@ jobs:
         env:
           PYTHONPATH: .
 
-      - name: Build web release
-        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ --dart-define=API_BASE_URL=http://localhost:8000
+      - name: Build web for testing
+        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ --dart-define=API_URL=http://localhost:8000
+        working-directory: AeraSync
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: AeraSync
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.pub-cache
+          key: flutter-pub-${{ runner.os }}-stable-3.29.2-${{ hashFiles('AeraSync/pubspec.lock') }}
+          restore-keys: |
+            flutter-pub-${{ runner.os }}-stable-3.29.2-
+
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: AeraSync
+
+      - name: Generate localization files
+        run: flutter gen-l10n
+        working-directory: AeraSync
+
+      - name: Run build_runner
+        run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: AeraSync
+
+      - name: Build web for production
+        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ --dart-define=API_URL=https://aerasync-backend-2kd116cnu-devinatea.vercel.app
         working-directory: AeraSync
 
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
