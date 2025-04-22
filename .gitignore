@@ -86,3 +86,6 @@ backend/data/*.csv
 backend/data/*.log
 backend-repo
 backend-worktree
+main/
+gh-pages/
+backend-vercel/
