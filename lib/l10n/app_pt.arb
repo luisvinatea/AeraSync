@@ -1,470 +1,467 @@
 {
-    "@@locale": "pt",
-    "appTitle": "AeraSync",
-    "@appTitle": {
-      "description": "O título da aplicação"
-    },
-    "welcomeToAeraSync": "Bem-vindo ao AeraSync",
-    "@welcomeToAeraSync": {
-      "description": "Mensagem de boas-vindas na página inicial"
-    },
-    "welcomeDescription": "Otimize sua fazenda de camarões com ferramentas avançadas de comparação de aeradores.",
-    "@welcomeDescription": {
-      "description": "Descrição na página inicial"
-    },
-    "startSurvey": "Iniciar Pesquisa",
-    "@startSurvey": {
-      "description": "Botão para iniciar a pesquisa"
-    },
-    "retry": "Tentar Novamente",
-    "@retry": {
-      "description": "Botão para tentar novamente a verificação de saúde da API"
-    },
-    "selectLanguage": "Selecionar Idioma",
-    "@selectLanguage": {
-      "description": "Rótulo para o menu suspenso de seleção de idioma"
-    },
-    "languageEnglish": "Inglês",
-    "@languageEnglish": {
-      "description": "Rótulo para a opção de idioma inglês"
-    },
-    "languageSpanish": "Espanhol",
-    "@languageSpanish": {
-      "description": "Rótulo para a opção de idioma espanhol"
-    },
-    "languagePortuguese": "Português",
-    "@languagePortuguese": {
-      "description": "Rótulo para a opção de idioma português"
-    },
-    "changeLanguageTooltip": "Mude o idioma para uma experiência personalizada",
-    "@changeLanguageTooltip": {
-      "description": "Tooltip para o botão de troca de idioma"
-    },
-    "dataDisclosure": "Divulgação de Dados",
-    "@dataDisclosure": {
-      "description": "Título para a janela pop-up de divulgação de dados"
-    },
-    "dataDisclosureMessage": "Coletamos dados de uso anônimos para melhorar a aplicação. Por favor, revise nossa política de privacidade.",
-    "@dataDisclosureMessage": {
-      "description": "Mensagem explicando a coleta de dados na janela pop-up de divulgação"
-    },
-    "privacyPolicyLink": "Ver Política de Privacidade",
-    "@privacyPolicyLink": {
-      "description": "Rótulo para o link da política de privacidade na janela pop-up de divulgação"
-    },
-    "agree": "Aceitar",
-    "@agree": {
-      "description": "Rótulo para o botão de aceitar na janela pop-up de divulgação"
-    },
-    "disagreeMessage": "Você deve aceitar a divulgação de dados para usar a aplicação",
-    "@disagreeMessage": {
-      "description": "Mensagem exibida quando o usuário não aceita a divulgação de dados"
-    },
-    "error": "Erro",
-    "@error": {
-      "description": "Rótulo para mensagens de erro"
-    },
-    "dismiss": "Descartar",
-    "@dismiss": {
-      "description": "Rótulo para descartar mensagens de erro"
-    },
-    "pageNotFound": "Página Não Encontrada",
-    "@pageNotFound": {
-      "description": "Rótulo para a mensagem de página não encontrada 404"
-    },
-    "apiUnreachable": "Não foi possível conectar ao servidor. Tente novamente mais tarde.",
-    "@apiUnreachable": {
-      "description": "Rótulo indicando que a API está inacessível"
-    },
-    "aeratorDetails": "Detalhes do Aerador",
-    "@aeratorDetails": {
-      "description": "Título para a seção de detalhes do aerador na pesquisa"
-    },
-    "farmAndOxygenDemand": "Fazenda e Demanda de Oxigênio",
-    "@farmAndOxygenDemand": {
-      "description": "Título para a seção de especificações da fazenda e demanda de oxigênio"
-    },
-    "financialAspects": "Aspectos Financeiros",
-    "@financialAspects": {
-      "description": "Título para a seção de aspectos financeiros"
-    },
-    "back": "Voltar",
-    "@back": {
-      "description": "Rótulo para o botão de voltar no passo a passo da pesquisa"
-    },
-    "next": "Próximo",
-    "@next": {
-      "description": "Rótulo para o botão de próximo no passo a passo da pesquisa"
-    },
-    "submit": "Enviar",
-    "@submit": {
-      "description": "Rótulo para o botão de enviar para processar a pesquisa"
-    },
-    "addAerator": "Adicionar Aerador",
-    "@addAerator": {
-      "description": "Rótulo para o botão de adicionar um novo aerador"
-    },
-    "aeratorLabel": "Aerador",
-    "@aeratorLabel": {
-      "description": "Rótulo para o campo de entrada ou coluna do aerador"
-    },
-    "nameLabel": "Nome do Aerador",
-    "@nameLabel": {
-      "description": "Rótulo para o campo de entrada do nome do aerador (opcional)"
-    },
-    "nameTooltip": "Nome único para o aerador",
-    "@nameTooltip": {
-      "description": "Tooltip para o campo de entrada do nome do aerador"
-    },
-    "aeratorTypeLabel": "Tipo de Aerador (Opcional)",
-    "@aeratorTypeLabel": {
-      "description": "Rótulo para o campo de entrada do tipo de aerador (opcional)"
-    },
-    "aeratorTypeTooltip": "Tipo de aerador (por exemplo, roda de pás, difusor)",
-    "@aeratorTypeTooltip": {
-      "description": "Tooltip para o campo de entrada do tipo de aerador"
-    },
-    "horsepowerLabel": "Potência (hp)",
-    "@horsepowerLabel": {
-      "description": "Rótulo para a potência nominal do aerador em cavalos de força"
-    },
-    "horsepowerTooltip": "Potência nominal do aerador em cavalos de força (0.1 a 100)",
-    "@horsepowerTooltip": {
-      "description": "Tooltip para o campo de entrada de potência do aerador"
-    },
-    "sotrLabel": "SOTR (kg O₂/h)",
-    "@sotrLabel": {
-      "description": "Rótulo para a Taxa de Transferência de Oxigênio Padrão do aerador em kg O₂ por hora"
-    },
-    "sotrTooltip": "Taxa de Transferência de Oxigênio Padrão por hora (0.1 a 10)",
-    "@sotrTooltip": {
-      "description": "Tooltip para o campo de entrada de SOTR"
-    },
-    "priceLabel": "Preço (USD)",
-    "@priceLabel": {
-      "description": "Rótulo para o campo de entrada do preço do aerador"
-    },
-    "priceAeratorTooltip": "Custo inicial de compra do aerador em USD (0 a 10000)",
-    "@priceAeratorTooltip": {
-      "description": "Tooltip para o campo de entrada do preço do aerador"
-    },
-    "durabilityLabel": "Durabilidade (anos)",
-    "@durabilityLabel": {
-      "description": "Rótulo para o campo de entrada da durabilidade do aerador"
-    },
-    "durabilityAeratorTooltip": "Vida útil esperada do aerador em anos (0.1 a 20)",
-    "@durabilityAeratorTooltip": {
-      "description": "Tooltip para o campo de entrada da durabilidade do aerador"
-    },
-    "maintenanceCostLabel": "Custo Anual de Manutenção (USD)",
-    "@maintenanceCostLabel": {
-      "description": "Rótulo para o campo de entrada do custo de manutenção do aerador"
-    },
-    "maintenanceCostAeratorTooltip": "Custo anual de manutenção do aerador em USD (0 a 1000)",
-    "@maintenanceCostAeratorTooltip": {
-      "description": "Tooltip para o campo de entrada do custo de manutenção do aerador"
-    },
-    "farmAreaLabel": "Área Total da Fazenda (ha)",
-    "@farmAreaLabel": {
-      "description": "Rótulo para o campo de entrada da área da fazenda"
-    },
-    "farmAreaTooltip": "Área total da fazenda em hectares (0.1 a 100000)",
-    "@farmAreaTooltip": {
-      "description": "Tooltip para o campo de entrada da área da fazenda"
-    },
-    "productionPerHaLabel": "Produção por Hectare (kg/ha/ano)",
-    "@productionPerHaLabel": {
-      "description": "Rótulo para o campo de entrada da produção de camarões por hectare"
-    },
-    "productionPerHaTooltip": "Produção anual de camarões por hectare (0 a 100000)",
-    "@productionPerHaTooltip": {
-      "description": "Tooltip para o campo de entrada da produção por hectare"
-    },
-    "cyclesPerYearLabel": "Ciclos por Ano",
-    "@cyclesPerYearLabel": {
-      "description": "Rótulo para o campo de entrada do número de ciclos de produção por ano"
-    },
-    "cyclesPerYearTooltip": "Número de ciclos de produção por ano (1 a 10)",
-    "@cyclesPerYearTooltip": {
-      "description": "Tooltip para o campo de entrada de ciclos por ano"
-    },
-    "waterTemperatureLabel": "Temperatura da Água (°C)",
-    "@waterTemperatureLabel": {
-      "description": "Rótulo para o campo de entrada da temperatura da água"
-    },
-    "waterTemperatureTooltip": "Temperatura média da água em Celsius (0 a 40)",
-    "@waterTemperatureTooltip": {
-      "description": "Tooltip para o campo de entrada da temperatura da água"
-    },
-    "salinityLabel": "Salinidade (ppt)",
-    "@salinityLabel": {
-      "description": "Rótulo para o campo de entrada da salinidade da água"
-    },
-    "salinityTooltip": "Salinidade da água em partes por mil (0 a 40)",
-    "@salinityTooltip": {
-      "description": "Tooltip para o campo de entrada da salinidade"
-    },
-    "pondDepthLabel": "Profundidade do Tanque (m)",
-    "@pondDepthLabel": {
-      "description": "Rótulo para a profundidade do tanque em metros"
-    },
-    "pondDepthTooltip": "Profundidade média dos tanques em metros (0.5 a 5)",
-    "@pondDepthTooltip": {
-      "description": "Tooltip para o campo de entrada da profundidade do tanque"
-    },
-    "averageShrimpWeightLabel": "Peso Médio do Camarão (g)",
-    "@averageShrimpWeightLabel": {
-      "description": "Rótulo para o campo de entrada do peso médio do camarão"
-    },
-    "averageShrimpWeightTooltip": "Peso médio dos camarões em gramas (0 a 50)",
-    "@averageShrimpWeightTooltip": {
-      "description": "Tooltip para o campo de entrada do peso médio do camarão"
-    },
-    "shrimpBiomassLabel": "Biomassa de Camarões (kg/ha)",
-    "@shrimpBiomassLabel": {
-      "description": "Rótulo para o campo de entrada da biomassa de camarões"
-    },
-    "shrimpBiomassTooltip": "Biomassa de camarões por hectare (0 a 100000)",
-    "@shrimpBiomassTooltip": {
-      "description": "Tooltip para o campo de entrada da biomassa de camarões"
-    },
-    "safetyMarginLabel": "Margem de Segurança (%)",
-    "@safetyMarginLabel": {
-      "description": "Rótulo para o campo de entrada da margem de segurança (opcional)"
-    },
-    "safetyMarginTooltip": "Margem de segurança opcional para cálculos (0 a 100)",
-    "@safetyMarginTooltip": {
-      "description": "Tooltip para o campo de entrada da margem de segurança"
-    },
-    "shrimpPriceLabel": "Preço do Camarão (USD/kg)",
-    "@shrimpPriceLabel": {
-      "description": "Rótulo para o campo de entrada do preço do camarão"
-    },
-    "shrimpPriceTooltip": "Preço de mercado do camarão por quilograma (0.1 a 50)",
-    "@shrimpPriceTooltip": {
-      "description": "Tooltip para o campo de entrada do preço do camarão"
-    },
-    "electricityCostLabel": "Custo de Eletricidade (USD/kWh)",
-    "@electricityCostLabel": {
-      "description": "Rótulo para o custo de eletricidade por quilowatt-hora em USD"
-    },
-    "electricityCostTooltip": "Custo de eletricidade por quilowatt-hora (0 a 1)",
-    "@electricityCostTooltip": {
-      "description": "Tooltip para o campo de entrada do custo de eletricidade"
-    },
-    "operatingHoursLabel": "Horas de Operação por Ano",
-    "@operatingHoursLabel": {
-      "description": "Rótulo para o total de horas que os aeradores operam por ano"
-    },
-    "operatingHoursTooltip": "Total de horas que os aeradores operam por ano (0 a 8760)",
-    "@operatingHoursTooltip": {
-      "description": "Tooltip para o campo de entrada das horas de operação do aerador"
-    },
-    "discountRateLabel": "Taxa de Desconto (%)",
-    "@discountRateLabel": {
-      "description": "Rótulo para o campo de entrada da taxa de desconto"
-    },
-    "discountRateTooltip": "Taxa de desconto para cálculos financeiros (0 a 100)",
-    "@discountRateTooltip": {
-      "description": "Tooltip para o campo de entrada da taxa de desconto"
-    },
-    "inflationRateLabel": "Taxa de Inflação (%)",
-    "@inflationRateLabel": {
-      "description": "Rótulo para o campo de entrada da taxa de inflação"
-    },
-    "inflationRateTooltip": "Taxa de inflação anual (0 a 100)",
-    "@inflationRateTooltip": {
-      "description": "Tooltip para o campo de entrada da taxa de inflação"
-    },
-    "analysisHorizonLabel": "Horizonte de Análise (anos)",
-    "@analysisHorizonLabel": {
-      "description": "Rótulo para o campo de entrada do horizonte de análise"
-    },
-    "analysisHorizonTooltip": "Período de tempo para análise financeira (1 a 50)",
-    "@analysisHorizonTooltip": {
-      "description": "Tooltip para o campo de entrada do horizonte de análise"
-    },
-    "dataCollectionConsentLabel": "Eu consinto com a coleta de dados para análise",
-    "@dataCollectionConsentLabel": {
-      "description": "Rótulo para a caixa de consentimento de coleta de dados"
-    },
-    "consentRequiredError": "O consentimento para coleta de dados é obrigatório",
-    "@consentRequiredError": {
-      "description": "Mensagem de erro quando o consentimento para coleta de dados não é dado"
-    },
-    "minimumAeratorsError": "São necessários pelo menos dois aeradores",
-    "@minimumAeratorsError": {
-      "description": "Mensagem de erro quando menos de dois aeradores são fornecidos"
-    },
-    "submissionFailed": "Falha ao enviar a pesquisa: {error}",
-
-    "ConcurrentModificationException": "Exceção de modificação concorrente",
-    "@ConcurrentModificationException": {},
-    "@submissionFailed": {
-      "description": "Mensagem de erro quando o envio da pesquisa falha",
-      "placeholders": {
-        "error": {
-          "type": "String",
-          "example": "Erro de rede"
-        }
+  "@@locale": "pt",
+  "appTitle": "AeraSync",
+  "@appTitle": {
+    "description": "O título da aplicação"
+  },
+  "welcomeToAeraSync": "Bem-vindo ao AeraSync",
+  "@welcomeToAeraSync": {
+    "description": "Mensagem de boas-vindas na página inicial"
+  },
+  "welcomeDescription": "Otimize sua fazenda de camarões com ferramentas avançadas de comparação de aeradores.",
+  "@welcomeDescription": {
+    "description": "Descrição na página inicial"
+  },
+  "startSurvey": "Iniciar Pesquisa",
+  "@startSurvey": {
+    "description": "Botão para iniciar a pesquisa"
+  },
+  "retry": "Tentar Novamente",
+  "@retry": {
+    "description": "Botão para tentar novamente a verificação de saúde da API"
+  },
+  "selectLanguage": "Selecionar Idioma",
+  "@selectLanguage": {
+    "description": "Rótulo para o menu suspenso de seleção de idioma"
+  },
+  "languageEnglish": "Inglês",
+  "@languageEnglish": {
+    "description": "Rótulo para a opção de idioma inglês"
+  },
+  "languageSpanish": "Espanhol",
+  "@languageSpanish": {
+    "description": "Rótulo para a opção de idioma espanhol"
+  },
+  "languagePortuguese": "Português",
+  "@languagePortuguese": {
+    "description": "Rótulo para a opção de idioma português"
+  },
+  "changeLanguageTooltip": "Mude o idioma para uma experiência personalizada",
+  "@changeLanguageTooltip": {
+    "description": "Tooltip para o botão de troca de idioma"
+  },
+  "dataDisclosure": "Divulgação de Dados",
+  "@dataDisclosure": {
+    "description": "Título para a janela pop-up de divulgação de dados"
+  },
+  "dataDisclosureMessage": "Coletamos dados de uso anônimos para melhorar a aplicação. Por favor, revise nossa política de privacidade.",
+  "@dataDisclosureMessage": {
+    "description": "Mensagem explicando a coleta de dados na janela pop-up de divulgação"
+  },
+  "privacyPolicyLink": "Ver Política de Privacidade",
+  "@privacyPolicyLink": {
+    "description": "Rótulo para o link da política de privacidade na janela pop-up de divulgação"
+  },
+  "agree": "Aceitar",
+  "@agree": {
+    "description": "Rótulo para o botão de aceitar na janela pop-up de divulgação"
+  },
+  "disagreeMessage": "Você deve aceitar a divulgação de dados para usar a aplicação",
+  "@disagreeMessage": {
+    "description": "Mensagem exibida quando o usuário não aceita a divulgação de dados"
+  },
+  "error": "Erro",
+  "@error": {
+    "description": "Rótulo para mensagens de erro"
+  },
+  "dismiss": "Descartar",
+  "@dismiss": {
+    "description": "Rótulo para descartar mensagens de erro"
+  },
+  "pageNotFound": "Página Não Encontrada",
+  "@pageNotFound": {
+    "description": "Rótulo para a mensagem de página não encontrada 404"
+  },
+  "apiUnreachable": "Não foi possível conectar ao servidor. Tente novamente mais tarde.",
+  "@apiUnreachable": {
+    "description": "Rótulo indicando que a API está inacessível"
+  },
+  "aeratorDetails": "Detalhes do Aerador",
+  "@aeratorDetails": {
+    "description": "Título para a seção de detalhes do aerador na pesquisa"
+  },
+  "farmAndOxygenDemand": "Fazenda e Demanda de Oxigênio",
+  "@farmAndOxygenDemand": {
+    "description": "Título para a seção de especificações da fazenda e demanda de oxigênio"
+  },
+  "financialAspects": "Aspectos Financeiros",
+  "@financialAspects": {
+    "description": "Título para a seção de aspectos financeiros"
+  },
+  "back": "Voltar",
+  "@back": {
+    "description": "Rótulo para o botão de voltar no passo a passo da pesquisa"
+  },
+  "next": "Próximo",
+  "@next": {
+    "description": "Rótulo para o botão de próximo no passo a passo da pesquisa"
+  },
+  "submit": "Enviar",
+  "@submit": {
+    "description": "Rótulo para o botão de enviar para processar a pesquisa"
+  },
+  "addAerator": "Adicionar Aerador",
+  "@addAerator": {
+    "description": "Rótulo para o botão de adicionar um novo aerador"
+  },
+  "aeratorLabel": "Aerador",
+  "@aeratorLabel": {
+    "description": "Rótulo para o campo de entrada ou coluna do aerador"
+  },
+  "nameLabel": "Nome do Aerador",
+  "@nameLabel": {
+    "description": "Rótulo para o campo de entrada do nome do aerador (opcional)"
+  },
+  "nameTooltip": "Nome único para o aerador",
+  "@nameTooltip": {
+    "description": "Tooltip para o campo de entrada do nome do aerador"
+  },
+  "aeratorTypeLabel": "Tipo de Aerador (Opcional)",
+  "@aeratorTypeLabel": {
+    "description": "Rótulo para o campo de entrada do tipo de aerador (opcional)"
+  },
+  "aeratorTypeTooltip": "Tipo de aerador (por exemplo, roda de pás, difusor)",
+  "@aeratorTypeTooltip": {
+    "description": "Tooltip para o campo de entrada do tipo de aerador"
+  },
+  "horsepowerLabel": "Potência (hp)",
+  "@horsepowerLabel": {
+    "description": "Rótulo para a potência nominal do aerador em cavalos de força"
+  },
+  "horsepowerTooltip": "Potência nominal do aerador em cavalos de força (0.1 a 100)",
+  "@horsepowerTooltip": {
+    "description": "Tooltip para o campo de entrada de potência do aerador"
+  },
+  "sotrLabel": "SOTR (kg O₂/h)",
+  "@sotrLabel": {
+    "description": "Rótulo para a Taxa de Transferência de Oxigênio Padrão do aerador em kg O₂ por hora"
+  },
+  "sotrTooltip": "Taxa de Transferência de Oxigênio Padrão por hora (0.1 a 10)",
+  "@sotrTooltip": {
+    "description": "Tooltip para o campo de entrada de SOTR"
+  },
+  "priceLabel": "Preço (USD)",
+  "@priceLabel": {
+    "description": "Rótulo para o campo de entrada do preço do aerador"
+  },
+  "priceAeratorTooltip": "Custo inicial de compra do aerador em USD (0 a 10000)",
+  "@priceAeratorTooltip": {
+    "description": "Tooltip para o campo de entrada do preço do aerador"
+  },
+  "durabilityLabel": "Durabilidade (anos)",
+  "@durabilityLabel": {
+    "description": "Rótulo para o campo de entrada da durabilidade do aerador"
+  },
+  "durabilityAeratorTooltip": "Vida útil esperada do aerador em anos (0.1 a 20)",
+  "@durabilityAeratorTooltip": {
+    "description": "Tooltip para o campo de entrada da durabilidade do aerador"
+  },
+  "maintenanceCostLabel": "Custo Anual de Manutenção (USD)",
+  "@maintenanceCostLabel": {
+    "description": "Rótulo para o campo de entrada do custo de manutenção do aerador"
+  },
+  "maintenanceCostAeratorTooltip": "Custo anual de manutenção do aerador em USD (0 a 1000)",
+  "@maintenanceCostAeratorTooltip": {
+    "description": "Tooltip para o campo de entrada do custo de manutenção do aerador"
+  },
+  "farmAreaLabel": "Área Total da Fazenda (ha)",
+  "@farmAreaLabel": {
+    "description": "Rótulo para o campo de entrada da área da fazenda"
+  },
+  "farmAreaTooltip": "Área total da fazenda em hectares (0.1 a 100000)",
+  "@farmAreaTooltip": {
+    "description": "Tooltip para o campo de entrada da área da fazenda"
+  },
+  "productionPerHaLabel": "Produção por Hectare (kg/ha/ano)",
+  "@productionPerHaLabel": {
+    "description": "Rótulo para o campo de entrada da produção de camarões por hectare"
+  },
+  "productionPerHaTooltip": "Produção anual de camarões por hectare (0 a 100000)",
+  "@productionPerHaTooltip": {
+    "description": "Tooltip para o campo de entrada da produção por hectare"
+  },
+  "cyclesPerYearLabel": "Ciclos por Ano",
+  "@cyclesPerYearLabel": {
+    "description": "Rótulo para o campo de entrada do número de ciclos de produção por ano"
+  },
+  "cyclesPerYearTooltip": "Número de ciclos de produção por ano (1 a 10)",
+  "@cyclesPerYearTooltip": {
+    "description": "Tooltip para o campo de entrada de ciclos por ano"
+  },
+  "waterTemperatureLabel": "Temperatura da Água (°C)",
+  "@waterTemperatureLabel": {
+    "description": "Rótulo para o campo de entrada da temperatura da água"
+  },
+  "waterTemperatureTooltip": "Temperatura média da água em Celsius (0 a 40)",
+  "@waterTemperatureTooltip": {
+    "description": "Tooltip para o campo de entrada da temperatura da água"
+  },
+  "salinityLabel": "Salinidade (ppt)",
+  "@salinityLabel": {
+    "description": "Rótulo para o campo de entrada da salinidade da água"
+  },
+  "salinityTooltip": "Salinidade da água em partes por mil (0 a 40)",
+  "@salinityTooltip": {
+    "description": "Tooltip para o campo de entrada da salinidade"
+  },
+  "pondDepthLabel": "Profundidade do Tanque (m)",
+  "@pondDepthLabel": {
+    "description": "Rótulo para a profundidade do tanque em metros"
+  },
+  "pondDepthTooltip": "Profundidade média dos tanques em metros (0.5 a 5)",
+  "@pondDepthTooltip": {
+    "description": "Tooltip para o campo de entrada da profundidade do tanque"
+  },
+  "averageShrimpWeightLabel": "Peso Médio do Camarão (g)",
+  "@averageShrimpWeightLabel": {
+    "description": "Rótulo para o campo de entrada do peso médio do camarão"
+  },
+  "averageShrimpWeightTooltip": "Peso médio dos camarões em gramas (0 a 50)",
+  "@averageShrimpWeightTooltip": {
+    "description": "Tooltip para o campo de entrada do peso médio do camarão"
+  },
+  "shrimpBiomassLabel": "Biomassa de Camarões (kg/ha)",
+  "@shrimpBiomassLabel": {
+    "description": "Rótulo para o campo de entrada da biomassa de camarões"
+  },
+  "shrimpBiomassTooltip": "Biomassa de camarões por hectare (0 a 100000)",
+  "@shrimpBiomassTooltip": {
+    "description": "Tooltip para o campo de entrada da biomassa de camarões"
+  },
+  "safetyMarginLabel": "Margem de Segurança (%)",
+  "@safetyMarginLabel": {
+    "description": "Rótulo para o campo de entrada da margem de segurança (opcional)"
+  },
+  "safetyMarginTooltip": "Margem de segurança opcional para cálculos (0 a 100)",
+  "@safetyMarginTooltip": {
+    "description": "Tooltip para o campo de entrada da margem de segurança"
+  },
+  "shrimpPriceLabel": "Preço do Camarão (USD/kg)",
+  "@shrimpPriceLabel": {
+    "description": "Rótulo para o campo de entrada do preço do camarão"
+  },
+  "shrimpPriceTooltip": "Preço de mercado do camarão por quilograma (0.1 a 50)",
+  "@shrimpPriceTooltip": {
+    "description": "Tooltip para o campo de entrada do preço do camarão"
+  },
+  "electricityCostLabel": "Custo de Eletricidade (USD/kWh)",
+  "@electricityCostLabel": {
+    "description": "Rótulo para o custo de eletricidade por quilowatt-hora em USD"
+  },
+  "electricityCostTooltip": "Custo de eletricidade por quilowatt-hora (0 a 1)",
+  "@electricityCostTooltip": {
+    "description": "Tooltip para o campo de entrada do custo de eletricidade"
+  },
+  "operatingHoursLabel": "Horas de Operação por Ano",
+  "@operatingHoursLabel": {
+    "description": "Rótulo para o total de horas que os aeradores operam por ano"
+  },
+  "operatingHoursTooltip": "Total de horas que os aeradores operam por ano (0 a 8760)",
+  "@operatingHoursTooltip": {
+    "description": "Tooltip para o campo de entrada das horas de operação do aerador"
+  },
+  "discountRateLabel": "Taxa de Desconto (%)",
+  "@discountRateLabel": {
+    "description": "Rótulo para o campo de entrada da taxa de desconto"
+  },
+  "discountRateTooltip": "Taxa de desconto para cálculos financeiros (0 a 100)",
+  "@discountRateTooltip": {
+    "description": "Tooltip para o campo de entrada da taxa de desconto"
+  },
+  "inflationRateLabel": "Taxa de Inflação (%)",
+  "@inflationRateLabel": {
+    "description": "Rótulo para o campo de entrada da taxa de inflação"
+  },
+  "inflationRateTooltip": "Taxa de inflação anual (0 a 100)",
+  "@inflationRateTooltip": {
+    "description": "Tooltip para o campo de entrada da taxa de inflação"
+  },
+  "analysisHorizonLabel": "Horizonte de Análise (anos)",
+  "@analysisHorizonLabel": {
+    "description": "Rótulo para o campo de entrada do horizonte de análise"
+  },
+  "analysisHorizonTooltip": "Período de tempo para análise financeira (1 a 50)",
+  "@analysisHorizonTooltip": {
+    "description": "Tooltip para o campo de entrada do horizonte de análise"
+  },
+  "dataCollectionConsentLabel": "Eu consinto com a coleta de dados para análise",
+  "@dataCollectionConsentLabel": {
+    "description": "Rótulo para a caixa de consentimento de coleta de dados"
+  },
+  "consentRequiredError": "O consentimento para coleta de dados é obrigatório",
+  "@consentRequiredError": {
+    "description": "Mensagem de erro quando o consentimento para coleta de dados não é dado"
+  },
+  "minimumAeratorsError": "São necessários pelo menos dois aeradores",
+  "@minimumAeratorsError": {
+    "description": "Mensagem de erro quando menos de dois aeradores são fornecidos"
+  },
+  "submissionFailed": "Falha ao enviar a pesquisa: {error}",
+  "@submissionFailed": {
+    "description": "Mensagem de erro quando o envio da pesquisa falha",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Erro de rede"
       }
-    },
-    "requiredField": "Este campo é obrigatório",
-    "@requiredField": {
-      "description": "Mensagem de validação para campos de entrada obrigatórios"
-    },
-    "invalidNumber": "Por favor, insira um número válido",
-    "@invalidNumber": {
-      "description": "Mensagem de validação para entrada numérica inválida"
-    },
-    "rangeError": "O valor deve estar entre {min} e {max}",
-    "@rangeError": {
-      "description": "Mensagem de validação para entrada fora do intervalo",
-      "placeholders": {
-        "min": {
-          "type": "String",
-          "example": "0"
-        },
-        "max": {
-          "type": "String",
-          "example": "100"
-        }
+    }
+  },
+  "requiredField": "Este campo é obrigatório",
+  "@requiredField": {
+    "description": "Mensagem de validação para campos de entrada obrigatórios"
+  },
+  "invalidNumber": "Por favor, insira um número válido",
+  "@invalidNumber": {
+    "description": "Mensagem de validação para entrada numérica inválida"
+  },
+  "rangeError": "O valor deve estar entre {min} e {max}",
+  "@rangeError": {
+    "description": "Mensagem de validação para entrada fora do intervalo",
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "0"
+      },
+      "max": {
+        "type": "String",
+        "example": "100"
       }
-    },
-    "results": "Resultados",
-    "@results": {
-      "description": "Título para a página de resultados"
-    },
-    "summaryMetrics": "Métricas Resumidas",
-    "@summaryMetrics": {
-      "description": "Título para a seção de métricas resumidas"
-    },
-    "recommendedAerator": "Aerador Recomendado",
-    "@recommendedAerator": {
-      "description": "Rótulo para o aerador recomendado"
-    },
-    "aeratorComparisonResults": "Resultados da Comparação de Aeradores",
-    "@aeratorComparisonResults": {
-      "description": "Título para a seção de resultados da comparação de aeradores"
-    },
-    "oxygenDemandBreakdown": "Detalhamento da Demanda de Oxigênio",
-    "@oxygenDemandBreakdown": {
-      "description": "Título para o gráfico de detalhamento da demanda de oxigênio"
-    },
-    "financialBreakdown": "Detalhamento Financeiro",
-    "@financialBreakdown": {
-      "description": "Título para o gráfico de detalhamento financeiro"
-    },
-    "totalDemandLabel": "Demanda Total de Oxigênio",
-    "@totalDemandLabel": {
-      "description": "Rótulo para a demanda total de oxigênio no gráfico e resumo"
-    },
-    "shrimpRespirationLabel": "Respiração dos Camarões",
-    "@shrimpRespirationLabel": {
-      "description": "Rótulo para a respiração dos camarões no gráfico e resumo"
-    },
-    "pondRespirationLabel": "Respiração do Tanque",
-    "@pondRespirationLabel": {
-      "description": "Rótulo para a respiração do tanque no gráfico e resumo"
-    },
-    "pondWaterRespirationLabel": "Respiração da Água do Tanque",
-    "@pondWaterRespirationLabel": {
-      "description": "Rótulo para a respiração da água do tanque no gráfico e resumo"
-    },
-    "pondBottomRespirationLabel": "Respiração do Fundo do Tanque",
-    "@pondBottomRespirationLabel": {
-      "description": "Rótulo para a respiração do fundo do tanque no gráfico e resumo"
-    },
-    "annualRevenueLabel": "Receita Anual",
-    "@annualRevenueLabel": {
-      "description": "Rótulo para a métrica de receita anual"
-    },
-    "unitsNeeded": "Unidades Necessárias",
-    "@unitsNeeded": {
-      "description": "Rótulo para a coluna de unidades necessárias na tabela de comparação"
-    },
-    "totalAnnualCostLabel": "Custo Anual Total",
-    "@totalAnnualCostLabel": {
-      "description": "Rótulo para a coluna de custo anual total na tabela de comparação"
-    },
-    "costPercentage": "Percentual de Custo",
-    "@costPercentage": {
-      "description": "Rótulo para a coluna de percentual de custo na tabela de comparação"
-    },
-    "saeLabel": "SAE (kg O₂/kWh)",
-    "@saeLabel": {
-      "description": "Rótulo para a coluna de SAE na tabela de comparação"
-    },
-    "npvLabel": "VPL",
-    "@npvLabel": {
-      "description": "Rótulo para a coluna de Valor Presente Líquido na tabela de comparação"
-    },
-    "irrLabel": "TIR",
-    "@irrLabel": {
-      "description": "Rótulo para a coluna de Taxa Interna de Retorno na tabela de comparação"
-    },
-    "paybackPeriod": "Período de Retorno",
-    "@paybackPeriod": {
-      "description": "Rótulo para a coluna de período de retorno na tabela de comparação"
-    },
-    "roiLabel": "Retorno sobre Investimento",
-    "@roiLabel": {
-      "description": "Rótulo para a coluna de Retorno sobre Investimento na tabela de comparação"
-    },
-    "profitabilityCoefficient": "Coeficiente de Lucratividade",
-    "@profitabilityCoefficient": {
-      "description": "Rótulo para a coluna de coeficiente de lucratividade na tabela de comparação"
-    },
-    "detailedFinancialMetrics": "Métricas Financeiras Detalhadas",
-    "@detailedFinancialMetrics": {
-      "description": "Título para a seção de métricas financeiras detalhadas"
-    },
-    "equilibriumPriceP2Label": "Preço de Equilíbrio (P2)",
-    "@equilibriumPriceP2Label": {
-      "description": "Rótulo para o preço de equilíbrio do segundo aerador"
-    },
-    "opportunityCostLabel": "Custo de Oportunidade",
-    "@opportunityCostLabel": {
-      "description": "Rótulo para a métrica de custo de oportunidade"
-    },
-    "annualSavings": "Economia Anual",
-    "@annualSavings": {
-      "description": "Rótulo para a métrica de economia anual"
-    },
-    "noDataAvailable": "Nenhum dado disponível",
-    "@noDataAvailable": {
-      "description": "Mensagem exibida quando não há dados da pesquisa disponíveis"
-    },
-    "downloadReport": "Baixar Relatório em PDF",
-    "@downloadReport": {
-      "description": "Rótulo para o botão de baixar o relatório em PDF"
-    },
-    "downloadCSV": "Baixar CSV",
-    "@downloadCSV": {
-      "description": "Rótulo para o botão de baixar os resultados como CSV"
-    },
-    "csvExportNotSupported": "A exportação para CSV não é suportada nesta plataforma",
-    "@csvExportNotSupported": {
-      "description": "Mensagem exibida quando a exportação para CSV não é suportada na plataforma"
-    },
-    "pdfGenerationFailed": "Falha ao gerar o PDF: {error}",
-    "@pdfGenerationFailed": {
-      "description": "Mensagem exibida quando a geração do PDF falha",
-      "placeholders": {
-        "error": {
-          "type": "String",
-          "example": "Erro do sistema de arquivos"
-        }
+    }
+  },
+  "results": "Resultados",
+  "@results": {
+    "description": "Título para a página de resultados"
+  },
+  "summaryMetrics": "Métricas Resumidas",
+  "@summaryMetrics": {
+    "description": "Título para a seção de métricas resumidas"
+  },
+  "recommendedAerator": "Aerador Recomendado",
+  "@recommendedAerator": {
+    "description": "Rótulo para o aerador recomendado"
+  },
+  "aeratorComparisonResults": "Resultados da Comparação de Aeradores",
+  "@aeratorComparisonResults": {
+    "description": "Título para a seção de resultados da comparação de aeradores"
+  },
+  "oxygenDemandBreakdown": "Detalhamento da Demanda de Oxigênio",
+  "@oxygenDemandBreakdown": {
+    "description": "Título para o gráfico de detalhamento da demanda de oxigênio"
+  },
+  "financialBreakdown": "Detalhamento Financeiro",
+  "@financialBreakdown": {
+    "description": "Título para o gráfico de detalhamento financeiro"
+  },
+  "totalDemandLabel": "Demanda Total de Oxigênio",
+  "@totalDemandLabel": {
+    "description": "Rótulo para a demanda total de oxigênio no gráfico e resumo"
+  },
+  "shrimpRespirationLabel": "Respiração dos Camarões",
+  "@shrimpRespirationLabel": {
+    "description": "Rótulo para a respiração dos camarões no gráfico e resumo"
+  },
+  "pondRespirationLabel": "Respiração do Tanque",
+  "@pondRespirationLabel": {
+    "description": "Rótulo para a respiração do tanque no gráfico e resumo"
+  },
+  "pondWaterRespirationLabel": "Respiração da Água do Tanque",
+  "@pondWaterRespirationLabel": {
+    "description": "Rótulo para a respiração da água do tanque no gráfico e resumo"
+  },
+  "pondBottomRespirationLabel": "Respiração do Fundo do Tanque",
+  "@pondBottomRespirationLabel": {
+    "description": "Rótulo para a respiração do fundo do tanque no gráfico e resumo"
+  },
+  "annualRevenueLabel": "Receita Anual",
+  "@annualRevenueLabel": {
+    "description": "Rótulo para a métrica de receita anual"
+  },
+  "unitsNeeded": "Unidades Necessárias",
+  "@unitsNeeded": {
+    "description": "Rótulo para a coluna de unidades necessárias na tabela de comparação"
+  },
+  "totalAnnualCostLabel": "Custo Anual Total",
+  "@totalAnnualCostLabel": {
+    "description": "Rótulo para a coluna de custo anual total na tabela de comparação"
+  },
+  "costPercentage": "Percentual de Custo",
+  "@costPercentage": {
+    "description": "Rótulo para a coluna de percentual de custo na tabela de comparação"
+  },
+  "saeLabel": "SAE (kg O₂/kWh)",
+  "@saeLabel": {
+    "description": "Rótulo para a coluna de SAE na tabela de comparação"
+  },
+  "npvLabel": "VPL",
+  "@npvLabel": {
+    "description": "Rótulo para a coluna de Valor Presente Líquido na tabela de comparação"
+  },
+  "irrLabel": "TIR",
+  "@irrLabel": {
+    "description": "Rótulo para a coluna de Taxa Interna de Retorno na tabela de comparação"
+  },
+  "paybackPeriod": "Período de Retorno",
+  "@paybackPeriod": {
+    "description": "Rótulo para a coluna de período de retorno na tabela de comparação"
+  },
+  "roiLabel": "Retorno sobre Investimento",
+  "@roiLabel": {
+    "description": "Rótulo para a coluna de Retorno sobre Investimento na tabela de comparação"
+  },
+  "profitabilityCoefficient": "Coeficiente de Lucratividade",
+  "@profitabilityCoefficient": {
+    "description": "Rótulo para a coluna de coeficiente de lucratividade na tabela de comparação"
+  },
+  "detailedFinancialMetrics": "Métricas Financeiras Detalhadas",
+  "@detailedFinancialMetrics": {
+    "description": "Título para a seção de métricas financeiras detalhadas"
+  },
+  "equilibriumPriceP2Label": "Preço de Equilíbrio (P2)",
+  "@equilibriumPriceP2Label": {
+    "description": "Rótulo para o preço de equilíbrio do segundo aerador"
+  },
+  "opportunityCostLabel": "Custo de Oportunidade",
+  "@opportunityCostLabel": {
+    "description": "Rótulo para a métrica de custo de oportunidade"
+  },
+  "annualSavings": "Economia Anual",
+  "@annualSavings": {
+    "description": "Rótulo para a métrica de economia anual"
+  },
+  "noDataAvailable": "Nenhum dado disponível",
+  "@noDataAvailable": {
+    "description": "Mensagem exibida quando não há dados da pesquisa disponíveis"
+  },
+  "downloadReport": "Baixar Relatório em PDF",
+  "@downloadReport": {
+    "description": "Rótulo para o botão de baixar o relatório em PDF"
+  },
+  "downloadCSV": "Baixar CSV",
+  "@downloadCSV": {
+    "description": "Rótulo para o botão de baixar os resultados como CSV"
+  },
+  "csvExportNotSupported": "A exportação para CSV não é suportada nesta plataforma",
+  "@csvExportNotSupported": {
+    "description": "Mensagem exibida quando a exportação para CSV não é suportada na plataforma"
+  },
+  "pdfGenerationFailed": "Falha ao gerar o PDF: {error}",
+  "@pdfGenerationFailed": {
+    "description": "Mensagem exibida quando a geração do PDF falha",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Erro do sistema de arquivos"
       }
-    },
-    "csvGenerationFailed": "Falha ao gerar o CSV: {error}",
-    "@csvGenerationFailed": {
-      "description": "Mensagem exibida quando a geração do CSV falha",
-      "placeholders": {
-        "error": {
-          "type": "String",
-          "example": "Erro do sistema de arquivos"
-        }
+    }
+  },
+  "csvGenerationFailed": "Falha ao gerar o CSV: {error}",
+  "@csvGenerationFailed": {
+    "description": "Mensagem exibida quando a geração do CSV falha",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Erro do sistema de arquivos"
       }
     }
   }
+}
