@@ -8,7 +8,7 @@ import json
 import os
 
 
-def check_arb_consistency(ref_file_path, l10n_directory):
+def check_arb_consistency(ref_file_path: str, l10n_directory: str) -> int:
     """
     Checks the consistency of localization keys between
     a reference ARB file and other ARB files
