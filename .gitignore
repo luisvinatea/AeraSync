@@ -108,3 +108,6 @@ run_dev.sh
 
 # Database artifacts
 backend/aerasync.db
+backend/app.log
+backend/__pycache__/
+backend/aerasync.db
