@@ -7,15 +7,8 @@ import subprocess
 import sys
 import warnings
 from typing import List, Optional
-
-# Conditional import for TypedDict to support Python 3.11 and 3.12
-try:
-    from typing_extensions import TypedDict
-except AttributeError:
-    from typing import TypedDict
-
+from typing_extensions import TypedDict
 from fastapi.testclient import TestClient
-
 from .main import app
 
 # Suppress warnings aggressively
