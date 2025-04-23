@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for AeraSync
+name: CI for AeraSync Main
 
 on:
   push:
@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          path: AeraSync
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -25,29 +23,25 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install fastapi[all] uvicorn scipy numpy pytest pytest-asyncio flake8 pylint
-        working-directory: AeraSync/backend
+        working-directory: backend
 
       - name: Run Flake8
         run: |
           flake8 backend/ --max-line-length=79
-        working-directory: AeraSync
 
       - name: Run Pylint
         run: |
           pylint backend/*.py
-        working-directory: AeraSync
 
       - name: Run backend tests
         run: |
           pytest -v backend/test.py
-        working-directory: AeraSync
 
-      - name: Start FastAPI backend
+      - name: Start FastAPI backend for frontend tests
         run: |
-          uvicorn main:app --host 0.0.0.0 --port 8000 &
+          uvicorn backend.main:app --host 0.0.0.0 --port 8000 &
           sleep 10
           curl --retry 5 --retry-delay 2 --fail http://localhost:8000/health || exit 1
-        working-directory: AeraSync/backend
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -58,23 +52,20 @@ jobs:
 
       - name: Verify Flutter version
         run: flutter --version
-        working-directory: AeraSync
 
       - name: Cache Flutter dependencies
         uses: actions/cache@v4
         with:
           path: /home/runner/.pub-cache
-          key: flutter-pub-${{ runner.os }}-stable-3.29.2-${{ hashFiles('AeraSync/pubspec.lock') }}
+          key: flutter-pub-${{ runner.os }}-stable-3.29.2-${{ hashFiles('pubspec.lock') }}
           restore-keys: |
             flutter-pub-${{ runner.os }}-stable-3.29.2-
 
       - name: Clean project
         run: flutter clean
-        working-directory: AeraSync
 
       - name: Get dependencies
         run: flutter pub get
-        working-directory: AeraSync
 
       - name: Verify required assets
         run: |
@@ -102,80 +93,19 @@ jobs:
             fi
           done
           if [ "$MISSING" = true ]; then exit 1; fi
-        working-directory: AeraSync
 
       - name: Generate localization files
         run: flutter gen-l10n
-        working-directory: AeraSync
 
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
-        working-directory: AeraSync
 
       - name: Run Flutter tests
         run: flutter test
-        working-directory: AeraSync
 
       - name: Check ARB Key Consistency
         run: |
           echo "Checking consistency of localization keys..."
           python3 scripts/verify_arb.py
-        working-directory: AeraSync
         env:
           PYTHONPATH: .
-
-      - name: Build web for testing
-        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ --dart-define=API_URL=http://localhost:8000
-        working-directory: AeraSync
-
-  deploy:
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          path: AeraSync
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.29.2'
-          channel: 'stable'
-          cache: true
-
-      - name: Cache Flutter dependencies
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/.pub-cache
-          key: flutter-pub-${{ runner.os }}-stable-3.29.2-${{ hashFiles('AeraSync/pubspec.lock') }}
-          restore-keys: |
-            flutter-pub-${{ runner.os }}-stable-3.29.2-
-
-      - name: Get dependencies
-        run: flutter pub get
-        working-directory: AeraSync
-
-      - name: Generate localization files
-        run: flutter gen-l10n
-        working-directory: AeraSync
-
-      - name: Run build_runner
-        run: dart run build_runner build --delete-conflicting-outputs
-        working-directory: AeraSync
-
-      - name: Build web for production
-        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ --dart-define=API_URL=https://aerasync-backend-bm4vzl9r1-devinatea.vercel.app/
-        working-directory: AeraSync
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: AeraSync/build/web
-          publish_branch: gh-pages
-          commit_message: "Deploy build for commit ${{ github.sha }}"
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
