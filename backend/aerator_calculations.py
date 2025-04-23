@@ -294,12 +294,12 @@ def compute_financial_metrics(
     Returns:
         Dictionary with financial metrics.
     """
-    initial_investment = financial_data["initial_investment"]
-    annual_savings = financial_data["annual_savings"]
-    cash_flows = financial_data["cash_flows"]
-    discount_rate = financial_data["discount_rate"]
-    inflation_rate = financial_data["inflation_rate"]
-    horizon = financial_data["horizon"]
+    initial_investment = financial_data.initial_investment
+    annual_savings = financial_data.annual_savings
+    cash_flows = financial_data.cash_flows
+    discount_rate = financial_data.discount_rate
+    inflation_rate = financial_data.inflation_rate
+    horizon = financial_data.horizon
 
     npv_value = (
         calculate_npv(cash_flows, discount_rate, inflation_rate, horizon)

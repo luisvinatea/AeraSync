@@ -12,7 +12,8 @@ from aerator_calculations import (
     compute_equilibrium_price, compute_financial_metrics
 )
 from aerator_types import (
-    AeratorComparisonInputs, AeratorResult, ComparisonResults, FinancialData
+    AeratorComparisonInputs, AeratorResult, ComparisonResults, FinancialData,
+    AeratorComparisonRequest
 )
 
 
@@ -560,14 +561,21 @@ class AeratorComparer:
             annual_savings, inputs['horizon']
         )
 
-        return {
-            "initial_investment": initial_investment,
-            "annual_savings": annual_savings,
-            "cash_flows": cash_flows,
-            "discount_rate": inputs['discount_rate'],
-            "inflation_rate": inputs['inflation_rate'],
-            "horizon": inputs['horizon']
-        }
+        return FinancialData(
+            initial_investment=initial_investment,
+            annual_savings=annual_savings,
+            cash_flows=cash_flows,
+            shrimp_price_usd_kg=inputs['shrimp_price_usd_kg'],
+            energy_cost_usd_kwh=inputs['energy_cost'],
+            operating_hours_year=inputs['operating_hours'],
+            discount_rate_percent=inputs['discount_rate'] * 100,
+            inflation_rate_percent=inputs['inflation_rate'] * 100,
+            analysis_horizon_years=inputs['horizon'],
+            safety_margin_percent=inputs['safety_margin_percent'],
+            discount_rate=inputs['discount_rate'],
+            inflation_rate=inputs['inflation_rate'],
+            horizon=inputs['horizon']
+        )
 
     def _update_aerator_results(
         self,
@@ -650,14 +658,17 @@ class AeratorComparer:
         return cost_of_opportunity, str(winner_data["name"]), {
             'equilibriumPriceP2': round(equilibrium_price, 2),
             'costOfOpportunity': round(cost_of_opportunity, 2),
-            'annualSavings': round(financial_data["annual_savings"], 2)
+            'annualSavings': round(financial_data.annual_savings, 2)
         }
 
-    def compare_aerators(self, inputs: Dict[str, Any]) -> ComparisonResults:
+    def compare_aerators(
+        self,
+        request: AeratorComparisonRequest
+    ) -> ComparisonResults:
         """Compare aerators based on survey data.
 
         Args:
-            inputs: Raw input dictionary.
+            request: Pydantic model for aerator comparison request.
 
         Returns:
             Comparison results with TOD, financial metrics,
@@ -669,7 +680,7 @@ class AeratorComparer:
             RuntimeError: If calculations or database logging fail.
         """
         try:
-            params = self._extract_inputs(inputs)
+            params = self._extract_inputs(request.model_dump())
             self._validate_inputs(params)
 
             tod_results = calculate_tod(params, self.respiration_calc)
@@ -712,7 +723,7 @@ class AeratorComparer:
                 'apiResults': api_results
             }
 
-            self._log_comparison(inputs, results)
+            self._log_comparison(request.model_dump(), results)
             return results
 
         except (ValueError, TypeError, RuntimeError) as e:
@@ -727,18 +738,19 @@ if __name__ == "__main__":
         saturation_calculator=sat_calc,
         respiration_calculator=resp_calc
     )
-    test_inputs: Dict[str, Any] = {
+    # Example usage with Pydantic AeratorComparisonRequest
+    example_input: dict[str, Any] = {
         'farm': {
             'area_ha': 1000.0,
             'production_kg_ha_year': 10000.0,
             'cycles_per_year': 3.0,
-            'pond_depth_m': 1.0
+            'pond_depth_m': 1.0,
         },
         'oxygen': {
             'temperature_c': 31.5,
             'salinity_ppt': 20.0,
             'shrimp_weight_g': 10.0,
-            'biomass_kg_ha': 3333.33
+            'biomass_kg_ha': 3333.33,
         },
         'aerators': [
             {
@@ -747,7 +759,7 @@ if __name__ == "__main__":
                 'sotr_kg_o2_h': 1.4,
                 'initial_cost_usd': 500.0,
                 'durability_years': 2.0,
-                'maintenance_usd_year': 65.0
+                'maintenance_usd_year': 65.0,
             },
             {
                 'name': 'Aerator 2',
@@ -755,8 +767,8 @@ if __name__ == "__main__":
                 'sotr_kg_o2_h': 2.2,
                 'initial_cost_usd': 800.0,
                 'durability_years': 4.5,
-                'maintenance_usd_year': 50.0
-            }
+                'maintenance_usd_year': 50.0,
+            },
         ],
         'financial': {
             'shrimp_price_usd_kg': 5.0,
@@ -765,11 +777,13 @@ if __name__ == "__main__":
             'discount_rate_percent': 10.0,
             'inflation_rate_percent': 2.5,
             'analysis_horizon_years': 9,
-            'safety_margin_percent': 0.0
+            'safety_margin_percent': 0.0,
         }
     }
     try:
-        comparison_results = comparer.compare_aerators(test_inputs)
+        # Build Pydantic request and compare
+        comparison_request = AeratorComparisonRequest(**example_input)
+        comparison_results = comparer.compare_aerators(comparison_request)
         print("\n--- Aerator Comparison Results ---")
         for key, value in comparison_results.items():
             print(f"{key}: {value}")

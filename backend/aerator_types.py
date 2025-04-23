@@ -108,6 +108,12 @@ class FinancialData(BaseModel):
     inflation_rate_percent: float = Field(ge=0)
     analysis_horizon_years: int = Field(ge=1)
     safety_margin_percent: Optional[float] = Field(None, ge=0)
+    initial_investment: float
+    annual_savings: float
+    cash_flows: List[float]
+    discount_rate: float
+    inflation_rate: float
+    horizon: int
 
 
 class AeratorComparisonRequest(BaseModel):
