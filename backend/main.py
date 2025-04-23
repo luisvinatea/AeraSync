@@ -5,12 +5,12 @@ from typing import Dict
 import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from aerator_comparer import (
+from .aerator_comparer import (
     AeratorComparer,
     SaturationCalculator,
     ShrimpRespirationCalculator,
 )
-from aerator_types import AeratorComparisonRequest, ComparisonResults
+from .aerator_types import AeratorComparisonRequest, ComparisonResults
 
 logging.basicConfig(
     level=logging.INFO,
