@@ -36,13 +36,26 @@ app.add_middleware(
     allow_headers=["Content-Type"]
 )
 
+# Data file paths
 script_dir: str = os.path.dirname(os.path.abspath(__file__))
-data_dir: str = os.path.join(script_dir, "..", "..", "assets", "data")
+repo_root: str = os.path.dirname(script_dir)
+data_dir: str = os.path.join(repo_root, "assets", "data")
 oxygen_path: str = os.path.join(data_dir, "o2_temp_sal_100_sat.json")
 shrimp_path: str = os.path.join(
     data_dir, "shrimp_respiration_salinity_temperature_weight.json"
 )
 
+# Fallback paths for Vercel or other environments
+fallback_data_dir: str = os.path.join(script_dir, "..", "..", "assets", "data")
+if not os.path.exists(oxygen_path):
+    oxygen_path = os.path.join(fallback_data_dir, "o2_temp_sal_100_sat.json")
+if not os.path.exists(shrimp_path):
+    shrimp_path = os.path.join(
+        fallback_data_dir,
+        "shrimp_respiration_salinity_temperature_weight.json"
+    )
+
+# Validate data files
 if not os.path.exists(oxygen_path):
     raise FileNotFoundError(f"Data file not found: {oxygen_path}")
 if not os.path.exists(shrimp_path):
