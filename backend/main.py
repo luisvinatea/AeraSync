@@ -28,13 +28,12 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:8080",
         "http://127.0.0.1:8080",
-        "https://luisvinatea.github.io",
-        "https://luisvinatea.github.io/AeraSync",
-        "https://aerasync-frontend.vercel.app",
+        "http://localhost:*",
+        "https://*.github.io"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type"]
 )
 
 script_dir: str = os.path.dirname(os.path.abspath(__file__))
