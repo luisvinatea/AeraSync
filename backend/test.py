@@ -11,7 +11,7 @@ from typing import List, Optional
 # Conditional import for TypedDict to support Python 3.11 and 3.12
 try:
     from typing import TypedDict
-except ImportError:
+except AttributeError:
     from typing_extensions import TypedDict
 
 from fastapi.testclient import TestClient
