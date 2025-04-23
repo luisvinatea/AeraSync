@@ -3,6 +3,6 @@ uvicorn==0.30.6
 pydantic==2.9.2
 numpy==1.26.4  # Lighter version
 cython==0.29.36
-scipy==1.11.0
+scipy==1.15.2
 scipy-stubs>=1.11.0
 httpx==0.24.0  # Added specific version for compatibility
