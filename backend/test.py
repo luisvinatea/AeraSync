@@ -1,5 +1,3 @@
-# pyright: reportUnknownVariableType=false, reportUnknownMemberType=false
-# pyright: reportUnknownArgumentType=false, reportAttributeAccessIssue=false
 """Unit tests for the AeraSync API."""
 
 # type: ignore
