@@ -1,37 +1,29 @@
 name: Sync Backend Scripts to Main
-
 on:
   push:
     branches: ["backend-vercel"]
-
 jobs:
   sync-backend:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout backend-vercel
         uses: actions/checkout@v4
         with:
           ref: backend-vercel
-
       - name: Checkout main branch
         uses: actions/checkout@v4
         with:
           ref: main
           path: main
-
       - name: Copy backend scripts
         run: |
           mkdir -p main/backend
           cp -r api/*.py api/requirements.txt main/backend/
-          # Exclude vercel.json
           rm -f main/backend/vercel.json
-
       - name: Copy JSON data files
         run: |
           mkdir -p main/assets/data
           cp -r assets/data/*.json main/assets/data/
-
       - name: Check for changes
         id: check_changes
         run: |
@@ -44,7 +36,6 @@ jobs:
             echo "Changes detected"
             echo "has_changes=true" >> $GITHUB_OUTPUT
           fi
-
       - name: Commit and push changes to a new branch
         if: steps.check_changes.outputs.has_changes == 'true'
         run: |
@@ -54,7 +45,6 @@ jobs:
           git checkout -b sync-backend-vercel-${{ github.sha }}
           git commit -m "Sync backend scripts and data from backend-vercel"
           git push origin sync-backend-vercel-${{ github.sha }}
-
       - name: Create pull request
         if: steps.check_changes.outputs.has_changes == 'true'
         uses: peter-evans/create-pull-request@v7
