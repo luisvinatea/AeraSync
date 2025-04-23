@@ -4,6 +4,8 @@ import os
 from typing import Dict
 import logging
 from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from .aerator_comparer import (
     AeratorComparer,
@@ -110,6 +112,20 @@ async def compare_aerators(
             status_code=500,
             detail=f"Error in comparison: {str(e)}",
         ) from e
+
+
+# Custom exception handler for validation errors
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    exc: RequestValidationError
+):
+    """Override default validation error handler to adjust error types."""
+    errors = exc.errors()
+    for err in errors:
+        err_type = err.get("type", "")
+        if "not_ge" in err_type:
+            err["type"] = "greater_than_equal"
+    return JSONResponse(status_code=422, content={"detail": errors})
 
 
 # Redeploy test

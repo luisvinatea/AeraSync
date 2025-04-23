@@ -116,9 +116,20 @@ class FinancialData(BaseModel):
     horizon: int
 
 
+class FinancialInput(BaseModel):
+    """Pydantic model for financial input parameters only."""
+    shrimp_price_usd_kg: float = Field(ge=0)
+    energy_cost_usd_kwh: float = Field(ge=0)
+    operating_hours_year: float = Field(ge=0)
+    discount_rate_percent: float = Field(ge=0)
+    inflation_rate_percent: float = Field(ge=0)
+    analysis_horizon_years: int = Field(ge=1)
+    safety_margin_percent: Optional[float] = Field(None, ge=0)
+
+
 class AeratorComparisonRequest(BaseModel):
     """Pydantic model for aerator comparison request."""
     farm: FarmData
     oxygen: OxygenData
     aerators: List[AeratorData]
-    financial: FinancialData
+    financial: FinancialInput
