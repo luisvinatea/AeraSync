@@ -8,7 +8,7 @@ import warnings
 import subprocess
 import sys
 from fastapi.testclient import TestClient
-from main.backend.main import app
+from .main import app
 
 # Suppress warnings aggressively
 warnings.filterwarnings("ignore", category=Warning, module=".*")

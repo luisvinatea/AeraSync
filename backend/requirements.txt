@@ -2,3 +2,5 @@ fastapi==0.115.0
 uvicorn==0.30.6
 pydantic==2.9.2
 numpy==1.26.4  # Lighter version
+scipy==1.11.0
+scipy-stubs>=1.11.0
