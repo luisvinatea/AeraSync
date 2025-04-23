@@ -104,6 +104,7 @@ test_temp/
 .vscode/
 .wakatime-project
 .env.example
+run_dev.sh
 
 # Database artifacts
 backend/aerasync.db
