@@ -89,3 +89,21 @@ backend-worktree
 main/
 gh-pages/
 backend-vercel/
+# Build artifacts
+build/
+.last_build_id
+
+# Documentation build output
+docs/_build/
+
+# Test artifacts
+test_log.json
+test_temp/
+
+# Developer-specific
+.vscode/
+.wakatime-project
+.env.example
+
+# Database artifacts
+backend/aerasync.db
