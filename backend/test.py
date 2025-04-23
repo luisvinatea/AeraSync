@@ -1,17 +1,17 @@
+# pyright: reportUnknownVariableType=false, reportUnknownMemberType=false
+# pyright: reportUnknownArgumentType=false, reportAttributeAccessIssue=false
 """Unit tests for the AeraSync API."""
+
+# type: ignore
 from typing import TypedDict, List, Optional
 import warnings
 import subprocess
 import sys
 from fastapi.testclient import TestClient
-from main import app
+from main.backend.main import app
 
 # Suppress warnings aggressively
-warnings.filterwarnings(
-    "ignore",
-    category=Warning,
-    module=".*"
-)
+warnings.filterwarnings("ignore", category=Warning, module=".*")
 
 client = TestClient(app)
 
@@ -25,13 +25,15 @@ class TestAeraSyncAPI:
         assert response.status_code == 200
         assert response.json() == {
             "status": "healthy",
-            "message": "Service is running smoothly."
+            "message": "Service is running smoothly.",
         }
 
     def test_compare_aerators_valid(self):
         """Test the compare endpoint with valid input."""
+
         class FarmInput(TypedDict):
             """Farm input parameters."""
+
             area_ha: float
             production_kg_ha_year: float
             cycles_per_year: float
@@ -39,6 +41,7 @@ class TestAeraSyncAPI:
 
         class OxygenInput(TypedDict):
             """Oxygen input parameters."""
+
             temperature_c: float
             salinity_ppt: float
             shrimp_weight_g: float
@@ -46,6 +49,7 @@ class TestAeraSyncAPI:
 
         class AeratorInput(TypedDict):
             """Aerator input parameters."""
+
             name: str
             power_hp: float
             sotr_kg_o2_h: float
@@ -57,6 +61,7 @@ class TestAeraSyncAPI:
 
         class FinancialInput(TypedDict):
             """Financial input parameters."""
+
             shrimp_price_usd_kg: float
             energy_cost_usd_kwh: float
             operating_hours_year: float
@@ -67,6 +72,7 @@ class TestAeraSyncAPI:
 
         class ValidInput(TypedDict):
             """Valid input parameters."""
+
             farm: FarmInput
             oxygen: OxygenInput
             aerators: List[AeratorInput]
@@ -77,13 +83,13 @@ class TestAeraSyncAPI:
                 "area_ha": 10.0,
                 "production_kg_ha_year": 5000.0,
                 "cycles_per_year": 2.0,
-                "pond_depth_m": 1.5
+                "pond_depth_m": 1.5,
             },
             "oxygen": {
                 "temperature_c": 25.0,
                 "salinity_ppt": 30.0,
                 "shrimp_weight_g": 20.0,
-                "biomass_kg_ha": 4000.0
+                "biomass_kg_ha": 4000.0,
             },
             "aerators": [
                 {
@@ -94,7 +100,7 @@ class TestAeraSyncAPI:
                     "durability_years": 5.0,
                     "maintenance_usd_year": 200.0,
                     "brand": "Pentair",
-                    "type": "Paddle"
+                    "type": "Paddle",
                 },
                 {
                     "name": "Aerator2",
@@ -104,8 +110,8 @@ class TestAeraSyncAPI:
                     "durability_years": 6.0,
                     "maintenance_usd_year": 300.0,
                     "brand": "Beraqua",
-                    "type": "Paddle"
-                }
+                    "type": "Paddle",
+                },
             ],
             "financial": {
                 "shrimp_price_usd_kg": 5.0,
@@ -114,8 +120,8 @@ class TestAeraSyncAPI:
                 "discount_rate_percent": 5.0,
                 "inflation_rate_percent": 2.0,
                 "analysis_horizon_years": 10,
-                "safety_margin_percent": 10.0
-            }
+                "safety_margin_percent": 10.0,
+            },
         }
         response = client.post("/compare", json=valid_input)
         assert response.status_code == 200
@@ -127,8 +133,10 @@ class TestAeraSyncAPI:
 
     def test_compare_aerators_invalid(self):
         """Test the compare endpoint with invalid input."""
+
         class FarmInput(TypedDict):
             """Farm input parameters."""
+
             area_ha: float
             production_kg_ha_year: float
             cycles_per_year: float
@@ -136,6 +144,7 @@ class TestAeraSyncAPI:
 
         class OxygenInput(TypedDict):
             """Oxygen input parameters."""
+
             temperature_c: float
             salinity_ppt: float
             shrimp_weight_g: float
@@ -143,6 +152,7 @@ class TestAeraSyncAPI:
 
         class AeratorInput(TypedDict):
             """Aerator input parameters."""
+
             name: str
             power_hp: float
             sotr_kg_o2_h: float
@@ -154,6 +164,7 @@ class TestAeraSyncAPI:
 
         class FinancialInput(TypedDict):
             """Financial input parameters."""
+
             shrimp_price_usd_kg: float
             energy_cost_usd_kwh: float
             operating_hours_year: float
@@ -164,6 +175,7 @@ class TestAeraSyncAPI:
 
         class InvalidInput(TypedDict):
             """Invalid input parameters."""
+
             farm: FarmInput
             oxygen: OxygenInput
             aerators: List[AeratorInput]
@@ -174,13 +186,13 @@ class TestAeraSyncAPI:
                 "area_ha": -10.0,  # Invalid: negative area
                 "production_kg_ha_year": 5000.0,
                 "cycles_per_year": 2.0,
-                "pond_depth_m": 1.5
+                "pond_depth_m": 1.5,
             },
             "oxygen": {
                 "temperature_c": 25.0,
                 "salinity_ppt": 30.0,
                 "shrimp_weight_g": 20.0,
-                "biomass_kg_ha": 4000.0
+                "biomass_kg_ha": 4000.0,
             },
             "aerators": [
                 {
@@ -191,7 +203,7 @@ class TestAeraSyncAPI:
                     "durability_years": 5.0,
                     "maintenance_usd_year": 200.0,
                     "brand": None,
-                    "type": None
+                    "type": None,
                 },
                 {
                     "name": "Aerator2",
@@ -201,8 +213,8 @@ class TestAeraSyncAPI:
                     "durability_years": 6.0,
                     "maintenance_usd_year": 300.0,
                     "brand": None,
-                    "type": None
-                }
+                    "type": None,
+                },
             ],
             "financial": {
                 "shrimp_price_usd_kg": 5.0,
@@ -211,8 +223,8 @@ class TestAeraSyncAPI:
                 "discount_rate_percent": 5.0,
                 "inflation_rate_percent": 2.0,
                 "analysis_horizon_years": 10,
-                "safety_margin_percent": 10.0
-            }
+                "safety_margin_percent": 10.0,
+            },
         }
         response = client.post("/compare", json=invalid_input)
         assert response.status_code == 422
@@ -220,8 +232,10 @@ class TestAeraSyncAPI:
 
     def test_compare_aerators_single_aerator(self):
         """Test the compare endpoint with only one aerator."""
+
         class FarmInput(TypedDict):
             """Farm input parameters."""
+
             area_ha: float
             production_kg_ha_year: float
             cycles_per_year: float
@@ -229,6 +243,7 @@ class TestAeraSyncAPI:
 
         class OxygenInput(TypedDict):
             """Oxygen input parameters."""
+
             temperature_c: float
             salinity_ppt: float
             shrimp_weight_g: float
@@ -236,6 +251,7 @@ class TestAeraSyncAPI:
 
         class AeratorInput(TypedDict):
             """Aerator input parameters."""
+
             name: str
             power_hp: float
             sotr_kg_o2_h: float
@@ -247,6 +263,7 @@ class TestAeraSyncAPI:
 
         class FinancialInput(TypedDict):
             """Financial input parameters."""
+
             shrimp_price_usd_kg: float
             energy_cost_usd_kwh: float
             operating_hours_year: float
@@ -257,6 +274,7 @@ class TestAeraSyncAPI:
 
         class SingleAeratorInput(TypedDict):
             """Single aerator input parameters."""
+
             farm: FarmInput
             oxygen: OxygenInput
             aerators: List[AeratorInput]
@@ -267,13 +285,13 @@ class TestAeraSyncAPI:
                 "area_ha": 10.0,
                 "production_kg_ha_year": 5000.0,
                 "cycles_per_year": 2.0,
-                "pond_depth_m": 1.5
+                "pond_depth_m": 1.5,
             },
             "oxygen": {
                 "temperature_c": 25.0,
                 "salinity_ppt": 30.0,
                 "shrimp_weight_g": 20.0,
-                "biomass_kg_ha": 4000.0
+                "biomass_kg_ha": 4000.0,
             },
             "aerators": [
                 {
@@ -284,7 +302,7 @@ class TestAeraSyncAPI:
                     "durability_years": 5.0,
                     "maintenance_usd_year": 200.0,
                     "brand": None,
-                    "type": None
+                    "type": None,
                 }
             ],
             "financial": {
@@ -294,8 +312,8 @@ class TestAeraSyncAPI:
                 "discount_rate_percent": 5.0,
                 "inflation_rate_percent": 2.0,
                 "analysis_horizon_years": 10,
-                "safety_margin_percent": 10.0
-            }
+                "safety_margin_percent": 10.0,
+            },
         }
         response = client.post("/compare", json=single_aerator_input)
         assert response.status_code == 400
@@ -310,7 +328,7 @@ class TestAeraSyncAPI:
             assert response.status_code == 200
             assert response.json() == {
                 "status": "healthy",
-                "message": "Service is running smoothly."
+                "message": "Service is running smoothly.",
             }
 
 
@@ -320,7 +338,7 @@ if __name__ == "__main__":
         [sys.executable, "-m", "pytest", "-v", __file__],
         check=True,
         capture_output=True,
-        text=True
+        text=True,
     )
     print(result.stdout)
     sys.exit(result.returncode)
