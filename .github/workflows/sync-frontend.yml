@@ -1,0 +1,68 @@
+name: Sync Frontend Static Files to Main
+
+on:
+  push:
+    branches: ["gh-pages"]
+
+jobs:
+  sync-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main
+
+      - name: Copy static web files
+        run: |
+          mkdir -p main/web/assets
+          mkdir -p main/web/icons
+          cp index.html manifest.json styles.css favicon.webp main/web/
+          cp assets/wave.svg main/web/assets/
+          cp icons/aerasync*.webp icons/aerasync*.png main/web/icons/
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          cd main
+          git add web/index.html web/manifest.json web/styles.css web/favicon.webp \
+                web/assets/wave.svg web/icons/*
+          if git diff --staged --quiet; then
+            echo "No changes to sync"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes to a new branch
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          cd main
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b sync-gh-pages-${{ github.sha }}
+          git commit -m "Sync static web files from gh-pages"
+          git push origin sync-gh-pages-${{ github.sha }}
+
+      - name: Create pull request
+        if: steps.check_changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Sync static web files from gh-pages"
+          title: "Sync static web files from gh-pages (${{ github.sha }})"
+          body: |
+            This PR syncs static web files from gh-pages to main/web/.
+            - Copied: index.html, manifest.json, styles.css, favicon.webp
+            - Copied: assets/wave.svg to web/assets/
+            - Copied: icons/aerasync*.webp, icons/aerasync*.png to web/icons/
+          branch: sync-gh-pages-${{ github.sha }}
+          base: main
