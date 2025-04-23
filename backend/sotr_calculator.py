@@ -1,4 +1,5 @@
 """Oxygen saturation and shrimp pond aerator performance calculations."""
+
 import math
 import os
 from abc import ABC, abstractmethod
@@ -8,11 +9,12 @@ from typing import Any, Dict, Optional
 import numpy as np
 from pydantic import BaseModel, Field
 
-from utils import load_json_data
+from .utils import load_json_data
 
 
 class SaturationCalculator(ABC):
     """Abstract base class for oxygen saturation calculations."""
+
     def __init__(self, data_path: Optional[str] = None):
         """
         Initializes the calculator with the path to the JSON data file.
@@ -91,8 +93,13 @@ class SaturationCalculator(ABC):
 
         temp_lower_idx = math.floor(temperature)
         temp_upper_idx = math.ceil(temperature)
-        temp_fraction = 0.0 if temp_lower_idx == temp_upper_idx else (
-            (temperature - temp_lower_idx) / (temp_upper_idx - temp_lower_idx)
+        temp_fraction = (
+            0.0
+            if temp_lower_idx == temp_upper_idx
+            else (
+                (temperature - temp_lower_idx) /
+                (temp_upper_idx - temp_lower_idx)
+            )
         )
 
         max_sal_idx = self.matrix.shape[1] - 1
@@ -125,6 +132,7 @@ class SaturationCalculator(ABC):
 
 class AeratorMetricsInput(BaseModel):
     """Pydantic model for aerator metrics calculation inputs."""
+
     temperature: float = Field(ge=0, le=40)
     salinity: float = Field(ge=0, le=40)
     hp: float = Field(ge=0)
@@ -137,6 +145,7 @@ class AeratorMetricsInput(BaseModel):
 
 class ShrimpPondCalculator(SaturationCalculator):
     """Concrete implementation for calculating shrimp pond aerator metrics."""
+
     BRAND_NORMALIZATION = {
         "pentair": "Pentair",
         "beraqua": "Beraqua",
@@ -170,7 +179,8 @@ class ShrimpPondCalculator(SaturationCalculator):
         "oxy guard": "OxyGuard",
         "lin": "LINN",
         "sagr": "Sagar",
-        "hcpp": "HCP", "yiyuan1": "Yiyuan"
+        "hcpp": "HCP",
+        "yiyuan1": "Yiyuan",
     }
 
     def normalize_brand(self, brand: str) -> str:
@@ -227,7 +237,7 @@ class ShrimpPondCalculator(SaturationCalculator):
         )
 
         cost_per_kg = (
-            round(params.kwh_price / sae, 2) if sae > 0 else float('inf')
+            round(params.kwh_price / sae, 2) if sae > 0 else float("inf")
         )
         annual_energy_cost = round(power_kw * params.kwh_price * 24 * 365, 2)
 
@@ -241,7 +251,7 @@ class ShrimpPondCalculator(SaturationCalculator):
             "Cost per kg O₂ (USD/kg O₂)": cost_per_kg,
             "Power (kW)": power_kw,
             "Annual Energy Cost (USD/year)": annual_energy_cost,
-            "Aerator ID": normalized_aerator_id
+            "Aerator ID": normalized_aerator_id,
         }
 
     def get_ideal_volume(self, hp: float) -> float:

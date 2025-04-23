@@ -3,12 +3,9 @@
 from typing import Dict, List
 
 from scipy.optimize import newton
-from shrimp_respiration_calculator import ShrimpRespirationCalculator
-from sotr_calculator import (
-    ShrimpPondCalculator as SaturationCalculator
-)
-
-from aerator_types import FinancialData, TODInputs
+from .shrimp_respiration_calculator import ShrimpRespirationCalculator
+from .sotr_calculator import ShrimpPondCalculator as SaturationCalculator
+from .aerator_types import FinancialData, TODInputs
 
 
 def calculate_otrt(
@@ -17,7 +14,7 @@ def calculate_otrt(
     salinity: float,
     saturation_calc: SaturationCalculator,
     theta: float = 1.024,
-    standard_temp: float = 20.0
+    standard_temp: float = 20.0,
 ) -> float:
     """Calculate Oxygen Transfer Rate at temperature T (OTRt).
 
@@ -53,7 +50,7 @@ def calculate_shrimp_demand(
     shrimp_weight: float,
     salinity: float,
     temperature: float,
-    respiration_calc: ShrimpRespirationCalculator
+    respiration_calc: ShrimpRespirationCalculator,
 ) -> float:
     """Calculate shrimp oxygen demand in kg O₂/h/ha.
 
@@ -121,14 +118,15 @@ def calculate_bottom_demand(
     water_vol_ha = 10000.0 * pond_depth
     bottom_rate = 0.245625
     return (
-        bottom_rate * water_vol_ha * bottom_volume_factor * 1000.0
-        / 1_000_000.0
+        (
+            bottom_rate * water_vol_ha * bottom_volume_factor * 1000.0
+            / 1_000_000.0
+        )
     )
 
 
 def calculate_tod(
-    inputs: TODInputs,
-    respiration_calc: ShrimpRespirationCalculator
+    inputs: TODInputs, respiration_calc: ShrimpRespirationCalculator
 ) -> Dict[str, float]:
     """Calculate Total Oxygen Demand (TOD) in kg O₂/h.
 
@@ -142,24 +140,27 @@ def calculate_tod(
     Raises:
         ValueError: If total area or TOD is non-positive.
     """
-    total_area = inputs['total_area']
+    total_area = inputs["total_area"]
     if total_area <= 0:
         raise ValueError(f"Total area must be positive, got {total_area}")
 
     shrimp_demand = calculate_shrimp_demand(
-        inputs['biomass_kg_ha'], inputs['shrimp_weight'], inputs['salinity'],
-        inputs['temperature'], respiration_calc
+        inputs["biomass_kg_ha"],
+        inputs["shrimp_weight"],
+        inputs["salinity"],
+        inputs["temperature"],
+        respiration_calc,
     )
-    water_demand = calculate_water_demand(inputs['pond_depth'])
-    bottom_demand = calculate_bottom_demand(inputs['pond_depth'])
+    water_demand = calculate_water_demand(inputs["pond_depth"])
+    bottom_demand = calculate_bottom_demand(inputs["pond_depth"])
 
     pond_demand = water_demand + bottom_demand
     total_per_ha = shrimp_demand + pond_demand
     total_demand = total_per_ha * total_area
 
-    safety_margin_percent = inputs['safety_margin_percent']
+    safety_margin_percent = inputs["safety_margin_percent"]
     if safety_margin_percent is not None and safety_margin_percent > 0:
-        total_demand *= (1 + safety_margin_percent / 100.0)
+        total_demand *= 1 + safety_margin_percent / 100.0
 
     if total_demand <= 0:
         raise ValueError(f"TOD must be positive, got {total_demand}")
@@ -169,14 +170,12 @@ def calculate_tod(
         "shrimp_demand_kg_h_ha": shrimp_demand,
         "pond_demand_kg_h_ha": pond_demand,
         "water_demand_kg_h_ha": water_demand,
-        "bottom_demand_kg_h_ha": bottom_demand
+        "bottom_demand_kg_h_ha": bottom_demand,
     }
 
 
 def calculate_annual_revenue(
-    production_kg_ha_year: float,
-    total_area: float,
-    shrimp_price_usd_kg: float
+    production_kg_ha_year: float, total_area: float, shrimp_price_usd_kg: float
 ) -> float:
     """Calculate annual revenue.
 
@@ -196,9 +195,7 @@ def calculate_annual_revenue(
             f"Production must be non-negative, got {production_kg_ha_year}"
         )
     if total_area < 0:
-        raise ValueError(
-            f"Area must be non-negative, got {total_area}"
-        )
+        raise ValueError(f"Area must be non-negative, got {total_area}")
     if shrimp_price_usd_kg < 0:
         raise ValueError(
             f"Price must be non-negative, got {shrimp_price_usd_kg}"
@@ -238,9 +235,7 @@ def calculate_npv(
 
 
 def calculate_irr(
-    initial_investment: float,
-    cash_flows: List[float],
-    horizon: int
+    initial_investment: float, cash_flows: List[float], horizon: int
 ) -> float:
     """Calculate IRR using numerical method.
 
@@ -260,9 +255,7 @@ def calculate_irr(
             f"Initial investment must be positive, got {initial_investment}"
         )
     if horizon <= 0:
-        raise ValueError(
-            f"Analysis horizon must be positive, got {horizon}"
-        )
+        raise ValueError(f"Analysis horizon must be positive, got {horizon}")
     if len(cash_flows) != horizon:
         raise ValueError(
             f"Cash flows length must match horizon, got {len(cash_flows)}"
@@ -280,7 +273,7 @@ def calculate_irr(
         irr: float = float(newton(npv_for_irr, 0.1, maxiter=1000))
         return irr * 100
     except RuntimeError:
-        return float('inf')
+        return float("inf")
 
 
 def compute_financial_metrics(
@@ -314,31 +307,26 @@ def compute_financial_metrics(
     payback_period = (
         initial_investment / annual_savings * 12
         if annual_savings > 0 and initial_investment > 0
-        else float('inf')
+        else float("inf")
     )
     roi = (
         npv_value / initial_investment * 100
         if initial_investment > 0
         else 0.0
     )
-    k = (
-        npv_value / initial_investment
-        if initial_investment > 0
-        else 0.0
-    )
+    k = npv_value / initial_investment if initial_investment > 0 else 0.0
 
     return {
-        'npv': npv_value,
-        'irr': irr_value,
-        'paybackPeriod': payback_period,
-        'roi': roi,
-        'profitabilityCoefficient': k
+        "npv": npv_value,
+        "irr": irr_value,
+        "paybackPeriod": payback_period,
+        "roi": roi,
+        "profitabilityCoefficient": k,
     }
 
 
 def compute_equilibrium_price(
-    baseline: Dict[str, float],
-    winner: Dict[str, float]
+    baseline: Dict[str, float], winner: Dict[str, float]
 ) -> float:
     """Compute equilibrium price for the winning aerator.
 
@@ -349,14 +337,20 @@ def compute_equilibrium_price(
     Returns:
         Equilibrium price in USD.
     """
-    equilibrium_price = float('inf')
+    equilibrium_price = float("inf")
     baseline_unit_cost = (
-        baseline['cost'] / baseline['units']
-        if baseline['units'] > 0 else float('inf')
+        (
+            baseline["cost"] / baseline["units"]
+            if baseline["units"] > 0
+            else float("inf")
+        )
     )
-    if winner['units'] > 0:
+    if winner["units"] > 0:
         equilibrium_price = (
-            baseline_unit_cost * winner['units']
-            - winner['cost'] + winner['price']
+            (
+                baseline_unit_cost * winner["units"]
+                - winner["cost"]
+                + winner["price"]
+            )
         )
     return equilibrium_price

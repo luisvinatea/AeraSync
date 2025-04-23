@@ -1,8 +1,9 @@
 """Shrimp respiration rate calculator with trilinear interpolation."""
+
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
-from utils import load_json_data
+from .utils import load_json_data
 
 
 class ShrimpRespirationCalculator:
@@ -24,8 +25,10 @@ class ShrimpRespirationCalculator:
             script_dir = os.path.dirname(os.path.abspath(__file__))
             repo_root = os.path.dirname(script_dir)
             self.data_path = os.path.join(
-                repo_root, "assets", "data",
-                "shrimp_respiration_salinity_temperature_weight.json"
+                repo_root,
+                "assets",
+                "data",
+                "shrimp_respiration_salinity_temperature_weight.json",
             )
         else:
             self.data_path = data_path
@@ -49,38 +52,44 @@ class ShrimpRespirationCalculator:
         )
         json_data = load_json_data(self.data_path)
 
-        metadata: Dict[str, Any] = json_data.get('metadata', {})
+        metadata: Dict[str, Any] = json_data.get("metadata", {})
         if not metadata:
             raise ValueError("Metadata missing or invalid in JSON")
 
-        self._salinity_values = sorted([
-            float(str(s).replace('%', ''))
-            for s in metadata.get('salinity_values', [])
-        ])
-        self._temperature_values = sorted([
-            float(str(t).replace('°C', ''))
-            for t in metadata.get('temperature_values', [])
-        ])
-        self._biomass_values = sorted([
-            float(str(b).replace('g', ''))
-            for b in metadata.get('shrimp_biomass', [])
-        ])
+        self._salinity_values = sorted(
+            [
+                float(str(s).replace("%", ""))
+                for s in metadata.get("salinity_values", [])
+            ]
+        )
+        self._temperature_values = sorted(
+            [
+                float(str(t).replace("°C", ""))
+                for t in metadata.get("temperature_values", [])
+            ]
+        )
+        self._biomass_values = sorted(
+            [
+                float(str(b).replace("g", ""))
+                for b in metadata.get("shrimp_biomass", [])
+            ]
+        )
 
-        if not all([
-            self._salinity_values,
-            self._temperature_values,
-            self._biomass_values
-        ]):
+        if not all(
+            [
+                self._salinity_values,
+                self._temperature_values,
+                self._biomass_values,
+            ]
+        ):
             raise ValueError(
                 "Metadata arrays (salinity, temperature, biomass) "
                 "cannot be empty"
             )
 
-        self._respiration_data = json_data.get('data', {})
+        self._respiration_data = json_data.get("data", {})
         if not self._respiration_data:
-            raise ValueError(
-                "Data grid missing or invalid in JSON"
-            )
+            raise ValueError("Data grid missing or invalid in JSON")
 
         print("Shrimp respiration data loaded successfully.")
 
@@ -110,8 +119,11 @@ class ShrimpRespirationCalculator:
         Safely retrieves a value from the nested respiration data dictionary.
         """
         try:
-            val = self._respiration_data.get(sal_key, {}).get(temp_key, {}) \
+            val = (
+                self._respiration_data.get(sal_key, {})
+                .get(temp_key, {})
                 .get(weight_key)
+            )
             if val is None:
                 raise ValueError(
                     (
@@ -133,7 +145,7 @@ class ShrimpRespirationCalculator:
         temp_low_key: str,
         temp_high_key: str,
         weight_low_key: str,
-        weight_high_key: str
+        weight_high_key: str,
     ) -> List[float]:
         """Retrieves the 8 corner values for the interpolation cube."""
         corners = [
@@ -144,7 +156,7 @@ class ShrimpRespirationCalculator:
             (salinity_high_key, temp_low_key, weight_low_key),
             (salinity_high_key, temp_low_key, weight_high_key),
             (salinity_high_key, temp_high_key, weight_low_key),
-            (salinity_high_key, temp_high_key, weight_high_key)
+            (salinity_high_key, temp_high_key, weight_high_key),
         ]
         values = [
             self._get_value_from_data(sal, temp, weight)
@@ -153,11 +165,7 @@ class ShrimpRespirationCalculator:
         return values
 
     def _trilinear_interpolation(
-        self,
-        corner_values: List[float],
-        s: float,
-        t: float,
-        w: float
+        self, corner_values: List[float], s: float, t: float, w: float
     ) -> float:
         """
         Performs trilinear interpolation using the corner values and
@@ -190,19 +198,20 @@ class ShrimpRespirationCalculator:
         Raises:
             ValueError: If data is not loaded or interpolation fails.
         """
-        if not all([
-            self._salinity_values,
-            self._temperature_values,
-            self._biomass_values
-        ]):
+        if not all(
+            [
+                self._salinity_values,
+                self._temperature_values,
+                self._biomass_values,
+            ]
+        ):
             raise ValueError(
                 "Respiration data not loaded. Call load_data() first."
             )
 
         # Clamp input values
         clamped_salinity = max(
-            self._salinity_values[0],
-            min(salinity, self._salinity_values[-1])
+            self._salinity_values[0], min(salinity, self._salinity_values[-1])
         )
         clamped_temperature = max(
             self._temperature_values[0],
@@ -225,17 +234,21 @@ class ShrimpRespirationCalculator:
         )
 
         # Convert to JSON keys
-        salinity_low_key = f'{int(salinity_low)}%'
-        salinity_high_key = f'{int(salinity_high)}%'
-        temp_low_key = f'{int(temp_low)}°C'
-        temp_high_key = f'{int(temp_high)}°C'
-        weight_low_key = f'{int(weight_low)}g'
-        weight_high_key = f'{int(weight_high)}g'
+        salinity_low_key = f"{int(salinity_low)}%"
+        salinity_high_key = f"{int(salinity_high)}%"
+        temp_low_key = f"{int(temp_low)}°C"
+        temp_high_key = f"{int(temp_high)}°C"
+        weight_low_key = f"{int(weight_low)}g"
+        weight_high_key = f"{int(weight_high)}g"
 
         # Get corner values
         corner_values = self._get_cube_values(
-            salinity_low_key, salinity_high_key, temp_low_key, temp_high_key,
-            weight_low_key, weight_high_key
+            salinity_low_key,
+            salinity_high_key,
+            temp_low_key,
+            temp_high_key,
+            weight_low_key,
+            weight_high_key,
         )
 
         # Calculate interpolation factors
@@ -256,7 +269,7 @@ class ShrimpRespirationCalculator:
         return self._trilinear_interpolation(corner_values, s, t, w)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         calculator = ShrimpRespirationCalculator()
         SAL1, TEMP1, WEIGHT1 = 20.0, 28.0, 12.0
