@@ -10,9 +10,9 @@ from typing import List, Optional
 
 # Conditional import for TypedDict to support Python 3.11 and 3.12
 try:
-    from typing import TypedDict
-except AttributeError:
     from typing_extensions import TypedDict
+except AttributeError:
+    from typing import TypedDict
 
 from fastapi.testclient import TestClient
 
