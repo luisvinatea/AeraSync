@@ -27,11 +27,11 @@ app: FastAPI = FastAPI(title="AeraSync Aerator Comparison API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:8080",
         "http://127.0.0.1:8080",
         "http://localhost:*",
         "https://*.github.io",
     ],
+    allow_origin_regex=r'^http://localhost:[0-9]+$',
     allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
