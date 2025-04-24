@@ -43,12 +43,11 @@ jobs:
               exit 1
             fi
           done
-        working-directory: backend
 
       - name: Copy backend data files into backend folder if needed
         run: |
           mkdir -p backend/assets/data
-          cp assets/data/*.json backend/assets/data/ || true
+          cp assets/data/*.json backend/assets/data/
 
       - name: Run Flake8
         run: |
