@@ -1,14 +1,16 @@
 """FastAPI backend for AeraSync Aerator Comparison API."""
-
-import os
-from typing import Dict
 import logging
-from fastapi import FastAPI, HTTPException
-from fastapi import Request
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
+import os
+import sys
+from typing import Dict
+
+import psycopg2
 from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
 from .aerator_comparer import (
     AeratorComparer,
     SaturationCalculator,
@@ -16,9 +18,13 @@ from .aerator_comparer import (
 )
 from .aerator_types import AeratorComparisonRequest, ComparisonResults
 
+# Ensure the backend directory is in sys.path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 # Load environment variables from .env file
 load_dotenv()
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -26,12 +32,15 @@ logging.basicConfig(
 )
 logger: logging.Logger = logging.getLogger("AeraSyncAPI")
 
+# Initialize FastAPI app
 app: FastAPI = FastAPI(title="AeraSync Aerator Comparison API")
 
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://127.0.0.1:8080",
+        "http://localhost:42329",  # Added for Flutter debug port
         "http://localhost:*",
         "https://*.github.io",
     ],
@@ -51,13 +60,7 @@ shrimp_path: str = os.path.join(
 )
 
 # Fallback paths for Vercel or other environments
-fallback_data_dir: str = os.path.join(
-    script_dir,
-    "..",
-    "..",
-    "assets",
-    "data",
-)
+fallback_data_dir: str = os.path.join(script_dir, "..", "..", "assets", "data")
 if not os.path.exists(oxygen_path):
     oxygen_path = os.path.join(fallback_data_dir, "o2_temp_sal_100_sat.json")
 if not os.path.exists(shrimp_path):
@@ -78,17 +81,30 @@ resp_calc: ShrimpRespirationCalculator = ShrimpRespirationCalculator(
     data_path=shrimp_path
 )
 
-# Get database URL from environment variable
+# Initialize database connection
 db_url = os.getenv("DATABASE_URL")
 if not db_url:
     logger.error("DATABASE_URL environment variable is not set")
     raise ValueError("DATABASE_URL environment variable is not set")
 
+try:
+    # Test the database connection at startup
+    connection = psycopg2.connect(db_url)
+    cursor = connection.cursor()
+    cursor.execute("SELECT NOW();")
+    result = cursor.fetchone()
+    logger.info("Database connection successful. Current time: %s", result)
+    cursor.close()
+    connection.close()
+except psycopg2.Error as e:
+    logger.error("Failed to connect to database: %s", e)
+    raise ValueError(f"Failed to connect to database: {e}") from e
+
 # Initialize AeratorComparer with database URL
 comparer: AeratorComparer = AeratorComparer(
     saturation_calculator=sat_calc,
     respiration_calculator=resp_calc,
-    db_url=db_url
+    db_url=db_url,
 )
 
 
@@ -119,24 +135,21 @@ async def compare_aerators(
     except ValueError as ve:
         logger.error("Invalid input in /compare: %s", str(ve))
         raise HTTPException(
-            status_code=400,
-            detail=f"Invalid input: {str(ve)}",
+            status_code=400, detail=f"Invalid input: {str(ve)}"
         ) from ve
     except Exception as e:
         logger.error("Error in /compare: %s", str(e))
         raise HTTPException(
-            status_code=500,
-            detail=f"Error in comparison: {str(e)}",
+            status_code=500, detail=f"Error in comparison: {str(e)}"
         ) from e
 
 
-# Custom exception handler for validation errors
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ):
     """Override default validation error handler to adjust error types."""
-    _ = request  # Explicitly mark 'request' as unused to suppress warnings
+    _ = request  # Explicitly mark 'request' as unused
     errors = exc.errors()
     for err in errors:
         err_type = err.get("type", "")

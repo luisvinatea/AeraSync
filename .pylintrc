@@ -8,3 +8,6 @@ disable=
 
 [MESSAGES CONTROL]
 max-line-length=79
+
+[MASTER]
+init-hook='import sys; sys.path.append(".")'

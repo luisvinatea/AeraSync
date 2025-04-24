@@ -113,4 +113,9 @@ run_dev.sh
 backend/aerasync.db
 backend/app.log
 backend/__pycache__/
-backend/aerasync.db
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-shm
+*.db-wal

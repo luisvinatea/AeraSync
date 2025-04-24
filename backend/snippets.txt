@@ -1,0 +1,2 @@
+uvicorn backend.main:app --reload
+curl http://localhost:8000/health

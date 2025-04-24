@@ -4,15 +4,55 @@
 import subprocess
 import sys
 import warnings
+import sqlite3
 from typing import List, Optional
+import pytest
 from typing_extensions import TypedDict
 from fastapi.testclient import TestClient
-from .main import app
+from .main import app, sat_calc, resp_calc
+from .aerator_comparer import AeratorComparer
+
 
 # Suppress warnings aggressively
 warnings.filterwarnings("ignore", category=Warning, module=".*")
 
+# Test client for FastAPI app
 client = TestClient(app)
+
+# Fixture to set up an in-memory SQLite database for testing
+
+
+@pytest.fixture(autouse=True)
+def test_comparer():
+    """Create an AeratorComparer instance with an in-memory SQLite database."""
+    # Use in-memory SQLite database for testing
+    db_url = ":memory:"
+    comparer = AeratorComparer(
+        saturation_calculator=sat_calc,
+        respiration_calculator=resp_calc,
+        db_url=db_url
+    )
+
+    # Initialize the in-memory database with the aerator_comparisons table
+    with sqlite3.connect(db_url) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            CREATE TABLE aerator_comparisons (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                inputs TEXT,
+                results TEXT
+            )
+            """
+        )
+        conn.commit()
+
+    # Override the app's comparer dependency
+    app.dependency_overrides[AeratorComparer] = lambda: comparer
+    yield comparer
+    # Clean up dependency overrides
+    app.dependency_overrides = {}
 
 
 class TestAeraSyncAPI:
@@ -32,7 +72,6 @@ class TestAeraSyncAPI:
 
         class FarmInput(TypedDict):
             """Farm input parameters."""
-
             area_ha: float
             production_kg_ha_year: float
             cycles_per_year: float
@@ -40,7 +79,6 @@ class TestAeraSyncAPI:
 
         class OxygenInput(TypedDict):
             """Oxygen input parameters."""
-
             temperature_c: float
             salinity_ppt: float
             shrimp_weight_g: float
@@ -48,7 +86,6 @@ class TestAeraSyncAPI:
 
         class AeratorInput(TypedDict):
             """Aerator input parameters."""
-
             name: str
             power_hp: float
             sotr_kg_o2_h: float
@@ -60,7 +97,6 @@ class TestAeraSyncAPI:
 
         class FinancialInput(TypedDict):
             """Financial input parameters."""
-
             shrimp_price_usd_kg: float
             energy_cost_usd_kwh: float
             operating_hours_year: float
@@ -71,7 +107,6 @@ class TestAeraSyncAPI:
 
         class ValidInput(TypedDict):
             """Valid input parameters."""
-
             farm: FarmInput
             oxygen: OxygenInput
             aerators: List[AeratorInput]
@@ -130,12 +165,18 @@ class TestAeraSyncAPI:
         assert len(response_data["aeratorResults"]) == 2
         assert response_data["winnerLabel"] in ["Aerator1", "Aerator2"]
 
+        # Verify logging to in-memory database
+        with sqlite3.connect(":memory:") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM aerator_comparisons")
+            count = cursor.fetchone()[0]
+            assert count == 1  # Ensure one comparison was logged
+
     def test_compare_aerators_invalid(self):
         """Test the compare endpoint with invalid input."""
 
         class FarmInput(TypedDict):
             """Farm input parameters."""
-
             area_ha: float
             production_kg_ha_year: float
             cycles_per_year: float
@@ -143,7 +184,6 @@ class TestAeraSyncAPI:
 
         class OxygenInput(TypedDict):
             """Oxygen input parameters."""
-
             temperature_c: float
             salinity_ppt: float
             shrimp_weight_g: float
@@ -151,7 +191,6 @@ class TestAeraSyncAPI:
 
         class AeratorInput(TypedDict):
             """Aerator input parameters."""
-
             name: str
             power_hp: float
             sotr_kg_o2_h: float
@@ -163,7 +202,6 @@ class TestAeraSyncAPI:
 
         class FinancialInput(TypedDict):
             """Financial input parameters."""
-
             shrimp_price_usd_kg: float
             energy_cost_usd_kwh: float
             operating_hours_year: float
@@ -174,7 +212,6 @@ class TestAeraSyncAPI:
 
         class InvalidInput(TypedDict):
             """Invalid input parameters."""
-
             farm: FarmInput
             oxygen: OxygenInput
             aerators: List[AeratorInput]
@@ -234,7 +271,6 @@ class TestAeraSyncAPI:
 
         class FarmInput(TypedDict):
             """Farm input parameters."""
-
             area_ha: float
             production_kg_ha_year: float
             cycles_per_year: float
@@ -242,7 +278,6 @@ class TestAeraSyncAPI:
 
         class OxygenInput(TypedDict):
             """Oxygen input parameters."""
-
             temperature_c: float
             salinity_ppt: float
             shrimp_weight_g: float
@@ -250,7 +285,6 @@ class TestAeraSyncAPI:
 
         class AeratorInput(TypedDict):
             """Aerator input parameters."""
-
             name: str
             power_hp: float
             sotr_kg_o2_h: float
@@ -262,7 +296,6 @@ class TestAeraSyncAPI:
 
         class FinancialInput(TypedDict):
             """Financial input parameters."""
-
             shrimp_price_usd_kg: float
             energy_cost_usd_kwh: float
             operating_hours_year: float
@@ -273,7 +306,6 @@ class TestAeraSyncAPI:
 
         class SingleAeratorInput(TypedDict):
             """Single aerator input parameters."""
-
             farm: FarmInput
             oxygen: OxygenInput
             aerators: List[AeratorInput]

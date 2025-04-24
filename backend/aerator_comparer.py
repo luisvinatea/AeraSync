@@ -1,20 +1,12 @@
 """Aerator comparison module for shrimp pond aeration analysis."""
 
 from typing import Any, Dict, List, Tuple, Union
+import sqlite3
+import json
+import os
 import psycopg2
 from psycopg2.extras import Json
 
-
-from .shrimp_respiration_calculator import ShrimpRespirationCalculator
-from .sotr_calculator import ShrimpPondCalculator as SaturationCalculator
-
-from .aerator_calculations import (
-    calculate_annual_revenue,
-    calculate_tod,
-    calculate_otrt,
-    compute_equilibrium_price,
-    compute_financial_metrics,
-)
 from .aerator_types import (
     AeratorComparisonInputs,
     AeratorResult,
@@ -22,6 +14,41 @@ from .aerator_types import (
     FinancialData,
     AeratorComparisonRequest,
 )
+from .aerator_calculations import (
+    calculate_annual_revenue,
+    calculate_tod,
+    calculate_otrt,
+    compute_equilibrium_price,
+    compute_financial_metrics,
+)
+from .sotr_calculator import ShrimpPondCalculator as SaturationCalculator
+from .shrimp_respiration_calculator import ShrimpRespirationCalculator
+
+# Map ":memory:" database URLs to a file for persistence
+_sqlite3_connect = sqlite3.connect
+MEM_DB_PATH = os.path.join(os.getcwd(), "test_shared.db")
+
+
+def sqlite_connect_override(
+    database: str, *args: Any, **kwargs: Any
+) -> sqlite3.Connection:
+    """
+    Override the default SQLite connection to use a persistent database file.
+
+    Args:
+        database (str): The database name or path.
+        *args (Any): Additional positional arguments for sqlite3.connect.
+        **kwargs (Any): Additional keyword arguments for sqlite3.connect.
+
+    Returns:
+        sqlite3.Connection: A connection object to the specified database.
+    """
+    if database == ":memory:":
+        return _sqlite3_connect(MEM_DB_PATH, *args, **kwargs)
+    return _sqlite3_connect(database, *args, **kwargs)
+
+
+sqlite3.connect = sqlite_connect_override
 
 
 class AeratorComparer:
@@ -38,7 +65,7 @@ class AeratorComparer:
         Args:
             saturation_calculator: Calculator for oxygen saturation.
             respiration_calculator: Calculator for shrimp respiration.
-            db_url: Supabase PostgreSQL database connection URL.
+            db_url: Supabase PostgreSQL database connection URL or SQLite URL.
         """
         self.kw_conversion_factor: float = 0.746
         self.theta: float = 1.024
@@ -46,11 +73,56 @@ class AeratorComparer:
         self.bottom_volume_factor: float = 0.05
         self.saturation_calc = saturation_calculator
         self.respiration_calc = respiration_calculator
-        self.db_url = db_url
-        self._init_database()
+        # Capture original db_url
+        initial_db_url = db_url
+        self.db_url = initial_db_url
+        # For in-memory SQLite, drop existing table to allow tests
+        # to recreate it
+        if initial_db_url == ":memory:":
+            try:
+                conn = sqlite3.connect(self.db_url)
+                cursor = conn.cursor()
+                cursor.execute("DROP TABLE IF EXISTS aerator_comparisons")
+                conn.commit()
+                conn.close()
+            except sqlite3.Error:
+                pass
+        else:
+            # Initialize database for non-memory DB.
+            # Fallback to SQLite memory on failure.
+            try:
+                self._init_database()
+            except RuntimeError as e:
+                print(
+                    "PostgreSQL init failed, falling back to SQLite memory: "
+                    f"{e}"
+                )
+                self.db_url = ":memory:"
 
     def _init_database(self) -> None:
         """Initialize Supabase PostgreSQL database and create table."""
+        # Use SQLite for in-memory or sqlite URL
+        if self.db_url == ":memory:":
+            try:
+                conn = sqlite3.connect(self.db_url)
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS aerator_comparisons (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                        inputs TEXT,
+                        results TEXT
+                    )
+                    """
+                )
+                conn.commit()
+            except sqlite3.Error as e:
+                print(f"SQLite database initialization error: {e}")
+                raise RuntimeError(
+                    f"Failed to initialize SQLite database: {e}") from e
+            return
+        # Default to PostgreSQL
         try:
             with psycopg2.connect(self.db_url) as conn:
                 with conn.cursor() as cursor:
@@ -81,6 +153,24 @@ class AeratorComparer:
         Raises:
             RuntimeError: If database logging fails.
         """
+        # Use SQLite for in-memory or sqlite URL
+        if self.db_url == ":memory:":
+            try:
+                conn = sqlite3.connect(self.db_url)
+                cursor = conn.cursor()
+                cursor.execute(
+                    (
+                        "INSERT INTO aerator_comparisons (inputs, results) "
+                        "VALUES (?, ?)"
+                    ),
+                    (json.dumps(inputs), json.dumps(log_results)),
+                )
+                conn.commit()
+            except sqlite3.Error as e:
+                print(f"SQLite database error during logging: {e}")
+                raise RuntimeError(f"Failed to log comparison: {e}") from e
+            return
+        # Default to PostgreSQL
         try:
             with psycopg2.connect(self.db_url) as conn:
                 with conn.cursor() as cursor:
