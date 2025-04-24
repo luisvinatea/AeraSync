@@ -8,12 +8,16 @@ from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 from .aerator_comparer import (
     AeratorComparer,
     SaturationCalculator,
     ShrimpRespirationCalculator,
 )
 from .aerator_types import AeratorComparisonRequest, ComparisonResults
+
+# Load environment variables from .env file
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -68,12 +72,23 @@ if not os.path.exists(oxygen_path):
 if not os.path.exists(shrimp_path):
     raise FileNotFoundError(f"Data file not found: {shrimp_path}")
 
+# Initialize calculators
 sat_calc: SaturationCalculator = SaturationCalculator(data_path=oxygen_path)
 resp_calc: ShrimpRespirationCalculator = ShrimpRespirationCalculator(
     data_path=shrimp_path
 )
+
+# Get database URL from environment variable
+db_url = os.getenv("DATABASE_URL")
+if not db_url:
+    logger.error("DATABASE_URL environment variable is not set")
+    raise ValueError("DATABASE_URL environment variable is not set")
+
+# Initialize AeratorComparer with database URL
 comparer: AeratorComparer = AeratorComparer(
-    saturation_calculator=sat_calc, respiration_calculator=resp_calc
+    saturation_calculator=sat_calc,
+    respiration_calculator=resp_calc,
+    db_url=db_url
 )
 
 
@@ -128,5 +143,3 @@ async def validation_exception_handler(
         if "not_ge" in err_type:
             err["type"] = "greater_than_equal"
     return JSONResponse(status_code=422, content={"detail": errors})
-
-# Redeploy test

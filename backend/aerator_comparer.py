@@ -1,8 +1,9 @@
 """Aerator comparison module for shrimp pond aeration analysis."""
 
-import json
-import sqlite3
 from typing import Any, Dict, List, Tuple, Union
+import psycopg2
+from psycopg2.extras import Json
+
 
 from .shrimp_respiration_calculator import ShrimpRespirationCalculator
 from .sotr_calculator import ShrimpPondCalculator as SaturationCalculator
@@ -30,14 +31,14 @@ class AeratorComparer:
         self,
         saturation_calculator: SaturationCalculator,
         respiration_calculator: ShrimpRespirationCalculator,
-        db_path: str = "aerasync.db",
+        db_url: str,
     ):
-        """Initialize the AeratorComparer with calculators and database path.
+        """Initialize the AeratorComparer with calculators and database URL.
 
         Args:
             saturation_calculator: Calculator for oxygen saturation.
             respiration_calculator: Calculator for shrimp respiration.
-            db_path: Path to SQLite database (default: 'aerasync.db').
+            db_url: Supabase PostgreSQL database connection URL.
         """
         self.kw_conversion_factor: float = 0.746
         self.theta: float = 1.024
@@ -45,29 +46,33 @@ class AeratorComparer:
         self.bottom_volume_factor: float = 0.05
         self.saturation_calc = saturation_calculator
         self.respiration_calc = respiration_calculator
-        self.db_path = db_path
+        self.db_url = db_url
         self._init_database()
 
     def _init_database(self) -> None:
-        """Initialize SQLite database and create table."""
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS aerator_comparisons (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-                    inputs TEXT,
-                    results TEXT
-                )
-                """
-            )
-            conn.commit()
+        """Initialize Supabase PostgreSQL database and create table."""
+        try:
+            with psycopg2.connect(self.db_url) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        CREATE TABLE IF NOT EXISTS aerator_comparisons (
+                            id SERIAL PRIMARY KEY,
+                            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            inputs JSONB,
+                            results JSONB
+                        )
+                        """
+                    )
+                    conn.commit()
+        except psycopg2.Error as e:
+            print(f"Database initialization error: {e}")
+            raise RuntimeError(f"Failed to initialize database: {e}") from e
 
     def _log_comparison(
         self, inputs: Dict[str, Any], log_results: ComparisonResults
     ) -> None:
-        """Log inputs and results to SQLite database.
+        """Log inputs and results to Supabase PostgreSQL database.
 
         Args:
             inputs: Input parameters for comparison.
@@ -77,18 +82,15 @@ class AeratorComparer:
             RuntimeError: If database logging fails.
         """
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "INSERT INTO aerator_comparisons (inputs, results) "
-                    "VALUES (?, ?)",
-                    (
-                        json.dumps(inputs, default=str),
-                        json.dumps(log_results, default=str),
-                    ),
-                )
-                conn.commit()
-        except sqlite3.Error as e:
+            with psycopg2.connect(self.db_url) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "INSERT INTO aerator_comparisons (inputs, results) "
+                        "VALUES (%s, %s)",
+                        (Json(inputs), Json(log_results)),
+                    )
+                    conn.commit()
+        except psycopg2.Error as e:
             print(f"Database error during logging: {e}")
             raise RuntimeError(f"Failed to log comparison: {e}") from e
 
@@ -742,7 +744,9 @@ if __name__ == "__main__":
     sat_calc = SaturationCalculator()
     resp_calc = ShrimpRespirationCalculator()
     comparer = AeratorComparer(
-        saturation_calculator=sat_calc, respiration_calculator=resp_calc
+        saturation_calculator=sat_calc,
+        respiration_calculator=resp_calc,
+        db_url="postgresql://user:password@host:port/dbname"
     )
     # Example usage with Pydantic AeratorComparisonRequest
     example_input: dict[str, Any] = {

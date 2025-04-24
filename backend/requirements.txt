@@ -1,8 +1,9 @@
 fastapi==0.115.0
 uvicorn==0.30.6
 pydantic==2.9.2
-numpy==1.26.4  # Lighter version
+numpy==1.26.4
 cython==0.29.36
 scipy==1.15.2
 scipy-stubs>=1.11.0
-httpx==0.25.0  # Updated to the latest version for improvements
+httpx==0.25.0
+psycopg2-binary==2.9.9
