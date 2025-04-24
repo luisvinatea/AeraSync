@@ -52,6 +52,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.iml
+.mypy_cache/
+*.pylint.d/
 
 # =====================
 # EXPO (optional for Flutter web/mobile)
@@ -89,6 +91,7 @@ backend-worktree
 main/
 gh-pages/
 backend-vercel/
+
 # Build artifacts
 build/
 .last_build_id
