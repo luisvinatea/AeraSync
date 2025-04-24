@@ -39,6 +39,8 @@ class ApiService {
       }
 
       return parsedBody;
+    } on FormatException catch (e) {
+      throw Exception('Failed to compare aerators: ${e.toString()}');
     } catch (e) {
       throw Exception('Failed to compare aerators: $e');
     }

@@ -13,7 +13,7 @@ void main() {
 
     setUp(() {
       mockClient = MockClient();
-      apiService = ApiService(client: mockClient);
+      apiService = ApiService(client: mockClient, baseUrl: 'http://127.0.0.1:8000');
       registerFallbackValue(Uri.parse('http://127.0.0.1:8000/health'));
       registerFallbackValue(Uri.parse('http://127.0.0.1:8000/compare'));
     });
