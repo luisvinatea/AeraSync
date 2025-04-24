@@ -35,6 +35,21 @@ jobs:
           pip install -r dev-requirements.txt
         working-directory: backend
 
+      - name: Verify required backend data files
+        run: |
+          for f in assets/data/o2_temp_sal_100_sat.json assets/data/shrimp_respiration_salinity_temperature_weight.json; do
+            if [ ! -f "$f" ]; then
+              echo "Error: Required backend data file '$f' is missing"
+              exit 1
+            fi
+          done
+        working-directory: backend
+
+      - name: Copy backend data files into backend folder if needed
+        run: |
+          mkdir -p backend/assets/data
+          cp assets/data/*.json backend/assets/data/ || true
+
       - name: Run Flake8
         run: |
           flake8 backend/ --max-line-length=79
@@ -49,9 +64,9 @@ jobs:
 
       - name: Start FastAPI backend for frontend tests
         run: |
-          uvicorn main:app --host 0.0.0.0 --port 8000 &
+          uvicorn main:app --host 0.0.0.0 --port 8000 --log-level debug &
           sleep 10
-          curl --retry 5 --retry-delay 2 --fail http://localhost:8000/health || exit 1
+          curl --retry 5 --retry-delay 2 --fail http://localhost:8000/health || { cat app.log; exit 1; }
         working-directory: backend
 
       - name: Set up Flutter
