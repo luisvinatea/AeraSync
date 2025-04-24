@@ -5,9 +5,7 @@ disable=
     R0914,  # too-many-locals
     R0801,  # duplicate-code
     C0301   # line-too-long
+init-hook='import sys; sys.path.append(".")'
 
 [MESSAGES CONTROL]
 max-line-length=79
-
-[MASTER]
-init-hook='import sys; sys.path.append(".")'
