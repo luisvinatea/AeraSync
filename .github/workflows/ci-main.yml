@@ -63,10 +63,10 @@ jobs:
 
       - name: Start FastAPI backend for frontend tests
         run: |
-          uvicorn main:app --host 0.0.0.0 --port 8000 --log-level debug &
+          uvicorn backend.main:app --host 0.0.0.0 --port 8000 --log-level debug &
           sleep 10
-          curl --retry 5 --retry-delay 2 --fail http://localhost:8000/health || { cat app.log; exit 1; }
-        working-directory: backend
+          curl --retry 5 --retry-delay 2 --fail http://localhost:8000/health || { cat backend/app.log; exit 1; }
+        working-directory: .
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
