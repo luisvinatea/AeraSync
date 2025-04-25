@@ -6,7 +6,7 @@ from typing import Dict
 
 import psycopg2
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -27,7 +27,7 @@ load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(name%s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler(), logging.FileHandler("app.log")],
 )
 logger: logging.Logger = logging.getLogger("AeraSyncAPI")
@@ -120,17 +120,28 @@ async def health_check() -> Dict[str, str]:
     return response
 
 
-@app.post("/compare")
+def get_comparer() -> AeratorComparer:
+    """Dependency provider for AeratorComparer, honoring any test overrides."""
+    override = app.dependency_overrides.get(AeratorComparer)
+    if override:
+        return override()
+    return comparer
+
+
+@app.post("/compare", response_model=None)
 async def compare_aerators(
     request: AeratorComparisonRequest,
+    comparer_dep: AeratorComparer = Depends(get_comparer)
 ) -> ComparisonResults:
     """Compare aerators based on the provided request."""
     logger.info("Received /compare request with data: %s", request)
     try:
         if len(request.aerators) < 2:
             raise ValueError("At least two aerators are required")
-        results: ComparisonResults = comparer.compare_aerators(request)
+        results: ComparisonResults = comparer_dep.compare_aerators(request)
         logger.info("Sent /compare response: %s", results)
+        # Log comparison to database
+        comparer_dep.log_comparison(request.model_dump(), results)
         return results
     except ValueError as ve:
         logger.error("Invalid input in /compare: %s", str(ve))

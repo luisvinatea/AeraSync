@@ -822,7 +822,6 @@ class AeratorComparer:
                 "apiResults": api_results,
             }
 
-            self._log_comparison(request.model_dump(), results)
             return results
 
         except (ValueError, TypeError, RuntimeError) as e:
