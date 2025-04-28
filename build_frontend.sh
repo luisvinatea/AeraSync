@@ -13,7 +13,8 @@ then
     # Install necessary dependencies for Flutter SDK download and execution
     # Update yum cache and install dependencies
     yum update -y
-    yum install -y git tar xz unzip mesa-libGLU curl which
+    # Add --allowerasing to handle potential conflicts like curl vs curl-minimal
+    yum install -y --allowerasing git tar xz unzip mesa-libGLU curl which
 
     # Download specific Flutter version matching your project (adjust if needed)
     FLUTTER_VERSION="3.29.2"
