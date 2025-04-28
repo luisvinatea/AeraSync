@@ -81,23 +81,28 @@ resp_calc: ShrimpRespirationCalculator = ShrimpRespirationCalculator(
     data_path=shrimp_path
 )
 
-# Initialize database connection
+# Initialize database connection with fallback
 db_url = os.getenv("DATABASE_URL")
 if not db_url:
-    logger.error("DATABASE_URL environment variable is not set")
-    raise ValueError("DATABASE_URL environment variable is not set")
-
-try:
-    # Test the database connection at startup
-    with psycopg.connect(db_url) as connection:
-        with connection.execute("SELECT NOW();") as cursor:
-            result = cursor.fetchone()
-            logger.info(
-                "Database connection successful. Current time: %s", result
-            )
-except psycopg.Error as e:
-    logger.error("Failed to connect to database: %s", e)
-    raise ValueError(f"Failed to connect to database: {e}") from e
+    logger.warning(
+        "DATABASE_URL env var not set, falling back to in-memory "
+        "sqlite database"
+    )
+    db_url = ":memory:"
+# Test connection only for PostgreSQL URLs
+if db_url and db_url.startswith("postgres"):
+    try:
+        with psycopg.connect(db_url) as connection:
+            with connection.execute("SELECT NOW();") as cursor:
+                result = cursor.fetchone()
+                logger.info(
+                    "Database connection successful. Current time: %s", result
+                )
+    except psycopg.Error as e:
+        logger.error("Failed to connect to PostgreSQL database: %s", e)
+        raise ValueError(f"Failed to connect to database: {e}") from e
+else:
+    logger.info("Using SQLite database: %s", db_url)
 
 # Initialize AeratorComparer with database URL
 comparer: AeratorComparer = AeratorComparer(
