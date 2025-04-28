@@ -17,7 +17,7 @@ from .aerator_comparer import AeratorComparer
 warnings.filterwarnings("ignore", category=Warning, module=".*")
 
 # Test client for FastAPI app
-client = TestClient(app)
+client: TestClient = TestClient(app)
 
 # Fixture to set up an in-memory SQLite database for testing
 
@@ -57,7 +57,6 @@ def test_comparer():
 
 class TestAeraSyncAPI:
     """Test suite for AeraSync API endpoints."""
-
     def test_health_endpoint(self):
         """Test the health endpoint returns status 200 and correct response."""
         response = client.get("/health")
@@ -154,12 +153,13 @@ class TestAeraSyncAPI:
                 "discount_rate_percent": 5.0,
                 "inflation_rate_percent": 2.0,
                 "analysis_horizon_years": 10,
-                "safety_margin_percent": 10.0,
+                "safety_margin_percent": 0.0,
             },
         }
         response = client.post("/compare", json=valid_input)
         assert response.status_code == 200
         response_data = response.json()
+        assert "tod" in response_data
         assert "tod" in response_data
         assert "aeratorResults" in response_data
         assert len(response_data["aeratorResults"]) == 2
@@ -259,11 +259,12 @@ class TestAeraSyncAPI:
                 "discount_rate_percent": 5.0,
                 "inflation_rate_percent": 2.0,
                 "analysis_horizon_years": 10,
-                "safety_margin_percent": 10.0,
+                "safety_margin_percent": 0.0,
             },
         }
         response = client.post("/compare", json=invalid_input)
         assert response.status_code == 422
+        assert "greater_than_equal" in response.json()["detail"][0]["type"]
         assert "greater_than_equal" in response.json()["detail"][0]["type"]
 
     def test_compare_aerators_single_aerator(self):
@@ -343,7 +344,7 @@ class TestAeraSyncAPI:
                 "discount_rate_percent": 5.0,
                 "inflation_rate_percent": 2.0,
                 "analysis_horizon_years": 10,
-                "safety_margin_percent": 10.0,
+                "safety_margin_percent": 0.0,
             },
         }
         response = client.post("/compare", json=single_aerator_input)

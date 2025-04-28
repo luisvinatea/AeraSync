@@ -33,10 +33,9 @@ void main() {
     });
 
     Future<void> pumpHomePage(WidgetTester tester, String locale) async {
-      appState.locale = Locale(locale);
       await tester.pumpWidget(
-        ChangeNotifierProvider<AppState>(
-          create: (_) => appState,
+        ChangeNotifierProvider<AppState>.value(
+          value: appState,
           child: MaterialApp(
             locale: Locale(locale),
             localizationsDelegates: const [
@@ -87,10 +86,9 @@ void main() {
 
     Future<void> pumpHomePageWithApi(WidgetTester tester, String locale, {required bool isHealthy}) async {
       when(() => mockApiService.checkHealth()).thenAnswer((_) async => isHealthy);
-      appState.locale = Locale(locale);
       await tester.pumpWidget(
-        ChangeNotifierProvider<AppState>(
-          create: (_) => appState,
+        ChangeNotifierProvider<AppState>.value(
+          value: appState,
           child: MaterialApp(
             locale: Locale(locale),
             localizationsDelegates: const [

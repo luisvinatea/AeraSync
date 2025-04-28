@@ -9,14 +9,15 @@ class ApiService {
     http.Client? client,
     String? baseUrl,
   })  : client = client ?? http.Client(),
-        baseUrl = baseUrl ?? const String.fromEnvironment(
-          'API_URL',
-          defaultValue: 'https://aerasync-backend.vercel.app',
-        );
+        baseUrl = baseUrl ??
+            const String.fromEnvironment(
+              'API_URL',
+              defaultValue: 'https://aerasync-backend.vercel.app',
+            );
 
   Future<bool> checkHealth() async {
     try {
-      final response = await client.get(Uri.parse('$baseUrl/health'));
+      final response = await client.get(Uri.parse('$baseUrl/api/health'));
       return response.statusCode == 200;
     } catch (e) {
       return false;
@@ -27,7 +28,7 @@ class ApiService {
       Map<String, dynamic> inputs) async {
     try {
       final response = await client.post(
-        Uri.parse('$baseUrl/compare'),
+        Uri.parse('$baseUrl/api/compare'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(inputs),
       );
