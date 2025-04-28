@@ -13,13 +13,16 @@ void main() {
 
     setUp(() {
       mockClient = MockClient();
+      // Base URL is less relevant now, but keep for potential direct testing
       apiService = ApiService(client: mockClient, baseUrl: 'http://127.0.0.1:8000');
-      registerFallbackValue(Uri.parse('http://127.0.0.1:8000/api/health'));
-      registerFallbackValue(Uri.parse('http://127.0.0.1:8000/api/compare'));
+      // Register relative paths used by ApiService
+      registerFallbackValue(Uri.parse('/api/health'));
+      registerFallbackValue(Uri.parse('/api/compare'));
     });
 
     test('ApiService checks health successfully', () async {
-      when(() => mockClient.get(Uri.parse('http://127.0.0.1:8000/api/health')))
+      // Mock the relative path
+      when(() => mockClient.get(Uri.parse('/api/health')))
           .thenAnswer((_) async => http.Response('OK', 200));
 
       final result = await apiService.checkHealth();
@@ -27,7 +30,8 @@ void main() {
     });
 
     test('ApiService checkHealth fails on 500 status', () async {
-      when(() => mockClient.get(Uri.parse('http://127.0.0.1:8000/api/health')))
+      // Mock the relative path
+      when(() => mockClient.get(Uri.parse('/api/health')))
           .thenAnswer((_) async => http.Response('Internal Server Error', 500));
 
       final result = await apiService.checkHealth();
@@ -88,8 +92,9 @@ void main() {
         'apiResults': {},
       };
 
+      // Mock the relative path
       when(() => mockClient.post(
-            Uri.parse('http://127.0.0.1:8000/api/compare'),
+            Uri.parse('/api/compare'),
             headers: {'Content-Type': 'application/json'},
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response(jsonEncode(mockResponse), 200));
@@ -108,8 +113,9 @@ void main() {
         'financial': {},
       };
 
+      // Mock the relative path
       when(() => mockClient.post(
-            Uri.parse('http://127.0.0.1:8000/api/compare'),
+            Uri.parse('/api/compare'),
             headers: {'Content-Type': 'application/json'},
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response('{"invalid": json}', 200));
@@ -134,8 +140,9 @@ void main() {
         'financial': {},
       };
 
+      // Mock the relative path
       when(() => mockClient.post(
-            Uri.parse('http://127.0.0.1:8000/api/compare'),
+            Uri.parse('/api/compare'),
             headers: {'Content-Type': 'application/json'},
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response('{"error": "Invalid input"}', 400));

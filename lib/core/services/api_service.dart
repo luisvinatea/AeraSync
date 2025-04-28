@@ -17,7 +17,8 @@ class ApiService {
 
   Future<bool> checkHealth() async {
     try {
-      final response = await client.get(Uri.parse('$baseUrl/api/health'));
+      // Use relative path for API endpoint
+      final response = await client.get(Uri.parse('/api/health'));
       return response.statusCode == 200;
     } catch (e) {
       return false;
@@ -27,8 +28,9 @@ class ApiService {
   Future<Map<String, dynamic>> compareAerators(
       Map<String, dynamic> inputs) async {
     try {
+      // Use relative path for API endpoint
       final response = await client.post(
-        Uri.parse('$baseUrl/api/compare'),
+        Uri.parse('/api/compare'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(inputs),
       );
