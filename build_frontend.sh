@@ -6,19 +6,30 @@ set -e
 echo "--- Starting Frontend Build Script ---"
 
 # Check if Flutter is already installed/available in the PATH
-if ! command -v flutter &>/dev/null; then
+if ! command -v flutter &> /dev/null
+then
     echo "Flutter not found, installing..."
-    # Using apt-get as Vercel build environment is likely Debian-based
+    # Use yum (Amazon Linux 2 package manager) instead of apt-get
     # Install necessary dependencies for Flutter SDK download and execution
-    apt-get update && apt-get install -y --no-install-recommends curl git unzip xz-utils libglu1-mesa wget
+    # Update yum cache and install dependencies
+    yum update -y
+    yum install -y git tar xz unzip mesa-libGLU curl which
+
     # Download specific Flutter version matching your project (adjust if needed)
     FLUTTER_VERSION="3.29.2"
     FLUTTER_CHANNEL="stable"
     FLUTTER_ARCH="linux-x64" # Assuming Vercel uses x64 Linux
-    wget "https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/${FLUTTER_ARCH}/flutter_${FLUTTER_ARCH}_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz"
-    tar xf "flutter_${FLUTTER_ARCH}_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz" -C /opt/
+    # Use curl instead of wget
+    curl -o "flutter_${FLUTTER_ARCH}_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz" "https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/${FLUTTER_ARCH}/flutter_${FLUTTER_ARCH}_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz"
+    
+    # Create directory if it doesn't exist
+    mkdir -p /opt/flutter
+    # Extract to /opt/flutter, stripping the top-level directory
+    tar xf "flutter_${FLUTTER_ARCH}_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz" -C /opt/ --strip-components=1
+    
     # Add Flutter to PATH for this script's execution
     export PATH="$PATH:/opt/flutter/bin"
+    
     # Clean up downloaded archive
     rm "flutter_${FLUTTER_ARCH}_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz"
 else
