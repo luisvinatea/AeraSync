@@ -1,19 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "backend/main.py",
-      "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb", "runtime": "python3.12" }
-    },
-    {
-      "src": "build_frontend.sh",
-      "use": "@vercel/static-build",
-      "config": {
-        "outputDirectory": "build/web"
-      }
-    }
-  ],
   "routes": [
     {
       "src": "/api/(.*)",
