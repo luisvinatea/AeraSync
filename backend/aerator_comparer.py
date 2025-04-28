@@ -4,8 +4,7 @@ from typing import Any, Dict, List, Tuple, Union
 import sqlite3
 import json
 import os
-import psycopg2
-from psycopg2.extras import Json
+import psycopg
 
 from .aerator_types import (
     AeratorComparisonInputs,
@@ -124,7 +123,7 @@ class AeratorComparer:
             return
         # Default to PostgreSQL
         try:
-            with psycopg2.connect(self.db_url) as conn:
+            with psycopg.connect(self.db_url) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
                         """
@@ -137,7 +136,7 @@ class AeratorComparer:
                         """
                     )
                     conn.commit()
-        except psycopg2.Error as e:
+        except psycopg.Error as e:
             print(f"Database initialization error: {e}")
             raise RuntimeError(f"Failed to initialize database: {e}") from e
 
@@ -160,8 +159,8 @@ class AeratorComparer:
                 cursor = conn.cursor()
                 cursor.execute(
                     (
-                        "INSERT INTO aerator_comparisons (inputs, results) "
-                        "VALUES (?, ?)"
+                        "INSERT INTO aerator_comparisons "
+                        "(inputs, results) VALUES (?, ?)"
                     ),
                     (json.dumps(inputs), json.dumps(log_results)),
                 )
@@ -172,15 +171,22 @@ class AeratorComparer:
             return
         # Default to PostgreSQL
         try:
-            with psycopg2.connect(self.db_url) as conn:
+            with psycopg.connect(self.db_url) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
-                        "INSERT INTO aerator_comparisons (inputs, results) "
-                        "VALUES (%s, %s)",
-                        (Json(inputs), Json(log_results)),
+                        (
+                            (
+                                (
+                                    "INSERT INTO aerator_comparisons "
+                                    "(inputs, results) "
+                                )
+                                + "VALUES (%s, %s)"
+                            )
+                        ),
+                        (json.dumps(inputs), json.dumps(log_results)),
                     )
                     conn.commit()
-        except psycopg2.Error as e:
+        except psycopg.Error as e:
             print(f"Database error during logging: {e}")
             raise RuntimeError(f"Failed to log comparison: {e}") from e
 
