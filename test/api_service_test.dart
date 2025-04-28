@@ -14,12 +14,12 @@ void main() {
     setUp(() {
       mockClient = MockClient();
       apiService = ApiService(client: mockClient, baseUrl: 'http://127.0.0.1:8000');
-      registerFallbackValue(Uri.parse('http://127.0.0.1:8000/health'));
-      registerFallbackValue(Uri.parse('http://127.0.0.1:8000/compare'));
+      registerFallbackValue(Uri.parse('http://127.0.0.1:8000/api/health'));
+      registerFallbackValue(Uri.parse('http://127.0.0.1:8000/api/compare'));
     });
 
     test('ApiService checks health successfully', () async {
-      when(() => mockClient.get(Uri.parse('http://127.0.0.1:8000/health')))
+      when(() => mockClient.get(Uri.parse('http://127.0.0.1:8000/api/health')))
           .thenAnswer((_) async => http.Response('OK', 200));
 
       final result = await apiService.checkHealth();
@@ -27,7 +27,7 @@ void main() {
     });
 
     test('ApiService checkHealth fails on 500 status', () async {
-      when(() => mockClient.get(Uri.parse('http://127.0.0.1:8000/health')))
+      when(() => mockClient.get(Uri.parse('http://127.0.0.1:8000/api/health')))
           .thenAnswer((_) async => http.Response('Internal Server Error', 500));
 
       final result = await apiService.checkHealth();
@@ -89,7 +89,7 @@ void main() {
       };
 
       when(() => mockClient.post(
-            Uri.parse('http://127.0.0.1:8000/compare'),
+            Uri.parse('http://127.0.0.1:8000/api/compare'),
             headers: {'Content-Type': 'application/json'},
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response(jsonEncode(mockResponse), 200));
@@ -109,7 +109,7 @@ void main() {
       };
 
       when(() => mockClient.post(
-            Uri.parse('http://127.0.0.1:8000/compare'),
+            Uri.parse('http://127.0.0.1:8000/api/compare'),
             headers: {'Content-Type': 'application/json'},
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response('{"invalid": json}', 200));
@@ -135,7 +135,7 @@ void main() {
       };
 
       when(() => mockClient.post(
-            Uri.parse('http://127.0.0.1:8000/compare'),
+            Uri.parse('http://127.0.0.1:8000/api/compare'),
             headers: {'Content-Type': 'application/json'},
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response('{"error": "Invalid input"}', 400));
