@@ -4,7 +4,7 @@ import os
 import sys
 from typing import Dict
 
-import psycopg2
+import psycopg
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.exceptions import RequestValidationError
@@ -89,14 +89,13 @@ if not db_url:
 
 try:
     # Test the database connection at startup
-    connection = psycopg2.connect(db_url)
-    cursor = connection.cursor()
-    cursor.execute("SELECT NOW();")
-    result = cursor.fetchone()
-    logger.info("Database connection successful. Current time: %s", result)
-    cursor.close()
-    connection.close()
-except psycopg2.Error as e:
+    with psycopg.connect(db_url) as connection:
+        with connection.execute("SELECT NOW();") as cursor:
+            result = cursor.fetchone()
+            logger.info(
+                "Database connection successful. Current time: %s", result
+            )
+except psycopg.Error as e:
     logger.error("Failed to connect to database: %s", e)
     raise ValueError(f"Failed to connect to database: {e}") from e
 
