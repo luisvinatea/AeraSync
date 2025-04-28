@@ -1,0 +1,32 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "backend/main.py",
+        "use": "@vercel/python",
+        "config": { "maxLambdaSize": "15mb", "runtime": "python3.12" }
+      },
+      {
+        "src": "pubspec.yaml",
+        "use": "@vercel/static-build",
+        "config": {
+          "installCommand": "if [ -f pubspec.yaml ]; then flutter pub get; fi",
+          "buildCommand": "flutter build web --release --dart-define=API_URL=/api",
+          "outputDirectory": "build/web"
+        }
+      }
+    ],
+    "routes": [
+      {
+        "src": "/api/(.*)",
+        "dest": "backend/main.py"
+      },
+      {
+        "handle": "filesystem"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/index.html"
+      }
+    ]
+  }
