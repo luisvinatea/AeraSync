@@ -134,3 +134,81 @@ jobs:
           python3 scripts/verify_arb.py
         env:
           PYTHONPATH: .
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.pub-cache
+          key: flutter-pub-${{ runner.os }}-stable-3.29.2-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            flutter-pub-${{ runner.os }}-stable-3.29.2-
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Generate localization files
+        run: flutter gen-l10n
+
+      - name: Run build_runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build web for production
+        run: flutter build web --dart-define=flutter.web.renderer=canvaskit --release --base-href=/AeraSync/ --dart-define=API_URL=https://aerasync-backend.vercel.app/
+
+      - name: Deploy Frontend Build to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/web
+          publish_branch: gh-pages
+          commit_message: "Deploy frontend from main branch commit ${{ github.sha }}"
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          keep_files: false 
+
+      - name: Deploy Backend Code to backend-vercel branch
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          echo "Cloning backend-vercel branch..."
+          git clone --branch backend-vercel --single-branch https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git backend_deploy_temp
+          
+          echo "Copying backend code from main/backend/ to backend_deploy_temp/api/..."
+          rm -rf backend_deploy_temp/api/*
+          mkdir -p backend_deploy_temp/api
+          cp -a backend/. backend_deploy_temp/api/
+          
+          cd backend_deploy_temp
+          
+          echo "Checking for changes in backend code..."
+          git add api/
+          
+          if git diff --staged --quiet; then
+            echo "No changes to backend code to deploy."
+          else
+            echo "Committing and pushing backend changes..."
+            git commit -m "Deploy backend code from main branch commit ${{ github.sha }}"
+            git push origin backend-vercel
+            echo "Backend changes pushed to backend-vercel branch."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
