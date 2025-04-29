@@ -8,7 +8,7 @@ disable=
 init-hook='import sys; sys.path.append(".")'
 
 [BASIC]
-good-names=db_url
+good-names=db_url, db_path
 
 [MESSAGES CONTROL]
 max-line-length=79

@@ -35,7 +35,8 @@ logging.basicConfig(
     level=logging.INFO,
     # Corrected format string and line length
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("app.log")],
+    # Remove FileHandler for read-only filesystems like Vercel
+    handlers=[logging.StreamHandler()],
 )
 logger: logging.Logger = logging.getLogger("AeraSyncAPI")
 
