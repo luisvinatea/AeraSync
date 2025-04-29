@@ -4,7 +4,6 @@
 .dart_tool/
 .packages
 .pub/
-build/
 *.flutter-plugins
 *.flutter-plugins-dependencies
 *.flutter-plugins-dependencies
@@ -91,13 +90,6 @@ backend-worktree
 main/
 gh-pages/
 backend-vercel/
-
-# Build artifacts
-build/
-.last_build_id
-
-# Documentation build output
-docs/_build/
 
 # Test artifacts
 test_log.json

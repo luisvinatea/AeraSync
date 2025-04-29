@@ -1,0 +1,168 @@
+/* Basic reset and font setting */
+body, html {
+  touch-action: pan-x pan-y pinch-zoom !important;
+  -webkit-user-scalable: yes;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(180deg, #60A5FA 0%, #1E40AF 100%);
+  color: #FFFFFF;
+}
+
+/* Loading screen styles */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(180deg, #60A5FA 0%, #1E40AF 100%);
+  z-index: 9999;
+  transition: opacity 0.5s ease-out;
+}
+
+.loading {
+  text-align: center;
+  color: #FFFFFF;
+  position: relative;
+  z-index: 1;
+}
+
+.loading h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.loading p {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.spinner::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 4px solid #FFFFFF;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: spin 1.5s linear infinite;
+}
+
+.spinner::after {
+  content: '';
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  top: 10%;
+  left: 10%;
+  border: 2px solid #60A5FA;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: spin 1s linear infinite reverse;
+}
+
+.wave-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70%;
+  background: url('/assets/wave.svg') repeat-x;
+  background-size: 200% 100%;
+  animation: wave 30s linear infinite;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+/* Cookies consent popup */
+#cookies-consent {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 500px;
+  background: #FFFFFF;
+  color: #1E40AF;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  display: none;
+  animation: slide-up 0.5s ease-out;
+}
+
+#cookies-consent p {
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+#cookies-consent a {
+  color: #1E40AF;
+  text-decoration: underline;
+}
+
+#cookies-consent label {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+#cookies-consent input {
+  margin-right: 10px;
+}
+
+#cookies-consent button {
+  background: #1E40AF;
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#cookies-consent button:hover {
+  background: #60A5FA;
+}
+
+/* App container for Flutter */
+#app-container {
+  display: none;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes wave {
+  0% { background-position: 0 0; }
+  100% { background-position: 1440px 0; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
