@@ -192,6 +192,18 @@ async def api_health_check() -> Dict[str, str]:
     return response
 
 
+@app.get("/api/api/health")
+async def duplicate_api_health_check() -> Dict[str, str]:
+    """Handler for incorrectly duplicated /api/api/health path."""
+    logger.info("Received /api/api/health request (duplicated path)")
+    response: Dict[str, str] = {
+        "status": "healthy",
+        "message": "API is operational (duplicate path handler).",
+    }
+    logger.info("Sent /api/api/health response: %s", response)
+    return response
+
+
 def get_comparer() -> AeratorComparer:
     """Dependency provider for AeratorComparer."""
     # This allows overriding the comparer instance during testing
