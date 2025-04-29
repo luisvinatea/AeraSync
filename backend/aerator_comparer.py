@@ -45,7 +45,26 @@ class AeratorComparer:
         self.saturation_calc = saturation_calculator
         self.respiration_calc = respiration_calculator
         self.db_url = db_url
-        self._init_database()
+        self._create_table_if_not_exists()
+
+    def _create_table_if_not_exists(self):
+        """Create the aerator_comparisons table if it doesn't exist."""
+        try:
+            with sqlite3.connect(self.db_url) as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS aerator_comparisons (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                        inputs TEXT,
+                        results TEXT
+                    )
+                    """
+                )
+                conn.commit()
+        except sqlite3.Error as db_err:
+            print(f"SQLite error creating table: {db_err}")
 
     def _init_database(self) -> None:
         """Initialize SQLite database and create table."""

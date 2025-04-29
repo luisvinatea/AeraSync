@@ -9,7 +9,7 @@ from typing import List, Optional
 import pytest
 from typing_extensions import TypedDict
 from fastapi.testclient import TestClient
-from .main import app, sat_calc, resp_calc
+from backend.main import app, sat_calc, resp_calc
 from .aerator_comparer import AeratorComparer
 
 
@@ -57,6 +57,7 @@ def test_comparer():
 
 class TestAeraSyncAPI:
     """Test suite for AeraSync API endpoints."""
+
     def test_health_endpoint(self):
         """Test the health endpoint returns status 200 and correct response."""
         response = client.get("/health")
@@ -264,8 +265,8 @@ class TestAeraSyncAPI:
         }
         response = client.post("/compare", json=invalid_input)
         assert response.status_code == 422
-        assert "greater_than_equal" in response.json()["detail"][0]["type"]
-        assert "greater_than_equal" in response.json()["detail"][0]["type"]
+        # Corrected assertion to check the 'errors' key
+        assert "greater_than_equal" in response.json()["errors"][0]["type"]
 
     def test_compare_aerators_single_aerator(self):
         """Test the compare endpoint with only one aerator."""

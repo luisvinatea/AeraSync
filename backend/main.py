@@ -221,6 +221,7 @@ async def compare_aerators(
         return results
     except ValueError as ve:
         logger.warning("Invalid input in /compare: %s", str(ve))  # Log warning
+        # Return 400 Bad Request for ValueErrors (like < 2 aerators)
         raise HTTPException(
             status_code=400, detail=f"Invalid input: {str(ve)}"
         ) from ve
