@@ -19,32 +19,41 @@ then
     yum update -y
     # Add --allowerasing to handle potential conflicts like curl vs curl-minimal
     yum install -y --allowerasing git tar xz unzip mesa-libGLU curl which
+    echo "Dependencies installed successfully."
 
-    # Clone the stable Flutter repository instead of downloading a specific archive
+    # Add a check point before cloning
+    echo "CHECKPOINT: Proceeding to clone Flutter..."
+
+    # Clone the stable Flutter repository
     echo "Cloning Flutter stable repository..."
     git clone https://github.com/flutter/flutter.git --depth 1 --branch stable /opt/flutter
+    echo "Flutter cloned successfully."
 
     # Add Flutter to PATH for this script's execution
     export PATH="$PATH:/opt/flutter/bin"
+    echo "Flutter added to PATH."
 else
     echo "Flutter found in PATH."
 fi
 
 # Verify Flutter installation
+echo "CHECKPOINT: Running flutter doctor..."
 # Run flutter doctor to download Dart SDK etc.
-echo "Running flutter doctor..."
 # Accept licenses automatically if prompted (might not be needed but good practice)
 yes | flutter doctor --android-licenses || true 
 flutter doctor
+echo "CHECKPOINT: flutter doctor finished."
 
 # Get dependencies
-echo "Running flutter pub get..."
+echo "CHECKPOINT: Running flutter pub get..."
 flutter pub get
+echo "CHECKPOINT: flutter pub get finished."
 
 # Build the web application
-echo "Running flutter build web..."
+echo "CHECKPOINT: Running flutter build web..."
 # Ensure API_URL is defined for the build
 flutter build web --release --dart-define=API_URL=/api
+echo "CHECKPOINT: flutter build web finished."
 
 echo "--- Frontend Build Script Finished ---"
 # Vercel expects the output directory specified in vercel.json (build/web)
