@@ -51,15 +51,55 @@ class _SurveyPageState extends State<SurveyPage> {
       final appState = Provider.of<AppState>(context, listen: false);
       final l10n = AppLocalizations.of(context)!;
 
+      // Format data according to the expected backend API structure
       final surveyData = {
-        'pondArea': double.tryParse(_pondAreaController.text) ?? 0.0,
-        'pondDepth': double.tryParse(_pondDepthController.text) ?? 0.0,
-        'shrimpDensity': double.tryParse(_shrimpDensityController.text) ?? 0.0,
-        'shrimpWeight': double.tryParse(_shrimpWeightController.text) ?? 0.0,
-        'cultureDays': int.tryParse(_cultureDaysController.text) ?? 0,
-        'electricityCost':
-            double.tryParse(_electricityCostController.text) ?? 0.0,
-        'selectedAerator': _selectedAerator ?? _aeratorTypeController.text,
+        'farm': {
+          'area_ha': double.tryParse(_pondAreaController.text) ?? 0.0,
+          // Using default values for required fields that aren't collected in the UI
+          'pond_depth_m': double.tryParse(_pondDepthController.text) ?? 0.0,
+        },
+        'oxygen': {
+          // Using reasonable defaults for required fields that aren't collected directly
+          'temperature_c': 30.0, // Default water temperature
+          'salinity_ppt': 15.0, // Default salinity
+          'shrimp_weight_g':
+              double.tryParse(_shrimpWeightController.text) ?? 0.0,
+          'biomass_kg_ha':
+              (double.tryParse(_shrimpDensityController.text) ?? 0.0) *
+                  (double.tryParse(_shrimpWeightController.text) ?? 0.0) /
+                  1000.0, // Convert g to kg
+        },
+        'aerators': [
+          {
+            'name': _selectedAerator ?? 'Generic Aerator',
+            'power_hp': 2.0, // Default power
+            'sotr_kg_o2_h': 1.2, // Default SOTR
+            'initial_cost_usd': 500.0, // Default cost
+            'durability_years': 3, // Default durability
+            'maintenance_usd_year': 50.0 // Default maintenance
+          },
+          {
+            'name': 'Comparison Aerator',
+            'power_hp': 2.2,
+            'sotr_kg_o2_h': 1.3,
+            'initial_cost_usd': 600.0,
+            'durability_years': 3,
+            'maintenance_usd_year': 60.0
+          }
+        ],
+        'financial': {
+          'shrimp_price_usd_kg': 5.0, // Default shrimp price
+          'energy_cost_usd_kwh':
+              double.tryParse(_electricityCostController.text) ?? 0.05,
+          'operating_hours_year':
+              int.tryParse(_cultureDaysController.text) != null
+                  ? int.tryParse(_cultureDaysController.text)! * 24
+                  : 2880, // Culture days * 24 hours
+          'discount_rate_percent': 10.0, // Default discount rate
+          'inflation_rate_percent': 2.0, // Default inflation rate
+          'analysis_horizon_years': 5, // Default analysis horizon
+          'safety_margin_percent': 20.0 // Default safety margin
+        },
       };
 
       try {
