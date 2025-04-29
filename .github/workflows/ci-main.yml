@@ -101,7 +101,7 @@ jobs:
             web/assets/wave.svg \
             web/manifest.json \
             web/privacy.html \
-            assets/fonts/Montserrat/static/Montserrat-Regular.ttf \
+            assets/fonts/Montserrat-Regular.ttf \
             assets/data/shrimp_respiration_salinity_temperature_weight.json \
             assets/data/o2_temp_sal_100_sat.json \
             lib/l10n/app_en.arb; do
