@@ -9,7 +9,7 @@ from typing import List, Optional
 import pytest
 from typing_extensions import TypedDict
 from fastapi.testclient import TestClient
-from backend.main import app, sat_calc, resp_calc
+from .main import app, sat_calc, resp_calc
 from .aerator_comparer import AeratorComparer
 
 
