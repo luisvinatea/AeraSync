@@ -206,13 +206,16 @@ async def compare_aerators(
         )
         logger.info(
             "Comparison successful. Winner: %s",
-            results.get("winnerLabel", "N/A")
+            results.winnerLabel  # Access attribute directly
         )
 
         # Log comparison to database
         try:
             # Logging will now only work with SQLite in this deployment
-            comparer_dep.log_comparison(request.model_dump(), results)
+            # Convert results object to dict before logging
+            comparer_dep.log_comparison(
+                request.model_dump(), results.model_dump()
+            )
             logger.info("Comparison results logged successfully (SQLite).")
         except RuntimeError as log_err:
             # Log the error but don't fail the request

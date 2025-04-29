@@ -59,7 +59,7 @@ jobs:
 
       - name: Run backend tests
         run: |
-          pytest -v backend/test.py
+          pytest -v backend/
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2

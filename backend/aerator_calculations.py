@@ -1,11 +1,33 @@
 """Calculation functions for aerator comparison."""
 
 import math  # Import math for pow
-from typing import Dict, List
+from typing import Dict, List, TypedDict
+from pydantic import BaseModel
 
 from .shrimp_respiration_calculator import ShrimpRespirationCalculator
 from .sotr_calculator import ShrimpPondCalculator as SaturationCalculator
-from .aerator_types import FinancialData, TODInputs
+
+
+# Define input types for Total Oxygen Demand calculation
+class TODInputs(TypedDict):
+    """TypedDict for Total Oxygen Demand inputs."""
+    biomass_kg_ha: float
+    shrimp_weight: float
+    salinity: float
+    temperature: float
+    pond_depth: float
+    total_area: float
+    safety_margin_percent: float
+
+
+# Define Pydantic model for financial data inputs
+class FinancialData(BaseModel):
+    """TypedDict for financial data inputs."""
+    initial_investment: float
+    cash_flows: List[float]
+    discount_rate: float
+    inflation_rate: float
+    horizon: int
 
 
 # Helper function for Newton-Raphson method

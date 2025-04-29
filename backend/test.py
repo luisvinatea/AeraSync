@@ -1,6 +1,8 @@
 """Unit tests for the AeraSync API."""
 
 # type: ignore
+# import json  # Removed unused import
+import os  # Added import
 import subprocess
 import sys
 import warnings
@@ -9,7 +11,8 @@ from typing import List, Optional
 import pytest
 from typing_extensions import TypedDict
 from fastapi.testclient import TestClient
-from .main import app, sat_calc, resp_calc
+# Import the dependency function as well
+from .main import app, sat_calc, resp_calc, get_comparer
 from .aerator_comparer import AeratorComparer
 
 
@@ -23,36 +26,24 @@ client: TestClient = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
-def test_comparer():
-    """Create an AeratorComparer instance with an in-memory SQLite database."""
-    # Use in-memory SQLite database for testing
-    db_url = ":memory:"
+def test_comparer_fixture():  # Renamed fixture slightly
+    """Create an AeratorComparer instance with a shared in-memory SQLite DB."""
+    # Use shared in-memory SQLite database URI for testing
+    db_url = "file::memory:?cache=shared"
     comparer = AeratorComparer(
         saturation_calculator=sat_calc,
         respiration_calculator=resp_calc,
         db_url=db_url
     )
+    # AeratorComparer.__init__ now handles table creation
 
-    # Initialize the in-memory database with the aerator_comparisons table
-    with sqlite3.connect(db_url) as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            CREATE TABLE aerator_comparisons (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-                inputs TEXT,
-                results TEXT
-            )
-            """
-        )
-        conn.commit()
-
-    # Override the app's comparer dependency
-    app.dependency_overrides[AeratorComparer] = lambda: comparer
-    yield comparer
+    # Store the original dependency overrides
+    original_overrides = app.dependency_overrides.copy()
+    # Override the app's get_comparer dependency
+    app.dependency_overrides[get_comparer] = lambda: comparer
+    yield comparer  # Provide the comparer instance to tests if needed
     # Clean up dependency overrides
-    app.dependency_overrides = {}
+    app.dependency_overrides = original_overrides
 
 
 class TestAeraSyncAPI:
@@ -67,7 +58,9 @@ class TestAeraSyncAPI:
             "message": "Service is running smoothly.",
         }
 
-    def test_compare_aerators_valid(self):
+    # Inject the fixture to use the comparer instance
+    # Rename parameter to avoid shadowing fixture name
+    def test_compare_aerators_valid(self, comparer_instance: AeratorComparer):
         """Test the compare endpoint with valid input."""
 
         class FarmInput(TypedDict):
@@ -161,17 +154,30 @@ class TestAeraSyncAPI:
         assert response.status_code == 200
         response_data = response.json()
         assert "tod" in response_data
-        assert "tod" in response_data
         assert "aeratorResults" in response_data
         assert len(response_data["aeratorResults"]) == 2
         assert response_data["winnerLabel"] in ["Aerator1", "Aerator2"]
 
-        # Verify logging to in-memory database
-        with sqlite3.connect(":memory:") as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM aerator_comparisons")
-            count = cursor.fetchone()[0]
-            assert count == 1  # Ensure one comparison was logged
+        # Verify logging using the comparer instance from the fixture
+        try:
+            # Use the fixture's comparer instance and its db_url
+            # Use check_same_thread=False as the fixture/app might use
+            # different threads
+            with sqlite3.connect(
+                comparer_instance.db_url, uri=True, check_same_thread=False
+            ) as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) FROM aerator_comparisons")
+                count = cursor.fetchone()[0]
+                # Check if at least one record exists
+                # Tests might run in parallel or sequence,
+                # so count could be > 1
+                assert count >= 1
+
+                # Optional: Verify content if needed
+
+        except sqlite3.Error as e:
+            pytest.fail(f"Database verification failed: {e}")
 
     def test_compare_aerators_invalid(self):
         """Test the compare endpoint with invalid input."""
@@ -350,6 +356,7 @@ class TestAeraSyncAPI:
         }
         response = client.post("/compare", json=single_aerator_input)
         assert response.status_code == 400
+        # Check the detail message from the HTTPException
         assert response.json()["detail"] == (
             "Invalid input: At least two aerators are required"
         )
@@ -367,11 +374,33 @@ class TestAeraSyncAPI:
 
 if __name__ == "__main__":
     # Run pytest via subprocess to ensure pytest.ini is respected
-    result = subprocess.run(
-        [sys.executable, "-m", "pytest", "-v", __file__],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    print(result.stdout)
-    sys.exit(result.returncode)
+    # and relative imports work correctly when run directly
+    # Determine the project root directory
+    # (assuming backend/ is one level down)
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Add project root to PYTHONPATH for the subprocess
+    env = os.environ.copy()
+    python_path = env.get("PYTHONPATH", "")
+    env["PYTHONPATH"] = f"{project_root}{os.pathsep}{python_path}"
+
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "pytest", "-v", __file__],
+            check=True,
+            capture_output=True,
+            text=True,
+            cwd=project_root,  # Run pytest from the project root
+            env=env,
+        )
+        print(result.stdout)
+        sys.exit(result.returncode)
+    except subprocess.CalledProcessError as e:
+        print("Pytest execution failed:")
+        print(e.stdout)
+        print(e.stderr)
+        sys.exit(e.returncode)
+    except FileNotFoundError:
+        # Handle case where python or pytest is not found
+        print(f"Error: '{sys.executable} -m pytest' command not found.")
+        print("Ensure pytest is installed in the Python environment.")
+        sys.exit(1)
