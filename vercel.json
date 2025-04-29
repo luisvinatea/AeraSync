@@ -19,6 +19,10 @@
       "dest": "backend/main.py"
     },
     {
+      "src": "/health",
+      "dest": "backend/main.py"
+    },
+    {
       "handle": "filesystem"
     },
     {

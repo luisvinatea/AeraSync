@@ -17,8 +17,8 @@ class ApiService {
 
   Future<bool> checkHealth() async {
     try {
-      // Use relative path for API endpoint
-      final response = await client.get(Uri.parse('/api/health'));
+      // Update endpoint path to match backend implementation
+      final response = await client.get(Uri.parse('$baseUrl/health'));
       return response.statusCode == 200;
     } catch (e) {
       return false;
@@ -30,7 +30,7 @@ class ApiService {
     try {
       // Use relative path for API endpoint
       final response = await client.post(
-        Uri.parse('/api/compare'),
+        Uri.parse('$baseUrl/compare'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(inputs),
       );
