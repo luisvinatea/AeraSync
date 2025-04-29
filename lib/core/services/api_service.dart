@@ -12,7 +12,7 @@ class ApiService {
         baseUrl = baseUrl ??
             const String.fromEnvironment(
               'API_URL',
-              defaultValue: 'https://aerasync-backend.vercel.app',
+              defaultValue: 'https://aerasync.vercel.app',
             );
 
   Future<bool> checkHealth() async {

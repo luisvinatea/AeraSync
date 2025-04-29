@@ -1,7 +1,7 @@
 """aerator_types.py
 This module defines the data models
 used in the aerator comparison application."""
-from typing import List, Dict
+from typing import List, Dict, Optional
 from pydantic import BaseModel
 
 # Model representing an aerator's technical and cost parameters
@@ -14,8 +14,8 @@ class Aerator(BaseModel):
         BaseModel (_type_): _description_
     """
     name: str
-    brand: str
-    type: str
+    brand: Optional[str] = None  # Made optional
+    type: Optional[str] = None  # Made optional
     power_hp: float
     sotr_kg_o2_h: float
     initial_cost_usd: float

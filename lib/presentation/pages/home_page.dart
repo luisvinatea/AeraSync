@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: () async {
-                    const url = 'https://luisvinatea.github.io/AeraSync/privacy.html';
+                    const url = 'https://aerasync.vercel.app/privacy.html';
                     _logger.info('Attempting to navigate to privacy policy: $url');
                     try {
                       if (await canLaunchUrl(Uri.parse(url))) {

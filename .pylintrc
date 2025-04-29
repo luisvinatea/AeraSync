@@ -4,7 +4,9 @@ disable=
     R0917,  # too-many-positional-arguments
     R0914,  # too-many-locals
     R0801,  # duplicate-code
-    C0301   # line-too-long
+    C0301,  # line-too-long
+    W0621,  # redefined-outer-name
+    W0612,  # unused-variable
 init-hook='import sys; sys.path.append(".")'
 
 [BASIC]

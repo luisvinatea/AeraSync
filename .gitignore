@@ -55,6 +55,11 @@ Thumbs.db
 *.iml
 .mypy_cache/
 *.pylint.d/
+.shellcheckrc
+.flake8
+.pylintrc
+.pylance
+
 
 # =====================
 # EXPO (optional for Flutter web/mobile)

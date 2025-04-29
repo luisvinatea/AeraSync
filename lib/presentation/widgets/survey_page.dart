@@ -32,7 +32,7 @@ class _SurveyPageState extends State<SurveyPage> {
 
   Future<void> _loadAeratorData() async {
     try {
-      final String data = await rootBundle.loadString('assets/aerators.json');
+      final String data = await rootBundle.loadString('/data/aerators.json');
       setState(() {
         _aeratorData = jsonDecode(data);
         _selectedAerator = _aeratorData.keys.first;
