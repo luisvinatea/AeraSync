@@ -123,8 +123,8 @@ class AeratorComparer:
         # Get oxygen saturation level (required by test but not
         # used in calculations)
         o2_saturation = self.saturation_calculator.get_o2_saturation(
-            temperature_c=request.oxygen.temperature_c,
-            salinity_ppt=request.oxygen.salinity_ppt,
+            temperature=request.oxygen.temperature_c,
+            salinity=request.oxygen.salinity_ppt,
         )
 
         # Calculate shrimp respiration rate

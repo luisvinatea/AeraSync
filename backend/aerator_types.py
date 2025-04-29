@@ -2,7 +2,7 @@
 This module defines the data models
 used in the aerator comparison application."""
 from typing import List, Dict, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # Model representing an aerator's technical and cost parameters
 
@@ -47,7 +47,7 @@ class FarmInput(BaseModel):
     Args:
         BaseModel (_type_): _description_
     """
-    area_ha: float
+    area_ha: float = Field(ge=0, description="Farm area in hectares. Must be greater than or equal to 0.")
 
 # Oxygen and stock parameters for the farm
 

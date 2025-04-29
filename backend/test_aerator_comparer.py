@@ -252,8 +252,8 @@ def test_calculate_tod(
 
     # Assertions
     mock_saturation_calculator.get_o2_saturation.assert_called_once_with(
-        temperature_c=request.oxygen.temperature_c,
-        salinity_ppt=request.oxygen.salinity_ppt,
+        temperature=request.oxygen.temperature_c,
+        salinity=request.oxygen.salinity_ppt,
     )
     mock_resp = mock_respiration_calculator
     mock_resp.get_respiration_rate.assert_called_once_with(
