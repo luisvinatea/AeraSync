@@ -3,8 +3,6 @@
 from typing import Any, Dict, List, Tuple, Union
 import sqlite3
 import json
-import os
-import psycopg
 
 from .aerator_types import (
     AeratorComparisonInputs,
@@ -20,44 +18,8 @@ from .aerator_calculations import (
     compute_equilibrium_price,
     compute_financial_metrics,
 )
-from .sotr_calculator import ShrimpPondCalculator
-# Define a concrete subclass that implements the abstract method(s)
+from .sotr_calculator import ShrimpPondCalculator as SaturationCalculator
 from .shrimp_respiration_calculator import ShrimpRespirationCalculator
-
-
-class SaturationCalculator(ShrimpPondCalculator):
-    """Calculator for oxygen saturation in shrimp ponds."""
-    def calculate_metrics(self, *args, **kwargs):
-        # Implement the required method or raise NotImplementedError
-        # if not used
-        raise NotImplementedError("calculate_metrics must be implemented.")
-
-
-# Map ":memory:" database URLs to a file for persistence
-_sqlite3_connect = sqlite3.connect
-MEM_DB_PATH = os.path.join(os.getcwd(), "test_shared.db")
-
-
-def sqlite_connect_override(
-    database: str, *args: Any, **kwargs: Any
-) -> sqlite3.Connection:
-    """
-    Override the default SQLite connection to use a persistent database file.
-
-    Args:
-        database (str): The database name or path.
-        *args (Any): Additional positional arguments for sqlite3.connect.
-        **kwargs (Any): Additional keyword arguments for sqlite3.connect.
-
-    Returns:
-        sqlite3.Connection: A connection object to the specified database.
-    """
-    if database == ":memory:":
-        return _sqlite3_connect(MEM_DB_PATH, *args, **kwargs)
-    return _sqlite3_connect(database, *args, **kwargs)
-
-
-sqlite3.connect = sqlite_connect_override
 
 
 class AeratorComparer:
@@ -69,12 +31,12 @@ class AeratorComparer:
         respiration_calculator: ShrimpRespirationCalculator,
         db_url: str,
     ):
-        """Initialize the AeratorComparer with calculators and database URL.
+        """Initialize the AeratorComparer with calculators and SQLite DB path.
 
         Args:
             saturation_calculator: Calculator for oxygen saturation.
             respiration_calculator: Calculator for shrimp respiration.
-            db_url: Supabase PostgreSQL database connection URL or SQLite URL.
+            db_url: SQLite database file path or ":memory:".
         """
         self.kw_conversion_factor: float = 0.746
         self.theta: float = 1.024
@@ -82,78 +44,35 @@ class AeratorComparer:
         self.bottom_volume_factor: float = 0.05
         self.saturation_calc = saturation_calculator
         self.respiration_calc = respiration_calculator
-        # Capture original db_url
-        initial_db_url = db_url
-        self.db_url = initial_db_url
-        # For in-memory SQLite, drop existing table to allow tests
-        # to recreate it
-        if initial_db_url == ":memory:":
-            try:
-                conn = sqlite3.connect(self.db_url)
-                cursor = conn.cursor()
-                cursor.execute("DROP TABLE IF EXISTS aerator_comparisons")
-                conn.commit()
-                conn.close()
-            except sqlite3.Error:
-                pass
-        else:
-            # Initialize database for non-memory DB.
-            # Fallback to SQLite memory on failure.
-            try:
-                self._init_database()
-            except RuntimeError as e:
-                print(
-                    "PostgreSQL init failed, falling back to SQLite memory: "
-                    f"{e}"
-                )
-                self.db_url = ":memory:"
+        self.db_url = db_url
+        self._init_database()
 
     def _init_database(self) -> None:
-        """Initialize Supabase PostgreSQL database and create table."""
-        # Use SQLite for in-memory or sqlite URL
-        if self.db_url == ":memory:":
-            try:
-                conn = sqlite3.connect(self.db_url)
-                cursor = conn.cursor()
-                cursor.execute(
-                    """
-                    CREATE TABLE IF NOT EXISTS aerator_comparisons (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-                        inputs TEXT,
-                        results TEXT
-                    )
-                    """
-                )
-                conn.commit()
-            except sqlite3.Error as e:
-                print(f"SQLite database initialization error: {e}")
-                raise RuntimeError(
-                    f"Failed to initialize SQLite database: {e}") from e
-            return
-        # Default to PostgreSQL
+        """Initialize SQLite database and create table."""
         try:
-            with psycopg.connect(self.db_url) as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        CREATE TABLE IF NOT EXISTS aerator_comparisons (
-                            id SERIAL PRIMARY KEY,
-                            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            inputs JSONB,
-                            results JSONB
-                        )
-                        """
-                    )
-                    conn.commit()
-        except psycopg.Error as e:
-            print(f"Database initialization error: {e}")
-            raise RuntimeError(f"Failed to initialize database: {e}") from e
+            conn = sqlite3.connect(self.db_url)
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS aerator_comparisons (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                    inputs TEXT,
+                    results TEXT
+                )
+                """
+            )
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"SQLite database initialization error: {e}")
+            raise RuntimeError(
+                f"Failed to initialize SQLite database: {e}") from e
 
     def _log_comparison(
         self, inputs: Dict[str, Any], log_results: ComparisonResults
     ) -> None:
-        """Log inputs and results to Supabase PostgreSQL database.
+        """Log inputs and results to SQLite database.
 
         Args:
             inputs: Input parameters for comparison.
@@ -162,42 +81,21 @@ class AeratorComparer:
         Raises:
             RuntimeError: If database logging fails.
         """
-        # Use SQLite for in-memory or sqlite URL
-        if self.db_url == ":memory:":
-            try:
-                conn = sqlite3.connect(self.db_url)
+        try:
+            with sqlite3.connect(self.db_url) as conn:
                 cursor = conn.cursor()
+                inputs_json = json.dumps(inputs)
+                results_json = json.dumps(log_results)
                 cursor.execute(
                     (
                         "INSERT INTO aerator_comparisons "
                         "(inputs, results) VALUES (?, ?)"
                     ),
-                    (json.dumps(inputs), json.dumps(log_results)),
+                    (inputs_json, results_json),
                 )
                 conn.commit()
-            except sqlite3.Error as e:
-                print(f"SQLite database error during logging: {e}")
-                raise RuntimeError(f"Failed to log comparison: {e}") from e
-            return
-        # Default to PostgreSQL
-        try:
-            with psycopg.connect(self.db_url) as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        (
-                            (
-                                (
-                                    "INSERT INTO aerator_comparisons "
-                                    "(inputs, results) "
-                                )
-                                + "VALUES (%s, %s)"
-                            )
-                        ),
-                        (json.dumps(inputs), json.dumps(log_results)),
-                    )
-                    conn.commit()
-        except psycopg.Error as e:
-            print(f"Database error during logging: {e}")
+        except sqlite3.Error as e:
+            print(f"SQLite database error during logging: {e}")
             raise RuntimeError(f"Failed to log comparison: {e}") from e
 
     def log_comparison(
@@ -276,17 +174,13 @@ class AeratorComparer:
             )
         if initial_cost < 0:
             raise ValueError(
-                (
-                    f"Initial cost for {name} must be non-negative, "
-                    f"got {initial_cost}"
-                )
+                f"Initial cost for {name} must be non-negative, "
+                f"got {initial_cost}"
             )
         if maintenance < 0:
             raise ValueError(
-                (
-                    f"Maintenance for {name} must be non-negative, "
-                    f"got {maintenance}"
-                )
+                f"Maintenance for {name} must be non-negative, "
+                f"got {maintenance}"
             )
 
     def _validate_inputs(self, inputs: AeratorComparisonInputs) -> None:
@@ -838,70 +732,99 @@ class AeratorComparer:
                 "apiResults": api_results,
             }
 
+            self.log_comparison(request.model_dump(), results)
+
             return results
 
-        except (ValueError, TypeError, RuntimeError) as e:
+        except (ValueError, TypeError, RuntimeError, sqlite3.Error) as e:
             print(f"Error during aerator comparison: {e}")
-            raise
+            raise RuntimeError(f"Aerator comparison failed: {e}") from e
 
 
 if __name__ == "__main__":
-    sat_calc = SaturationCalculator()
-    resp_calc = ShrimpRespirationCalculator()
-    comparer = AeratorComparer(
-        saturation_calculator=sat_calc,
-        respiration_calculator=resp_calc,
-        db_url="postgresql://user:password@host:port/dbname"
+    import os
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    o2_data_path = os.path.join(
+        project_root, "assets", "data", "o2_temp_sal_100_sat.json")
+    shrimp_data_path = os.path.join(
+        project_root,
+        "assets",
+        "data",
+        "shrimp_respiration_salinity_temperature_weight.json"
     )
-    # Example usage with Pydantic AeratorComparisonRequest
-    example_input: dict[str, Any] = {
-        "farm": {
-            "area_ha": 1000.0,
-            "production_kg_ha_year": 10000.0,
-            "cycles_per_year": 3.0,
-            "pond_depth_m": 1.0,
-        },
-        "oxygen": {
-            "temperature_c": 31.5,
-            "salinity_ppt": 20.0,
-            "shrimp_weight_g": 10.0,
-            "biomass_kg_ha": 3333.33,
-        },
-        "aerators": [
-            {
-                "name": "Aerator 1",
-                "power_hp": 3.0,
-                "sotr_kg_o2_h": 1.4,
-                "initial_cost_usd": 500.0,
-                "durability_years": 2.0,
-                "maintenance_usd_year": 65.0,
-            },
-            {
-                "name": "Aerator 2",
-                "power_hp": 3.5,
-                "sotr_kg_o2_h": 2.2,
-                "initial_cost_usd": 800.0,
-                "durability_years": 4.5,
-                "maintenance_usd_year": 50.0,
-            },
-        ],
-        "financial": {
-            "shrimp_price_usd_kg": 5.0,
-            "energy_cost_usd_kwh": 0.05,
-            "operating_hours_year": 2920.0,
-            "discount_rate_percent": 10.0,
-            "inflation_rate_percent": 2.5,
-            "analysis_horizon_years": 9,
-            "safety_margin_percent": 0.0,
-        },
-    }
+
+    db_path = ":memory:"
+
     try:
-        # Build Pydantic request and compare
+        sat_calc = SaturationCalculator(data_path=o2_data_path)
+        resp_calc = ShrimpRespirationCalculator(data_path=shrimp_data_path)
+        comparer = AeratorComparer(
+            saturation_calculator=sat_calc,
+            respiration_calculator=resp_calc,
+            db_url=db_path
+        )
+        example_input: dict[str, Any] = {
+            "farm": {
+                "area_ha": 1000.0,
+                "production_kg_ha_year": 10000.0,
+                "cycles_per_year": 3.0,
+                "pond_depth_m": 1.0,
+            },
+            "oxygen": {
+                "temperature_c": 31.5,
+                "salinity_ppt": 20.0,
+                "shrimp_weight_g": 10.0,
+                "biomass_kg_ha": 3333.33,
+            },
+            "aerators": [
+                {
+                    "name": "Aerator 1",
+                    "power_hp": 3.0,
+                    "sotr_kg_o2_h": 1.4,
+                    "initial_cost_usd": 500.0,
+                    "durability_years": 2.0,
+                    "maintenance_usd_year": 65.0,
+                },
+                {
+                    "name": "Aerator 2",
+                    "power_hp": 3.5,
+                    "sotr_kg_o2_h": 2.2,
+                    "initial_cost_usd": 800.0,
+                    "durability_years": 4.5,
+                    "maintenance_usd_year": 50.0,
+                },
+            ],
+            "financial": {
+                "shrimp_price_usd_kg": 5.0,
+                "energy_cost_usd_kwh": 0.05,
+                "operating_hours_year": 2920.0,
+                "discount_rate_percent": 10.0,
+                "inflation_rate_percent": 2.5,
+                "analysis_horizon_years": 9,
+                "safety_margin_percent": 0.0,
+            },
+        }
         comparison_request = AeratorComparisonRequest(**example_input)
         comparison_results = comparer.compare_aerators(comparison_request)
         print("\n--- Aerator Comparison Results ---")
-        for key, value in comparison_results.items():
+        if hasattr(comparison_results, 'model_dump'):
+            results_dict = comparison_results
+        else:
+            results_dict = comparison_results
+
+        for key, value in results_dict.items():
             print(f"{key}: {value}")
-    except (ValueError, TypeError, RuntimeError) as e:
+
+    except (
+        ValueError,
+        TypeError,
+        RuntimeError,
+        FileNotFoundError,
+        sqlite3.Error,
+    ) as e:
         print("\n--- Error ---")
-        print(e)
+        print(f"An error occurred: {e}")
+        if isinstance(e, FileNotFoundError):
+            print("Please ensure data files exist at the specified paths.")
+        elif isinstance(e, sqlite3.Error):
+            print("Database error occurred.")

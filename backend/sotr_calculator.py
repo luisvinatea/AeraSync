@@ -151,7 +151,27 @@ class AeratorMetricsInput(BaseModel):  # Ensure BaseModel is imported
 class ShrimpPondCalculator(SaturationCalculator):
     """Concrete implementation for calculating shrimp pond aerator metrics."""
 
-    # ...existing code...
+    def calculate_metrics(
+        self, params: AeratorMetricsInput
+    ) -> Dict[str, Any]:
+        """
+        Calculates basic aerator metrics:
+        - O2 saturation
+        - ideal volume
+        - ideal horsepower
+        """
+        # Calculate oxygen saturation for provided conditions
+        o2_sat = self.get_o2_saturation(
+            params.temperature, params.salinity
+        )
+        # Compute ideal volume and horsepower
+        ideal_vol = self.get_ideal_volume(params.hp)
+        ideal_hp = self.get_ideal_hp(params.volume)
+        return {
+            "o2_saturation": o2_sat,
+            "ideal_volume": ideal_vol,
+            "ideal_hp": ideal_hp,
+        }
 
     def get_ideal_volume(self, hp: float) -> float:
         """Get the ideal pond volume (m³) for a given horsepower."""
