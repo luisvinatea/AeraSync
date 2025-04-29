@@ -20,29 +20,21 @@ then
     # Add --allowerasing to handle potential conflicts like curl vs curl-minimal
     yum install -y --allowerasing git tar xz unzip mesa-libGLU curl which
 
-    # Download specific Flutter version matching your project (adjust if needed)
-    FLUTTER_VERSION="3.29.2"
-    FLUTTER_CHANNEL="stable"
-    FLUTTER_ARCH="linux-x64" # Assuming Vercel uses x64 Linux
-    # Use curl instead of wget
-    curl -o "flutter_${FLUTTER_ARCH}_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz" "https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/${FLUTTER_ARCH}/flutter_${FLUTTER_ARCH}_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz"
-    
-    # Create directory if it doesn't exist
-    mkdir -p /opt/flutter
-    # Extract to /opt/flutter, stripping the top-level directory
-    tar xf "flutter_${FLUTTER_ARCH}_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz" -C /opt/ --strip-components=1
-    
+    # Clone the stable Flutter repository instead of downloading a specific archive
+    echo "Cloning Flutter stable repository..."
+    git clone https://github.com/flutter/flutter.git --depth 1 --branch stable /opt/flutter
+
     # Add Flutter to PATH for this script's execution
     export PATH="$PATH:/opt/flutter/bin"
-    
-    # Clean up downloaded archive
-    rm "flutter_${FLUTTER_ARCH}_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz"
 else
     echo "Flutter found in PATH."
 fi
 
 # Verify Flutter installation
+# Run flutter doctor to download Dart SDK etc.
 echo "Running flutter doctor..."
+# Accept licenses automatically if prompted (might not be needed but good practice)
+yes | flutter doctor --android-licenses || true 
 flutter doctor
 
 # Get dependencies
