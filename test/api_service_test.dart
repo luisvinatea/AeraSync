@@ -10,19 +10,21 @@ void main() {
   group('ApiService Tests', () {
     late ApiService apiService;
     late MockClient mockClient;
+    late String baseUrl;
 
     setUp(() {
       mockClient = MockClient();
-      // Base URL is less relevant now, but keep for potential direct testing
-      apiService = ApiService(client: mockClient, baseUrl: 'http://127.0.0.1:8000');
-      // Register relative paths used by ApiService
-      registerFallbackValue(Uri.parse('/api/health'));
-      registerFallbackValue(Uri.parse('/api/compare'));
+      baseUrl = 'http://127.0.0.1:8000';
+      apiService = ApiService(client: mockClient, baseUrl: baseUrl);
+
+      // Register full paths used by ApiService with baseUrl
+      registerFallbackValue(Uri.parse('$baseUrl/health'));
+      registerFallbackValue(Uri.parse('$baseUrl/compare'));
     });
 
     test('ApiService checks health successfully', () async {
-      // Mock the relative path
-      when(() => mockClient.get(Uri.parse('/api/health')))
+      // Mock the correct full path with baseUrl
+      when(() => mockClient.get(Uri.parse('$baseUrl/health')))
           .thenAnswer((_) async => http.Response('OK', 200));
 
       final result = await apiService.checkHealth();
@@ -30,8 +32,8 @@ void main() {
     });
 
     test('ApiService checkHealth fails on 500 status', () async {
-      // Mock the relative path
-      when(() => mockClient.get(Uri.parse('/api/health')))
+      // Mock the correct full path with baseUrl
+      when(() => mockClient.get(Uri.parse('$baseUrl/health')))
           .thenAnswer((_) async => http.Response('Internal Server Error', 500));
 
       final result = await apiService.checkHealth();
@@ -92,12 +94,14 @@ void main() {
         'apiResults': {},
       };
 
-      // Mock the relative path
+      // Mock the correct full path with baseUrl
       when(() => mockClient.post(
-            Uri.parse('/api/compare'),
-            headers: {'Content-Type': 'application/json'},
-            body: any(named: 'body'),
-          )).thenAnswer((_) async => http.Response(jsonEncode(mockResponse), 200));
+                Uri.parse('$baseUrl/compare'),
+                headers: {'Content-Type': 'application/json'},
+                body: any(named: 'body'),
+              ))
+          .thenAnswer(
+              (_) async => http.Response(jsonEncode(mockResponse), 200));
 
       final result = await apiService.compareAerators(inputs);
       expect(result['winnerLabel'], isNotNull);
@@ -113,9 +117,9 @@ void main() {
         'financial': {},
       };
 
-      // Mock the relative path
+      // Mock the correct full path with baseUrl
       when(() => mockClient.post(
-            Uri.parse('/api/compare'),
+            Uri.parse('$baseUrl/compare'),
             headers: {'Content-Type': 'application/json'},
             body: any(named: 'body'),
           )).thenAnswer((_) async => http.Response('{"invalid": json}', 200));
@@ -140,12 +144,14 @@ void main() {
         'financial': {},
       };
 
-      // Mock the relative path
+      // Mock the correct full path with baseUrl
       when(() => mockClient.post(
-            Uri.parse('/api/compare'),
-            headers: {'Content-Type': 'application/json'},
-            body: any(named: 'body'),
-          )).thenAnswer((_) async => http.Response('{"error": "Invalid input"}', 400));
+                Uri.parse('$baseUrl/compare'),
+                headers: {'Content-Type': 'application/json'},
+                body: any(named: 'body'),
+              ))
+          .thenAnswer(
+              (_) async => http.Response('{"error": "Invalid input"}', 400));
 
       final result = await apiService.compareAerators(inputs);
       expect(result['error'], 'Invalid input');
