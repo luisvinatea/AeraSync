@@ -49,6 +49,11 @@ echo "CHECKPOINT: Running flutter pub get..."
 flutter pub get
 echo "CHECKPOINT: flutter pub get finished."
 
+# Generate localization files explicitly
+echo "CHECKPOINT: Running flutter gen-l10n..."
+flutter gen-l10n
+echo "CHECKPOINT: flutter gen-l10n finished."
+
 # Build the web application
 echo "CHECKPOINT: Running flutter build web..."
 # Ensure API_URL is defined for the build
