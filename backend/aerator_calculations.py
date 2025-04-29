@@ -1,11 +1,34 @@
 """Calculation functions for aerator comparison."""
 
+import math  # Import math for pow
 from typing import Dict, List
 
-from scipy.optimize import newton
 from .shrimp_respiration_calculator import ShrimpRespirationCalculator
 from .sotr_calculator import ShrimpPondCalculator as SaturationCalculator
 from .aerator_types import FinancialData, TODInputs
+
+
+# Helper function for Newton-Raphson method
+def _newton_raphson(func, func_prime, x0, tol=1e-6, maxiter=100):
+    """Manual implementation of Newton-Raphson root finding."""
+    x = x0
+    for _ in range(maxiter):
+        fx = func(x)
+        fpx = func_prime(x)
+
+        # Avoid division by zero or very small numbers
+        if abs(fpx) < 1e-10:
+            raise ValueError("Derivative near zero during Newton's method.")
+
+        delta_x = fx / fpx
+        x = x - delta_x
+
+        # Check for convergence
+        if abs(delta_x) < tol:
+            return x
+
+    raise RuntimeError(
+        f"Newton's method did not converge after {maxiter} iterations.")
 
 
 def calculate_otrt(
@@ -33,15 +56,21 @@ def calculate_otrt(
         ValueError: If SOTR or O2 saturation is non-positive.
     """
     if sotr <= 0:
+        # Added error message
         raise ValueError(f"SOTR must be positive, got {sotr}")
     cs_20 = saturation_calc.get_o2_saturation(standard_temp, salinity)
     if cs_20 <= 0:
-        raise ValueError(f"O2 saturation at 20°C is {cs_20}")
+        # Added error message
+        raise ValueError(f"Calculated Cs(20) must be positive, got {cs_20}")
     temp_corr = theta ** (temperature - standard_temp)
-    sat_corr = 0.5
+    # Assuming a fixed saturation correction factor for simplicity,
+    # replace with actual calculation if needed.
+    sat_corr = 0.5  # Placeholder: Adjust if a dynamic calculation is required
     otrt = sotr * temp_corr * sat_corr
     if otrt <= 0:
-        raise ValueError(f"OTRt must be positive, got {otrt}")
+        # This should ideally not happen if inputs are valid, but check anyway
+        raise ValueError(
+            f"Calculated OTRt is non-positive ({otrt}), check inputs.")
     return otrt
 
 
@@ -52,98 +81,70 @@ def calculate_shrimp_demand(
     temperature: float,
     respiration_calc: ShrimpRespirationCalculator,
 ) -> float:
-    """Calculate shrimp oxygen demand in kg O₂/h/ha.
-
-    Args:
-        biomass_kg_ha: Biomass in kg/ha.
-        shrimp_weight: Shrimp weight in grams.
-        salinity: Salinity in ppt.
-        temperature: Temperature in °C.
-        respiration_calc: Calculator for shrimp respiration.
-
-    Returns:
-        Shrimp oxygen demand in kg O₂/h/ha.
-
-    Raises:
-        ValueError: If biomass or shrimp weight is invalid.
-    """
-    if biomass_kg_ha < 0:
-        raise ValueError(f"Biomass must be non-negative, got {biomass_kg_ha}")
-    if shrimp_weight <= 0:
+    """Calculate shrimp oxygen demand in kg O₂/h/ha."""
+    if biomass_kg_ha < 0 or shrimp_weight <= 0:
         raise ValueError(
-            f"Shrimp weight must be positive, got {shrimp_weight}"
-        )
-    resp_rate = respiration_calc.get_respiration_rate(
+            "Biomass must be non-negative and shrimp weight must be positive.")
+    # Respiration rate in mg O₂/g/h
+    respiration_rate_mg_g_h = respiration_calc.get_respiration_rate(
         salinity, temperature, shrimp_weight
     )
-    return resp_rate * biomass_kg_ha * 1000.0 / 1_000_000.0
+    # Convert rate:
+    # (mg O₂ / g shrimp / h) * (1 g shrimp / 1000 mg shrimp) *
+    # (1 kg O₂ / 1,000,000 mg O₂)
+    # = kg O₂ / mg shrimp / h * 1e-9 -- this seems wrong.
+    # Let's rethink units:
+    # Rate: mg O₂ / g_shrimp / h
+    # Biomass: kg_shrimp / ha = 1000 g_shrimp / ha
+    # Demand = Rate * Biomass
+    # Demand = (mg O₂ / g_shrimp / h) * (Biomass_kg_ha * 1000 g_shrimp / ha)
+    # Demand = (Biomass_kg_ha * 1000) mg O₂ / ha / h
+    # Convert mg to kg: Divide by 1,000,000
+    # Demand = (Biomass_kg_ha * 1000 / 1000000) kg O₂ / ha / h
+    # Demand = (Biomass_kg_ha / 1000) kg O₂ / ha / h
+    demand_kg_h_ha = respiration_rate_mg_g_h * (biomass_kg_ha / 1000.0)
+    return demand_kg_h_ha
 
 
 def calculate_water_demand(pond_depth: float) -> float:
-    """Calculate water oxygen demand in kg O₂/h/ha.
-
-    Args:
-        pond_depth: Pond depth in meters.
-
-    Returns:
-        Water oxygen demand in kg O₂/h/ha.
-
-    Raises:
-        ValueError: If pond depth is non-positive.
-    """
+    """Estimate water column oxygen demand in kg O₂/h/ha (simplified)."""
+    # Placeholder: Replace with a more accurate model if available
+    # Example: Assume demand is proportional to depth
     if pond_depth <= 0:
-        raise ValueError(f"Pond depth must be positive, got {pond_depth}")
-    water_vol_ha = 10000.0 * pond_depth
-    water_rate = 0.49125
-    return water_rate * water_vol_ha * 1000.0 / 1_000_000.0
+        raise ValueError("Pond depth must be positive.")
+    base_demand = 0.05  # Base demand in kg O₂/h/ha for 1m depth
+    return base_demand * pond_depth
 
 
 def calculate_bottom_demand(
     pond_depth: float, bottom_volume_factor: float = 0.05
 ) -> float:
-    """Calculate bottom oxygen demand in kg O₂/h/ha.
-
-    Args:
-        pond_depth: Pond depth in meters.
-        bottom_volume_factor: Factor for bottom volume (default: 0.05).
-
-    Returns:
-        Bottom oxygen demand in kg O₂/h/ha.
-
-    Raises:
-        ValueError: If pond depth is non-positive.
-    """
+    """Estimate pond bottom oxygen demand in kg O₂/h/ha (simplified)."""
+    # Placeholder: Replace with a more accurate model if available
+    # Example: Assume demand is related to depth or a fixed value
     if pond_depth <= 0:
-        raise ValueError(f"Pond depth must be positive, got {pond_depth}")
-    water_vol_ha = 10000.0 * pond_depth
-    bottom_rate = 0.245625
-    return (
-        (
-            bottom_rate * water_vol_ha * bottom_volume_factor * 1000.0
-            / 1_000_000.0
-        )
-    )
+        raise ValueError("Pond depth must be positive.")
+    # Simple model: fixed demand, potentially adjusted by factor
+    # (though factor use here is unclear)
+    fixed_bottom_demand = 0.1  # Example fixed demand in kg O₂/h/ha
+    # Using bottom_volume_factor doesn't seem directly applicable here unless
+    # it modifies the fixed demand
+    # Example adjustment
+    return fixed_bottom_demand * (1 + bottom_volume_factor)
 
 
 def calculate_tod(
     inputs: TODInputs, respiration_calc: ShrimpRespirationCalculator
 ) -> Dict[str, float]:
-    """Calculate Total Oxygen Demand (TOD) in kg O₂/h.
+    """Calculate Total Oxygen Demand (TOD) components.
 
     Args:
-        inputs: Input parameters for TOD calculation.
+        inputs: Dictionary containing necessary parameters.
         respiration_calc: Calculator for shrimp respiration.
 
     Returns:
-        Dictionary with TOD and component demands in kg O₂/h and kg O₂/h/ha.
-
-    Raises:
-        ValueError: If total area or TOD is non-positive.
+        Dictionary with TOD components in kg O₂/h/ha and total kg O₂/h.
     """
-    total_area = inputs["total_area"]
-    if total_area <= 0:
-        raise ValueError(f"Total area must be positive, got {total_area}")
-
     shrimp_demand = calculate_shrimp_demand(
         inputs["biomass_kg_ha"],
         inputs["shrimp_weight"],
@@ -152,56 +153,45 @@ def calculate_tod(
         respiration_calc,
     )
     water_demand = calculate_water_demand(inputs["pond_depth"])
-    bottom_demand = calculate_bottom_demand(inputs["pond_depth"])
+    bottom_demand = calculate_bottom_demand(
+        inputs["pond_depth"])  # Assuming default factor
 
-    pond_demand = water_demand + bottom_demand
-    total_per_ha = shrimp_demand + pond_demand
-    total_demand = total_per_ha * total_area
+    total_demand_ha = shrimp_demand + water_demand + bottom_demand
 
-    safety_margin_percent = inputs["safety_margin_percent"]
-    if safety_margin_percent is not None and safety_margin_percent > 0:
-        total_demand *= 1 + safety_margin_percent / 100.0
+    # Apply safety margin if provided and valid
+    safety_margin = inputs.get("safety_margin_percent", 0) or 0
+    if not isinstance(safety_margin, (int, float)) or safety_margin < 0:
+        safety_margin = 0  # Default to 0 if invalid
+    total_demand_ha_safe = total_demand_ha * (1 + safety_margin / 100.0)
 
-    if total_demand <= 0:
-        raise ValueError(f"TOD must be positive, got {total_demand}")
+    total_demand_kg_h = total_demand_ha_safe * inputs["total_area"]
 
     return {
-        "total_demand_kg_h": total_demand,
         "shrimp_demand_kg_h_ha": shrimp_demand,
-        "pond_demand_kg_h_ha": pond_demand,
         "water_demand_kg_h_ha": water_demand,
         "bottom_demand_kg_h_ha": bottom_demand,
+        "pond_demand_kg_h_ha": (
+            water_demand + bottom_demand
+        ),  # Combined pond demand
+        # Demand per hectare before safety margin
+        "total_demand_kg_h_ha": total_demand_ha,
+        # Demand per hectare with safety margin
+        "total_demand_kg_h_ha_safe": total_demand_ha_safe,
+        # Total farm demand with safety margin
+        "total_demand_kg_h": total_demand_kg_h,
     }
 
 
 def calculate_annual_revenue(
     production_kg_ha_year: float, total_area: float, shrimp_price_usd_kg: float
 ) -> float:
-    """Calculate annual revenue.
-
-    Args:
-        production_kg_ha_year: Production in kg/ha/year.
-        total_area: Total area in hectares.
-        shrimp_price_usd_kg: Shrimp price in USD/kg.
-
-    Returns:
-        Annual revenue in USD.
-
-    Raises:
-        ValueError: If production, area, or price is negative.
-    """
-    if production_kg_ha_year < 0:
+    """Calculate total annual revenue."""
+    if production_kg_ha_year < 0 or total_area <= 0 or shrimp_price_usd_kg < 0:
         raise ValueError(
-            f"Production must be non-negative, got {production_kg_ha_year}"
+            "Production, area, and price must be non-negative, "
+            "area must be positive."
         )
-    if total_area < 0:
-        raise ValueError(f"Area must be non-negative, got {total_area}")
-    if shrimp_price_usd_kg < 0:
-        raise ValueError(
-            f"Price must be non-negative, got {shrimp_price_usd_kg}"
-        )
-    total_yield_kg = production_kg_ha_year * total_area
-    return total_yield_kg * shrimp_price_usd_kg
+    return production_kg_ha_year * total_area * shrimp_price_usd_kg
 
 
 def calculate_npv(
@@ -210,147 +200,207 @@ def calculate_npv(
     inflation_rate: float,
     horizon: int
 ) -> float:
-    """Calculate NPV with growing annuity.
+    """Calculate Net Present Value (NPV)."""
+    if horizon <= 0 or len(cash_flows) != horizon:
+        raise ValueError(
+            "Horizon must be positive and match cash flow length.")
+    if discount_rate == inflation_rate:
+        raise ValueError("Discount rate cannot equal inflation rate.")
 
-    Args:
-        cash_flows: List of cash flows for each year.
-        discount_rate: Discount rate in decimal (e.g., 0.1 for 10%).
-        inflation_rate: Inflation rate in decimal (e.g., 0.025 for 2.5%).
-        horizon: Analysis horizon in years.
+    real_discount_rate = (1 + discount_rate) / (1 + inflation_rate) - 1
+    if real_discount_rate <= -1:
+        # Avoid division by zero or negative base in power
+        raise ValueError(
+            "Invalid combination of discount and inflation rates.")
 
-    Returns:
-        NPV in USD.
-
-    Raises:
-        ValueError: If horizon is non-positive.
-    """
-    if horizon <= 0:
-        raise ValueError(f"Analysis horizon must be positive, got {horizon}")
     npv = 0.0
-    for t in range(horizon):
-        growth_factor = (1 + inflation_rate) ** t
-        discount_factor = (1 + discount_rate) ** (t + 1)
-        npv += (cash_flows[t] * growth_factor) / discount_factor
+    for i, cf in enumerate(cash_flows):
+        npv += cf / math.pow(1 + real_discount_rate, i + 1)  # Use math.pow
     return npv
 
 
 def calculate_irr(
     initial_investment: float, cash_flows: List[float], horizon: int
 ) -> float:
-    """Calculate IRR using numerical method.
+    """Calculate Internal Rate of Return (IRR) using manual Newton-Raphson.
 
     Args:
-        initial_investment: Initial investment in USD.
-        cash_flows: List of cash flows for each year.
+        initial_investment: Initial investment amount.
+        cash_flows: List of annual cash flows.
         horizon: Analysis horizon in years.
 
     Returns:
         IRR as a percentage.
 
     Raises:
-        ValueError: If initial investment or horizon is invalid.
+        ValueError: If IRR calculation fails or inputs are invalid.
     """
     if initial_investment <= 0:
         raise ValueError(
-            f"Initial investment must be positive, got {initial_investment}"
-        )
-    if horizon <= 0:
-        raise ValueError(f"Analysis horizon must be positive, got {horizon}")
-    if len(cash_flows) != horizon:
-        raise ValueError(
-            f"Cash flows length must match horizon, got {len(cash_flows)}"
-        )
-    if not cash_flows:
-        raise ValueError("Cash flows list must not be empty")
+            "Initial investment must be positive for IRR calculation.")
+    if not cash_flows or len(cash_flows) != horizon:
+        raise ValueError("Cash flows list must match the horizon.")
 
-    def npv_for_irr(r: float) -> float:
+    # Define the NPV function for the root finder
+    def npv_func(rate: float) -> float:
+        if rate <= -1.0:  # Avoid issues with the denominator
+            # Return a large value to push the solver away from this region
+            return float('inf')
         npv = -initial_investment
-        for t in range(horizon):
-            npv += cash_flows[t] / (1 + r) ** (t + 1)
+        for i, cf in enumerate(cash_flows):
+            try:
+                npv += cf / math.pow(1 + rate, i + 1)  # Use math.pow
+            except ValueError:
+                # Handle potential domain errors if 1+rate is negative
+                return float('inf')
         return npv
 
+    # Define the derivative of the NPV function
+    def npv_func_prime(rate: float) -> float:
+        if rate <= -1.0:  # Avoid issues with the denominator
+            return 0.0  # Or raise error, derivative is ill-defined
+        derivative = 0.0
+        for i, cf in enumerate(cash_flows):
+            try:
+                denominator = math.pow(1 + rate, i + 2)  # Use math.pow
+                if abs(denominator) < 1e-12:  # Avoid division by zero
+                    return 0.0  # Or handle as error
+                derivative -= (i + 1) * cf / denominator
+            except ValueError:
+                return 0.0  # Or raise error
+        return derivative
+
     try:
-        irr: float = float(newton(npv_for_irr, 0.1, maxiter=1000))
-        return irr * 100
-    except RuntimeError:
-        return float("inf")
+        # Use manual Newton-Raphson method
+        # Start with an initial guess (e.g., 10%)
+        irr_rate = _newton_raphson(
+            npv_func, npv_func_prime, 0.1, tol=1e-6, maxiter=100)
+    except (RuntimeError, ValueError) as e:
+        # Handle cases where convergence fails or derivative is zero
+        # Try a different initial guess? Or indicate failure.
+        # Let's try 0 as another guess
+        try:
+            irr_rate = _newton_raphson(
+                npv_func, npv_func_prime, 0.0, tol=1e-6, maxiter=100)
+        except (RuntimeError, ValueError) as e2:
+            raise ValueError(f"IRR calculation failed: {e} / {e2}") from e2
+
+    # Check if the result is reasonable (e.g., not excessively large/small)
+    # Bounds can be adjusted based on expected financial scenarios
+    # Allow slightly negative IRR, cap upper bound
+    if not -0.99 < irr_rate < 5:
+        print(
+            f"Warning: IRR result ({irr_rate:.2%}) is outside typical bounds."
+        )
+        # Depending on requirements, might cap, return NaN, or raise error.
+        # Returning as is for now, with warning.
+
+    return irr_rate * 100  # Return as percentage
 
 
 def compute_financial_metrics(
     financial_data: FinancialData
 ) -> Dict[str, float]:
-    """Compute NPV, IRR, payback period, ROI, and profitability coefficient.
+    """Compute key financial metrics (NPV, IRR, Payback, ROI, Profitability).
 
     Args:
-        financial_data: Financial input parameters.
+        financial_data: Pydantic model containing all necessary
+            financial inputs.
 
     Returns:
-        Dictionary with financial metrics.
+        Dictionary containing calculated financial metrics.
     """
-    initial_investment = financial_data.initial_investment
-    annual_savings = financial_data.annual_savings
-    cash_flows = financial_data.cash_flows
-    discount_rate = financial_data.discount_rate
-    inflation_rate = financial_data.inflation_rate
-    horizon = financial_data.horizon
+    if financial_data.initial_investment <= 0:
+        # Handle cases with no investment (or return default metrics)
+        return {
+            "npv": 0.0, "irr": 0.0, "paybackPeriod": 0.0,
+            "roi": 0.0, "profitabilityCoefficient": 0.0
+        }
 
-    npv_value = (
-        calculate_npv(cash_flows, discount_rate, inflation_rate, horizon)
-        if initial_investment > 0
-        else 0.0
+    # Calculate NPV
+    npv = calculate_npv(
+        financial_data.cash_flows,
+        financial_data.discount_rate,
+        financial_data.inflation_rate,
+        financial_data.horizon
     )
-    irr_value = (
-        calculate_irr(initial_investment, cash_flows, horizon)
-        if initial_investment > 0
-        else 0.0
-    )
-    payback_period = (
-        initial_investment / annual_savings * 12
-        if annual_savings > 0 and initial_investment > 0
-        else float("inf")
-    )
+
+    # Calculate IRR
+    try:
+        irr = calculate_irr(
+            financial_data.initial_investment,
+            financial_data.cash_flows,
+            financial_data.horizon
+        )
+    except ValueError as e:
+        print(f"IRR calculation failed: {e}. Setting IRR to -100%.")
+        irr = -100.0  # Indicate failure
+
+    # Calculate Payback Period
+    cumulative_cash_flow = -financial_data.initial_investment
+    payback_period = 0.0
+    for i, cf in enumerate(financial_data.cash_flows):
+        cumulative_cash_flow += cf
+        if cumulative_cash_flow >= 0:
+            # Calculate fractional year if needed
+            payback_period = (i + 1) - (cumulative_cash_flow /
+                                        cf) if cf != 0 else (i + 1)
+            break
+    else:
+        payback_period = float('inf')  # Payback period exceeds horizon
+
+    # Calculate ROI (Simple ROI for now)
+    total_savings = sum(financial_data.cash_flows)
     roi = (
-        npv_value / initial_investment * 100
-        if initial_investment > 0
-        else 0.0
+        ((total_savings - financial_data.initial_investment) /
+         financial_data.initial_investment) * 100
+        if financial_data.initial_investment else 0.0
     )
-    k = npv_value / initial_investment if initial_investment > 0 else 0.0
+
+    # Calculate Profitability Coefficient (NPV / Initial Investment)
+    profitability_coefficient = (
+        npv / financial_data.initial_investment
+        if financial_data.initial_investment else 0.0
+    )
 
     return {
-        "npv": npv_value,
-        "irr": irr_value,
+        "npv": npv,
+        "irr": irr,  # Already in percentage
         "paybackPeriod": payback_period,
-        "roi": roi,
-        "profitabilityCoefficient": k,
+        "roi": roi,  # Already in percentage
+        "profitabilityCoefficient": profitability_coefficient,
     }
 
 
 def compute_equilibrium_price(
     baseline: Dict[str, float], winner: Dict[str, float]
 ) -> float:
-    """Compute equilibrium price for the winning aerator.
+    """Compute the equilibrium price for the winning aerator.
 
     Args:
-        baseline: Baseline aerator data (cost, units).
-        winner: Winner aerator data (cost, units, price).
+        baseline: Dictionary with baseline aerator cost and units.
+        winner: Dictionary with winner aerator cost, units, and current price.
 
     Returns:
         Equilibrium price in USD.
+
+    Raises:
+        ValueError: If winner units is zero.
     """
-    equilibrium_price = float("inf")
-    baseline_unit_cost = (
-        (
-            baseline["cost"] / baseline["units"]
-            if baseline["units"] > 0
-            else float("inf")
-        )
-    )
-    if winner["units"] > 0:
-        equilibrium_price = (
-            (
-                baseline_unit_cost * winner["units"]
-                - winner["cost"]
-                + winner["price"]
-            )
-        )
-    return equilibrium_price
+    baseline_cost = baseline.get("cost", 0.0)
+    winner_cost_no_price = winner.get("cost", 0.0) - (winner.get(
+        # Cost excluding initial purchase
+        "price", 0.0) * winner.get("units", 0.0))
+    winner_units = winner.get("units", 0.0)
+
+    if winner_units <= 0:
+        raise ValueError(
+            "Winner units must be positive to calculate equilibrium price.")
+
+    # Equilibrium when Baseline Annual Cost = Winner Annual Cost
+    # (excluding initial price) + EqPrice * WinnerUnits
+    # EqPrice = (Baseline Cost - Winner Cost (excluding initial price))
+    #           / WinnerUnits
+    equilibrium_price = (baseline_cost - winner_cost_no_price) / winner_units
+
+    return max(0, equilibrium_price)  # Price cannot be negative

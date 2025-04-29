@@ -20,8 +20,18 @@ from .aerator_calculations import (
     compute_equilibrium_price,
     compute_financial_metrics,
 )
-from .sotr_calculator import ShrimpPondCalculator as SaturationCalculator
+from .sotr_calculator import ShrimpPondCalculator
+# Define a concrete subclass that implements the abstract method(s)
 from .shrimp_respiration_calculator import ShrimpRespirationCalculator
+
+
+class SaturationCalculator(ShrimpPondCalculator):
+    """Calculator for oxygen saturation in shrimp ponds."""
+    def calculate_metrics(self, *args, **kwargs):
+        # Implement the required method or raise NotImplementedError
+        # if not used
+        raise NotImplementedError("calculate_metrics must be implemented.")
+
 
 # Map ":memory:" database URLs to a file for persistence
 _sqlite3_connect = sqlite3.connect
