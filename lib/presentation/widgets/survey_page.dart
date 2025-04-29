@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import '../../core/services/app_state.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'dart:convert';
 
 class SurveyPage extends StatefulWidget {
   const SurveyPage({super.key});
@@ -20,30 +18,17 @@ class _SurveyPageState extends State<SurveyPage> {
   final _shrimpWeightController = TextEditingController();
   final _cultureDaysController = TextEditingController();
   final _electricityCostController = TextEditingController();
-  Map<String, dynamic> _aeratorData = {};
+  final _aeratorTypeController = TextEditingController();
   bool _isLoading = false;
   String? _selectedAerator;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadAeratorData();
-  }
-
-  Future<void> _loadAeratorData() async {
-    try {
-      final String data = await rootBundle.loadString('/data/aerators.json');
-      setState(() {
-        _aeratorData = jsonDecode(data);
-        _selectedAerator = _aeratorData.keys.first;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.aeratorLoadFailed(e.toString()))),
-      );
-    }
-  }
+  final List<String> _commonAeratorTypes = [
+    'Paddlewheel',
+    'Diffuser',
+    'Propeller',
+    'Venturi',
+    'Other'
+  ];
 
   @override
   void dispose() {
@@ -53,10 +38,11 @@ class _SurveyPageState extends State<SurveyPage> {
     _shrimpWeightController.dispose();
     _cultureDaysController.dispose();
     _electricityCostController.dispose();
+    _aeratorTypeController.dispose();
     super.dispose();
   }
 
-  void _submitSurvey(BuildContext context) async {
+  Future<void> _submitSurvey(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
@@ -71,21 +57,22 @@ class _SurveyPageState extends State<SurveyPage> {
         'shrimpDensity': double.tryParse(_shrimpDensityController.text) ?? 0.0,
         'shrimpWeight': double.tryParse(_shrimpWeightController.text) ?? 0.0,
         'cultureDays': int.tryParse(_cultureDaysController.text) ?? 0,
-        'electricityCost': double.tryParse(_electricityCostController.text) ?? 0.0,
-        'selectedAerator': _selectedAerator,
+        'electricityCost':
+            double.tryParse(_electricityCostController.text) ?? 0.0,
+        'selectedAerator': _selectedAerator ?? _aeratorTypeController.text,
       };
 
       try {
         await appState.compareAerators(surveyData);
-        if (!mounted) return;
-        // ignore: use_build_context_synchronously
-        Navigator.pushNamed(context, '/results');
+        if (mounted) {
+          Navigator.pushNamed(context, '/results');
+        }
       } catch (e) {
-        if (!mounted) return;
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.surveySubmissionFailed(e.toString()))),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.surveySubmissionFailed(e.toString()))),
+          );
+        }
       } finally {
         if (mounted) {
           setState(() {
@@ -131,7 +118,9 @@ class _SurveyPageState extends State<SurveyPage> {
                               children: [
                                 Text(
                                   l10n.pondDetails,
-                                  style: Theme.of(context).textTheme.headlineMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium,
                                 ),
                                 const SizedBox(height: 16),
                                 TextFormField(
@@ -185,7 +174,9 @@ class _SurveyPageState extends State<SurveyPage> {
                               children: [
                                 Text(
                                   l10n.shrimpDetails,
-                                  style: Theme.of(context).textTheme.headlineMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium,
                                 ),
                                 const SizedBox(height: 16),
                                 TextFormField(
@@ -258,7 +249,9 @@ class _SurveyPageState extends State<SurveyPage> {
                               children: [
                                 Text(
                                   l10n.additionalInfo,
-                                  style: Theme.of(context).textTheme.headlineMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium,
                                 ),
                                 const SizedBox(height: 16),
                                 TextFormField(
@@ -283,9 +276,10 @@ class _SurveyPageState extends State<SurveyPage> {
                                 DropdownButtonFormField<String>(
                                   value: _selectedAerator,
                                   decoration: InputDecoration(
-                                    labelText: l10n.selectAerator,
+                                    labelText:
+                                        '${l10n.selectAerator} (${l10n.optional})',
                                   ),
-                                  items: _aeratorData.keys.map((aerator) {
+                                  items: _commonAeratorTypes.map((aerator) {
                                     return DropdownMenuItem<String>(
                                       value: aerator,
                                       child: Text(aerator),
@@ -294,15 +288,23 @@ class _SurveyPageState extends State<SurveyPage> {
                                   onChanged: (value) {
                                     setState(() {
                                       _selectedAerator = value;
+                                      if (value == 'Other') {
+                                        _aeratorTypeController.text = '';
+                                      }
                                     });
                                   },
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return l10n.requiredField;
-                                    }
-                                    return null;
-                                  },
+                                  hint: Text(l10n.selectAeratorHint),
                                 ),
+                                if (_selectedAerator == 'Other')
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 16.0),
+                                    child: TextFormField(
+                                      controller: _aeratorTypeController,
+                                      decoration: InputDecoration(
+                                        labelText: l10n.customAeratorType,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
@@ -310,7 +312,9 @@ class _SurveyPageState extends State<SurveyPage> {
                         const SizedBox(height: 16),
                         Center(
                           child: ElevatedButton(
-                            onPressed: _isLoading ? null : () => _submitSurvey(context),
+                            onPressed: _isLoading
+                                ? null
+                                : () => _submitSurvey(context),
                             child: Text(l10n.submit),
                           ),
                         ),

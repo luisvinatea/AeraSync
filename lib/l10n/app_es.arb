@@ -579,5 +579,17 @@
   "selectAerator": "Seleccionar Aireador",
   "@selectAerator": {
     "description": "Etiqueta para el menú desplegable de selección de aireador"
+  },
+  "optional": "Opcional",
+  "@optional": {
+    "description": "Etiqueta para campos opcionales en formularios"
+  },
+  "selectAeratorHint": "Seleccionar tipo de aireador",
+  "@selectAeratorHint": {
+    "description": "Etiqueta de sugerencia para el menú desplegable de selección de aireador"
+  },
+  "customAeratorType": "Tipo de Aireador Personalizado",
+  "@customAeratorType": {
+    "description": "Etiqueta para el campo de entrada del tipo de aireador personalizado"
   }
 }

@@ -579,5 +579,17 @@
   "selectAerator": "Select Aerator",
   "@selectAerator": {
     "description": "Label for the aerator selection dropdown"
+  },
+  "optional": "Optional",
+  "@optional": {
+    "description": "Label for optional fields in forms"
+  },
+  "selectAeratorHint": "Choose an aerator type",
+  "@selectAeratorHint": {
+    "description": "Hint text for the aerator selection dropdown"
+  },
+  "customAeratorType": "Custom Aerator Type",
+  "@customAeratorType": {
+    "description": "Label for custom aerator type input field"
   }
 }
