@@ -17,8 +17,8 @@ class ApiService {
 
   Future<bool> checkHealth() async {
     try {
-      // Update endpoint path to match backend implementation
-      final response = await client.get(Uri.parse('$baseUrl/health'));
+      // Use /api/health endpoint to match browser requests
+      final response = await client.get(Uri.parse('$baseUrl/api/health'));
       return response.statusCode == 200;
     } catch (e) {
       return false;

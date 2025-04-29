@@ -18,13 +18,13 @@ void main() {
       apiService = ApiService(client: mockClient, baseUrl: baseUrl);
 
       // Register full paths used by ApiService with baseUrl
-      registerFallbackValue(Uri.parse('$baseUrl/health'));
+      registerFallbackValue(Uri.parse('$baseUrl/api/health'));
       registerFallbackValue(Uri.parse('$baseUrl/compare'));
     });
 
     test('ApiService checks health successfully', () async {
-      // Mock the correct full path with baseUrl
-      when(() => mockClient.get(Uri.parse('$baseUrl/health')))
+      // Mock the correct full path with baseUrl using /api/health
+      when(() => mockClient.get(Uri.parse('$baseUrl/api/health')))
           .thenAnswer((_) async => http.Response('OK', 200));
 
       final result = await apiService.checkHealth();
@@ -32,8 +32,8 @@ void main() {
     });
 
     test('ApiService checkHealth fails on 500 status', () async {
-      // Mock the correct full path with baseUrl
-      when(() => mockClient.get(Uri.parse('$baseUrl/health')))
+      // Mock the correct full path with baseUrl using /api/health
+      when(() => mockClient.get(Uri.parse('$baseUrl/api/health')))
           .thenAnswer((_) async => http.Response('Internal Server Error', 500));
 
       final result = await apiService.checkHealth();

@@ -53,6 +53,7 @@ app.add_middleware(
         "https://*.github.io",     # Allows GitHub Pages deployment
         # Add your Vercel deployment URL(s) here, e.g.:
         # "https://your-project-name.vercel.app",
+        "https://aerasync.vercel.app",
     ],
     # Refine regex if needed, or rely on specific origins list
     # allow_origin_regex=r'^http://localhost:[0-9]+$',
@@ -176,6 +177,18 @@ async def health_check() -> Dict[str, str]:
         "message": "Service is running smoothly.",
     }
     logger.info("Sent /health response: %s", response)
+    return response
+
+
+@app.get("/api/health")
+async def api_health_check() -> Dict[str, str]:
+    """Additional health check endpoint for frontend."""
+    logger.info("Received /api/health request")
+    response: Dict[str, str] = {
+        "status": "healthy",
+        "message": "API is operational.",
+    }
+    logger.info("Sent /api/health response: %s", response)
     return response
 
 
