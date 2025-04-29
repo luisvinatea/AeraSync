@@ -15,11 +15,19 @@
   ],
   "routes": [
     {
+      "src": "/api/compare",
+      "dest": "backend/main.py"
+    },
+    {
       "src": "/api/api/health",
       "dest": "backend/main.py"
     },
     {
       "src": "/api/(.*)",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/compare",
       "dest": "backend/main.py"
     },
     {

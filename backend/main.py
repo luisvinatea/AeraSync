@@ -267,6 +267,18 @@ async def compare_aerators(
         ) from e
 
 
+# Add endpoint for /api/compare to match frontend requests
+@app.post("/api/compare", response_model=ComparisonResults)
+async def api_compare_aerators(
+    request: AeratorComparisonRequest,
+    comparer_dep: AeratorComparer = Depends(get_comparer)
+) -> ComparisonResults:
+    """Compare aerators endpoint with /api prefix to match frontend requests."""
+    logger.info("Received /api/compare request - redirecting to handler")
+    # Reuse the existing handler
+    return await compare_aerators(request, comparer_dep)
+
+
 # E302: Added blank line
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
