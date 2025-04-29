@@ -2,9 +2,9 @@ fastapi==0.115.0
 uvicorn==0.30.6
 pydantic==2.9.2
 numpy==1.26.4
-cython==0.29.36
+# cython==0.29.36 # Likely build-time only
 scipy==1.15.2
-scipy-stubs>=1.11.0
+# scipy-stubs>=1.11.0 # Development only
 httpx==0.25.0
 psycopg>=3.1.0
 python-dotenv==1.0.0
