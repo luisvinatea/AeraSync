@@ -10,6 +10,7 @@ tree.txt
 test/
 .metadata
 .aerasync
+.vscode/
 
 # Flutter repo-specific
 /bin/cache/
