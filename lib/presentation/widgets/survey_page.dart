@@ -253,7 +253,7 @@ class _SurveyPageState extends State<SurveyPage> {
                 return '${l10n.positiveNumberRequired} (>= $min)';
               }
               if (max != null && numValue > max) {
-                return '${l10n.rangeError('$min', '$max')}';
+                return l10n.rangeError('$min', '$max');
               }
               return null;
             }
@@ -404,7 +404,7 @@ class _SurveyPageState extends State<SurveyPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              l10n.aeratorLabel + " 1",
+                              "${l10n.aeratorLabel} 1",
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 8),
@@ -471,7 +471,7 @@ class _SurveyPageState extends State<SurveyPage> {
                                 min: 0, max: 10000),
                             const Divider(height: 32),
                             Text(
-                              l10n.aeratorLabel + " 2",
+                              "${l10n.aeratorLabel} 2",
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 8),
