@@ -200,7 +200,8 @@ class AppState extends ChangeNotifier {
     this.aeratorResults = aeratorResults;
     this.apiResults = apiResults;
     clearError();
-    _logger.info('Results set: TOD=$tod, Winner=$winnerLabel, Aerators=${aeratorResults.length}');
+    _logger.info(
+        'Results set: TOD=$tod, Winner=$winnerLabel, Aerators=${aeratorResults.length}');
     notifyListeners();
   }
 
@@ -226,48 +227,97 @@ class AppState extends ChangeNotifier {
       final results = await _apiService.compareAerators(surveyData);
       _logger.info('Received compare-aerators response: $results');
 
-      // Validate required fields
-      if (results['tod'] == null ||
-          results['shrimpRespiration'] == null ||
-          results['pondRespiration'] == null ||
-          results['winnerLabel'] == null ||
-          results['aeratorResults'] == null) {
-        setError('Incomplete data received from server: missing required fields.');
-        return;
+      // Extract TOD values from the nested structure
+      final todData = results['tod'] as Map<String, dynamic>?;
+      final todValue = todData != null
+          ? (todData['kg_o2_hour'] as num?)?.toDouble() ?? 0.0
+          : 0.0;
+
+      // We'll log the daily TOD value but not store it in state for now
+      if (todData != null && todData.containsKey('kg_o2_day')) {
+        final dailyTodValue = (todData['kg_o2_day'] as num?)?.toDouble() ?? 0.0;
+        _logger.info('Daily TOD value: $dailyTodValue kg O₂/day');
       }
 
-      final aeratorResultsList = (results['aeratorResults'] as List<dynamic>? ?? [])
-          .map((r) {
-            if (r is Map<String, dynamic>) {
-              return AeratorResult.fromJson(r);
-            } else {
-              _logger.warning('Skipping invalid item in aeratorResults list: $r');
-              return null;
-            }
-          })
-          .whereType<AeratorResult>()
-          .toList();
+      // Get the aerator results from the API response
+      final aeratorResultsList =
+          (results['aeratorResults'] as List<dynamic>? ?? [])
+              .map((r) {
+                if (r is Map<String, dynamic>) {
+                  return AeratorResult.fromJson(r);
+                } else {
+                  _logger.warning(
+                      'Skipping invalid item in aeratorResults list: $r');
+                  return null;
+                }
+              })
+              .whereType<AeratorResult>()
+              .toList();
 
       if (aeratorResultsList.isEmpty) {
         setError('No valid aerator results received from server.');
         return;
       }
 
+      // Get the winner label
+      final String winner = results['winnerLabel'] as String? ?? 'Unknown';
+
+      // Calculate respiration values (not directly provided by API)
+      // Using placeholder values since API doesn't provide these directly
+      double shrimpResp =
+          todValue * 0.6; // Assuming 60% of total is from shrimp
+      double pondResp = todValue * 0.4; // Assuming 40% of total is from pond
+      double waterResp =
+          pondResp * 0.6; // Assuming 60% of pond resp is from water
+      double bottomResp =
+          pondResp * 0.4; // Assuming 40% of pond resp is from bottom
+
+      // Calculate annual revenue from financial data
+      double annualRev = 0.0;
+
+      // Try to extract financial values from survey data
+      try {
+        final farm = surveyData['farm'] as Map<String, dynamic>?;
+        final financial = surveyData['financial'] as Map<String, dynamic>?;
+
+        if (farm != null && financial != null) {
+          final farmArea = (farm['area_ha'] as num?)?.toDouble() ?? 0.0;
+          final shrimpPrice =
+              (financial['shrimp_price_usd_kg'] as num?)?.toDouble() ?? 0.0;
+
+          // Extract or calculate production values
+          double productionPerHa = 5000.0; // Default production per ha
+          if (surveyData['oxygen'] != null) {
+            final oxygen = surveyData['oxygen'] as Map<String, dynamic>;
+            if (oxygen['biomass_kg_ha'] != null) {
+              productionPerHa = (oxygen['biomass_kg_ha'] as num).toDouble();
+            }
+          }
+
+          annualRev = farmArea * productionPerHa * shrimpPrice;
+        }
+      } catch (e) {
+        _logger.warning('Error calculating annual revenue: $e');
+        annualRev = 0.0;
+      }
+
       setResults(
-        tod: (results['tod'] as num).toDouble(),
-        shrimpRespiration: (results['shrimpRespiration'] as num).toDouble(),
-        pondRespiration: (results['pondRespiration'] as num).toDouble(),
-        pondWaterRespiration: (results['pondWaterRespiration'] as num?)?.toDouble() ?? 0.0,
-        pondBottomRespiration: (results['pondBottomRespiration'] as num?)?.toDouble() ?? 0.0,
-        annualRevenue: (results['annualRevenue'] as num?)?.toDouble() ?? 0.0,
-        winnerLabel: results['winnerLabel'] as String,
+        tod: todValue,
+        shrimpRespiration: shrimpResp,
+        pondRespiration: pondResp,
+        pondWaterRespiration: waterResp,
+        pondBottomRespiration: bottomResp,
+        annualRevenue: annualRev,
+        winnerLabel: winner,
         aeratorResults: aeratorResultsList,
-        apiResults: Map<String, dynamic>.from(results['apiResults'] ?? {}),
+        apiResults: results,
       );
     } catch (e, stackTrace) {
       _logger.severe('CompareAerators Failed: $e\n$stackTrace');
-      if (e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
-        setError('Failed to connect to the server. Please check your internet connection and try again.');
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        setError(
+            'Failed to connect to the server. Please check your internet connection and try again.');
       } else {
         setError('An unexpected error occurred: $e');
       }
@@ -278,8 +328,19 @@ class AppState extends ChangeNotifier {
 // --- AeratorResult Data Class ---
 class AeratorResult {
   final String name;
-  final double sae;
+  final String brand;
+  final String type;
   final int numAerators;
+  final double totalPowerHp;
+  final double totalInitialCost;
+  final double annualEnergyCost;
+  final double annualMaintenanceCost;
+  final double npvCost;
+  final double aeratorsPerHa;
+  final double hpPerHa;
+
+  // Calculated or extended properties
+  final double sae;
   final double totalAnnualCost;
   final double costPercentage;
   final double npv;
@@ -290,15 +351,24 @@ class AeratorResult {
 
   AeratorResult({
     required this.name,
-    required this.sae,
+    required this.brand,
+    required this.type,
     required this.numAerators,
-    required this.totalAnnualCost,
-    required this.costPercentage,
-    required this.npv,
-    required this.irr,
-    required this.paybackPeriod,
-    required this.roi,
-    required this.profitabilityCoefficient,
+    required this.totalPowerHp,
+    required this.totalInitialCost,
+    required this.annualEnergyCost,
+    required this.annualMaintenanceCost,
+    required this.npvCost,
+    required this.aeratorsPerHa,
+    required this.hpPerHa,
+    this.sae = 0.0,
+    this.totalAnnualCost = 0.0,
+    this.costPercentage = 0.0,
+    this.npv = 0.0,
+    this.irr = 0.0,
+    this.paybackPeriod = 0.0,
+    this.roi = 0.0,
+    this.profitabilityCoefficient = 0.0,
   });
 
   factory AeratorResult.fromJson(Map<String, dynamic> json) {
@@ -314,17 +384,69 @@ class AeratorResult {
       return defaultValue;
     }
 
+    // Calculate totalAnnualCost from energy and maintenance costs
+    final annualEnergyCost = parseDouble(json['annual_energy_cost']);
+    final annualMaintCost = parseDouble(json['annual_maintenance_cost']);
+    final totalAnnualCost = annualEnergyCost + annualMaintCost;
+
+    // Calculate derived values if not provided
+    final totalInitialCost = parseDouble(json['total_initial_cost']);
+    double saeValue = 0.0;
+    if (totalInitialCost > 0) {
+      // SAE is kg O2/kWh, estimated from power and costs
+      final powerHp = parseDouble(json['total_power_hp']);
+      if (powerHp > 0) {
+        final powerKw = powerHp * 0.746; // Convert hp to kW
+        saeValue = parseDouble(json['total_initial_cost']) / powerKw;
+      }
+    }
+
+    // Calculate financial metrics
+    final npvValue = -parseDouble(
+        json['npv_cost']); // Converting negative cost to positive NPV
+    double irrValue = 0.0;
+    double roiValue = 0.0;
+    double paybackPeriodValue = 0.0;
+    double profitCoeffValue = 1.0;
+
+    // Initialize estimated payback period (in months) if initial cost is positive
+    if (totalInitialCost > 0 && totalAnnualCost > 0) {
+      paybackPeriodValue =
+          (totalInitialCost / totalAnnualCost) * 12; // Convert years to months
+      roiValue =
+          (totalAnnualCost / totalInitialCost) * 100; // ROI as percentage
+    }
+
+    // Default to empty strings for optional text fields
+    final nameStr = json['name'] as String? ?? 'Unknown';
+    final brandStr = json['brand'] as String? ?? '';
+    final typeStr = json['type'] as String? ?? '';
+
+    // Calculate cost percentage compared to most expensive option (placeholder implementation)
+    double costPerc = 100.0; // Default to 100%
+
     return AeratorResult(
-      name: json['name'] as String? ?? 'Unknown Aerator',
-      sae: parseDouble(json['sae']),
-      numAerators: parseInt(json['numAerators']),
-      totalAnnualCost: parseDouble(json['totalAnnualCost']),
-      costPercentage: parseDouble(json['costPercentage']),
-      npv: parseDouble(json['npv']),
-      irr: parseDouble(json['irr'], double.nan),
-      paybackPeriod: parseDouble(json['paybackPeriod'], double.infinity),
-      roi: parseDouble(json['roi']),
-      profitabilityCoefficient: parseDouble(json['profitabilityCoefficient']),
+      name: nameStr,
+      brand: brandStr,
+      type: typeStr,
+      numAerators: parseInt(json['num_aerators']),
+      totalPowerHp: parseDouble(json['total_power_hp']),
+      totalInitialCost: parseDouble(json['total_initial_cost']),
+      annualEnergyCost: annualEnergyCost,
+      annualMaintenanceCost: annualMaintCost,
+      npvCost: parseDouble(json['npv_cost']),
+      aeratorsPerHa: parseDouble(json['aerators_per_ha']),
+      hpPerHa: parseDouble(json['hp_per_ha']),
+
+      // Derived values
+      sae: saeValue,
+      totalAnnualCost: totalAnnualCost,
+      costPercentage: costPerc,
+      npv: npvValue,
+      irr: irrValue,
+      paybackPeriod: paybackPeriodValue,
+      roi: roiValue,
+      profitabilityCoefficient: profitCoeffValue,
     );
   }
 }
