@@ -1,45 +1,26 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "build_frontend.sh",
-      "use": "@vercel/static-build",
-      "config": {
-        "outputDirectory": "build/web"
-      }
-    },
-    {
-      "src": "backend/main.py",
-      "use": "@vercel/python"
+  "framework": null,
+  "functions": {
+    "api/**/*.py": {
+      "memory": 128,
+      "maxDuration": 10
     }
-  ],
+  },
   "routes": [
     {
-      "src": "/api/compare",
-      "dest": "backend/main.py"
-    },
-    {
-      "src": "/api/api/health",
-      "dest": "backend/main.py"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/main.py"
-    },
-    {
-      "src": "/compare",
-      "dest": "backend/main.py"
-    },
-    {
-      "src": "/health",
-      "dest": "backend/main.py"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/api/main.py"
+    }
+  ],
+  "env": {},
+  "builds": [
+    {
+      "src": "api/main.py",
+      "use": "@vercel/python",
+      "config": {
+        "includeFiles": ["api/**"]
+      }
     }
   ]
 }

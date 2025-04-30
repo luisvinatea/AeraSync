@@ -3,5 +3,4 @@ max-line-length = 79
 # ignore F841: local variable 'x' is assigned to but never used
 # ignore W503: line break before binary operator
 # ignore W504: line break after binary operator
-# ignore E501: line too long
-ignore = F841,W503,W504,E501
+ignore = F841,W503,W504

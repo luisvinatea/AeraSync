@@ -59,8 +59,11 @@ Thumbs.db
 .flake8
 .pylintrc
 .pylance
-
-
+.metadata
+.flutter-plugins
+.flutter-plugins-dependencies
+.hintrc
+pytest.ini
 # =====================
 # EXPO (optional for Flutter web/mobile)
 # =====================
@@ -90,6 +93,7 @@ local.properties
 *.log/
 log/
 test_temp/
+assets/data/
 
 # Test artifacts
 test_log.json
