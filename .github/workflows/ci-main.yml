@@ -6,6 +6,16 @@ on:
   pull_request:
     branches: ["main"]
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Environment for GitHub Pages
+env:
+  DOCS_DIRECTORY: "docs"  # Set this to your actual docs directory path
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -130,3 +140,24 @@ jobs:
           python3 scripts/verify_arb.py
         env:
           PYTHONPATH: .
+
+  deploy-docs:
+    needs: test # Run only after tests pass
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' # Only deploy on push to main
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.DOCS_DIRECTORY }}
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
