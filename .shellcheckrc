@@ -1,2 +1,0 @@
-# Exclude .flutter-plugins files from ShellCheck analysis
-source-path=!**/.flutter-plugins
