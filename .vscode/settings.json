@@ -1,0 +1,29 @@
+{
+  "python.testing.pytestArgs": ["backend"],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "python.defaultInterpreterPath": "${workspaceFolder}/.aerasync/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
+  "terminal.integrated.profiles.linux": {
+    "aerasync-venv": {
+      "path": "bash",
+      "args": ["-c", "source ${workspaceFolder}/.aerasync/bin/activate && bash"]
+    }
+    },
+    "terminal.integrated.defaultProfile.linux": "aerasync-venv",
+    "terminal.integrated.profiles.windows": {
+      "aerasync-venv": {
+        "path": "cmd.exe",
+        "args": ["/k", "${workspaceFolder}\\.aerasync\\Scripts\\activate.bat"]
+      }
+    },
+    "terminal.integrated.defaultProfile.windows": "aerasync-venv",
+    "terminal.integrated.profiles.osx": {
+      "aerasync-venv": {
+        "path": "bash",
+        "args": ["-c", "source ${workspaceFolder}/.aerasync/bin/activate && bash"]
+      }
+    },
+    "terminal.integrated.defaultProfile.osx": "aerasync-venv"
+}

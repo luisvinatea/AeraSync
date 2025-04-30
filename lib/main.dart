@@ -11,7 +11,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final localeCode = prefs.getString('locale') ?? 'en';
-  // Validate localeCode against supported locales
   final supportedLocales = AppLocalizations.supportedLocales.map((l) => l.languageCode).toSet();
   final validLocaleCode = supportedLocales.contains(localeCode) ? localeCode : 'en';
   runApp(
@@ -45,14 +44,13 @@ class MyApp extends StatelessWidget {
               seedColor: const Color(0xFF1E40AF),
               primary: const Color(0xFF1E40AF),
               secondary: const Color(0xFF60A5FA),
-              surface: Colors.white.withValues(alpha: 0.9),
+              surface: Colors.white.withOpacity(0.9),
               onSurface: const Color(0xFF1E40AF),
             ),
             appBarTheme: const AppBarTheme(
               backgroundColor: Color(0xFF1E40AF),
               foregroundColor: Colors.white,
               titleTextStyle: TextStyle(
-                fontFamily: 'Montserrat',
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
@@ -60,30 +58,22 @@ class MyApp extends StatelessWidget {
             ),
             cardTheme: const CardTheme(
               elevation: 4,
-              color: Colors.white, // Will use surface color from colorScheme
               margin: EdgeInsets.symmetric(vertical: 8),
             ),
             textTheme: const TextTheme(
-              headlineSmall: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1E40AF),
-              ),
               headlineMedium: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF1E40AF),
               ),
               bodyMedium: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 14,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
                 color: Color(0xFF1E40AF),
               ),
               labelMedium: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 14,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
                 color: Color(0xFF1E40AF),
               ),
             ),
@@ -93,83 +83,60 @@ class MyApp extends StatelessWidget {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 textStyle: const TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 14,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            inputDecorationTheme: const InputDecorationTheme(
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.95),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-                borderSide: BorderSide(color: Color(0xFF60A5FA)),
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFF60A5FA)),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-                borderSide: BorderSide(color: Color(0xFF60A5FA)),
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFF60A5FA)),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-                borderSide: BorderSide(color: Color(0xFF60A5FA)),
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFF1E40AF), width: 2),
               ),
+              labelStyle: TextStyle(
+                backgroundColor: Colors.white.withOpacity(0.8),
+                color: const Color(0xFF1E40AF),
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
+              ),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             ),
           ),
-          initialRoute: '/',
-          onGenerateRoute: (settings) {
-            switch (settings.name) {
-              case '/':
-                return MaterialPageRoute(builder: (_) => const HomePage());
-              case '/survey':
-                return MaterialPageRoute(builder: (_) => const SurveyPage());
-              case '/results':
-                return MaterialPageRoute(builder: (_) => const ResultsPage());
-              default:
-                return MaterialPageRoute(
-                  builder: (_) => Scaffold(
-                    body: Center(
-                      child: Text(AppLocalizations.of(context)!.pageNotFound),
+          routes: {
+            '/': (context) => const HomePage(),
+            '/survey': (context) => const SurveyPage(),
+            '/results': (context) => const ResultsPage(),
+          },
+          builder: (context, child) {
+            // Show errors as SnackBar
+            if (appState.error != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(appState.error!),
+                    action: SnackBarAction(
+                      label: AppLocalizations.of(context)!.dismiss,
+                      onPressed: appState.clearError,
                     ),
                   ),
                 );
+              });
             }
-          },
-          builder: (context, child) {
-            return Stack(
-              children: [
-                child ?? const SizedBox.shrink(),
-                if (appState.error != null)
-                  Positioned.fill(
-                    child: Material(
-                      color: Colors.black54,
-                      child: Center(
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.error,
-                                  style: Theme.of(context).textTheme.headlineSmall,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(appState.error!),
-                                const SizedBox(height: 16),
-                                ElevatedButton(
-                                  onPressed: () => appState.clearError(),
-                                  child: Text(AppLocalizations.of(context)!.dismiss),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            );
+            return child ?? const SizedBox.shrink();
           },
         );
       },

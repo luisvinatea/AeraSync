@@ -1,5 +1,5 @@
 name: aerasync
-description: A Flutter app for aerator comparison in aquaculture.
+description: A Flutter app for comparing aerators in shrimp farming with a step-by-step survey and ranked results.
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -10,60 +10,22 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^6.1.2
-  path_provider: ^2.1.5
-  fl_chart: ^0.71.0
-  pdf: ^3.11.1
-  printing: ^5.13.4
+  shared_preferences: ^2.3.2
+  http: ^1.2.2
   flutter_localizations:
     sdk: flutter
-  http: ^1.2.2
   url_launcher: ^6.3.1
-  html: ^0.15.4
-  universal_html: ^2.2.4
-  shared_preferences: ^2.3.2
-  logging: ^1.3.0
-  logger: ^2.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  mocktail: ^1.0.4
-  build_runner: ^2.4.15
-  analyzer: ^7.4.4
-
-dependency_overrides:
-  async: ^2.13.0
-  intl: ^0.20.2
-  material_color_utilities: ^0.12.0
-  vector_math: ^2.1.5
-  fake_async: ^1.3.3
-  leak_tracker: ^11.0.1
-  leak_tracker_flutter_testing: ^3.0.10
-  leak_tracker_testing: ^3.0.2
-  lints: ^6.0.0
-  vm_service: ^15.0.0
 
 flutter:
   generate: true
   uses-material-design: true
-  fonts:
-    - family: Montserrat
-      fonts:
-        - asset: assets/fonts/Montserrat-Regular.ttf
-        - asset: assets/fonts/Montserrat-Bold.ttf
-          weight: 700
   assets:
-    - assets/data/o2_temp_sal_100_sat.json
-    - assets/data/shrimp_respiration_salinity_temperature_weight.json
-    - web/assets/wave.svg
     - web/icons/aerasync64.webp
-    - web/icons/aerasync64.png
     - web/icons/aerasync180.webp
-    - web/icons/aerasync180.png
-    - web/icons/aerasync512.webp
-    - web/icons/aerasync512.png
-    - web/icons/aerasync1024.webp
-    - web/icons/aerasync1024.png
     - web/icons/aerasync.webp
     - web/manifest.json

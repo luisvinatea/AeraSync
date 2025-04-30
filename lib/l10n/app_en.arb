@@ -8,61 +8,37 @@
   "@welcomeToAeraSync": {
     "description": "Welcome message on home page"
   },
-  "welcomeDescription": "Optimize your shrimp farm with advanced aerator comparison tools.",
-  "@welcomeDescription": {
-    "description": "Description on home page"
-  },
   "startSurvey": "Start Survey",
   "@startSurvey": {
     "description": "Button to start survey"
-  },
-  "retry": "Retry",
-  "@retry": {
-    "description": "Button to retry API health check"
   },
   "selectLanguage": "Select Language",
   "@selectLanguage": {
     "description": "Label for the language selection dropdown"
   },
-  "languageEnglish": "English",
-  "@languageEnglish": {
-    "description": "Label for the English language option"
+  "apiUnreachable": "Unable to connect to the server. Please try again later.",
+  "@apiUnreachable": {
+    "description": "Label indicating the API is unreachable"
   },
-  "languageSpanish": "Spanish",
-  "@languageSpanish": {
-    "description": "Label for the Spanish language option"
-  },
-  "languagePortuguese": "Portuguese",
-  "@languagePortuguese": {
-    "description": "Label for the Portuguese language option"
-  },
-  "changeLanguageTooltip": "Switch language for a personalized experience",
-  "@changeLanguageTooltip": {
-    "description": "Tooltip for the language switcher button"
+  "retry": "Retry",
+  "@retry": {
+    "description": "Button to retry API health check"
   },
   "dataDisclosure": "Data Disclosure",
   "@dataDisclosure": {
     "description": "Title for the data disclosure popup"
   },
-  "dataDisclosureMessage": "We collect anonymous usage data to improve the app. Please review our privacy policy.",
+  "dataDisclosureMessage": "We collect anonymous usage data to improve the app.",
   "@dataDisclosureMessage": {
     "description": "Message explaining data collection in the disclosure popup"
-  },
-  "learnMore": "Learn More",
-  "@learnMore": {
-    "description": "Label for the learn more link in the disclosure popup"
-  },
-  "privacyPolicyLink": "View Privacy Policy",
-  "@privacyPolicyLink": {
-    "description": "Label for the privacy policy link in the disclosure popup"
   },
   "agree": "Agree",
   "@agree": {
     "description": "Label for the agree button in the disclosure popup"
   },
-  "disagreeMessage": "You must agree to the data disclosure to use the app",
-  "@disagreeMessage": {
-    "description": "Message shown when the user disagrees with the data disclosure"
+  "learnMore": "Learn More",
+  "@learnMore": {
+    "description": "Label for the learn more link in the disclosure popup"
   },
   "error": "Error",
   "@error": {
@@ -72,21 +48,17 @@
   "@dismiss": {
     "description": "Label for dismissing error messages"
   },
-  "pageNotFound": "Page Not Found",
-  "@pageNotFound": {
-    "description": "Label for 404 page not found message"
-  },
-  "apiUnreachable": "Unable to connect to the server. Please try again later.",
-  "@apiUnreachable": {
-    "description": "Label indicating the API is unreachable"
-  },
-  "aeratorDetails": "Aerator Details",
-  "@aeratorDetails": {
-    "description": "Title for the aerator details section in the survey"
+  "survey": "Survey",
+  "@survey": {
+    "description": "Title for the survey page"
   },
   "farmAndOxygenDemand": "Farm and Oxygen Demand",
   "@farmAndOxygenDemand": {
     "description": "Title for the farm specifications and oxygen demand section"
+  },
+  "aeratorDetails": "Aerator Details",
+  "@aeratorDetails": {
+    "description": "Title for the aerator details section in the survey"
   },
   "financialAspects": "Financial Aspects",
   "@financialAspects": {
@@ -108,25 +80,13 @@
   "@addAerator": {
     "description": "Label for the button to add a new aerator"
   },
-  "aeratorLabel": "Aerator",
-  "@aeratorLabel": {
-    "description": "Label for the aerator input field or column"
-  },
   "nameLabel": "Aerator Name",
   "@nameLabel": {
-    "description": "Label for the aerator name input field (optional)"
+    "description": "Label for the aerator name input field"
   },
   "nameTooltip": "Unique name for the aerator",
   "@nameTooltip": {
     "description": "Tooltip for the aerator name input field"
-  },
-  "aeratorTypeLabel": "Aerator Type (Optional)",
-  "@aeratorTypeLabel": {
-    "description": "Label for the aerator type input field (optional)"
-  },
-  "aeratorTypeTooltip": "Type of aerator (e.g., paddlewheel, diffuser)",
-  "@aeratorTypeTooltip": {
-    "description": "Tooltip for the aerator type input field"
   },
   "horsepowerLabel": "Horsepower (hp)",
   "@horsepowerLabel": {
@@ -176,22 +136,6 @@
   "@farmAreaTooltip": {
     "description": "Tooltip for the farm area input field"
   },
-  "productionPerHaLabel": "Production per Hectare (kg/ha/year)",
-  "@productionPerHaLabel": {
-    "description": "Label for the shrimp production per hectare input field"
-  },
-  "productionPerHaTooltip": "Annual shrimp production per hectare (0 to 100000)",
-  "@productionPerHaTooltip": {
-    "description": "Tooltip for the shrimp production per hectare input field"
-  },
-  "cyclesPerYearLabel": "Cycles per Year",
-  "@cyclesPerYearLabel": {
-    "description": "Label for the number of production cycles per year input field"
-  },
-  "cyclesPerYearTooltip": "Number of production cycles per year (1 to 10)",
-  "@cyclesPerYearTooltip": {
-    "description": "Tooltip for the production cycles per year input field"
-  },
   "waterTemperatureLabel": "Water Temperature (°C)",
   "@waterTemperatureLabel": {
     "description": "Label for the water temperature input field"
@@ -234,9 +178,9 @@
   },
   "safetyMarginLabel": "Safety Margin (%)",
   "@safetyMarginLabel": {
-    "description": "Label for the safety margin input field (optional)"
+    "description": "Label for the safety margin input field"
   },
-  "safetyMarginTooltip": "Optional safety margin for calculations (0 to 100)",
+  "safetyMarginTooltip": "Safety margin for calculations (0 to 100)",
   "@safetyMarginTooltip": {
     "description": "Tooltip for the safety margin input field"
   },
@@ -288,28 +232,6 @@
   "@analysisHorizonTooltip": {
     "description": "Tooltip for the analysis horizon input field"
   },
-  "dataCollectionConsentLabel": "I consent to data collection for analysis",
-  "@dataCollectionConsentLabel": {
-    "description": "Label for data collection consent checkbox"
-  },
-  "consentRequiredError": "Data collection consent is required",
-  "@consentRequiredError": {
-    "description": "Error message when data collection consent is not given"
-  },
-  "minimumAeratorsError": "At least two aerators are required",
-  "@minimumAeratorsError": {
-    "description": "Error message when fewer than two aerators are provided"
-  },
-  "submissionFailed": "Failed to submit survey: {error}",
-  "@submissionFailed": {
-    "description": "Error message when survey submission fails",
-    "placeholders": {
-      "error": {
-        "type": "String",
-        "example": "Network error"
-      }
-    }
-  },
   "requiredField": "This field is required",
   "@requiredField": {
     "description": "Validation message for required input fields"
@@ -332,6 +254,20 @@
       }
     }
   },
+  "minimumAeratorsError": "At least two aerators are required",
+  "@minimumAeratorsError": {
+    "description": "Error message when fewer than two aerators are provided"
+  },
+  "submissionFailed": "Failed to submit survey: {error}",
+  "@submissionFailed": {
+    "description": "Error message when survey submission fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
   "results": "Results",
   "@results": {
     "description": "Title for the results page"
@@ -339,6 +275,10 @@
   "summaryMetrics": "Summary Metrics",
   "@summaryMetrics": {
     "description": "Title for the summary metrics section"
+  },
+  "totalDemandLabel": "Total Oxygen Demand",
+  "@totalDemandLabel": {
+    "description": "Label for total oxygen demand in the summary"
   },
   "recommendedAerator": "Recommended Aerator",
   "@recommendedAerator": {
@@ -348,61 +288,45 @@
   "@aeratorComparisonResults": {
     "description": "Title for the aerator comparison results section"
   },
-  "oxygenDemandBreakdown": "Oxygen Demand Breakdown",
-  "@oxygenDemandBreakdown": {
-    "description": "Title for the oxygen demand breakdown chart"
+  "equilibriumPrices": "Equilibrium Prices",
+  "@equilibriumPrices": {
+    "description": "Title for the equilibrium prices section"
   },
-  "financialBreakdown": "Financial Breakdown",
-  "@financialBreakdown": {
-    "description": "Title for the financial breakdown chart"
+  "equilibriumPriceLabel": "Equilibrium Price",
+  "@equilibriumPriceLabel": {
+    "description": "Label for the equilibrium price of an aerator"
   },
-  "totalDemandLabel": "Total Oxygen Demand",
-  "@totalDemandLabel": {
-    "description": "Label for total oxygen demand in the chart and summary"
+  "noEquilibriumPrices": "No equilibrium prices available",
+  "@noEquilibriumPrices": {
+    "description": "Message shown when no equilibrium prices are available"
   },
-  "shrimpRespirationLabel": "Shrimp Respiration",
-  "@shrimpRespirationLabel": {
-    "description": "Label for shrimp respiration in the chart and summary"
-  },
-  "pondRespirationLabel": "Pond Respiration",
-  "@pondRespirationLabel": {
-    "description": "Label for pond respiration in the chart and summary"
-  },
-  "pondWaterRespirationLabel": "Pond Water Respiration",
-  "@pondWaterRespirationLabel": {
-    "description": "Label for pond water respiration in the chart and summary"
-  },
-  "pondBottomRespirationLabel": "Pond Bottom Respiration",
-  "@pondBottomRespirationLabel": {
-    "description": "Label for pond bottom respiration in the chart and summary"
-  },
-  "annualRevenueLabel": "Annual Revenue",
-  "@annualRevenueLabel": {
-    "description": "Label for the annual revenue metric"
+  "aeratorLabel": "Aerator",
+  "@aeratorLabel": {
+    "description": "Label for the aerator column in the comparison table"
   },
   "unitsNeeded": "Units Needed",
   "@unitsNeeded": {
     "description": "Label for the units needed column in the comparison table"
   },
-  "totalAnnualCostLabel": "Total Annual Cost",
-  "@totalAnnualCostLabel": {
-    "description": "Label for the total annual cost column in the comparison table"
+  "initialCostLabel": "Initial Cost",
+  "@initialCostLabel": {
+    "description": "Label for the initial cost column in the comparison table"
   },
-  "costPercentage": "Cost Percentage",
-  "@costPercentage": {
-    "description": "Label for the cost percentage column in the comparison table"
+  "annualEnergyCostLabel": "Annual Energy Cost",
+  "@annualEnergyCostLabel": {
+    "description": "Label for the annual energy cost column in the comparison table"
+  },
+  "annualMaintenanceCostLabel": "Annual Maintenance Cost",
+  "@annualMaintenanceCostLabel": {
+    "description": "Label for the annual maintenance cost column in the comparison table"
+  },
+  "npvCostLabel": "NPV of Costs",
+  "@npvCostLabel": {
+    "description": "Label for the NPV of costs column in the comparison table"
   },
   "saeLabel": "SAE (kg O₂/kWh)",
   "@saeLabel": {
     "description": "Label for the SAE column in the comparison table"
-  },
-  "npvLabel": "NPV",
-  "@npvLabel": {
-    "description": "Label for the NPV column in the comparison table"
-  },
-  "irrLabel": "IRR",
-  "@irrLabel": {
-    "description": "Label for the IRR column in the comparison table"
   },
   "paybackPeriod": "Payback Period",
   "@paybackPeriod": {
@@ -412,184 +336,32 @@
   "@roiLabel": {
     "description": "Label for the ROI column in the comparison table"
   },
+  "irrLabel": "IRR",
+  "@irrLabel": {
+    "description": "Label for the IRR column in the comparison table"
+  },
   "profitabilityCoefficient": "Profitability Coefficient",
   "@profitabilityCoefficient": {
     "description": "Label for the profitability coefficient column in the comparison table"
-  },
-  "detailedFinancialMetrics": "Detailed Financial Metrics",
-  "@detailedFinancialMetrics": {
-    "description": "Title for the detailed financial metrics section"
-  },
-  "equilibriumPriceP2Label": "Equilibrium Price (P2)",
-  "@equilibriumPriceP2Label": {
-    "description": "Label for the equilibrium price of the second aerator"
-  },
-  "opportunityCostLabel": "Opportunity Cost",
-  "@opportunityCostLabel": {
-    "description": "Label for the opportunity cost metric"
-  },
-  "annualSavings": "Annual Savings",
-  "@annualSavings": {
-    "description": "Label for the annual savings metric"
   },
   "noDataAvailable": "No data available",
   "@noDataAvailable": {
     "description": "Message shown when no survey data is available"
   },
-  "downloadReport": "Download PDF Report",
-  "@downloadReport": {
-    "description": "Label for the button to download the PDF report"
-  },
-  "downloadCSV": "Download CSV",
-  "@downloadCSV": {
-    "description": "Label for the button to download results as CSV"
-  },
-  "csvExportNotSupported": "CSV export not supported on this platform",
-  "@csvExportNotSupported": {
-    "description": "Message shown when CSV export is not supported on the platform"
-  },
-  "pdfGenerationFailed": "Failed to generate PDF: {error}",
-  "@pdfGenerationFailed": {
-    "description": "Message shown when PDF generation fails",
-    "placeholders": {
-      "error": {
-        "type": "String",
-        "example": "File system error"
-      }
-    }
-  },
-  "csvGenerationFailed": "Failed to generate CSV: {error}",
-  "@csvGenerationFailed": {
-    "description": "Message shown when CSV generation fails",
-    "placeholders": {
-      "error": {
-        "type": "String",
-        "example": "File system error"
-      }
-    }
-  },
-  "fontLoadFailed": "Failed to load fonts: {errorDetails}",
-  "csvSaved": "CSV file saved to: {filePath}",
-  "noDataAvailableDescription": "No data available to display",
   "summaryMetricsDescription": "Summary metrics for aerator comparison",
-  "oxygenDemandBreakdownDescription": "Breakdown of oxygen demand in kg O₂ per hour",
-  "aeratorComparisonResultsDescription": "Comparison table of aerator results",
-  "detailedFinancialMetricsDescription": "Detailed financial metrics for the recommended aerator",
-  "financialBreakdownDescription": "Financial breakdown pie chart",
-  "@fontLoadFailed": {
-    "description": "Error message when font loading fails, with error details as a parameter",
-    "placeholders": {
-      "errorDetails": {
-        "type": "String",
-        "example": "Font not found"
-      }
-    }
-  },
-  "@csvSaved": {
-    "description": "Message indicating the CSV file has been saved, with file path as a parameter",
-    "placeholders": {
-      "filePath": {
-        "type": "String",
-        "example": "C:/path/to/the/file.csv"
-      }
-    }
-  },
-  "@noDataAvailableDescription": {
-    "description": "Accessibility description for no data available message"
-  },
   "@summaryMetricsDescription": {
     "description": "Accessibility description for summary metrics section"
   },
-  "@oxygenDemandBreakdownDescription": {
-    "description": "Accessibility description for oxygen demand breakdown chart"
-  },
+  "aeratorComparisonResultsDescription": "Comparison table of aerator results",
   "@aeratorComparisonResultsDescription": {
     "description": "Accessibility description for aerator comparison results table"
   },
-  "@detailedFinancialMetricsDescription": {
-    "description": "Accessibility description for detailed financial metrics section"
+  "equilibriumPricesDescription": "Equilibrium prices for non-recommended aerators",
+  "@equilibriumPricesDescription": {
+    "description": "Accessibility description for equilibrium prices section"
   },
-  "@financialBreakdownDescription": {
-    "description": "Accessibility description for financial breakdown pie chart"
-  },
-  "aeratorLoadFailed": "Failed to load aerator data: {error}",
-  "@aeratorLoadFailed": {
-    "description": "Error message when loading aerator data fails",
-    "placeholders": {
-      "error": {
-        "type": "String",
-        "example": "File not found"
-      }
-    }
-  },
-  "surveySubmissionFailed": "Failed to submit survey: {error}",
-  "@surveySubmissionFailed": {
-    "description": "Error message when survey submission fails",
-    "placeholders": {
-      "error": {
-        "type": "String",
-        "example": "Network error"
-      }
-    }
-  },
-  "survey": "Survey",
-  "@survey": {
-    "description": "Title for the survey page"
-  },
-  "pondDetails": "Pond Details",
-  "@pondDetails": {
-    "description": "Title for the pond details section in the survey"
-  },
-  "pondAreaLabel": "Pond Area",
-  "@pondAreaLabel": {
-    "description": "Label for the pond area input field"
-  },
-  "positiveNumberRequired": "Please enter a positive number",
-  "@positiveNumberRequired": {
-    "description": "Validation message for requiring a positive number"
-  },
-  "shrimpDetails": "Shrimp Details",
-  "@shrimpDetails": {
-    "description": "Title for the shrimp details section in the survey"
-  },
-  "shrimpDensityLabel": "Shrimp Density",
-  "@shrimpDensityLabel": {
-    "description": "Label for the shrimp density input field"
-  },
-  "shrimpWeightLabel": "Shrimp Weight",
-  "@shrimpWeightLabel": {
-    "description": "Label for the shrimp weight input field"
-  },
-  "cultureDaysLabel": "Culture Days",
-  "@cultureDaysLabel": {
-    "description": "Label for the culture days input field"
-  },
-  "days": "days",
-  "@days": {
-    "description": "Unit label for days"
-  },
-  "additionalInfo": "Additional Information",
-  "@additionalInfo": {
-    "description": "Title for the additional information section in the survey"
-  },
-  "nonNegativeNumberRequired": "Please enter a non-negative number",
-  "@nonNegativeNumberRequired": {
-    "description": "Validation message for requiring a non-negative number"
-  },
-  "selectAerator": "Select Aerator",
-  "@selectAerator": {
-    "description": "Label for the aerator selection dropdown"
-  },
-  "optional": "Optional",
-  "@optional": {
-    "description": "Label for optional fields in forms"
-  },
-  "selectAeratorHint": "Choose an aerator type",
-  "@selectAeratorHint": {
-    "description": "Hint text for the aerator selection dropdown"
-  },
-  "customAeratorType": "Custom Aerator Type",
-  "@customAeratorType": {
-    "description": "Label for custom aerator type input field"
+  "noDataAvailableDescription": "No data available to display",
+  "@noDataAvailableDescription": {
+    "description": "Accessibility description for no data available message"
   }
 }

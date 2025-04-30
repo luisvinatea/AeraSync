@@ -5,8 +5,8 @@
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <meta name="description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey, view ranked results, and download a detailed PDF report.">
-  <meta name="keywords" content="AeraSync, aerator comparison, shrimp farming, aquaculture, cost optimization, data visualization, PDF report">
+  <meta name="description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results.">
+  <meta name="keywords" content="AeraSync, aerator comparison, shrimp farming, aquaculture, cost optimization">
   <meta name="author" content="Luis Vinatea">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,29 +14,22 @@
   <meta name="apple-mobile-web-app-title" content="AeraSync">
   <meta name="theme-color" content="#1E40AF">
 
-  <meta property="og:title" content="AeraSync - Aerator Comparison for Shrimp Farming">
-  <meta property="og:description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey, view ranked results, and download a detailed PDF report.">
-  <meta property="og:image" content="https://aerasync.vercel.app/icons/aerasync512.webp">
+  <meta property="og:title" content="AeraSync - Shrimp Farm Aerator Comparison">
+  <meta property="og:description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results.">
+  <meta property="og:image" content="https://aerasync.vercel.app/icons/aerasync180.webp">
   <meta property="og:url" content="https://aerasync.vercel.app/">
   <meta property="og:type" content="website">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AeraSync - Aerator Comparison for Shrimp Farming">
-  <meta name="twitter:description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey, view ranked results, and download a detailed PDF report.">
-  <meta name="twitter:image" content="https://aerasync.vercel.app/icons/aerasync512.webp">
+  <meta name="twitter:title" content="AeraSync - Shrimp Farm Aerator Comparison">
+  <meta name="twitter:description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results.">
+  <meta name="twitter:image" content="https://aerasync.vercel.app/icons/aerasync180.webp">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.webp">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.png">
-  <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.webp">
-  <link rel="apple-touch-icon" sizes="512x512" href="/icons/aerasync512.png">
-  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.webp">
-  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/aerasync1024.png">
   <link rel="icon" type="image/webp" href="/icons/aerasync64.webp">
-  <link rel="icon" type="image/png" href="/icons/aerasync64.png">
-  <title>AeraSync - Aerator Comparison for Shrimp Farming</title>
+  <title>AeraSync - Shrimp Farm Aerator Comparison</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="preload" href="/flutter_bootstrap.js" as="script">
-  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <div id="loading-screen" role="status" aria-label="Loading AeraSync application">
@@ -47,18 +40,8 @@
         <img src="/icons/aerasync.png" alt="AeraSync Logo - A stylized wave representing water and aeration" style="width: 200px; height: auto; margin-bottom: 20px;" loading="lazy">
       </picture>
       <h1 lang="en">AeraSync</h1>
-      <p lang="en">Aerator Comparison for Shrimp Farming</p>
       <div class="spinner" aria-hidden="true"></div>
     </div>
-  </div>
-
-  <div id="cookies-consent">
-    <p>We use cookies and tracking to improve your experience and analyze usage. Your data will help us enhance AeraSync. <a href="/privacy.html" target="_blank">Learn More</a></p>
-    <label>
-      <input type="checkbox" id="data-disclosure" onchange="handleDataDisclosure()">
-      I agree to the use of cookies and data tracking (required to view results).
-    </label>
-    <button onclick="acceptCookies()">Accept</button>
   </div>
 
   <div id="app-container"></div>
@@ -102,31 +85,6 @@
         }
       }, 500);
     });
-
-    // Cookies consent logic
-    document.addEventListener('DOMContentLoaded', function() {
-      if (!localStorage.getItem('cookiesAccepted')) {
-        document.getElementById('cookies-consent').style.display = 'block';
-      }
-    });
-
-    let dataDisclosureAgreed = false;
-    function handleDataDisclosure() {
-      dataDisclosureAgreed = document.getElementById('data-disclosure').checked;
-      // Notify Flutter of disclosure agreement (via JS interop if needed)
-      if (window.flutter_inappwebview) {
-        window.flutter_inappwebview.callHandler('setDisclosureAgreement', dataDisclosureAgreed);
-      }
-    }
-
-    function acceptCookies() {
-      localStorage.setItem('cookiesAccepted', 'true');
-      document.getElementById('cookies-consent').style.display = 'none';
-      // Notify Flutter that cookies have been accepted (via JS interop if needed)
-      if (window.flutter_inappwebview) {
-        window.flutter_inappwebview.callHandler('onCookiesAccepted');
-      }
-    }
   </script>
 </body>
 </html>

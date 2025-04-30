@@ -1,290 +1,71 @@
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
-import 'package:path_provider/path_provider.dart'; // For mobile CSV export
-import 'dart:io' show File; // For file handling on mobile
-import 'package:universal_html/html.dart' as html; // Conditional import for web
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../core/services/app_state.dart';
 
-double _parseDouble(dynamic value, [double defaultValue = 0.0]) {
-  if (value is num) return value.toDouble();
-  if (value is String) return double.tryParse(value) ?? defaultValue;
-  return defaultValue;
-}
+class AeratorResult {
+  final String name;
+  final int numAerators;
+  final double totalPowerHp;
+  final double totalInitialCost;
+  final double annualEnergyCost;
+  final double annualMaintenanceCost;
+  final double npvCost;
+  final double aeratorsPerHa;
+  final double hpPerHa;
+  final double sae;
+  final double paybackYears;
+  final double roiPercent;
+  final double irr;
+  final double profitabilityK;
 
-class ResultsPage extends StatefulWidget {
-  const ResultsPage({super.key});
+  AeratorResult({
+    required this.name,
+    required this.numAerators,
+    required this.totalPowerHp,
+    required this.totalInitialCost,
+    required this.annualEnergyCost,
+    required this.annualMaintenanceCost,
+    required this.npvCost,
+    required this.aeratorsPerHa,
+    required this.hpPerHa,
+    required this.sae,
+    required this.paybackYears,
+    required this.roiPercent,
+    required this.irr,
+    required this.profitabilityK,
+  });
 
-  @override
-  State<ResultsPage> createState() => _ResultsPageState();
-}
-
-class _ResultsPageState extends State<ResultsPage> {
-  static pw.Font? _regularFont;
-  static pw.Font? _boldFont;
-  bool _isLoadingFonts = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadFonts();
-  }
-
-  Future<void> _loadFonts() async {
-    if (_regularFont != null && _boldFont != null) return;
-    if (_isLoadingFonts) return;
-
-    setState(() {
-      _isLoadingFonts = true;
-    });
-
-    try {
-      final assetBundle = DefaultAssetBundle.of(context);
-      final regularFontData = await assetBundle.load('assets/fonts/Montserrat-Regular.ttf');
-      final boldFontData = await assetBundle.load('assets/fonts/Montserrat-Bold.ttf');
-      if (!mounted) return;
-      setState(() {
-        _regularFont = pw.Font.ttf(regularFontData);
-        _boldFont = pw.Font.ttf(boldFontData);
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.fontLoadFailed(e.toString()))),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingFonts = false;
-        });
-      }
-    }
-  }
-
-  Future<pw.Document> _generatePDF(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
-    final appState = Provider.of<AppState>(context, listen: false);
-    final results = appState.aeratorResults;
-
-    final pdf = pw.Document();
-
-    // Ensure fonts are loaded
-    if (_regularFont == null || _boldFont == null) {
-      await _loadFonts();
-      if (_regularFont == null || _boldFont == null) {
-        throw Exception('Failed to load fonts for PDF generation');
-      }
-    }
-
-    pdf.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        build: (pw.Context context) {
-          return [
-            pw.Header(
-              level: 0,
-              child: pw.Text(
-                l10n.results,
-                style: pw.TextStyle(font: _boldFont, fontSize: 24),
-              ),
-            ),
-            pw.Text(
-              l10n.summaryMetrics,
-              style: pw.TextStyle(font: _boldFont, fontSize: 18),
-            ),
-            pw.SizedBox(height: 10),
-            pw.Text(
-              '${l10n.totalDemandLabel}: ${(appState.tod ?? 0.0).toStringAsFixed(2)} kg O₂/h',
-              style: pw.TextStyle(font: _regularFont),
-            ),
-            pw.Text(
-              '${l10n.shrimpRespirationLabel}: ${(appState.shrimpRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
-              style: pw.TextStyle(font: _regularFont),
-            ),
-            pw.Text(
-              '${l10n.pondRespirationLabel}: ${(appState.pondRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
-              style: pw.TextStyle(font: _regularFont),
-            ),
-            pw.Text(
-              '${l10n.pondWaterRespirationLabel}: ${(appState.pondWaterRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
-              style: pw.TextStyle(font: _regularFont),
-            ),
-            pw.Text(
-              '${l10n.pondBottomRespirationLabel}: ${(appState.pondBottomRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
-              style: pw.TextStyle(font: _regularFont),
-            ),
-            pw.Text(
-              '${l10n.annualRevenueLabel}: \$${appState.annualRevenue?.toStringAsFixed(2) ?? "0.00"}',
-              style: pw.TextStyle(font: _regularFont),
-            ),
-            pw.Text(
-              '${l10n.recommendedAerator}: ${appState.winnerLabel ?? 'None'}',
-              style: pw.TextStyle(font: _regularFont),
-            ),
-            pw.SizedBox(height: 20),
-            pw.Text(
-              l10n.aeratorComparisonResults,
-              style: pw.TextStyle(font: _boldFont, fontSize: 18),
-            ),
-            pw.SizedBox(height: 10),
-            pw.TableHelper.fromTextArray(
-              headers: [
-                l10n.aeratorLabel,
-                l10n.unitsNeeded,
-                l10n.totalAnnualCostLabel,
-                l10n.costPercentage,
-                l10n.saeLabel,
-                l10n.npvLabel,
-                l10n.irrLabel,
-                l10n.paybackPeriod,
-                l10n.roiLabel,
-                l10n.profitabilityCoefficient,
-              ],
-              data: results.map((result) {
-                return [
-                  result.name,
-                  result.numAerators.toString(),
-                  '\$${result.totalAnnualCost.toStringAsFixed(2)}',
-                  '${result.costPercentage.toStringAsFixed(2)}%',
-                  result.sae.toStringAsFixed(2),
-                  '\$${result.npv.toStringAsFixed(2)}',
-                  result.irr.isFinite ? '${result.irr.toStringAsFixed(2)}%' : 'N/A',
-                  result.paybackPeriod.isFinite ? '${result.paybackPeriod.toStringAsFixed(1)} months' : 'N/A',
-                  result.roi.isFinite ? '${result.roi.toStringAsFixed(2)}%' : 'N/A',
-                  result.profitabilityCoefficient.isFinite ? result.profitabilityCoefficient.toStringAsFixed(2) : '∞',
-                ];
-              }).toList(),
-              headerStyle: pw.TextStyle(font: _boldFont),
-              cellStyle: pw.TextStyle(font: _regularFont),
-            ),
-            pw.SizedBox(height: 20),
-            pw.Text(
-              l10n.detailedFinancialMetrics,
-              style: pw.TextStyle(font: _boldFont, fontSize: 18),
-            ),
-            pw.SizedBox(height: 10),
-            pw.Text(
-              '${l10n.equilibriumPriceP2Label}: \$${(_parseDouble(appState.apiResults?['equilibriumPriceP2'])).toStringAsFixed(2)}',
-              style: pw.TextStyle(font: _regularFont),
-            ),
-            pw.Text(
-              '${l10n.opportunityCostLabel}: \$${(_parseDouble(appState.apiResults?['costOfOpportunity'])).toStringAsFixed(2)}',
-              style: pw.TextStyle(font: _regularFont),
-            ),
-            pw.Text(
-              '${l10n.annualSavings}: \$${(_parseDouble(appState.apiResults?['annualSavings'])).toStringAsFixed(2)}',
-              style: pw.TextStyle(font: _regularFont),
-            ),
-          ];
-        },
-      ),
+  factory AeratorResult.fromJson(Map<String, dynamic> json) {
+    return AeratorResult(
+      name: json['name'] ?? 'Unknown',
+      numAerators: (json['num_aerators'] as num?)?.toInt() ?? 0,
+      totalPowerHp: (json['total_power_hp'] as num?)?.toDouble() ?? 0.0,
+      totalInitialCost: (json['total_initial_cost'] as num?)?.toDouble() ?? 0.0,
+      annualEnergyCost: (json['annual_energy_cost'] as num?)?.toDouble() ?? 0.0,
+      annualMaintenanceCost: (json['annual_maintenance_cost'] as num?)?.toDouble() ?? 0.0,
+      npvCost: (json['npv_cost'] as num?)?.toDouble() ?? 0.0,
+      aeratorsPerHa: (json['aerators_per_ha'] as num?)?.toDouble() ?? 0.0,
+      hpPerHa: (json['hp_per_ha'] as num?)?.toDouble() ?? 0.0,
+      sae: (json['sae'] as num?)?.toDouble() ?? 0.0,
+      paybackYears: (json['payback_years'] as num?)?.toDouble() ?? double.infinity,
+      roiPercent: (json['roi_percent'] as num?)?.toDouble() ?? 0.0,
+      irr: (json['irr'] as num?)?.toDouble() ?? -100.0,
+      profitabilityK: (json['profitability_k'] as num?)?.toDouble() ?? 0.0,
     );
-
-    return pdf;
   }
+}
 
-  Future<void> _downloadCSV(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
-    final appState = Provider.of<AppState>(context, listen: false);
-    final results = appState.aeratorResults;
-    final messenger = ScaffoldMessenger.of(context); // Capture early
-
-    final csvData = [
-      [l10n.summaryMetrics],
-      [l10n.totalDemandLabel, '${(appState.tod ?? 0.0).toStringAsFixed(2)} kg O₂/h'],
-      [l10n.shrimpRespirationLabel, '${(appState.shrimpRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h'],
-      [l10n.pondRespirationLabel, '${(appState.pondRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h'],
-      [l10n.pondWaterRespirationLabel, '${(appState.pondWaterRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h'],
-      [l10n.pondBottomRespirationLabel, '${(appState.pondBottomRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h'],
-      [l10n.annualRevenueLabel, '\$${appState.annualRevenue?.toStringAsFixed(2) ?? "0.00"}'],
-      [l10n.recommendedAerator, appState.winnerLabel ?? 'None'],
-      [],
-      [l10n.aeratorComparisonResults],
-      [
-        l10n.aeratorLabel,
-        l10n.unitsNeeded,
-        l10n.totalAnnualCostLabel,
-        l10n.costPercentage,
-        l10n.saeLabel,
-        l10n.npvLabel,
-        l10n.irrLabel,
-        l10n.paybackPeriod,
-        l10n.roiLabel,
-        l10n.profitabilityCoefficient,
-      ],
-      ...results.map((result) => [
-            result.name,
-            result.numAerators.toString(),
-            '\$${result.totalAnnualCost.toStringAsFixed(2)}',
-            '${result.costPercentage.toStringAsFixed(2)}%',
-            result.sae.toStringAsFixed(2),
-            '\$${result.npv.toStringAsFixed(2)}',
-            result.irr.isFinite ? '${result.irr.toStringAsFixed(2)}%' : 'N/A',
-            result.paybackPeriod.isFinite ? '${result.paybackPeriod.toStringAsFixed(1)} months' : 'N/A',
-            result.roi.isFinite ? '${result.roi.toStringAsFixed(2)}%' : 'N/A',
-            result.profitabilityCoefficient.isFinite ? result.profitabilityCoefficient.toStringAsFixed(2) : '∞',
-          ]),
-      [],
-      [l10n.detailedFinancialMetrics],
-      [
-        l10n.equilibriumPriceP2Label,
-        '\$${(_parseDouble(appState.apiResults?['equilibriumPriceP2'])).toStringAsFixed(2)}',
-      ],
-      [
-        l10n.opportunityCostLabel,
-        '\$${(_parseDouble(appState.apiResults?['costOfOpportunity'])).toStringAsFixed(2)}',
-      ],
-      [
-        l10n.annualSavings,
-        '\$${(_parseDouble(appState.apiResults?['annualSavings'])).toStringAsFixed(2)}',
-      ],
-    ];
-
-    final csvString = csvData.map((row) => row.join(',')).join('\n');
-
-    try {
-      if (kIsWeb) {
-        final bytes = utf8.encode(csvString);
-        final blob = html.Blob([bytes]);
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        final anchor = html.document.createElement('a') as html.AnchorElement;
-        anchor.href = url;
-        anchor.download = 'aerator_comparison.csv';
-        anchor.click();
-        html.Url.revokeObjectUrl(url);
-      } else {
-        // Mobile platforms: Save to device storage
-        final directory = await getTemporaryDirectory();
-        final filePath = '${directory.path}/aerator_comparison.csv';
-        final file = File(filePath);
-        await file.writeAsString(csvString);
-        if (!mounted) return;
-        // Notify user of file location
-        messenger.showSnackBar(
-          SnackBar(content: Text(l10n.csvSaved(filePath))),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.csvGenerationFailed(e.toString()))),
-      );
-    }
-  }
+class ResultsPage extends StatelessWidget {
+  const ResultsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final appState = Provider.of<AppState>(context);
-    final results = appState.aeratorResults;
+    final apiResults = appState.apiResults;
 
-    if (results.isEmpty) {
+    if (apiResults == null || !apiResults.containsKey('aeratorResults')) {
       return Scaffold(
         appBar: AppBar(
           title: Text(l10n.results),
@@ -298,13 +79,12 @@ class _ResultsPageState extends State<ResultsPage> {
       );
     }
 
-    final maxY = [
-      appState.tod ?? 0.0,
-      appState.shrimpRespiration ?? 0.0,
-      appState.pondRespiration ?? 0.0,
-      appState.pondWaterRespiration ?? 0.0,
-      appState.pondBottomRespiration ?? 0.0,
-    ].reduce((a, b) => a > b ? a : b) * 1.2;
+    final results = (apiResults['aeratorResults'] as List<dynamic>)
+        .map((json) => AeratorResult.fromJson(json))
+        .toList();
+    final winnerLabel = apiResults['winnerLabel'] as String? ?? 'None';
+    final tod = (apiResults['tod'] as num?)?.toDouble() ?? 0.0;
+    final equilibriumPrices = apiResults['equilibriumPrices'] as Map<String, dynamic>? ?? {};
 
     return Scaffold(
       appBar: AppBar(
@@ -326,64 +106,19 @@ class _ResultsPageState extends State<ResultsPage> {
               children: [
                 _SummaryCard(
                   l10n: l10n,
-                  appState: appState,
-                ),
-                const SizedBox(height: 16),
-                _OxygenDemandCard(
-                  l10n: l10n,
-                  appState: appState,
-                  maxY: maxY,
+                  tod: tod,
+                  winnerLabel: winnerLabel,
                 ),
                 const SizedBox(height: 16),
                 _AeratorComparisonCard(
                   l10n: l10n,
-                  appState: appState,
                   results: results,
+                  winnerLabel: winnerLabel,
                 ),
                 const SizedBox(height: 16),
-                _FinancialMetricsCard(
+                _EquilibriumPricesCard(
                   l10n: l10n,
-                  appState: appState,
-                ),
-                const SizedBox(height: 16),
-                _FinancialPieChartCard(
-                  l10n: l10n,
-                  appState: appState,
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Wrap(
-                    spacing: 16,
-                    children: [
-                      ElevatedButton(
-                        onPressed: _isLoadingFonts
-                            ? null
-                            : () async {
-                                final messenger = ScaffoldMessenger.of(context);
-                                try {
-                                  final pdf = await _generatePDF(context);
-                                  if (!mounted) return;
-                                  await Printing.sharePdf(
-                                    bytes: await pdf.save(),
-                                    filename: 'aerator_comparison_report.pdf',
-                                  );
-                                } catch (e) {
-                                  if (!mounted) return;
-                                  messenger.showSnackBar(
-                                    SnackBar(
-                                      content: Text(l10n.pdfGenerationFailed(e.toString())),
-                                    ),
-                                  );
-                                }
-                              },
-                        child: Text(l10n.downloadReport),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => _downloadCSV(context),
-                        child: Text(l10n.downloadCSV),
-                      ),
-                    ],
-                  ),
+                  equilibriumPrices: equilibriumPrices,
                 ),
               ],
             ),
@@ -396,11 +131,13 @@ class _ResultsPageState extends State<ResultsPage> {
 
 class _SummaryCard extends StatelessWidget {
   final AppLocalizations l10n;
-  final AppState appState;
+  final double tod;
+  final String winnerLabel;
 
   const _SummaryCard({
     required this.l10n,
-    required this.appState,
+    required this.tod,
+    required this.winnerLabel,
   });
 
   @override
@@ -420,173 +157,12 @@ class _SummaryCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '${l10n.totalDemandLabel}: ${(appState.tod ?? 0.0).toStringAsFixed(2)} kg O₂/h',
+                '${l10n.totalDemandLabel}: ${tod.toStringAsFixed(2)} kg O₂/h',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               Text(
-                '${l10n.shrimpRespirationLabel}: ${(appState.shrimpRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
+                '${l10n.recommendedAerator}: $winnerLabel',
                 style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                '${l10n.pondRespirationLabel}: ${(appState.pondRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                '${l10n.pondWaterRespirationLabel}: ${(appState.pondWaterRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                '${l10n.pondBottomRespirationLabel}: ${(appState.pondBottomRespiration ?? 0.0).toStringAsFixed(2)} kg O₂/h',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                '${l10n.annualRevenueLabel}: \$${appState.annualRevenue?.toStringAsFixed(2) ?? "0.00"}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                '${l10n.recommendedAerator}: ${appState.winnerLabel ?? 'None'}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OxygenDemandCard extends StatelessWidget {
-  final AppLocalizations l10n;
-  final AppState appState;
-  final double maxY;
-
-  const _OxygenDemandCard({
-    required this.l10n,
-    required this.appState,
-    required this.maxY,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final hasData = appState.tod != null &&
-        appState.shrimpRespiration != null &&
-        appState.pondRespiration != null;
-
-    if (!hasData) {
-      return const SizedBox.shrink();
-    }
-
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Semantics(
-          label: l10n.oxygenDemandBreakdownDescription,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.oxygenDemandBreakdown,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 200,
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: maxY > 0 ? maxY : 1.0, // Prevent zero maxY
-                    barGroups: [
-                      BarChartGroupData(
-                        x: 0,
-                        barRods: [
-                          BarChartRodData(
-                            toY: appState.tod ?? 0.0,
-                            color: Colors.redAccent,
-                            width: 15,
-                          ),
-                        ],
-                      ),
-                      BarChartGroupData(
-                        x: 1,
-                        barRods: [
-                          BarChartRodData(
-                            toY: appState.shrimpRespiration ?? 0.0,
-                            color: const Color(0xFF1E40AF),
-                            width: 15,
-                          ),
-                        ],
-                      ),
-                      BarChartGroupData(
-                        x: 2,
-                        barRods: [
-                          BarChartRodData(
-                            toY: appState.pondRespiration ?? 0.0,
-                            color: const Color(0xFF60A5FA),
-                            width: 15,
-                          ),
-                        ],
-                      ),
-                      BarChartGroupData(
-                        x: 3,
-                        barRods: [
-                          BarChartRodData(
-                            toY: appState.pondWaterRespiration ?? 0.0,
-                            color: const Color(0xFF3B82F6),
-                            width: 15,
-                          ),
-                        ],
-                      ),
-                      BarChartGroupData(
-                        x: 4,
-                        barRods: [
-                          BarChartRodData(
-                            toY: appState.pondBottomRespiration ?? 0.0,
-                            color: const Color(0xFF93C5FD),
-                            width: 15,
-                          ),
-                        ],
-                      ),
-                    ],
-                    titlesData: FlTitlesData(
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            switch (value.toInt()) {
-                              case 0:
-                                return Text(l10n.totalDemandLabel, style: const TextStyle(fontSize: 10));
-                              case 1:
-                                return Text(l10n.shrimpRespirationLabel, style: const TextStyle(fontSize: 10));
-                              case 2:
-                                return Text(l10n.pondRespirationLabel, style: const TextStyle(fontSize: 10));
-                              case 3:
-                                return Text(l10n.pondWaterRespirationLabel, style: const TextStyle(fontSize: 10));
-                              case 4:
-                                return Text(l10n.pondBottomRespirationLabel, style: const TextStyle(fontSize: 10));
-                              default:
-                                return const Text('');
-                            }
-                          },
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) => Text(
-                            value.toStringAsFixed(1),
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ),
-                      topTitles: const AxisTitles(),
-                      rightTitles: const AxisTitles(),
-                    ),
-                    borderData: FlBorderData(show: false),
-                    gridData: const FlGridData(show: false),
-                  ),
-                ),
               ),
             ],
           ),
@@ -598,13 +174,13 @@ class _OxygenDemandCard extends StatelessWidget {
 
 class _AeratorComparisonCard extends StatelessWidget {
   final AppLocalizations l10n;
-  final AppState appState;
   final List<AeratorResult> results;
+  final String winnerLabel;
 
   const _AeratorComparisonCard({
     required this.l10n,
-    required this.appState,
     required this.results,
+    required this.winnerLabel,
   });
 
   @override
@@ -633,37 +209,40 @@ class _AeratorComparisonCard extends StatelessWidget {
                         columns: [
                           DataColumn(label: Text(l10n.aeratorLabel)),
                           DataColumn(label: Text(l10n.unitsNeeded)),
-                          DataColumn(label: Text(l10n.totalAnnualCostLabel)),
-                          DataColumn(label: Text(l10n.costPercentage)),
+                          DataColumn(label: Text(l10n.initialCostLabel)),
+                          DataColumn(label: Text(l10n.annualEnergyCostLabel)),
+                          DataColumn(label: Text(l10n.annualMaintenanceCostLabel)),
+                          DataColumn(label: Text(l10n.npvCostLabel)),
                           DataColumn(label: Text(l10n.saeLabel)),
-                          DataColumn(label: Text(l10n.npvLabel)),
-                          DataColumn(label: Text(l10n.irrLabel)),
                           DataColumn(label: Text(l10n.paybackPeriod)),
                           DataColumn(label: Text(l10n.roiLabel)),
+                          DataColumn(label: Text(l10n.irrLabel)),
                           DataColumn(label: Text(l10n.profitabilityCoefficient)),
                         ],
                         rows: results.map((result) {
-                          final isWinner = result.name == appState.winnerLabel;
+                          final isWinner = result.name == winnerLabel;
                           return DataRow(
                             color: isWinner ? WidgetStateProperty.all(Colors.green.withValues(alpha: 0.1)) : null,
                             cells: [
                               DataCell(Text(result.name)),
                               DataCell(Text(result.numAerators.toString())),
-                              DataCell(Text('\$${result.totalAnnualCost.toStringAsFixed(2)}')),
-                              DataCell(Text('${result.costPercentage.toStringAsFixed(2)}%')),
+                              DataCell(Text('\$${result.totalInitialCost.toStringAsFixed(2)}')),
+                              DataCell(Text('\$${result.annualEnergyCost.toStringAsFixed(2)}')),
+                              DataCell(Text('\$${result.annualMaintenanceCost.toStringAsFixed(2)}')),
+                              DataCell(Text('\$${result.npvCost.toStringAsFixed(2)}')),
                               DataCell(Text(result.sae.toStringAsFixed(2))),
-                              DataCell(Text('\$${result.npv.toStringAsFixed(2)}')),
-                              DataCell(Text(result.irr.isFinite ? '${result.irr.toStringAsFixed(2)}%' : 'N/A')),
                               DataCell(Text(
-                                  result.paybackPeriod.isFinite ? '${result.paybackPeriod.toStringAsFixed(1)} months' : 'N/A')),
-                              DataCell(Text(result.roi.isFinite ? '${result.roi.toStringAsFixed(2)}%' : 'N/A')),
-                              DataCell(
-                                Text(
-                                  result.profitabilityCoefficient.isFinite
-                                      ? result.profitabilityCoefficient.toStringAsFixed(2)
-                                      : '∞',
-                                ),
-                              ),
+                                  result.paybackYears.isFinite
+                                      ? '${(result.paybackYears * 12).toStringAsFixed(1)} months'
+                                      : 'N/A')),
+                              DataCell(Text(
+                                  result.roiPercent.isFinite ? '${result.roiPercent.toStringAsFixed(2)}%' : 'N/A')),
+                              DataCell(Text(
+                                  result.irr.isFinite ? '${result.irr.toStringAsFixed(2)}%' : 'N/A')),
+                              DataCell(Text(
+                                  result.profitabilityK.isFinite
+                                      ? result.profitabilityK.toStringAsFixed(2)
+                                      : '∞')),
                             ],
                           );
                         }).toList(),
@@ -680,13 +259,13 @@ class _AeratorComparisonCard extends StatelessWidget {
   }
 }
 
-class _FinancialMetricsCard extends StatelessWidget {
+class _EquilibriumPricesCard extends StatelessWidget {
   final AppLocalizations l10n;
-  final AppState appState;
+  final Map<String, dynamic> equilibriumPrices;
 
-  const _FinancialMetricsCard({
+  const _EquilibriumPricesCard({
     required this.l10n,
-    required this.appState,
+    required this.equilibriumPrices,
   });
 
   @override
@@ -696,106 +275,26 @@ class _FinancialMetricsCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Semantics(
-          label: l10n.detailedFinancialMetricsDescription,
+          label: l10n.equilibriumPricesDescription,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                l10n.detailedFinancialMetrics,
+                l10n.equilibriumPrices,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
-              Text(
-                '${l10n.equilibriumPriceP2Label}: \$${(_parseDouble(appState.apiResults?['equilibriumPriceP2'])).toStringAsFixed(2)}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                '${l10n.opportunityCostLabel}: \$${(_parseDouble(appState.apiResults?['costOfOpportunity'])).toStringAsFixed(2)}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                '${l10n.annualSavings}: \$${(_parseDouble(appState.apiResults?['annualSavings'])).toStringAsFixed(2)}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FinancialPieChartCard extends StatelessWidget {
-  final AppLocalizations l10n;
-  final AppState appState;
-
-  const _FinancialPieChartCard({
-    required this.l10n,
-    required this.appState,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final annualSavings = _parseDouble(appState.apiResults?['annualSavings']);
-    final opportunityCost = _parseDouble(appState.apiResults?['costOfOpportunity']);
-    final totalCost = appState.aeratorResults.fold<double>(
-      0.0,
-      (sum, result) => sum + (result.name == appState.winnerLabel ? result.totalAnnualCost : 0),
-    );
-
-    if (annualSavings <= 0 && opportunityCost <= 0 && totalCost <= 0) {
-      return const SizedBox.shrink();
-    }
-
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Semantics(
-          label: l10n.financialBreakdownDescription,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.financialBreakdown,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 200,
-                child: PieChart(
-                  PieChartData(
-                    sections: [
-                      if (totalCost > 0)
-                        PieChartSectionData(
-                          value: totalCost,
-                          title: l10n.totalAnnualCostLabel,
-                          color: const Color(0xFF1E40AF),
-                          radius: 80,
-                          titleStyle: const TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                      if (annualSavings > 0)
-                        PieChartSectionData(
-                          value: annualSavings,
-                          title: l10n.annualSavings,
-                          color: const Color(0xFF60A5FA),
-                          radius: 80,
-                          titleStyle: const TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                      if (opportunityCost > 0)
-                        PieChartSectionData(
-                          value: opportunityCost,
-                          title: l10n.opportunityCostLabel,
-                          color: const Color(0xFF93C5FD),
-                          radius: 80,
-                          titleStyle: const TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                    ],
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 40,
-                  ),
+              ...equilibriumPrices.entries.map((entry) {
+                return Text(
+                  '${l10n.equilibriumPriceLabel} (${entry.key}): \$${entry.value.toStringAsFixed(2)}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                );
+              }),
+              if (equilibriumPrices.isEmpty)
+                Text(
+                  l10n.noEquilibriumPrices,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-              ),
             ],
           ),
         ),
