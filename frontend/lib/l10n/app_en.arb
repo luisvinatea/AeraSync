@@ -76,6 +76,70 @@
   "@submit": {
     "description": "Label for the submit button to process the survey"
   },
+  "farmFinancialDetails": "Farm & Financial Details",
+  "@farmFinancialDetails": {
+    "description": "Title for the farm and financial details section"
+  },
+  "aerator": "Aerator",
+  "@aerator": {
+    "description": "Label for the aerator section"
+  },
+  "totalOxygenDemand": "Total Oxygen Demand",
+  "@totalOxygenDemand": {
+    "description": "Label for the total oxygen demand input field"
+  },
+  "farmArea": "Farm Area",
+  "@farmArea": {
+    "description": "Label for the farm area input field"
+  },
+  "energyCost": "Electricity Cost",
+  "@energyCost": {
+    "description": "Label for the electricity cost input field"
+  },
+  "operatingHours": "Operating Hours",
+  "@operatingHours": {
+    "description": "Label for the operating hours input field"
+  },
+  "discountRate": "Discount Rate",
+  "@discountRate": {
+    "description": "Label for the discount rate input field"
+  },
+  "inflationRate": "Inflation Rate",
+  "@inflationRate": {
+    "description": "Label for the inflation rate input field"
+  },
+  "analysisHorizon": "Analysis Years",
+  "@analysisHorizon": {
+    "description": "Label for the analysis horizon input field"
+  },
+  "safetyMargin": "Safety Margin",
+  "@safetyMargin": {
+    "description": "Label for the safety margin input field"
+  },
+  "name": "Name",
+  "@name": {
+    "description": "Label for the name input field"
+  },
+  "horsepower": "Power",
+  "@horsepower": {
+    "description": "Label for the horsepower input field"
+  },
+  "sotr": "Standard Oxygen Transfer Rate",
+  "@sotr": {
+    "description": "Label for the Standard Oxygen Transfer Rate input field"
+  },
+  "cost": "Cost",
+  "@cost": {
+    "description": "Label for the cost input field"
+  },
+  "durability": "Durability",
+  "@durability": {
+    "description": "Label for the durability input field"
+  },
+  "maintenanceCost": "Maintenance Cost",
+  "@maintenanceCost": {
+    "description": "Label for the maintenance cost input field"
+  },
   "addAerator": "Add Aerator",
   "@addAerator": {
     "description": "Label for the button to add a new aerator"
@@ -254,6 +318,20 @@
       }
     }
   },
+  "minimumValueError": "Please enter a value greater than or equal to {value}",
+  "@minimumValueError": {
+    "description": "Validation message for minimum value input",
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "0"
+      }
+    }
+  },
+  "optionalField": "Optional",
+  "@optionalField": {
+    "description": "Label for optional input fields"
+  },
   "minimumAeratorsError": "At least two aerators are required",
   "@minimumAeratorsError": {
     "description": "Error message when fewer than two aerators are provided"
@@ -267,6 +345,10 @@
         "example": "Network error"
       }
     }
+  },
+  "surveyError": "Error submitting survey",
+  "@surveyError": {
+    "description": "Error message when survey submission fails"
   },
   "results": "Results",
   "@results": {
@@ -363,5 +445,13 @@
   "noDataAvailableDescription": "No data available to display",
   "@noDataAvailableDescription": {
     "description": "Accessibility description for no data available message"
+  },
+  "todLabel": "Total Oxygen Demand",
+  "@todLabel": {
+    "description": "Label for total oxygen demand input field"
+  },
+  "costLabel": "Cost (USD)",
+  "@costLabel": {
+    "description": "Label for the cost input field in USD"
   }
 }

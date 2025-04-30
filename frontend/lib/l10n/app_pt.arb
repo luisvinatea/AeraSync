@@ -76,6 +76,70 @@
   "@submit": {
     "description": "Etiqueta para o botão de enviar para processar a pesquisa"
   },
+  "farmFinancialDetails": "Detalhes da Fazenda e Financeiros",
+  "@farmFinancialDetails": {
+    "description": "Título para a seção de detalhes da fazenda e financeiros"
+  },
+  "aerator": "Aerador",
+  "@aerator": {
+    "description": "Etiqueta para a seção do aerador"
+  },
+  "totalOxygenDemand": "Demanda Total de Oxigênio",
+  "@totalOxygenDemand": {
+    "description": "Etiqueta para o campo de entrada da demanda total de oxigênio"
+  },
+  "farmArea": "Área da Fazenda",
+  "@farmArea": {
+    "description": "Etiqueta para o campo de entrada da área da fazenda"
+  },
+  "energyCost": "Custo de Eletricidade",
+  "@energyCost": {
+    "description": "Etiqueta para o campo de entrada do custo de eletricidade"
+  },
+  "operatingHours": "Horas de Funcionamento",
+  "@operatingHours": {
+    "description": "Etiqueta para o campo de entrada das horas de funcionamento"
+  },
+  "discountRate": "Taxa de Desconto",
+  "@discountRate": {
+    "description": "Etiqueta para o campo de entrada da taxa de desconto"
+  },
+  "inflationRate": "Taxa de Inflação",
+  "@inflationRate": {
+    "description": "Etiqueta para o campo de entrada da taxa de inflação"
+  },
+  "analysisHorizon": "Analysis Years",
+  "@analysisHorizon": {
+    "description": "Etiqueta para o campo de entrada do horizonte de análise"
+  },
+  "safetyMargin": "Margem de Segurança",
+  "@safetyMargin": {
+    "description": "Etiqueta para o campo de entrada da margem de segurança"
+  },
+  "name": "Nome",
+  "@name": {
+    "description": "Etiqueta para o campo de entrada do nome"
+  },
+  "horsepower": "Potência",
+  "@horsepower": {
+    "description": "Etiqueta para o campo de entrada da potência"
+  },
+  "sotr": "Taxa de Transferência de Oxigênio Padrão",
+  "@sotr": {
+    "description": "Etiqueta para o campo de entrada da Taxa de Transferência de Oxigênio Padrão"
+  },
+  "cost": "Custo",
+  "@cost": {
+    "description": "Etiqueta para o campo de entrada do custo"
+  },
+  "durability": "Durabilidade",
+  "@durability": {
+    "description": "Etiqueta para o campo de entrada da durabilidade"
+  },
+  "maintenanceCost": "Custo de Manutenção",
+  "@maintenanceCost": {
+    "description": "Etiqueta para o campo de entrada do custo de manutenção"
+  },
   "addAerator": "Adicionar Aerador",
   "@addAerator": {
     "description": "Etiqueta para o botão de adicionar um novo aerador"
@@ -363,5 +427,31 @@
   "noDataAvailableDescription": "Não há dados disponíveis para mostrar",
   "@noDataAvailableDescription": {
     "description": "Descrição de acessibilidade para o mensagem de não há dados disponíveis"
+  },
+  "minimumValueError": "Favor inserir um valor maior ou igual a {value}",
+  "@minimumValueError": {
+    "description": "Mensagem de validação para entrada de valor mínimo",
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "0"
+      }
+    }
+  },
+  "optionalField": "Opcional",
+  "@optionalField": {
+    "description": "Etiqueta para campos de entrada opcionais"
+  },
+  "surveyError": "Erro ao enviar a pesquisa",
+  "@surveyError": {
+    "description": "Mensagem de erro quando falha o envio da pesquisa"
+  },
+  "todLabel": "Demanda Total de Oxigênio (kg O₂/ha)",
+  "@todLabel": {
+    "description": "Etiqueta para o campo de entrada de demanda total de oxigênio"
+  },
+  "costLabel": "Custo (USD)",
+  "@costLabel": {
+    "description": "Etiqueta para o campo de entrada de custo em USD"
   }
 }

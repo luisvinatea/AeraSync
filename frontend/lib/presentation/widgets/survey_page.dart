@@ -84,12 +84,17 @@ class _SurveyPageState extends State<SurveyPage> {
         'tod': double.tryParse(_todController.text) ?? 0.0,
         'farm_area_ha': double.tryParse(_farmAreaController.text) ?? 0.0,
         'financial': {
-          'energy_cost': double.tryParse(_electricityCostController.text) ?? 0.05,
-          'operating_hours': double.tryParse(_operatingHoursController.text) ?? 2920,
-          'discount_rate': (double.tryParse(_discountRateController.text) ?? 10.0) / 100,
-          'inflation_rate': (double.tryParse(_inflationRateController.text) ?? 2.5) / 100,
+          'energy_cost':
+              double.tryParse(_electricityCostController.text) ?? 0.05,
+          'operating_hours':
+              double.tryParse(_operatingHoursController.text) ?? 2920,
+          'discount_rate':
+              (double.tryParse(_discountRateController.text) ?? 10.0) / 100,
+          'inflation_rate':
+              (double.tryParse(_inflationRateController.text) ?? 2.5) / 100,
           'horizon': int.tryParse(_analysisYearsController.text) ?? 9,
-          'safety_margin': (double.tryParse(_safetyMarginController.text) ?? 0.0) / 100
+          'safety_margin':
+              (double.tryParse(_safetyMarginController.text) ?? 0.0) / 100
         },
         'aerators': [
           {
@@ -97,31 +102,37 @@ class _SurveyPageState extends State<SurveyPage> {
             'power_hp': double.tryParse(_aerator1PowerController.text) ?? 3.0,
             'sotr': double.tryParse(_aerator1SotrController.text) ?? 1.4,
             'cost': double.tryParse(_aerator1CostController.text) ?? 500.0,
-            'durability': double.tryParse(_aerator1DurabilityController.text) ?? 2.0,
-            'maintenance': double.tryParse(_aerator1MaintenanceController.text) ?? 65.0
+            'durability':
+                double.tryParse(_aerator1DurabilityController.text) ?? 2.0,
+            'maintenance':
+                double.tryParse(_aerator1MaintenanceController.text) ?? 65.0
           },
           {
             'name': _aerator2NameController.text,
             'power_hp': double.tryParse(_aerator2PowerController.text) ?? 3.5,
             'sotr': double.tryParse(_aerator2SotrController.text) ?? 2.2,
             'cost': double.tryParse(_aerator2CostController.text) ?? 800.0,
-            'durability': double.tryParse(_aerator2DurabilityController.text) ?? 4.5,
-            'maintenance': double.tryParse(_aerator2MaintenanceController.text) ?? 50.0
+            'durability':
+                double.tryParse(_aerator2DurabilityController.text) ?? 4.5,
+            'maintenance':
+                double.tryParse(_aerator2MaintenanceController.text) ?? 50.0
           }
         ]
       };
 
       try {
         await appState.compareAerators(surveyData);
-        if (mounted) {
-          Navigator.pushNamed(context, '/results');
-        }
+        if (!mounted) return;
+        
+        // Use Navigator after checking mounted state
+        Navigator.pushNamed(context, '/results');
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.surveySubmissionFailed(e.toString()))),
-          );
-        }
+        if (!mounted) return;
+        
+        // Use ScaffoldMessenger after checking mounted state
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${l10n.submissionFailed(e.toString())}')),
+        );
       } finally {
         if (mounted) {
           setState(() {
@@ -156,15 +167,15 @@ class _SurveyPageState extends State<SurveyPage> {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
-        labelText: label + (required ? '' : ' (${l10n.optional})'),
+        labelText: label + (required ? '' : ' (${l10n.optionalField})'),
         suffixText: suffix,
         hintText: hint,
         filled: true,
-        fillColor: Colors.white.withOpacity(0.95),
+        fillColor: Colors.white.withAlpha(242),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
         labelStyle: TextStyle(
-          backgroundColor: Colors.white.withOpacity(0.8),
+          backgroundColor: Colors.white.withAlpha(204),
           color: const Color(0xFF1E40AF),
           fontWeight: FontWeight.w500,
           fontSize: 14,
@@ -194,7 +205,7 @@ class _SurveyPageState extends State<SurveyPage> {
                 return l10n.invalidNumber;
               }
               if (min != null && numValue < min) {
-                return '${l10n.positiveNumberRequired} (>= $min)';
+                return '${l10n.minimumValueError('$min')}';
               }
               if (max != null && numValue > max) {
                 return l10n.rangeError('$min', '$max');
@@ -205,7 +216,8 @@ class _SurveyPageState extends State<SurveyPage> {
     );
   }
 
-  TextFormField _buildTextField(TextEditingController controller, String label) {
+  TextFormField _buildTextField(
+      TextEditingController controller, String label) {
     final l10n = AppLocalizations.of(context)!;
 
     return TextFormField(
@@ -213,10 +225,11 @@ class _SurveyPageState extends State<SurveyPage> {
       decoration: InputDecoration(
         labelText: label,
         filled: true,
-        fillColor: Colors.white.withOpacity(0.95),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        fillColor: Colors.white.withAlpha(242),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
         labelStyle: TextStyle(
-          backgroundColor: Colors.white.withOpacity(0.8),
+          backgroundColor: Colors.white.withAlpha(204),
           color: const Color(0xFF1E40AF),
           fontWeight: FontWeight.w500,
           fontSize: 14,
@@ -302,13 +315,13 @@ class _SurveyPageState extends State<SurveyPage> {
                     steps: [
                       // Step 1: Farm and Financial Details
                       Step(
-                        title: Text(l10n.farmAndFinancialDetails),
+                        title: Text(l10n.farmFinancialDetails),
                         isActive: _currentStep == 0,
                         content: Column(
                           children: [
                             _buildNumberField(
                               _todController,
-                              l10n.todLabel,
+                              l10n.totalOxygenDemand,
                               'kg O₂/h',
                               true,
                               min: 0.1,
@@ -327,7 +340,7 @@ class _SurveyPageState extends State<SurveyPage> {
                             const SizedBox(height: 16),
                             _buildNumberField(
                               _electricityCostController,
-                              l10n.energyCostLabel,
+                              l10n.electricityCostLabel,
                               'USD/kWh',
                               true,
                               min: 0.0,
@@ -400,7 +413,8 @@ class _SurveyPageState extends State<SurveyPage> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 8),
-                            _buildTextField(_aerator1NameController, l10n.nameLabel),
+                            _buildTextField(
+                                _aerator1NameController, l10n.nameLabel),
                             const SizedBox(height: 8),
                             _buildNumberField(
                               _aerator1PowerController,
@@ -424,7 +438,7 @@ class _SurveyPageState extends State<SurveyPage> {
                             const SizedBox(height: 8),
                             _buildNumberField(
                               _aerator1CostController,
-                              l10n.costLabel,
+                              l10n.priceLabel,
                               'USD',
                               true,
                               min: 0,
@@ -457,7 +471,8 @@ class _SurveyPageState extends State<SurveyPage> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 8),
-                            _buildTextField(_aerator2NameController, l10n.nameLabel),
+                            _buildTextField(
+                                _aerator2NameController, l10n.nameLabel),
                             const SizedBox(height: 8),
                             _buildNumberField(
                               _aerator2PowerController,
@@ -481,7 +496,7 @@ class _SurveyPageState extends State<SurveyPage> {
                             const SizedBox(height: 8),
                             _buildNumberField(
                               _aerator2CostController,
-                              l10n.costLabel,
+                              l10n.priceLabel,
                               'USD',
                               true,
                               min: 0,
