@@ -3,17 +3,27 @@
   "framework": null,
   "functions": {
     "api/**/*.py": {
-      "memory": 128,
-      "maxDuration": 10
+      "memory": 256,
+      "maxDuration": 30
     }
   },
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/health",
+      "dest": "/api/main.py",
+      "methods": ["GET"],
+      "headers": {
+        "cache-control": "no-cache"
+      }
+    },
+    {
+      "src": "/api/(.*)",
       "dest": "/api/main.py"
     }
   ],
-  "env": {},
+  "env": {
+    "CORS_ORIGINS": "https://aerasync.vercel.app"
+  },
   "builds": [
     {
       "src": "api/main.py",
