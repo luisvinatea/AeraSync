@@ -28,22 +28,25 @@ class ApiService {
   Future<Map<String, dynamic>> compareAerators(
       Map<String, dynamic> inputs) async {
     try {
-      // Use relative path for API endpoint
+      // Use /api/compare endpoint to match Vercel routing configuration
       final response = await client.post(
-        Uri.parse('$baseUrl/compare'),
+        Uri.parse('$baseUrl/api/compare'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(inputs),
       );
 
-      final parsedBody = jsonDecode(response.body) as Map<String, dynamic>;
-
       if (response.statusCode != 200) {
-        return parsedBody; // Return the error response as a Map
+        throw Exception(
+            'API returned status code ${response.statusCode}: ${response.body}');
       }
 
-      return parsedBody;
-    } on FormatException catch (e) {
-      throw Exception('Failed to compare aerators: ${e.toString()}');
+      try {
+        final parsedBody = jsonDecode(response.body) as Map<String, dynamic>;
+        return parsedBody;
+      } on FormatException catch (_) {
+        throw Exception(
+            'Invalid response format from server: ${response.body}');
+      }
     } catch (e) {
       throw Exception('Failed to compare aerators: $e');
     }

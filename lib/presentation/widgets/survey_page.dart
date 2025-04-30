@@ -214,6 +214,9 @@ class _SurveyPageState extends State<SurveyPage> {
         labelText: label + (required ? '' : ' (${l10n.optional})'),
         suffixText: suffix,
         hintText: hint,
+        // Add contrasting background to make text more readable
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.9),
       ),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       validator: required
@@ -388,6 +391,9 @@ class _SurveyPageState extends State<SurveyPage> {
                               controller: _aerator1NameController,
                               decoration: InputDecoration(
                                 labelText: l10n.nameLabel,
+                                // Add contrasting background to make text more readable
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.9),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -426,6 +432,9 @@ class _SurveyPageState extends State<SurveyPage> {
                               controller: _aerator2NameController,
                               decoration: InputDecoration(
                                 labelText: l10n.nameLabel,
+                                // Add contrasting background to make text more readable
+                                filled: true,
+                                fillColor: Colors.white.withOpacity(0.9),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
