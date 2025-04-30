@@ -1,14 +1,9 @@
 {
   "version": 2,
-  "framework": null,
   "builds": [
     {
-      "src": "pubspec.yaml",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build/web",
-        "buildCommand": "flutter pub get && flutter build web --release --dart-define=API_URL=https://aerasync-api.vercel.app"
-      }
+      "src": "build/web/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -28,8 +23,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "env": {
-    "API_URL": "https://aerasync-api.vercel.app"
-  }
+  ]
 }
