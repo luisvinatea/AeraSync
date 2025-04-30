@@ -15,7 +15,11 @@ void main() {
     setUp(() {
       mockClient = MockClient();
       baseUrl = 'http://127.0.0.1:8000';
-      apiService = ApiService(client: mockClient, baseUrl: baseUrl);
+      apiService = ApiService(
+        client: mockClient,
+        baseUrl: baseUrl,
+        isTestEnvironment: true, // Enable test environment mode
+      );
 
       // Register full paths used by ApiService with baseUrl
       registerFallbackValue(Uri.parse('$baseUrl/api/health'));
