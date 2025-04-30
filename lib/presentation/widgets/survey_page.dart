@@ -214,9 +214,30 @@ class _SurveyPageState extends State<SurveyPage> {
         labelText: label + (required ? '' : ' (${l10n.optional})'),
         suffixText: suffix,
         hintText: hint,
-        // Add contrasting background to make text more readable
+        // Enhanced styling for better readability
         filled: true,
-        fillColor: Colors.white.withOpacity(0.9),
+        fillColor: Colors.white.withOpacity(0.95),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        labelStyle: TextStyle(
+          backgroundColor: Colors.white.withOpacity(0.8),
+          color: const Color(0xFF1E40AF),
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.blue.shade300, width: 1),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.blue.shade300, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF1E40AF), width: 2),
+        ),
+        floatingLabelBehavior: FloatingLabelBehavior.always,
       ),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       validator: required
@@ -391,9 +412,35 @@ class _SurveyPageState extends State<SurveyPage> {
                               controller: _aerator1NameController,
                               decoration: InputDecoration(
                                 labelText: l10n.nameLabel,
-                                // Add contrasting background to make text more readable
+                                // Enhanced styling for better readability
                                 filled: true,
-                                fillColor: Colors.white.withOpacity(0.9),
+                                fillColor: Colors.white.withOpacity(0.95),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 18),
+                                labelStyle: TextStyle(
+                                  backgroundColor:
+                                      Colors.white.withOpacity(0.8),
+                                  color: const Color(0xFF1E40AF),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                      color: Colors.blue.shade300, width: 1),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                      color: Colors.blue.shade300, width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xFF1E40AF), width: 2),
+                                ),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -432,9 +479,35 @@ class _SurveyPageState extends State<SurveyPage> {
                               controller: _aerator2NameController,
                               decoration: InputDecoration(
                                 labelText: l10n.nameLabel,
-                                // Add contrasting background to make text more readable
+                                // Enhanced styling for better readability
                                 filled: true,
-                                fillColor: Colors.white.withOpacity(0.9),
+                                fillColor: Colors.white.withOpacity(0.95),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 18),
+                                labelStyle: TextStyle(
+                                  backgroundColor:
+                                      Colors.white.withOpacity(0.8),
+                                  color: const Color(0xFF1E40AF),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                      color: Colors.blue.shade300, width: 1),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                      color: Colors.blue.shade300, width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xFF1E40AF), width: 2),
+                                ),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {

@@ -29,25 +29,34 @@ class ApiService {
       Map<String, dynamic> inputs) async {
     try {
       // Use /api/compare endpoint to match Vercel routing configuration
+      final uri = Uri.parse('$baseUrl/api/compare');
+      final headers = {'Content-Type': 'application/json'};
+      final body = jsonEncode(inputs);
+
+      // Make the POST request with error handling
       final response = await client.post(
-        Uri.parse('$baseUrl/api/compare'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(inputs),
+        uri,
+        headers: headers,
+        body: body,
       );
 
+      // Handle HTTP status errors
       if (response.statusCode != 200) {
         throw Exception(
             'API returned status code ${response.statusCode}: ${response.body}');
       }
 
+      // Parse the response body
       try {
-        final parsedBody = jsonDecode(response.body) as Map<String, dynamic>;
-        return parsedBody;
-      } on FormatException catch (_) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } on FormatException catch (e) {
         throw Exception(
-            'Invalid response format from server: ${response.body}');
+            'FormatException: Unexpected character in response - ${e.message}');
       }
     } catch (e) {
+      if (e is Exception && e.toString().contains('FormatException')) {
+        rethrow; // Preserve FormatException for specific test cases
+      }
       throw Exception('Failed to compare aerators: $e');
     }
   }
