@@ -16,8 +16,11 @@ fi
 echo "Flutter version:"
 flutter --version
 
+# First, ensure localization files are generated
+echo "Generating localization files..."
+flutter gen-l10n
+
 # Build the Flutter web app in release mode
-# Removed the --web-renderer flag as it's not supported in your Flutter version
 echo "Building Flutter web app..."
 flutter build web --release
 
