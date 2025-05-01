@@ -7,15 +7,21 @@
       "dest": "/api/main.py",
       "methods": ["GET"],
       "headers": {
-        "cache-control": "no-cache"
+        "cache-control": "no-cache",
+        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
       }
     },
     {
       "src": "/compare",
       "dest": "/api/main.py",
-      "methods": ["POST"],
+      "methods": ["POST", "OPTIONS"],
       "headers": {
-        "cache-control": "no-cache"
+        "cache-control": "no-cache",
+        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
       }
     },
     {
@@ -23,15 +29,21 @@
       "dest": "/api/main.py?endpoint=health",
       "methods": ["GET"],
       "headers": {
-        "cache-control": "no-cache"
+        "cache-control": "no-cache",
+        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
       }
     },
     {
       "src": "/api/compare",
       "dest": "/api/main.py?endpoint=compare",
-      "methods": ["POST"],
+      "methods": ["POST", "OPTIONS"],
       "headers": {
-        "cache-control": "no-cache"
+        "cache-control": "no-cache",
+        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
       }
     },
     {
@@ -39,7 +51,10 @@
       "dest": "/api/main.py",
       "methods": ["GET"],
       "headers": {
-        "cache-control": "no-cache"
+        "cache-control": "no-cache",
+        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
       }
     },
     {
@@ -47,7 +62,10 @@
       "dest": "/api/main.py",
       "methods": ["GET"],
       "headers": {
-        "cache-control": "no-cache"
+        "cache-control": "no-cache",
+        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
       }
     }
   ],

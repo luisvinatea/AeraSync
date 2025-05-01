@@ -13,6 +13,9 @@ class SurveyPage extends StatefulWidget {
     final state = context.findAncestorStateOfType<_SurveyPageState>();
     if (state != null) {
       final appState = Provider.of<AppState>(context, listen: false);
+      // Capture navigator and scaffold messenger before async operations
+      final navigator = Navigator.of(context);
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       // Set loading state
       state._isLoading = true;
@@ -70,11 +73,18 @@ class SurveyPage extends StatefulWidget {
 
       try {
         await appState.compareAerators(surveyData);
-        Navigator.of(context).pushNamed('/results');
+        
+        // Check if the state is still mounted before using the context
+        if (state.mounted) {
+          navigator.pushNamed('/results');
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        // Check if the state is still mounted before using the context
+        if (state.mounted) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(content: Text(e.toString())),
+          );
+        }
       } finally {
         if (state.mounted) {
           state._isLoading = false;
