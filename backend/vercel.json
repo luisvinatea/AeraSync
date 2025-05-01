@@ -3,68 +3,11 @@
   "framework": null,
   "routes": [
     {
-      "src": "/health",
-      "dest": "/api/main.py",
-      "methods": ["GET"],
+      "src": "/(.*)",
+      "dest": "api/main.py",
       "headers": {
-        "cache-control": "no-cache",
-        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      }
-    },
-    {
-      "src": "/compare",
-      "dest": "/api/main.py",
-      "methods": ["POST", "OPTIONS"],
-      "headers": {
-        "cache-control": "no-cache",
-        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      }
-    },
-    {
-      "src": "/api/health",
-      "dest": "/api/main.py?endpoint=health",
-      "methods": ["GET"],
-      "headers": {
-        "cache-control": "no-cache",
-        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      }
-    },
-    {
-      "src": "/api/compare",
-      "dest": "/api/main.py?endpoint=compare",
-      "methods": ["POST", "OPTIONS"],
-      "headers": {
-        "cache-control": "no-cache",
-        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      }
-    },
-    {
-      "src": "/",
-      "dest": "/api/main.py",
-      "methods": ["GET"],
-      "headers": {
-        "cache-control": "no-cache",
-        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
-      }
-    },
-    {
-      "src": "/api",
-      "dest": "/api/main.py",
-      "methods": ["GET"],
-      "headers": {
-        "cache-control": "no-cache",
-        "Access-Control-Allow-Origin": "https://aerasync-web.vercel.app",
-        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type"
       }
     }
