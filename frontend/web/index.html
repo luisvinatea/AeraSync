@@ -11,6 +11,7 @@
   <meta name="author" content="Luis Vinatea">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="AeraSync">
   <meta name="theme-color" content="#1E40AF">
@@ -36,7 +37,7 @@
     // Dynamically adjust the base href if needed
     (function() {
       var pathname = window.location.pathname;
-      // Fix paths for deep links to ensure assets load correctly
+      // Set the Flutter Web Renderer
       window.flutterWebRenderer = "canvaskit";
     })();
     
@@ -44,6 +45,17 @@
     const serviceWorkerVersion = null;
   </script>
 
+  <!-- Preload Flutter scripts -->
+  <script>
+    // Required buildConfig for Flutter web initialization
+    window._flutter = {
+      loader: {},
+      buildConfig: {
+        renderer: "canvaskit",
+        canvasKitBaseUrl: "/canvaskit/"
+      }
+    };
+  </script>
   <link rel="preload" href="flutter.js" as="script">
   <script src="flutter.js" defer></script>
 
@@ -137,14 +149,14 @@
         }
       }, { passive: false });
       
-      // New Flutter initialization using recommended API
+      // Initialize Flutter app
       _flutter.loader.load({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
-        }
-      }).then(function(appRunner) {
-        appRunner.runApp({
-          onEntrypointLoaded: function() {
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
             // Remove loading screen once Flutter app is ready
             if (loadingScreen) {
               loadingScreen.style.opacity = '0';
@@ -152,8 +164,8 @@
                 loadingScreen.style.display = 'none';
               }, 500);
             }
-          }
-        });
+          });
+        }
       }).catch(function(error) {
         console.error("Failed to initialize Flutter: " + error);
       });

@@ -58,14 +58,31 @@ if [ -f "public/flutter_service_worker.js" ]; then
   rm public/cors-headers.js
 fi
 
+# Ensure Flutter buildConfig is set correctly in index.html
+echo "Ensuring Flutter initialization is properly configured..."
+cat >flutter-init-script.js <<EOL
+// Required buildConfig for Flutter web initialization
+window._flutter = {
+  loader: {},
+  buildConfig: {
+    renderer: "canvaskit",
+    canvasKitBaseUrl: "/canvaskit/"
+  }
+};
+EOL
+
+# Insert the Flutter buildConfig script if not already present
+if ! grep -q "window._flutter" public/index.html; then
+  sed -i '/<link rel="preload" href="flutter.js"/i <!-- Preload Flutter scripts -->\n<script>\n// Required buildConfig for Flutter web initialization\nwindow._flutter = {\n  loader: {},\n  buildConfig: {\n    renderer: "canvaskit",\n    canvasKitBaseUrl: "/canvaskit/"\n  }\n};\n</script>' public/index.html
+fi
+
+# Add mobile-web-app-capable meta tag if not already present
+if ! grep -q "mobile-web-app-capable" public/index.html; then
+  sed -i '/<meta name="apple-mobile-web-app-capable"/a <meta name="mobile-web-app-capable" content="yes">' public/index.html
+fi
+
 # Fix base href in index.html if needed
 echo "Ensuring base href is set correctly..."
 sed -i 's|<base href=".*">|<base href="/">|g' public/index.html
-
-# Set the renderer to CanvasKit in index.html
-echo "Setting window.flutterWebRenderer in index.html..."
-grep -q "window.flutterWebRenderer" public/index.html &&
-  sed -i 's|window.flutterWebRenderer = ".*"|window.flutterWebRenderer = "canvaskit"|g' public/index.html ||
-  sed -i '/<head>/a \    <script>window.flutterWebRenderer = "canvaskit";</script>' public/index.html
 
 echo "Build process completed successfully!"
