@@ -15,7 +15,7 @@ app.add_middleware(
     allow_origins=[
         "http://127.0.0.1:8080",  # Local Flutter dev
         "http://localhost:8080",  # Alternative localhost
-        "https://aerasync.vercel.app",  # Production URL
+        "https://aerasync-web.vercel.app",  # Production URL
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST"],

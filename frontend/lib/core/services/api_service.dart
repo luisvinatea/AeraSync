@@ -14,7 +14,7 @@ class ApiService {
         baseUrl = baseUrl ??
             const String.fromEnvironment(
               'API_URL',
-              defaultValue: 'https://aerasync.vercel.app',
+              defaultValue: 'https://aerasync-api.vercel.app',
             );
 
   /// Checks if the API is healthy by making a GET request to /api/health.

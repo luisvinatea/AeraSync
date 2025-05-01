@@ -22,7 +22,7 @@
     }
   ],
   "env": {
-    "CORS_ORIGINS": "https://aerasync.vercel.app"
+    "CORS_ORIGINS": "https://aerasync-web.vercel.app"
   },
   "builds": [
     {
