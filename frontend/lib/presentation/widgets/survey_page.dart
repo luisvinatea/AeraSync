@@ -131,7 +131,7 @@ class _SurveyPageState extends State<SurveyPage> {
         
         // Use ScaffoldMessenger after checking mounted state
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.submissionFailed(e.toString())}')),
+          SnackBar(content: Text(l10n.submissionFailed(e.toString()))),
         );
       } finally {
         if (mounted) {
@@ -205,7 +205,7 @@ class _SurveyPageState extends State<SurveyPage> {
                 return l10n.invalidNumber;
               }
               if (min != null && numValue < min) {
-                return '${l10n.minimumValueError('$min')}';
+                return l10n.minimumValueError('$min');
               }
               if (max != null && numValue > max) {
                 return l10n.rangeError('$min', '$max');
