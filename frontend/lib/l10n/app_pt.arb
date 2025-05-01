@@ -453,5 +453,21 @@
   "costLabel": "Custo (USD)",
   "@costLabel": {
     "description": "Etiqueta para o campo de entrada de custo em USD"
+  },
+  "npvSavingsLabel": "Poupança de VPL",
+  "@npvSavingsLabel": {
+    "description": "Etiqueta para a coluna de poupança de VPL na tabela de comparação"
+  },
+  "cultureDaysLabel": "Dias de Cultivo",
+  "@cultureDaysLabel": {
+    "description": "Etiqueta para o campo de entrada de dias de cultivo"
+  },
+  "pondDensityLabel": "Densidade do Lago",
+  "@pondDensityLabel": {
+    "description": "Etiqueta para o campo de entrada de densidade do lago"
+  },
+  "temperatureLabel": "Temperatura da Água",
+  "@temperatureLabel": {
+    "description": "Etiqueta para o campo de entrada de temperatura da água"
   }
 }

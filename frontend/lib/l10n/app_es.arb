@@ -453,5 +453,21 @@
   "costLabel": "Costo (USD)",
   "@costLabel": {
     "description": "Etiqueta para el campo de entrada de costo en USD"
+  },
+  "npvSavingsLabel": "Ahorros VPN (USD)",
+  "@npvSavingsLabel": {
+    "description": "Etiqueta para el campo de entrada de ahorros VPN en USD"
+  },
+  "cultureDaysLabel": "Días de Cultivo",
+  "@cultureDaysLabel": {
+    "description": "Etiqueta para el campo de entrada de días de cultivo"
+  },
+  "pondDensityLabel": "Densidad del Estanque",
+  "@pondDensityLabel": {
+    "description": "Etiqueta para el campo de entrada de densidad del estanque"
+  },
+  "temperatureLabel": "Temperatura del Agua",
+  "@temperatureLabel": {
+    "description": "Etiqueta para el campo de entrada de temperatura del agua"
   }
 }

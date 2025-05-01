@@ -453,5 +453,21 @@
   "costLabel": "Cost (USD)",
   "@costLabel": {
     "description": "Label for the cost input field in USD"
+  },
+  "npvSavingsLabel": "NPV Savings",
+  "@npvSavingsLabel": {
+    "description": "Label for the NPV savings column in the comparison table"
+  },
+  "cultureDaysLabel": "Culture Days",
+  "@cultureDaysLabel": {
+    "description": "Label for the culture days input field"
+  },
+  "pondDensityLabel": "Pond Density",
+  "@pondDensityLabel": {
+    "description": "Label for the pond density input field"
+  },
+  "temperatureLabel": "Water Temperature",
+  "@temperatureLabel": {
+    "description": "Label for the water temperature input field"
   }
 }

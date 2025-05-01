@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_service.dart';
+import 'dart:math';
 
 class AppState extends ChangeNotifier {
   // API service
@@ -139,7 +140,8 @@ class AppState extends ChangeNotifier {
   Future<void> compareAerators(Map<String, dynamic> surveyData) async {
     clearError();
     try {
-      _apiResults = await _apiService.compareAerators(surveyData);
+      final normalizedData = _normalizeData(surveyData);
+      _apiResults = await _apiService.compareAerators(normalizedData);
       notifyListeners();
     } catch (e) {
       if (e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
@@ -148,5 +150,80 @@ class AppState extends ChangeNotifier {
         setError('An unexpected error occurred: $e');
       }
     }
+  }
+
+  // Normalize data to match expected API format
+  Map<String, dynamic> _normalizeData(Map<String, dynamic> data) {
+    // Ensure all values are properly converted to the expected types
+    final Map<String, dynamic> normalizedData = {
+      'farm': {
+        'tod': _ensurePositiveDouble(data['farm']['tod']),
+        'farm_area_ha': _ensurePositiveDouble(data['farm']['farm_area_ha']),
+        'shrimp_price': _ensurePositiveDouble(data['farm']['shrimp_price']),
+        'culture_days': _ensurePositiveDouble(data['farm']['culture_days']),
+        'pond_density': _ensurePositiveDouble(data['farm']['pond_density']),
+      },
+      'financial': {
+        'energy_cost': _ensurePositiveDouble(data['financial']['energy_cost']),
+        'operating_hours': _ensurePositiveDouble(data['financial']['operating_hours']),
+        'discount_rate': _ensurePositiveDouble(data['financial']['discount_rate']),
+        'inflation_rate': _ensurePositiveDouble(data['financial']['inflation_rate']),
+        'horizon': _ensurePositiveInt(data['financial']['horizon']),
+        'safety_margin': _ensureNonNegativeDouble(data['financial']['safety_margin']),
+        'temperature': _ensurePositiveDouble(data['financial']['temperature']),
+      },
+      'aerators': [],
+    };
+
+    // Process aerators array
+    final aerators = data['aerators'] as List;
+    for (var aerator in aerators) {
+      normalizedData['aerators'].add({
+        'name': _ensureNonEmptyString(aerator['name'], 'Unknown Aerator'),
+        'sotr': _ensurePositiveDouble(aerator['sotr']),
+        'power_hp': _ensurePositiveDouble(aerator['power_hp']),
+        'cost': _ensureNonNegativeDouble(aerator['cost']),
+        'durability': _ensurePositiveDouble(aerator['durability']),
+        'maintenance': _ensureNonNegativeDouble(aerator['maintenance']),
+      });
+    }
+
+    return normalizedData;
+  }
+
+  // Helper methods for data normalization
+  double _ensurePositiveDouble(dynamic value) {
+    if (value is num) return max(0.001, value.toDouble());
+    try {
+      final parsed = double.parse(value.toString());
+      return max(0.001, parsed);
+    } catch (_) {
+      return 0.001;
+    }
+  }
+
+  double _ensureNonNegativeDouble(dynamic value) {
+    if (value is num) return max(0, value.toDouble());
+    try {
+      final parsed = double.parse(value.toString());
+      return max(0, parsed);
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  int _ensurePositiveInt(dynamic value) {
+    if (value is int) return max(1, value);
+    try {
+      final parsed = int.parse(value.toString());
+      return max(1, parsed);
+    } catch (_) {
+      return 1;
+    }
+  }
+
+  String _ensureNonEmptyString(dynamic value, String defaultValue) {
+    if (value == null || (value is String && value.trim().isEmpty)) return defaultValue;
+    return value.toString();
   }
 }
