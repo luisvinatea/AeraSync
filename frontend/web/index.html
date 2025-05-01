@@ -75,19 +75,7 @@
       // The value below is injected by flutter build, do not touch.
       const serviceWorkerVersion = null;
     </script>
-
-    <!-- Preload Flutter scripts -->
-    <script>
-      // Required buildConfig for Flutter web initialization
-      window._flutter = {
-        loader: {},
-        buildConfig: {
-          renderer: "canvaskit",
-          canvasKitBaseUrl: "/canvaskit/",
-        },
-      };
-    </script>
-    <link rel="preload" href="flutter.js" as="script" />
+    
     <script src="flutter.js" defer></script>
 
     <style>
@@ -205,20 +193,11 @@
           { passive: false }
         );
 
-        // Initialize Flutter app using the correct API
-        _flutter.loader.loadEntrypoint({
-          serviceWorker: {
-            serviceWorkerVersion: serviceWorkerVersion,
-          },
-          onEntrypointLoaded: function (engineInitializer) {
-            engineInitializer
-              .initializeEngine({
-                renderer: "canvaskit",
-                canvasKitBaseUrl: "/canvaskit/",
-              })
-              .then(function (appRunner) {
-                appRunner.runApp();
-                // Remove loading screen once Flutter app is ready
+        // Initialize Flutter using the standard initialization
+        _flutter = {
+          loader: {
+            loadEntrypoint: function(options) {
+              window.addEventListener("flutter-first-frame", function() {
                 if (loadingScreen) {
                   loadingScreen.style.opacity = "0";
                   setTimeout(function () {
@@ -226,7 +205,31 @@
                   }, 500);
                 }
               });
-          },
+              
+              // Load main.dart.js
+              var scriptTag = document.createElement("script");
+              scriptTag.src = "main.dart.js";
+              scriptTag.type = "application/javascript";
+              document.body.appendChild(scriptTag);
+              
+              if (options && options.onEntrypointLoaded) {
+                options.onEntrypointLoaded({
+                  initializeEngine: function(config) {
+                    return Promise.resolve({
+                      runApp: function() {}
+                    });
+                  }
+                });
+              }
+            }
+          }
+        };
+        
+        // Call loadEntrypoint
+        _flutter.loader.loadEntrypoint({
+          serviceWorker: {
+            serviceWorkerVersion: serviceWorkerVersion,
+          }
         });
       });
     </script>
