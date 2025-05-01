@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:developer' as developer;
 import '../../core/services/app_state.dart';
 
 class SurveyPage extends StatefulWidget {
@@ -72,15 +73,18 @@ class _SurveyPageState extends State<SurveyPage> {
   }
 
   Future<void> _submitSurvey(BuildContext context) async {
-    print('Submitting survey...');
+    developer.log('Submitting survey...');
     if (_formKey.currentState!.validate()) {
-      print('Form validated, setting isLoading to true');
+      developer.log('Form validated, setting isLoading to true');
       setState(() {
         _isLoading = true;
       });
 
+      // Capture all necessary context variables before async operations
       final appState = Provider.of<AppState>(context, listen: false);
       final l10n = AppLocalizations.of(context)!;
+      final navigatorState = Navigator.of(context);
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       final surveyData = {
         'tod': double.tryParse(_todController.text) ?? 0.0,
@@ -123,51 +127,59 @@ class _SurveyPageState extends State<SurveyPage> {
       };
 
       try {
-        print('Calling compareAerators with data: $surveyData');
+        developer.log('Calling compareAerators with data: $surveyData');
         await appState.compareAerators(surveyData);
         if (!mounted) return;
-        print('Navigating to results page');
-        Navigator.pushNamed(context, '/results');
+        developer.log('Navigating to results page');
+        
+        // Use the captured navigator state
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          navigatorState.pushNamed('/results');
+        });
       } catch (e) {
         if (!mounted) return;
-        print('Error during submission: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.submissionFailed(e.toString()))),
-        );
+        developer.log('Error during submission: $e');
+        
+        // Use the captured scaffold messenger state
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          scaffoldMessenger.showSnackBar(
+            SnackBar(content: Text(l10n.submissionFailed(e.toString()))),
+          );
+        });
       } finally {
         if (mounted) {
-          print('Setting isLoading to false');
+          developer.log('Setting isLoading to false');
           setState(() {
             _isLoading = false;
           });
         }
       }
     } else {
-      print('Form validation failed');
+      developer.log('Form validation failed');
     }
   }
 
   void _nextStep() {
-    print('Next step called, current step: $_currentStep');
+    developer.log('Next step called, current step: $_currentStep');
     if (_currentStep < 1) {
       if (_formKey.currentState!.validate()) {
         setState(() {
           _currentStep += 1;
         });
-        print('Moved to step: $_currentStep');
+        developer.log('Moved to step: $_currentStep');
       } else {
-        print('Validation failed, staying on step: $_currentStep');
+        developer.log('Validation failed, staying on step: $_currentStep');
       }
     }
   }
 
   void _prevStep() {
-    print('Previous step called, current step: $_currentStep');
+    developer.log('Previous step called, current step: $_currentStep');
     if (_currentStep > 0) {
       setState(() {
         _currentStep -= 1;
       });
-      print('Moved to step: $_currentStep');
+      developer.log('Moved to step: $_currentStep');
     }
   }
 
@@ -183,11 +195,11 @@ class _SurveyPageState extends State<SurveyPage> {
         suffixText: suffix,
         hintText: hint,
         filled: true,
-        fillColor: Colors.white.withAlpha(242),
+        fillColor: Colors.white.withValues(alpha: 242 / 255),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
         labelStyle: TextStyle(
-          backgroundColor: Colors.white.withAlpha(204),
+          backgroundColor: Colors.white.withValues(alpha: 204 / 255),
           color: const Color(0xFF1E40AF),
           fontWeight: FontWeight.w500,
           fontSize: 14,
@@ -237,11 +249,11 @@ class _SurveyPageState extends State<SurveyPage> {
       decoration: InputDecoration(
         labelText: label,
         filled: true,
-        fillColor: Colors.white.withAlpha(242),
+        fillColor: Colors.white.withValues(alpha: 242 / 255),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
         labelStyle: TextStyle(
-          backgroundColor: Colors.white.withAlpha(204),
+          backgroundColor: Colors.white.withValues(alpha: 204 / 255),
           color: const Color(0xFF1E40AF),
           fontWeight: FontWeight.w500,
           fontSize: 14,
@@ -272,7 +284,7 @@ class _SurveyPageState extends State<SurveyPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    print('Building SurveyPage, current step: $_currentStep');
+    developer.log('Building SurveyPage, current step: $_currentStep');
 
     return Scaffold(
       appBar: AppBar(
@@ -300,10 +312,10 @@ class _SurveyPageState extends State<SurveyPage> {
                       setState(() {
                         _currentStep = step;
                       });
-                      print('Step tapped, moved to step: $_currentStep');
+                      developer.log('Step tapped, moved to step: $_currentStep');
                     },
                     controlsBuilder: (context, controls) {
-                      print('Rendering controls for step: $_currentStep');
+                      developer.log('Rendering controls for step: $_currentStep');
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Row(

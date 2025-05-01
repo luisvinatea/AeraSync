@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "github": {
+    "enabled": false
+  },
+  "ignoreCommand": "echo 'This is a monorepo - please deploy the frontend or backend directories separately'"
+}

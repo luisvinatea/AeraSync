@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
               seedColor: const Color(0xFF1E40AF),
               primary: const Color(0xFF1E40AF),
               secondary: const Color(0xFF60A5FA),
-              surface: Colors.white.withOpacity(0.9),
+              surface: Colors.white.withValues(alpha: 0.9),
               onSurface: const Color(0xFF1E40AF),
             ),
             appBarTheme: const AppBarTheme(
@@ -93,7 +93,7 @@ class MyApp extends StatelessWidget {
             ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
-              fillColor: Colors.white.withOpacity(0.95),
+              fillColor: Colors.white.withValues(alpha: 0.95),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(color: Color(0xFF60A5FA)),
@@ -107,7 +107,7 @@ class MyApp extends StatelessWidget {
                 borderSide: const BorderSide(color: Color(0xFF1E40AF), width: 2),
               ),
               labelStyle: TextStyle(
-                backgroundColor: Colors.white.withOpacity(0.8),
+                backgroundColor: Colors.white.withValues(alpha: 0.8),
                 color: const Color(0xFF1E40AF),
                 fontWeight: FontWeight.w500,
                 fontSize: 16,
