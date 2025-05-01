@@ -11,6 +11,7 @@ test/
 .metadata
 .aerasync
 .vscode/
+markdownlintrc.json
 
 # Flutter repo-specific
 /bin/cache/
