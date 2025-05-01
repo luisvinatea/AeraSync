@@ -1,10 +1,10 @@
 name: aerasync
 description: A Flutter app for comparing aerators in shrimp farming with a step-by-step survey and ranked results.
-publish_to: 'none'
+publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -21,7 +21,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   mockito: ^5.4.6
-  build_runner: ^2.4.15
+  build_runner: ^2.3.3 # Downgraded to a version compatible with Dart SDK 3.2.0
 
 flutter:
   generate: true

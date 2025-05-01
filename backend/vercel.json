@@ -1,12 +1,6 @@
 {
   "version": 2,
   "framework": null,
-  "functions": {
-    "api/**/*.py": {
-      "memory": 256,
-      "maxDuration": 30
-    }
-  },
   "routes": [
     {
       "src": "/health",
@@ -29,7 +23,9 @@
       "src": "api/main.py",
       "use": "@vercel/python",
       "config": {
-        "includeFiles": ["api/**"]
+        "includeFiles": ["api/**"],
+        "maxDuration": 30,
+        "memory": 256
       }
     }
   ]
