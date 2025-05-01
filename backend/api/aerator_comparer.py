@@ -310,14 +310,10 @@ def compare_aerators(data):
     annual_revenue = calculate_annual_revenue(farm)
 
     # Process each aerator
-    baseline_costs = {}
-    aerator_results = []
-    for aerator in aerators:
-        result = process_aerator(
-            aerator, farm, financial, annual_revenue
-        )
-        baseline_costs[aerator.name] = result['total_annual_cost']
-        aerator_results.append(result)
+    aerator_results = [
+        process_aerator(aerator, farm, financial, annual_revenue)
+        for aerator in aerators
+    ]
 
     # Determine winner (lowest total annual cost)
     winner = min(aerator_results, key=lambda x: x['total_annual_cost'])
@@ -326,14 +322,20 @@ def compare_aerators(data):
     # Calculate financial metrics based on savings
     results = []
     equilibrium_prices = {}
+
     for result in aerator_results:
         aerator = result['aerator']
+        # Calculate annual savings compared to the winner
+        # (will be 0 for winner)
         annual_saving = (
-            baseline_costs.get(aerator.name, result['total_annual_cost'])
-            - winner['total_annual_cost']
+            result['total_annual_cost'] - winner['total_annual_cost']
+            if aerator.name != winner_aerator.name
+            else 0
         )
         additional_cost = (
             result['total_initial_cost'] - winner['total_initial_cost']
+            if aerator.name != winner_aerator.name
+            else 0
         )
         cash_flows_savings = [
             annual_saving * (1 + financial.inflation_rate) ** t

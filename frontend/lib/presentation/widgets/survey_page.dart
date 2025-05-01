@@ -30,7 +30,7 @@ class SurveyPage extends StatefulWidget {
           'energy_cost': double.tryParse(state._electricityCostController.text) ?? 0.05,
           'operating_hours': double.tryParse(state._operatingHoursController.text) ?? 2920,
           'discount_rate': (double.tryParse(state._discountRateController.text) ?? 10.0) / 100,
-          'inflation_rate': (double.tryParse(state._inflationRateController.text) ?? 2.5) / 100,
+          'inflation_rate': (double.tryParse(state._inflationRateController.text) ?? 3.0) / 100,
           'horizon': int.tryParse(state._analysisYearsController.text) ?? 9,
           'safety_margin': (double.tryParse(state._safetyMarginController.text) ?? 0.0) / 100,
           'temperature': double.tryParse(state._temperatureController.text) ?? 31.5,
@@ -46,8 +46,8 @@ class SurveyPage extends StatefulWidget {
           },
           {
             'name': state._aerator2NameController.text,
-            'power_hp': double.tryParse(state._aerator2PowerController.text) ?? 3.5,
-            'sotr': double.tryParse(state._aerator2SotrController.text) ?? 2.2,
+            'power_hp': double.tryParse(state._aerator2PowerController.text) ?? 3.0,
+            'sotr': double.tryParse(state._aerator2SotrController.text) ?? 2.6,
             'cost': double.tryParse(state._aerator2CostController.text) ?? 800.0,
             'durability': double.tryParse(state._aerator2DurabilityController.text) ?? 4.5,
             'maintenance': double.tryParse(state._aerator2MaintenanceController.text) ?? 50.0
