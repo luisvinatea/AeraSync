@@ -469,5 +469,9 @@
   "temperatureLabel": "Temperatura del Agua",
   "@temperatureLabel": {
     "description": "Etiqueta para el campo de entrada de temperatura del agua"
+  },
+  "surveySubmissionSuccessful": "El envío de la encuesta fue exitoso",
+  "@surveySubmissionSuccessful": {
+    "description": "Mensaje mostrado cuando el envío de la encuesta es exitoso"
   }
 }

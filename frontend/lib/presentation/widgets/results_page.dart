@@ -13,14 +13,14 @@ class AeratorResult {
   final double annualReplacementCost;
   final double totalAnnualCost;
   final double costPercentRevenue;
-  final double aeratorsPerHa;
-  final double hpPerHa;
-  final double sae;
   final double npvSavings;
   final double paybackYears;
   final double roiPercent;
   final double irr;
   final double profitabilityK;
+  final double aeratorsPerHa;
+  final double hpPerHa;
+  final double sae;
   final double opportunityCost;
 
   AeratorResult({
@@ -33,14 +33,14 @@ class AeratorResult {
     required this.annualReplacementCost,
     required this.totalAnnualCost,
     required this.costPercentRevenue,
-    required this.aeratorsPerHa,
-    required this.hpPerHa,
-    required this.sae,
     required this.npvSavings,
     required this.paybackYears,
     required this.roiPercent,
     required this.irr,
     required this.profitabilityK,
+    required this.aeratorsPerHa,
+    required this.hpPerHa,
+    required this.sae,
     required this.opportunityCost,
   });
 

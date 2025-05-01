@@ -469,5 +469,9 @@
   "temperatureLabel": "Water Temperature",
   "@temperatureLabel": {
     "description": "Label for the water temperature input field"
+  },
+  "surveySubmissionSuccessful": "Survey submission was successful",
+  "@surveySubmissionSuccessful": {
+    "description": "Message shown when survey submission is successful"
   }
 }

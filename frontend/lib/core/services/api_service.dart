@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart'; // Added for debugPrint
 
 /// Service for making API calls to the AeraSync backend.
 /// Implements best practices for error handling and resilience.
@@ -50,54 +51,39 @@ class ApiService {
   /// @param inputs Map containing the survey data for aerator comparison.
   /// @returns Map containing the comparison results.
   /// @throws Exception if there's an error in the API call or response parsing.
-  Future<Map<String, dynamic>> compareAerators(
-      Map<String, dynamic> inputs) async {
+  Future<Map<String, dynamic>> compareAerators(Map<String, dynamic> data) async {
     try {
-      final uri = Uri.parse('$baseUrl/compare');
-      final headers = _getHeaders();
-      final body = jsonEncode(inputs);
-
-      // Make the API request
+      final url = Uri.parse('$baseUrl/compare');
       final response = await client.post(
-        uri,
-        headers: headers,
-        body: body,
-      );
-
-      // Handle CORS errors by checking for empty response with error status
-      if (response.statusCode == 0 || 
-          (response.statusCode == 400 && response.body.isEmpty) ||
-          response.statusCode == 404) {
-        // Try alternative approach or endpoint if CORS might be the issue
-        if (corsRetries) {
-          return _corsRetryCompareAerators(inputs);
+        url,
+        headers: _getHeaders(),
+        body: jsonEncode(data),
+      ).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        // Add debug logging
+        debugPrint('API Response: ${response.body}');
+        final result = jsonDecode(response.body);
+        
+        // Ensure the result is a Map<String, dynamic>
+        if (result is Map<String, dynamic>) {
+          return result;
+        } else {
+          throw Exception('Invalid response format from API');
         }
-      }
-
-      // Check if the response is successful (status code 200-299)
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        try {
-          final errorData = jsonDecode(response.body) as Map<String, dynamic>;
-          throw Exception(
-              'API error: ${errorData['error'] ?? 'Unknown error'}');
-        } catch (_) {
-          throw Exception(
-              'API returned status code ${response.statusCode}: ${response.body}');
-        }
-      }
-
-      // Parse the successful response
-      try {
-        final result = jsonDecode(response.body) as Map<String, dynamic>;
-        if (result.containsKey('error')) {
-          throw Exception('API error: ${result['error']}');
-        }
-        return result;
-      } on FormatException catch (e) {
-        throw Exception('Failed to parse response: ${e.message}');
+      } else {
+        throw Exception('API request failed with status: ${response.statusCode}, message: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Failed to compare aerators: $e');
+      debugPrint('Error in compareAerators: $e');
+      
+      // Try with CORS fallback if enabled
+      if (corsRetries) {
+        debugPrint('Attempting CORS fallback...');
+        return await _corsRetryCompareAerators(data);
+      }
+      
+      rethrow;
     }
   }
 

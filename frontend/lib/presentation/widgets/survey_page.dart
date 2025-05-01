@@ -79,6 +79,7 @@ class SurveyPage extends StatefulWidget {
   }
 
   @override
+  // ignore: library_private_types_in_public_api
   _SurveyPageState createState() => _SurveyPageState();
 }
 
@@ -97,13 +98,13 @@ class _SurveyPageState extends State<SurveyPage> {
   final _electricityCostController = TextEditingController(text: "0.05");
   final _operatingHoursController = TextEditingController(text: "2920");
   final _discountRateController = TextEditingController(text: "10.0");
-  final _inflationRateController = TextEditingController(text: "2.5");
+  final _inflationRateController = TextEditingController(text: "3.0");
   final _analysisYearsController = TextEditingController(text: "9");
   final _safetyMarginController = TextEditingController(text: "0");
   final _temperatureController = TextEditingController(text: "31.5");
 
   // Aerator inputs - first aerator
-  final _aerator1NameController = TextEditingController(text: "Paddlewheel");
+  final _aerator1NameController = TextEditingController(text: "Paddlewheel 1");
   final _aerator1PowerController = TextEditingController(text: "3.0");
   final _aerator1SotrController = TextEditingController(text: "1.4");
   final _aerator1CostController = TextEditingController(text: "500");
@@ -111,9 +112,9 @@ class _SurveyPageState extends State<SurveyPage> {
   final _aerator1MaintenanceController = TextEditingController(text: "65");
 
   // Aerator inputs - second aerator
-  final _aerator2NameController = TextEditingController(text: "Propeller");
-  final _aerator2PowerController = TextEditingController(text: "3.5");
-  final _aerator2SotrController = TextEditingController(text: "2.2");
+  final _aerator2NameController = TextEditingController(text: "Paddlewheel 2");
+  final _aerator2PowerController = TextEditingController(text: "3.0");
+  final _aerator2SotrController = TextEditingController(text: "2.6");
   final _aerator2CostController = TextEditingController(text: "800");
   final _aerator2DurabilityController = TextEditingController(text: "4.5");
   final _aerator2MaintenanceController = TextEditingController(text: "50");
@@ -160,7 +161,7 @@ class _SurveyPageState extends State<SurveyPage> {
 
       final appState = Provider.of<AppState>(context, listen: false);
       final l10n = AppLocalizations.of(context)!;
-      final navigatorState = Navigator.of(context);
+      final navigator = Navigator.of(context);
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       // Format data according to API expectations
@@ -205,15 +206,32 @@ class _SurveyPageState extends State<SurveyPage> {
         developer.log('Calling compareAerators with data: $surveyData');
         await appState.compareAerators(surveyData);
         developer.log('CompareAerators completed successfully');
-
+        
         if (!context.mounted) return;
-        developer.log('Navigating to results page');
-        navigatorState.pushNamed('/results');
+        
+        // Show success message and use callback to navigate after animation completes
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.surveySubmissionSuccessful),
+            backgroundColor: Colors.green,
+            duration: const Duration(milliseconds: 1500),
+          ),
+        );
+        
+        // Use a slight delay for better UX
+        await Future.delayed(const Duration(milliseconds: 200));
+        
+        if (!context.mounted) return;
+        navigator.pushNamed('/results');
       } catch (e) {
         if (!context.mounted) return;
         developer.log('Error during submission: $e');
         scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text(l10n.submissionFailed(e.toString()))),
+          SnackBar(
+            content: Text(l10n.submissionFailed(e.toString())),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
         );
       } finally {
         if (context.mounted) {
@@ -265,12 +283,12 @@ class _SurveyPageState extends State<SurveyPage> {
         hintText: hint,
         filled: true,
         fillColor: Colors.white.withAlpha(242),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         labelStyle: TextStyle(
           backgroundColor: Colors.white.withAlpha(204),
-          color: const Color(0xFF1E40AF),
-          fontWeight: FontWeight.w500,
-          fontSize: 14,
+          color: const Color.fromARGB(255, 5, 1, 55),
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -317,12 +335,12 @@ class _SurveyPageState extends State<SurveyPage> {
         labelText: label,
         filled: true,
         fillColor: Colors.white.withAlpha(242),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         labelStyle: TextStyle(
           backgroundColor: Colors.white.withAlpha(204),
-          color: const Color(0xFF1E40AF),
-          fontWeight: FontWeight.w500,
-          fontSize: 14,
+          color: const Color.fromARGB(255, 5, 1, 55),
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -503,7 +521,7 @@ class _SurveyPageState extends State<SurveyPage> {
                               true,
                               min: 0.0,
                               max: 100.0,
-                              hint: '2.5',
+                              hint: '3.0',
                             ),
                             const SizedBox(height: 16),
                             _buildNumberField(
@@ -615,7 +633,7 @@ class _SurveyPageState extends State<SurveyPage> {
                               true,
                               min: 0.1,
                               max: 100,
-                              hint: '3.5',
+                              hint: '3.0',
                             ),
                             const SizedBox(height: 8),
                             _buildNumberField(
@@ -625,7 +643,7 @@ class _SurveyPageState extends State<SurveyPage> {
                               true,
                               min: 0.1,
                               max: 100,
-                              hint: '2.2',
+                              hint: '2.6',
                             ),
                             const SizedBox(height: 8),
                             _buildNumberField(
