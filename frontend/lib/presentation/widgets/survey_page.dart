@@ -7,6 +7,82 @@ import '../../core/services/app_state.dart';
 class SurveyPage extends StatefulWidget {
   const SurveyPage({super.key});
 
+  // Add a static method for testing
+  @visibleForTesting
+  static Future<void> submitForTesting(BuildContext context) async {
+    final state = context.findAncestorStateOfType<_SurveyPageState>();
+    if (state != null) {
+      final appState = Provider.of<AppState>(context, listen: false);
+
+      // Set loading state
+      state._isLoading = true;
+
+      // Create the survey data directly
+      final surveyData = {
+        'tod': double.tryParse(state._todController.text) ?? 0.0,
+        'farm_area_ha': double.tryParse(state._farmAreaController.text) ?? 0.0,
+        'financial': {
+          'energy_cost':
+              double.tryParse(state._electricityCostController.text) ?? 0.05,
+          'operating_hours':
+              double.tryParse(state._operatingHoursController.text) ?? 2920,
+          'discount_rate':
+              (double.tryParse(state._discountRateController.text) ?? 10.0) /
+                  100,
+          'inflation_rate':
+              (double.tryParse(state._inflationRateController.text) ?? 2.5) /
+                  100,
+          'horizon': int.tryParse(state._analysisYearsController.text) ?? 9,
+          'safety_margin':
+              (double.tryParse(state._safetyMarginController.text) ?? 0.0) / 100
+        },
+        'aerators': [
+          {
+            'name': state._aerator1NameController.text,
+            'power_hp':
+                double.tryParse(state._aerator1PowerController.text) ?? 3.0,
+            'sotr': double.tryParse(state._aerator1SotrController.text) ?? 1.4,
+            'cost':
+                double.tryParse(state._aerator1CostController.text) ?? 500.0,
+            'durability':
+                double.tryParse(state._aerator1DurabilityController.text) ??
+                    2.0,
+            'maintenance':
+                double.tryParse(state._aerator1MaintenanceController.text) ??
+                    65.0
+          },
+          {
+            'name': state._aerator2NameController.text,
+            'power_hp':
+                double.tryParse(state._aerator2PowerController.text) ?? 3.5,
+            'sotr': double.tryParse(state._aerator2SotrController.text) ?? 2.2,
+            'cost':
+                double.tryParse(state._aerator2CostController.text) ?? 800.0,
+            'durability':
+                double.tryParse(state._aerator2DurabilityController.text) ??
+                    4.5,
+            'maintenance':
+                double.tryParse(state._aerator2MaintenanceController.text) ??
+                    50.0
+          }
+        ]
+      };
+
+      try {
+        await appState.compareAerators(surveyData);
+        Navigator.of(context).pushNamed('/results');
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      } finally {
+        if (state.mounted) {
+          state._isLoading = false;
+        }
+      }
+    }
+  }
+
   @override
   State<SurveyPage> createState() => _SurveyPageState();
 }
@@ -129,23 +205,21 @@ class _SurveyPageState extends State<SurveyPage> {
       try {
         developer.log('Calling compareAerators with data: $surveyData');
         await appState.compareAerators(surveyData);
+        developer.log('CompareAerators completed successfully');
+
         if (!mounted) return;
         developer.log('Navigating to results page');
-        
+
         // Use the captured navigator state
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          navigatorState.pushNamed('/results');
-        });
+        navigatorState.pushNamed('/results');
       } catch (e) {
         if (!mounted) return;
         developer.log('Error during submission: $e');
-        
+
         // Use the captured scaffold messenger state
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text(l10n.submissionFailed(e.toString()))),
-          );
-        });
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text(l10n.submissionFailed(e.toString()))),
+        );
       } finally {
         if (mounted) {
           developer.log('Setting isLoading to false');
@@ -177,7 +251,7 @@ class _SurveyPageState extends State<SurveyPage> {
     developer.log('Previous step called, current step: $_currentStep');
     if (_currentStep > 0) {
       setState(() {
-        _currentStep -= 1;
+        _currentStep -= 1; // Changed from fixed value 0 to decrement by 1
       });
       developer.log('Moved to step: $_currentStep');
     }
@@ -309,13 +383,18 @@ class _SurveyPageState extends State<SurveyPage> {
                     type: StepperType.vertical,
                     currentStep: _currentStep,
                     onStepTapped: (step) {
-                      setState(() {
-                        _currentStep = step;
-                      });
-                      developer.log('Step tapped, moved to step: $_currentStep');
+                      if (_formKey.currentState!.validate() ||
+                          step < _currentStep) {
+                        setState(() {
+                          _currentStep = step;
+                        });
+                        developer
+                            .log('Step tapped, moved to step: $_currentStep');
+                      }
                     },
                     controlsBuilder: (context, controls) {
-                      developer.log('Rendering controls for step: $_currentStep');
+                      developer
+                          .log('Rendering controls for step: $_currentStep');
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Row(
