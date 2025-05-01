@@ -17,11 +17,11 @@ class ApiService {
               defaultValue: 'https://aerasync-api.vercel.app',
             );
 
-  /// Checks if the API is healthy by making a GET request to /api/health.
+  /// Checks if the API is healthy by making a GET request to /health.
   /// Returns true if healthy, false otherwise.
   Future<bool> checkHealth() async {
     try {
-      final response = await client.get(Uri.parse('$baseUrl/api/health'));
+      final response = await client.get(Uri.parse('$baseUrl/health'));
       return response.statusCode == 200;
     } catch (e) {
       return false;
@@ -40,7 +40,7 @@ class ApiService {
   Future<Map<String, dynamic>> compareAerators(
       Map<String, dynamic> inputs) async {
     try {
-      final uri = Uri.parse('$baseUrl/api/compare');
+      final uri = Uri.parse('$baseUrl/compare');
       final headers = {'Content-Type': 'application/json'};
       final body = jsonEncode(inputs);
 

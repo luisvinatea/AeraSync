@@ -11,8 +11,44 @@
       }
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/main.py"
+      "src": "/compare",
+      "dest": "/api/main.py",
+      "methods": ["POST"],
+      "headers": {
+        "cache-control": "no-cache"
+      }
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/main.py?endpoint=health",
+      "methods": ["GET"],
+      "headers": {
+        "cache-control": "no-cache"
+      }
+    },
+    {
+      "src": "/api/compare",
+      "dest": "/api/main.py?endpoint=compare",
+      "methods": ["POST"],
+      "headers": {
+        "cache-control": "no-cache"
+      }
+    },
+    {
+      "src": "/",
+      "dest": "/api/main.py",
+      "methods": ["GET"],
+      "headers": {
+        "cache-control": "no-cache"
+      }
+    },
+    {
+      "src": "/api",
+      "dest": "/api/main.py",
+      "methods": ["GET"],
+      "headers": {
+        "cache-control": "no-cache"
+      }
     }
   ],
   "env": {
