@@ -135,9 +135,31 @@ self.addEventListener("fetch", (event) => {
   if (event.request.url == origin || event.request.url.startsWith(origin + '/#') || key == '') {
     key = '/';
   }
+
+  // If the URL contains a fragment, this can cause issues with router
+  if (key.indexOf('#') !== -1) {
+    key = key.split('#')[0];
+  }
+
+  // Handle API requests - don't try to load from cache
+  if (key.startsWith('api/') || event.request.url.includes('aerasync-api.vercel.app')) {
+    return;
+  }
+
   // If the URL is not the RESOURCE list then return to signal that the
   // browser should take over.
   if (!RESOURCES[key]) {
+    // For navigation requests, try to serve index.html from cache
+    // If not available, fetch it
+    if (event.request.mode === 'navigate') {
+      return caches.match('/').then((response) => {
+        if (response) {
+          return response;
+        }
+        // If we don't have the index page cached, fetch it
+        return fetch(event.request).catch(() => caches.match('/'));
+      });
+    }
     return;
   }
   // If the URL is the index.html, perform an online-first request.

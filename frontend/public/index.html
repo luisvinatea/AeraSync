@@ -39,6 +39,9 @@
       // Fix paths for deep links to ensure assets load correctly
       window.flutterWebRenderer = "canvaskit";
     })();
+    
+    // The value below is injected by flutter build, do not touch.
+    const serviceWorkerVersion = null;
   </script>
 
   <link rel="preload" href="flutter.js" as="script">
@@ -83,10 +86,10 @@
       height: 30%;
       background: linear-gradient(0deg, rgba(96, 165, 250, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
     }
-    #app-container {
-      display: none;
-      height: 100vh;
+    #flutter-target {
       width: 100vw;
+      height: 100vh;
+      overflow: hidden;
     }
     .app-logo {
       width: 200px;
@@ -108,21 +111,13 @@
     </div>
   </div>
 
-  <div id="app-container"></div>
+  <div id="flutter-target"></div>
 
   <script>
     window.addEventListener('load', function() {
-      // Initialize Flutter web
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
-        }
-      });
+      // Initialize Flutter web with updated API
+      let targetDiv = document.querySelector('#flutter-target');
+      let loadingScreen = document.getElementById('loading-screen');
       
       // Register Service Worker for PWA capabilities
       if ('serviceWorker' in navigator) {
@@ -141,23 +136,27 @@
           event.stopPropagation();
         }
       }, { passive: false });
-    });
-
-    // Handle loading screen
-    window.addEventListener('flutter-first-frame', function() {
-      var loadingScreen = document.getElementById('loading-screen');
-      var appContainer = document.getElementById('app-container');
-      if (loadingScreen) {
-        loadingScreen.style.opacity = '0';
-      }
-      if (appContainer) {
-        appContainer.style.display = 'block';
-      }
-      setTimeout(function() {
-        if (loadingScreen) {
-          loadingScreen.style.display = 'none';
+      
+      // New Flutter initialization using recommended API
+      _flutter.loader.load({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
         }
-      }, 500);
+      }).then(function(appRunner) {
+        appRunner.runApp({
+          onEntrypointLoaded: function() {
+            // Remove loading screen once Flutter app is ready
+            if (loadingScreen) {
+              loadingScreen.style.opacity = '0';
+              setTimeout(function() {
+                loadingScreen.style.display = 'none';
+              }, 500);
+            }
+          }
+        });
+      }).catch(function(error) {
+        console.error("Failed to initialize Flutter: " + error);
+      });
     });
   </script>
 </body>
