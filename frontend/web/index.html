@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <base href="$FLUTTER_BASE_HREF">
+  <!-- Change base href to always work with any path -->
+  <base href="/">
 
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
@@ -16,20 +17,83 @@
 
   <meta property="og:title" content="AeraSync - Shrimp Farm Aerator Comparison">
   <meta property="og:description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results.">
-  <meta property="og:image" content="https://aerasync.vercel.app/icons/aerasync180.webp">
-  <meta property="og:url" content="https://aerasync.vercel.app/">
+  <meta property="og:image" content="https://aerasync-web.vercel.app/icons/aerasync180.webp">
+  <meta property="og:url" content="https://aerasync-web.vercel.app/">
   <meta property="og:type" content="website">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AeraSync - Shrimp Farm Aerator Comparison">
   <meta name="twitter:description" content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results.">
-  <meta name="twitter:image" content="https://aerasync.vercel.app/icons/aerasync180.webp">
+  <meta name="twitter:image" content="https://aerasync-web.vercel.app/icons/aerasync180.webp">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/aerasync180.webp">
   <link rel="icon" type="image/webp" href="/icons/aerasync64.webp">
   <title>AeraSync - Shrimp Farm Aerator Comparison</title>
   <link rel="manifest" href="/manifest.json">
-  <link rel="preload" href="/flutter_bootstrap.js" as="script">
+
+  <!-- Fix resource loading -->
+  <script>
+    // Dynamically adjust the base href if needed
+    (function() {
+      var pathname = window.location.pathname;
+      // Fix paths for deep links to ensure assets load correctly
+      window.flutterWebRenderer = "canvaskit";
+    })();
+  </script>
+
+  <link rel="preload" href="flutter.js" as="script">
+  <script src="flutter.js" defer></script>
+
+  <style>
+    /* Ensure loading screen styles are defined inline */
+    #loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease-out;
+    }
+    .loading {
+      text-align: center;
+    }
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border-left-color: #1E40AF;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .wave-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 30%;
+      background: linear-gradient(0deg, rgba(96, 165, 250, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+    }
+    #app-container {
+      display: none;
+      height: 100vh;
+      width: 100vw;
+    }
+    .app-logo {
+      width: 200px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
   <div id="loading-screen" role="status" aria-label="Loading AeraSync application">
@@ -37,7 +101,7 @@
     <div class="loading">
       <picture>
         <source srcset="/icons/aerasync.webp" type="image/webp">
-        <img src="/icons/aerasync.png" alt="AeraSync Logo - A stylized wave representing water and aeration" style="width: 200px; height: auto; margin-bottom: 20px;" loading="lazy">
+        <img src="/icons/aerasync.webp" alt="AeraSync Logo - A stylized wave representing water and aeration" class="app-logo" loading="lazy">
       </picture>
       <h1 lang="en">AeraSync</h1>
       <div class="spinner" aria-hidden="true"></div>
@@ -46,12 +110,22 @@
 
   <div id="app-container"></div>
 
-  <script src="flutter_bootstrap.js" async></script>
-
   <script>
-    // Register Service Worker for PWA capabilities
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
+    window.addEventListener('load', function() {
+      // Initialize Flutter web
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          });
+        }
+      });
+      
+      // Register Service Worker for PWA capabilities
+      if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/flutter_service_worker.js')
           .then(function(registration) {
             console.log('Service Worker registered with scope: ', registration.scope);
@@ -59,15 +133,15 @@
           .catch(function(error) {
             console.log('Service Worker registration failed: ', error);
           });
-      });
-    }
-
-    // Prevent default browser handling for multi-touch
-    document.addEventListener('touchstart', function(event) {
-      if (event.touches.length > 1) {
-        event.stopPropagation();
       }
-    }, { passive: false });
+
+      // Prevent default browser handling for multi-touch
+      document.addEventListener('touchstart', function(event) {
+        if (event.touches.length > 1) {
+          event.stopPropagation();
+        }
+      }, { passive: false });
+    });
 
     // Handle loading screen
     window.addEventListener('flutter-first-frame', function() {

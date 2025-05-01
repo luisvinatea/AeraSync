@@ -12,6 +12,7 @@ class SurveyPage extends StatefulWidget {
 
 class _SurveyPageState extends State<SurveyPage> {
   final _formKey = GlobalKey<FormState>();
+  final _stepperKey = GlobalKey(); // Unique key for Stepper
 
   // Farm inputs
   final _todController = TextEditingController(text: "5443.7675");
@@ -71,7 +72,9 @@ class _SurveyPageState extends State<SurveyPage> {
   }
 
   Future<void> _submitSurvey(BuildContext context) async {
+    print('Submitting survey...');
     if (_formKey.currentState!.validate()) {
+      print('Form validated, setting isLoading to true');
       setState(() {
         _isLoading = true;
       });
@@ -79,7 +82,6 @@ class _SurveyPageState extends State<SurveyPage> {
       final appState = Provider.of<AppState>(context, listen: false);
       final l10n = AppLocalizations.of(context)!;
 
-      // Format data according to the backend API structure
       final surveyData = {
         'tod': double.tryParse(_todController.text) ?? 0.0,
         'farm_area_ha': double.tryParse(_farmAreaController.text) ?? 0.0,
@@ -121,41 +123,51 @@ class _SurveyPageState extends State<SurveyPage> {
       };
 
       try {
+        print('Calling compareAerators with data: $surveyData');
         await appState.compareAerators(surveyData);
         if (!mounted) return;
-        
-        // Use Navigator after checking mounted state
+        print('Navigating to results page');
         Navigator.pushNamed(context, '/results');
       } catch (e) {
         if (!mounted) return;
-        
-        // Use ScaffoldMessenger after checking mounted state
+        print('Error during submission: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.submissionFailed(e.toString()))),
         );
       } finally {
         if (mounted) {
+          print('Setting isLoading to false');
           setState(() {
             _isLoading = false;
           });
         }
       }
+    } else {
+      print('Form validation failed');
     }
   }
 
   void _nextStep() {
+    print('Next step called, current step: $_currentStep');
     if (_currentStep < 1) {
-      setState(() {
-        _currentStep += 1;
-      });
+      if (_formKey.currentState!.validate()) {
+        setState(() {
+          _currentStep += 1;
+        });
+        print('Moved to step: $_currentStep');
+      } else {
+        print('Validation failed, staying on step: $_currentStep');
+      }
     }
   }
 
   void _prevStep() {
+    print('Previous step called, current step: $_currentStep');
     if (_currentStep > 0) {
       setState(() {
         _currentStep -= 1;
       });
+      print('Moved to step: $_currentStep');
     }
   }
 
@@ -260,6 +272,7 @@ class _SurveyPageState extends State<SurveyPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    print('Building SurveyPage, current step: $_currentStep');
 
     return Scaffold(
       appBar: AppBar(
@@ -280,31 +293,37 @@ class _SurveyPageState extends State<SurveyPage> {
               : Form(
                   key: _formKey,
                   child: Stepper(
+                    key: _stepperKey,
                     type: StepperType.vertical,
                     currentStep: _currentStep,
                     onStepTapped: (step) {
                       setState(() {
                         _currentStep = step;
                       });
+                      print('Step tapped, moved to step: $_currentStep');
                     },
                     controlsBuilder: (context, controls) {
+                      print('Rendering controls for step: $_currentStep');
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Row(
                           children: [
                             if (_currentStep > 0)
                               ElevatedButton(
+                                key: const Key('back_button'),
                                 onPressed: _prevStep,
                                 child: Text(l10n.back),
                               ),
                             const SizedBox(width: 16),
                             if (_currentStep < 1)
                               ElevatedButton(
+                                key: const Key('next_button'),
                                 onPressed: _nextStep,
                                 child: Text(l10n.next),
                               ),
                             if (_currentStep == 1)
                               ElevatedButton(
+                                key: const Key('submit_button'),
                                 onPressed: () => _submitSurvey(context),
                                 child: Text(l10n.submit),
                               ),
@@ -313,7 +332,6 @@ class _SurveyPageState extends State<SurveyPage> {
                       );
                     },
                     steps: [
-                      // Step 1: Farm and Financial Details
                       Step(
                         title: Text(l10n.farmFinancialDetails),
                         isActive: _currentStep == 0,
@@ -400,8 +418,6 @@ class _SurveyPageState extends State<SurveyPage> {
                           ],
                         ),
                       ),
-
-                      // Step 2: Aerator Details
                       Step(
                         title: Text(l10n.aeratorDetails),
                         isActive: _currentStep == 1,

@@ -43,7 +43,6 @@ analysis_benchmark.json
 .pub-preload-cache/
 .pub/
 build/
-flutter_*.png
 linked_*.ds
 unlinked.ds
 unlinked_spec.ds
@@ -413,10 +412,10 @@ vendor/
 *.raw
 
 # Web P
-*.webp
+
 
 # Portable Network Graphics
-*.png
+
 
 # Animated Portable Network Graphics
 *.apng
