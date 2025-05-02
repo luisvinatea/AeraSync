@@ -153,13 +153,16 @@ def calculate_payback(initial_investment, annual_saving):
 
 def calculate_relative_payback(initial_investment, annual_saving):
     """Calculate relative payback period, always returning a positive value."""
-    if annual_saving == 0:
+    if annual_saving <= 0:
         return float('inf')
 
     # For winning aerator case where initial_investment is negative
-    # Return positive value representing days to recover investment
+    # This means the better aerator is cheaper upfront
+    # AND has lower operating costs
     if initial_investment < 0:
-        return abs(initial_investment) / annual_saving
+        # Return 0 since payback is immediate
+        # (already saving money from day one)
+        return 0
     else:
         return initial_investment / annual_saving
 
@@ -180,8 +183,14 @@ def calculate_relative_roi(annual_saving, initial_investment):
         return 0
 
     # For winning aerator with negative initial investment (cost savings)
-    # Return the ROI as positive value
-    return abs(annual_saving / initial_investment * 100)
+    # Higher annual savings relative to upfront advantage
+    # should mean higher ROI
+    if initial_investment < 0:
+        # As efficiency increases, annual_saving increases, and
+        # initial_investment becomes more negative (bigger absolute value)
+        return annual_saving / abs(initial_investment) * 100
+    else:
+        return annual_saving / initial_investment * 100
 
 
 def calculate_profitability_k(npv_savings, additional_cost):
@@ -194,8 +203,13 @@ def calculate_relative_k(npv_savings, additional_cost):
     if additional_cost == 0:
         return 0
 
-    # Return absolute value for winning aerator case (negative additional cost)
-    return abs(npv_savings / additional_cost)
+    # For winning aerator case (negative additional cost)
+    # The more negative additional_cost gets (more upfront savings)
+    # the higher the profitability index should be
+    if additional_cost < 0:
+        return npv_savings / abs(additional_cost)
+    else:
+        return npv_savings / additional_cost
 
 
 def calculate_sae(sotr, power_hp):
