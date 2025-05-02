@@ -473,5 +473,61 @@
   "surveySubmissionSuccessful": "Survey submission was successful",
   "@surveySubmissionSuccessful": {
     "description": "Message shown when survey submission is successful"
+  },
+  "returnToSurvey": "Return to Survey",
+  "@returnToSurvey": {
+    "description": "Button label to return to the survey page"
+  },
+  "newComparison": "New Comparison",
+  "@newComparison": {
+    "description": "Button label to start a new comparison"
+  },
+  "annualRevenueLabel": "Annual Revenue",
+  "@annualRevenueLabel": {
+    "description": "Label for the annual revenue metric"
+  },
+  "annualCostLabel": "Annual Cost",
+  "@annualCostLabel": {
+    "description": "Label for the annual cost column in the comparison table"
+  },
+  "notApplicable": "N/A",
+  "@notApplicable": {
+    "description": "Label used when a value is not applicable"
+  },
+  "years": "years",
+  "@years": {
+    "description": "Text for years unit"
+  },
+  "detailedResults": "Detailed Results",
+  "@detailedResults": {
+    "description": "Title for the detailed results section"
+  },
+  "recommended": "Recommended",
+  "@recommended": {
+    "description": "Label for the recommended aerator"
+  },
+  "aeratorsPerHaLabel": "Aerators per Hectare",
+  "@aeratorsPerHaLabel": {
+    "description": "Label for aerators per hectare metric"
+  },
+  "horsepowerPerHaLabel": "Horsepower per Hectare",
+  "@horsepowerPerHaLabel": {
+    "description": "Label for horsepower per hectare metric"
+  },
+  "costPercentRevenueLabel": "Cost % of Revenue",
+  "@costPercentRevenueLabel": {
+    "description": "Label for cost as percentage of revenue"
+  },
+  "annualReplacementCostLabel": "Annual Replacement Cost",
+  "@annualReplacementCostLabel": {
+    "description": "Label for the annual replacement cost"
+  },
+  "opportunityCostLabel": "Opportunity Cost",
+  "@opportunityCostLabel": {
+    "description": "Label for the opportunity cost metric"
+  },
+  "equilibriumPriceExplanation": "Price at which this aerator becomes financially equivalent to the recommended option",
+  "@equilibriumPriceExplanation": {
+    "description": "Explanation of what equilibrium price means"
   }
 }

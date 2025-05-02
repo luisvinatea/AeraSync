@@ -179,7 +179,7 @@ class _SurveyPageState extends State<SurveyPage> {
           'discount_rate': (double.tryParse(_discountRateController.text) ?? 10.0) / 100,
           'inflation_rate': (double.tryParse(_inflationRateController.text) ?? 2.5) / 100,
           'horizon': int.tryParse(_analysisYearsController.text),
-          'safety_margin': double.tryParse(_safetyMarginController.text),
+          'safety_margin': (double.tryParse(_safetyMarginController.text) ?? 0.0) / 100,
           'temperature': double.tryParse(_temperatureController.text),
         },
         'aerators': [

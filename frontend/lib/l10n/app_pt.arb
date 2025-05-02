@@ -473,5 +473,61 @@
   "surveySubmissionSuccessful": "A pesquisa foi enviada com sucesso",
   "@surveySubmissionSuccessful": {
     "description": "Mensagem mostrada quando o envio da pesquisa é exitoso"
+  },
+  "returnToSurvey": "Voltar à Pesquisa",
+  "@returnToSurvey": {
+    "description": "Etiqueta do botão para voltar à página da pesquisa"
+  },
+  "newComparison": "Nova Comparação",
+  "@newComparison": {
+    "description": "Etiqueta do botão para iniciar uma nova comparação"
+  },
+  "annualRevenueLabel": "Receita Anual",
+  "@annualRevenueLabel": {
+    "description": "Etiqueta para a métrica de receita anual"
+  },
+  "annualCostLabel": "Custo Anual",
+  "@annualCostLabel": {
+    "description": "Etiqueta para a coluna de custo anual na tabela de comparação"
+  },
+  "notApplicable": "N/A",
+  "@notApplicable": {
+    "description": "Etiqueta usada quando um valor não é aplicável"
+  },
+  "years": "anos",
+  "@years": {
+    "description": "Texto para a unidade de anos"
+  },
+  "detailedResults": "Resultados Detalhados",
+  "@detailedResults": {
+    "description": "Descrição para a seção de resultados detalhados"
+  },
+  "recommended": "Recomendado",
+  "@recommended": {
+    "description": "Descrição para o aerador recomendado"
+  },
+  "aeratorsPerHaLabel": "Aeradores por Hectare",
+  "@aeratorsPerHaLabel": {
+    "description": "Descrição para a métrica de aeradores por hectare"
+  },
+  "horsepowerPerHaLabel": "Potência por Hectare",
+  "@horsepowerPerHaLabel": {
+    "description": "Descrição para a métrica de potência por hectare"
+  },
+  "costPercentRevenueLabel": "Custo % da Receita",
+  "@costPercentRevenueLabel": {
+    "description": "Descrição para o custo como porcentagem da receita"
+  },
+  "annualReplacementCostLabel": "Custo de Substituição Anual",
+  "@annualReplacementCostLabel": {
+    "description": "Descrição para o custo de substituição anual"
+  },
+  "opportunityCostLabel": "Custo de Oportunidade",
+  "@opportunityCostLabel": {
+    "description": "Descrição para a métrica de custo de oportunidade"
+  },
+  "equilibriumPriceExplanation": "Preço em que este aerador se torna financeiramente equivalente à opção recomendada",
+  "@equilibriumPriceExplanation": {
+    "description": "Descrição do que significa o preço de equilíbrio"
   }
 }

@@ -47,7 +47,9 @@ class AeratorResult {
   factory AeratorResult.fromJson(Map<String, dynamic> json) {
     return AeratorResult(
       name: json['name'] ?? 'Unknown',
-      numAerators: (json['num_aerators'] as num?)?.toInt() ?? 0,
+      numAerators: json['num_aerators'] is int
+          ? json['num_aerators']
+          : (json['num_aerators'] as num?)?.toInt() ?? 0,
       totalPowerHp: (json['total_power_hp'] as num?)?.toDouble() ?? 0.0,
       totalInitialCost: (json['total_initial_cost'] as num?)?.toDouble() ?? 0.0,
       annualEnergyCost: (json['annual_energy_cost'] as num?)?.toDouble() ?? 0.0,
@@ -82,10 +84,35 @@ class ResultsPage extends StatelessWidget {
         appBar: AppBar(
           title: Text(l10n.results),
         ),
-        body: Center(
-          child: Semantics(
-            label: l10n.noDataAvailableDescription,
-            child: Text(l10n.noDataAvailable),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF60A5FA), Color(0xFF1E40AF)],
+            ),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.warning_amber_rounded, size: 64, color: Colors.amber),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.noDataAvailable,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pushReplacementNamed('/survey'),
+                  child: Text(l10n.returnToSurvey),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -96,6 +123,7 @@ class ResultsPage extends StatelessWidget {
         .toList();
     final winnerLabel = apiResults['winnerLabel'] as String? ?? 'None';
     final tod = (apiResults['tod'] as num?)?.toDouble() ?? 0.0;
+    final annualRevenue = (apiResults['annual_revenue'] as num?)?.toDouble() ?? 0.0;
     final equilibriumPrices = apiResults['equilibriumPrices'] as Map<String, dynamic>? ?? {};
 
     return Scaffold(
@@ -120,6 +148,7 @@ class ResultsPage extends StatelessWidget {
                   l10n: l10n,
                   tod: tod,
                   winnerLabel: winnerLabel,
+                  annualRevenue: annualRevenue,
                 ),
                 const SizedBox(height: 16),
                 _AeratorComparisonCard(
@@ -131,6 +160,18 @@ class ResultsPage extends StatelessWidget {
                 _EquilibriumPricesCard(
                   l10n: l10n,
                   equilibriumPrices: equilibriumPrices,
+                ),
+                const SizedBox(height: 24),
+                Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.blue.shade800,
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    ),
+                    onPressed: () => Navigator.of(context).pushReplacementNamed('/survey'),
+                    child: Text(l10n.newComparison),
+                  ),
                 ),
               ],
             ),
@@ -145,11 +186,13 @@ class _SummaryCard extends StatelessWidget {
   final AppLocalizations l10n;
   final double tod;
   final String winnerLabel;
+  final double annualRevenue;
 
   const _SummaryCard({
     required this.l10n,
     required this.tod,
     required this.winnerLabel,
+    required this.annualRevenue,
   });
 
   @override
@@ -173,8 +216,15 @@ class _SummaryCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               Text(
-                '${l10n.recommendedAerator}: $winnerLabel',
+                '${l10n.annualRevenueLabel}: \$${annualRevenue.toStringAsFixed(2)}',
                 style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              Text(
+                '${l10n.recommendedAerator}: $winnerLabel',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green.shade800,
+                    ),
               ),
             ],
           ),
@@ -222,39 +272,30 @@ class _AeratorComparisonCard extends StatelessWidget {
                           DataColumn(label: Text(l10n.aeratorLabel)),
                           DataColumn(label: Text(l10n.unitsNeeded)),
                           DataColumn(label: Text(l10n.initialCostLabel)),
-                          DataColumn(label: Text(l10n.annualEnergyCostLabel)),
-                          DataColumn(label: Text(l10n.annualMaintenanceCostLabel)),
+                          DataColumn(label: Text(l10n.annualCostLabel)),
                           DataColumn(label: Text(l10n.npvSavingsLabel)),
                           DataColumn(label: Text(l10n.saeLabel)),
                           DataColumn(label: Text(l10n.paybackPeriod)),
                           DataColumn(label: Text(l10n.roiLabel)),
-                          DataColumn(label: Text(l10n.irrLabel)),
-                          DataColumn(label: Text(l10n.profitabilityCoefficient)),
                         ],
                         rows: results.map((result) {
                           final isWinner = result.name == winnerLabel;
                           return DataRow(
-                            color: isWinner ? WidgetStateProperty.all(Colors.green.withValues(alpha: 0.1)) : null,
+                            color: isWinner ? MaterialStateProperty.all(Colors.green.withOpacity(0.1)) : null,
                             cells: [
-                              DataCell(Text(result.name)),
+                              DataCell(Text(result.name,
+                                  style: isWinner ? const TextStyle(fontWeight: FontWeight.bold) : null)),
                               DataCell(Text(result.numAerators.toString())),
                               DataCell(Text('\$${result.totalInitialCost.toStringAsFixed(2)}')),
-                              DataCell(Text('\$${result.annualEnergyCost.toStringAsFixed(2)}')),
-                              DataCell(Text('\$${result.annualMaintenanceCost.toStringAsFixed(2)}')),
+                              DataCell(Text('\$${result.totalAnnualCost.toStringAsFixed(2)}')),
                               DataCell(Text('\$${result.npvSavings.toStringAsFixed(2)}')),
                               DataCell(Text(result.sae.toStringAsFixed(2))),
                               DataCell(Text(
-                                  result.paybackYears.isFinite
-                                      ? '${(result.paybackYears * 12).toStringAsFixed(1)} months'
-                                      : 'N/A')),
+                                  result.paybackYears >= 100 || !result.paybackYears.isFinite
+                                      ? l10n.notApplicable
+                                      : '${(result.paybackYears).toStringAsFixed(1)} ${l10n.years}')),
                               DataCell(Text(
-                                  result.roiPercent.isFinite ? '${result.roiPercent.toStringAsFixed(2)}%' : 'N/A')),
-                              DataCell(Text(
-                                  result.irr.isFinite ? '${result.irr.toStringAsFixed(2)}%' : 'N/A')),
-                              DataCell(Text(
-                                  result.profitabilityK.isFinite
-                                      ? result.profitabilityK.toStringAsFixed(2)
-                                      : '∞')),
+                                  result.roiPercent <= 0 ? l10n.notApplicable : '${result.roiPercent.toStringAsFixed(1)}%')),
                             ],
                           );
                         }).toList(),
@@ -263,9 +304,97 @@ class _AeratorComparisonCard extends StatelessWidget {
                   );
                 },
               ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.detailedResults,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              ...results.map((result) => _buildDetailedResultCard(context, result)),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDetailedResultCard(BuildContext context, AeratorResult result) {
+    final isWinner = result.name == winnerLabel;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      color: isWinner ? Colors.green.shade50 : null,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    result.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                if (isWinner)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      l10n.recommended,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+              ],
+            ),
+            const Divider(),
+            _detailRow(l10n.unitsNeeded, result.numAerators.toString()),
+            _detailRow(l10n.aeratorsPerHaLabel, result.aeratorsPerHa.toStringAsFixed(2)),
+            _detailRow(l10n.horsepowerPerHaLabel, '${result.hpPerHa.toStringAsFixed(2)} hp/ha'),
+            _detailRow(l10n.initialCostLabel, '\$${result.totalInitialCost.toStringAsFixed(2)}'),
+            _detailRow(l10n.annualCostLabel, '\$${result.totalAnnualCost.toStringAsFixed(2)}'),
+            _detailRow(l10n.costPercentRevenueLabel, '${result.costPercentRevenue.toStringAsFixed(2)}%'),
+            _detailRow(l10n.annualEnergyCostLabel, '\$${result.annualEnergyCost.toStringAsFixed(2)}'),
+            _detailRow(l10n.annualMaintenanceCostLabel, '\$${result.annualMaintenanceCost.toStringAsFixed(2)}'),
+            _detailRow(l10n.annualReplacementCostLabel, '\$${result.annualReplacementCost.toStringAsFixed(2)}'),
+            if (result.opportunityCost > 0)
+              _detailRow(l10n.opportunityCostLabel, '\$${result.opportunityCost.toStringAsFixed(2)}'),
+            const Divider(),
+            _detailRow(l10n.npvSavingsLabel, '\$${result.npvSavings.toStringAsFixed(2)}'),
+            _detailRow(
+                l10n.paybackPeriod,
+                result.paybackYears >= 100 || !result.paybackYears.isFinite
+                    ? l10n.notApplicable
+                    : '${result.paybackYears.toStringAsFixed(1)} ${l10n.years}'),
+            _detailRow(
+                l10n.roiLabel,
+                result.roiPercent <= 0 ? l10n.notApplicable : '${result.roiPercent.toStringAsFixed(1)}%'),
+            _detailRow(
+                l10n.irrLabel,
+                result.irr <= -50 ? l10n.notApplicable : '${result.irr.toStringAsFixed(1)}%'),
+            _detailRow(
+                l10n.profitabilityCoefficient,
+                result.profitabilityK.isFinite ? result.profitabilityK.toStringAsFixed(2) : l10n.notApplicable),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(value),
+        ],
       ),
     );
   }
@@ -282,6 +411,10 @@ class _EquilibriumPricesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (equilibriumPrices.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Card(
       elevation: 4,
       child: Padding(
@@ -296,17 +429,38 @@ class _EquilibriumPricesCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
+              Text(
+                l10n.equilibriumPriceExplanation,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 16),
               ...equilibriumPrices.entries.map((entry) {
-                return Text(
-                  '${l10n.equilibriumPriceLabel} (${entry.key}): \$${entry.value.toStringAsFixed(2)}',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                final price = (entry.value is num) ? entry.value.toDouble() : 0.0;
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            entry.key,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Text(
+                          '\$${price.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
-              }),
-              if (equilibriumPrices.isEmpty)
-                Text(
-                  l10n.noEquilibriumPrices,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+              }).toList(),
             ],
           ),
         ),

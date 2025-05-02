@@ -316,8 +316,13 @@ def compare_aerators(data):
     ]
 
     # Determine winner (lowest total annual cost)
+    # and least efficient (highest total annual cost)
     winner = min(aerator_results, key=lambda x: x['total_annual_cost'])
+    least_efficient = max(
+        aerator_results, key=lambda x: x['total_annual_cost']
+    )
     winner_aerator = winner['aerator']
+    least_efficient_aerator = least_efficient['aerator']
 
     # Calculate financial metrics based on savings
     results = []
@@ -325,30 +330,49 @@ def compare_aerators(data):
 
     for result in aerator_results:
         aerator = result['aerator']
-        # Calculate annual savings compared to the winner
-        # (will be 0 for winner)
+        # Calculate annual savings compared to the least efficient aerator
         annual_saving = (
-            result['total_annual_cost'] - winner['total_annual_cost']
-            if aerator.name != winner_aerator.name
-            else 0
+            least_efficient['total_annual_cost'] - result['total_annual_cost']
         )
+
+        # Additional cost compared to least efficient aerator
         additional_cost = (
-            result['total_initial_cost'] - winner['total_initial_cost']
-            if aerator.name != winner_aerator.name
-            else 0
+            result['total_initial_cost'] -
+            least_efficient['total_initial_cost']
         )
+
+        # Calculate cash flows for savings
         cash_flows_savings = [
             annual_saving * (1 + financial.inflation_rate) ** t
             for t in range(financial.horizon)
         ]
+
+        # Calculate NPV of savings
         npv_savings = calculate_npv(
             cash_flows_savings,
             financial.discount_rate,
             financial.inflation_rate
         )
-        opportunity_cost = (
-            npv_savings if aerator.name != winner_aerator.name else 0
-        )
+
+        # Opportunity cost is the savings foregone by not choosing
+        # the most efficient option
+        # Only the least efficient has opportunity cost (savings missed)
+        opportunity_cost = 0
+        if aerator.name == least_efficient_aerator.name:
+            # Opportunity cost is the NPV savings of the winner
+            winner_saving = (
+                least_efficient['total_annual_cost'] -
+                winner['total_annual_cost']
+            )
+            winner_cash_flows = [
+                winner_saving * (1 + financial.inflation_rate) ** t
+                for t in range(financial.horizon)
+            ]
+            opportunity_cost = calculate_npv(
+                winner_cash_flows,
+                financial.discount_rate,
+                financial.inflation_rate
+            )
 
         results.append(AeratorResult(
             name=aerator.name,
@@ -361,9 +385,15 @@ def compare_aerators(data):
             total_annual_cost=result['total_annual_cost'],
             cost_percent_revenue=result['cost_percent_revenue'],
             npv_savings=npv_savings,
-            payback_years=calculate_payback(additional_cost, annual_saving),
-            roi_percent=calculate_roi(annual_saving, additional_cost),
-            irr=calculate_irr(additional_cost, cash_flows_savings),
+            payback_years=calculate_payback(
+                additional_cost, annual_saving
+            ),
+            roi_percent=calculate_roi(
+                annual_saving, additional_cost
+            ),
+            irr=calculate_irr(
+                additional_cost, cash_flows_savings
+            ),
             profitability_k=calculate_profitability_k(
                 npv_savings, additional_cost
             ),
@@ -373,6 +403,7 @@ def compare_aerators(data):
             opportunity_cost=opportunity_cost
         ))
 
+        # Calculate equilibrium prices relative to the winner
         if aerator.name != winner_aerator.name:
             winner_cost_no_price = (
                 winner['annual_energy_cost'] +

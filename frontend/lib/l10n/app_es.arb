@@ -473,5 +473,61 @@
   "surveySubmissionSuccessful": "El envío de la encuesta fue exitoso",
   "@surveySubmissionSuccessful": {
     "description": "Mensaje mostrado cuando el envío de la encuesta es exitoso"
+  },
+  "returnToSurvey": "Volver a la Encuesta",
+  "@returnToSurvey": {
+    "description": "Etiqueta del botón para volver a la página de la encuesta"
+  },
+  "newComparison": "Nueva Comparación",
+  "@newComparison": {
+    "description": "Etiqueta del botón para iniciar una nueva comparación"
+  },
+  "annualRevenueLabel": "Ingresos Anuales",
+  "@annualRevenueLabel": {
+    "description": "Etiqueta para el métrico de ingresos anuales"
+  },
+  "annualCostLabel": "Costo Anual",
+  "@annualCostLabel": {
+    "description": "Etiqueta para la columna de costo anual en la tabla de comparación"
+  },
+  "notApplicable": "N/A",
+  "@notApplicable": {
+    "description": "Etiqueta utilizada cuando un valor no es aplicable"
+  },
+  "years": "años",
+  "@years": {
+    "description": "Texto para la unidad de años"
+  },
+  "detailedResults": "Resultados Detallados",
+  "@detailedResults": {
+    "description": "Descripción para la sección de resultados detallados"
+  },
+  "recommended": "Recomendado",
+  "@recommended": {
+    "description": "Etiqueta para el aerador recomendado"
+  },
+  "aeratorsPerHaLabel": "Aeradores por Hectárea",
+  "@aeratorsPerHaLabel": {
+    "description": "Etiqueta para el métrico de aeradores por hectárea"
+  },
+  "horsepowerPerHaLabel": "Potencia por Hectárea",
+  "@horsepowerPerHaLabel": {
+    "description": "Etiqueta para el métrico de potencia por hectárea"
+  },
+  "costPercentRevenueLabel": "Costo % de los Ingresos",
+  "@costPercentRevenueLabel": {
+    "description": "Etiqueta para el costo como porcentaje de los ingresos"
+  },
+  "annualReplacementCostLabel": "Costo Anual de Reemplazo",
+  "@annualReplacementCostLabel": {
+    "description": "Etiqueta para el costo anual de reemplazo"
+  },
+  "opportunityCostLabel": "Costo de Oportunidad",
+  "@opportunityCostLabel": {
+    "description": "Etiqueta para el métrico de costo de oportunidad"
+  },
+  "equilibriumPriceExplanation": "Precio al cual este aerador se vuelve financieramente equivalente a la opción recomendada",
+  "@equilibriumPriceExplanation": {
+    "description": "Descripción de lo que significa el precio de equilibrio"
   }
 }
