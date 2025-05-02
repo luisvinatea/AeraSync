@@ -283,7 +283,7 @@ class _SurveyPageState extends State<SurveyPage> {
         hintText: hint,
         filled: true,
         fillColor: Colors.white.withAlpha(242),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
         labelStyle: TextStyle(
           backgroundColor: Colors.white.withAlpha(204),
           color: const Color.fromARGB(255, 5, 1, 55),
@@ -335,7 +335,7 @@ class _SurveyPageState extends State<SurveyPage> {
         labelText: label,
         filled: true,
         fillColor: Colors.white.withAlpha(242),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
         labelStyle: TextStyle(
           backgroundColor: Colors.white.withAlpha(204),
           color: const Color.fromARGB(255, 5, 1, 55),

@@ -151,6 +151,19 @@ def calculate_payback(initial_investment, annual_saving):
         return float('inf')
 
 
+def calculate_relative_payback(initial_investment, annual_saving):
+    """Calculate relative payback period, always returning a positive value."""
+    if annual_saving == 0:
+        return float('inf')
+
+    # For winning aerator case where initial_investment is negative
+    # Return positive value representing days to recover investment
+    if initial_investment < 0:
+        return abs(initial_investment) / annual_saving
+    else:
+        return initial_investment / annual_saving
+
+
 def calculate_roi(annual_saving, initial_investment):
     """Calculate ROI."""
     return (
@@ -160,9 +173,29 @@ def calculate_roi(annual_saving, initial_investment):
     )
 
 
+def calculate_relative_roi(annual_saving, initial_investment):
+    """Calculate relative ROI, handling negative initial investments
+    for winners."""
+    if initial_investment == 0:
+        return 0
+
+    # For winning aerator with negative initial investment (cost savings)
+    # Return the ROI as positive value
+    return abs(annual_saving / initial_investment * 100)
+
+
 def calculate_profitability_k(npv_savings, additional_cost):
     """Calculate profitability index (k)."""
     return npv_savings / additional_cost if additional_cost > 0 else 0
+
+
+def calculate_relative_k(npv_savings, additional_cost):
+    """Calculate profitability index (k) that works for winning aerator."""
+    if additional_cost == 0:
+        return 0
+
+    # Return absolute value for winning aerator case (negative additional cost)
+    return abs(npv_savings / additional_cost)
 
 
 def calculate_sae(sotr, power_hp):
@@ -374,6 +407,31 @@ def compare_aerators(data):
                 financial.inflation_rate
             )
 
+        # Special handling for financial metrics for the winner
+        if aerator.name == winner_aerator.name:
+            # For the winner, calculate relative metrics
+            payback_value = calculate_relative_payback(
+                additional_cost, annual_saving
+            )
+
+            # Calculate IRR for winner - since additional_cost might be
+            # negative
+            # need to swap the sign of cash flows to get meaningful IRR
+            winner_irr = calculate_irr(
+                abs(additional_cost),
+                [abs(cf) for cf in cash_flows_savings]
+            ) if additional_cost != 0 else 0
+
+            # Calculate relative ROI and k for winner
+            roi_value = calculate_relative_roi(annual_saving, additional_cost)
+            k_value = calculate_relative_k(npv_savings, additional_cost)
+        else:
+            # Standard calculations for non-winners
+            payback_value = calculate_payback(additional_cost, annual_saving)
+            roi_value = calculate_roi(annual_saving, additional_cost)
+            winner_irr = calculate_irr(additional_cost, cash_flows_savings)
+            k_value = calculate_profitability_k(npv_savings, additional_cost)
+
         results.append(AeratorResult(
             name=aerator.name,
             num_aerators=result['num_aerators'],
@@ -385,18 +443,10 @@ def compare_aerators(data):
             total_annual_cost=result['total_annual_cost'],
             cost_percent_revenue=result['cost_percent_revenue'],
             npv_savings=npv_savings,
-            payback_years=calculate_payback(
-                additional_cost, annual_saving
-            ),
-            roi_percent=calculate_roi(
-                annual_saving, additional_cost
-            ),
-            irr=calculate_irr(
-                additional_cost, cash_flows_savings
-            ),
-            profitability_k=calculate_profitability_k(
-                npv_savings, additional_cost
-            ),
+            payback_years=payback_value,
+            roi_percent=roi_value,
+            irr=winner_irr,
+            profitability_k=k_value,
             aerators_per_ha=result['aerators_per_ha'],
             hp_per_ha=result['hp_per_ha'],
             sae=result['sae'],

@@ -529,5 +529,13 @@
   "equilibriumPriceExplanation": "Price at which this aerator becomes financially equivalent to the recommended option",
   "@equilibriumPriceExplanation": {
     "description": "Explanation of what equilibrium price means"
+  },
+  "days": "Days",
+  "@days": {
+    "description": "Text for days unit"
+  },
+  "months": "Months",
+  "@months": {
+    "description": "Text for months unit"
   }
 }

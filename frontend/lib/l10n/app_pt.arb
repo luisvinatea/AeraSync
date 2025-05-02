@@ -529,5 +529,13 @@
   "equilibriumPriceExplanation": "Preço em que este aerador se torna financeiramente equivalente à opção recomendada",
   "@equilibriumPriceExplanation": {
     "description": "Descrição do que significa o preço de equilíbrio"
+  },
+  "days": "Dias",
+  "@days": {
+    "description": "Texto para a unidade de dias"
+  },
+  "months": "Meses",
+  "@months": {
+    "description": "Texto para a unidade de meses"
   }
 }

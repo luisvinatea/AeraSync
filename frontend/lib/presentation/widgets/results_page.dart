@@ -291,11 +291,9 @@ class _AeratorComparisonCard extends StatelessWidget {
                               DataCell(Text('\$${result.npvSavings.toStringAsFixed(2)}')),
                               DataCell(Text(result.sae.toStringAsFixed(2))),
                               DataCell(Text(
-                                  result.paybackYears >= 100 || !result.paybackYears.isFinite
-                                      ? l10n.notApplicable
-                                      : '${(result.paybackYears).toStringAsFixed(1)} ${l10n.years}')),
+                                  _formatPaybackPeriod(result.paybackYears, l10n, isWinner: result.name == winnerLabel))),
                               DataCell(Text(
-                                  result.roiPercent <= 0 ? l10n.notApplicable : '${result.roiPercent.toStringAsFixed(1)}%')),
+                                  _formatROI(result.roiPercent, l10n, isWinner: result.name == winnerLabel))),
                             ],
                           );
                         }).toList(),
@@ -368,22 +366,89 @@ class _AeratorComparisonCard extends StatelessWidget {
             _detailRow(l10n.npvSavingsLabel, '\$${result.npvSavings.toStringAsFixed(2)}'),
             _detailRow(
                 l10n.paybackPeriod,
-                result.paybackYears >= 100 || !result.paybackYears.isFinite
-                    ? l10n.notApplicable
-                    : '${result.paybackYears.toStringAsFixed(1)} ${l10n.years}'),
+                _formatPaybackPeriod(result.paybackYears, l10n, isWinner: result.name == winnerLabel)),
             _detailRow(
                 l10n.roiLabel,
-                result.roiPercent <= 0 ? l10n.notApplicable : '${result.roiPercent.toStringAsFixed(1)}%'),
+                _formatROI(result.roiPercent, l10n, isWinner: result.name == winnerLabel)),
             _detailRow(
                 l10n.irrLabel,
-                result.irr <= -50 ? l10n.notApplicable : '${result.irr.toStringAsFixed(1)}%'),
+                _formatIRR(result.irr, l10n, isWinner: result.name == winnerLabel)),
             _detailRow(
                 l10n.profitabilityCoefficient,
-                result.profitabilityK.isFinite ? result.profitabilityK.toStringAsFixed(2) : l10n.notApplicable),
+                _formatProfitabilityK(result.profitabilityK, l10n, isWinner: result.name == winnerLabel)),
           ],
         ),
       ),
     );
+  }
+
+  String _formatPaybackPeriod(double paybackYears, AppLocalizations l10n, {bool isWinner = false}) {
+    if (!paybackYears.isFinite || (paybackYears >= 100 && !isWinner)) {
+      return l10n.notApplicable;
+    }
+    
+    // For small periods (less than 30 days), show in days
+    if (paybackYears < 0.0822) { // ~30 days
+      final days = (paybackYears * 365).round();
+      return '$days ${l10n.days}';
+    }
+    
+    // For periods between 30 days and 1 year, show in months
+    if (paybackYears < 1) {
+      final months = (paybackYears * 12).round();
+      return '$months ${l10n.months}';
+    }
+    
+    // For periods over 1 year, show in years with 1 decimal place
+    return '${paybackYears.toStringAsFixed(1)} ${l10n.years}';
+  }
+
+  String _formatROI(double roi, AppLocalizations l10n, {bool isWinner = false}) {
+    if (roi <= 0 && !isWinner) {
+      return l10n.notApplicable;
+    }
+    
+    // Format high ROI values with K or M suffix for better readability
+    if (roi >= 1000) {
+      if (roi >= 1000000) {
+        return '${(roi / 1000000).toStringAsFixed(1)}M%';
+      }
+      return '${(roi / 1000).toStringAsFixed(1)}K%';
+    }
+    
+    return '${roi.toStringAsFixed(1)}%';
+  }
+
+  String _formatIRR(double irr, AppLocalizations l10n, {bool isWinner = false}) {
+    if (irr <= -50 && !isWinner) {
+      return l10n.notApplicable;
+    }
+    
+    // Format high IRR values with K or M suffix for better readability
+    if (irr >= 1000) {
+      if (irr >= 1000000) {
+        return '${(irr / 1000000).toStringAsFixed(1)}M%';
+      }
+      return '${(irr / 1000).toStringAsFixed(1)}K%';
+    }
+    
+    return '${irr.toStringAsFixed(1)}%';
+  }
+
+  String _formatProfitabilityK(double k, AppLocalizations l10n, {bool isWinner = false}) {
+    if (!k.isFinite && !isWinner) {
+      return l10n.notApplicable;
+    }
+    
+    // Format high k values with K or M suffix for better readability
+    if (k >= 1000) {
+      if (k >= 1000000) {
+        return '${(k / 1000000).toStringAsFixed(1)}M';
+      }
+      return '${(k / 1000).toStringAsFixed(1)}K';
+    }
+    
+    return k.toStringAsFixed(2);
   }
 
   Widget _detailRow(String label, String value) {
