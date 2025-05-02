@@ -1,92 +1,56 @@
 """aerator_comparer.py
-This module compares aerators for shrimp farming based on specifications
-and financial metrics.
-It calculates OTR_T from SOTR, incorporates revenue from shrimp production,
-and focuses on savings and opportunity cost for financial indicators.
+This module compares aerators for shrimp farming based on specs
+and financial metrics. It calculates OTR_T from SOTR, includes
+revenue from shrimp production, and focuses on savings and
+opportunity cost for financial indicators.
 """
 import json
 import math
 from collections import namedtuple
 
 # Data structures using namedtuple
-Aerator = namedtuple(
-    'Aerator',
-    [
-        'name',
-        'sotr',
-        'power_hp',
-        'cost',
-        'durability',
-        'maintenance'
-    ]
-)
-FinancialInput = namedtuple(
-    'FinancialInput',
-    [
-        'energy_cost',
-        'operating_hours',
-        'discount_rate',
-        'inflation_rate',
-        'horizon',
-        'safety_margin',
-        'temperature'
-    ]
-)
-FarmInput = namedtuple(
-    'FarmInput',
-    [
-        'tod',
-        'farm_area_ha',
-        'shrimp_price',
-        'culture_days',
-        'pond_density'
-    ]
-)
-AeratorResult = namedtuple(
-    'AeratorResult',
-    [
-        'name',
-        'num_aerators',
-        'total_power_hp',
-        'total_initial_cost',
-        'annual_energy_cost',
-        'annual_maintenance_cost',
-        'annual_replacement_cost',
-        'total_annual_cost',
-        'cost_percent_revenue',
-        'npv_savings',
-        'payback_years',
-        'roi_percent',
-        'irr',
-        'profitability_k',
-        'aerators_per_ha',
-        'hp_per_ha',
-        'sae',
-        'opportunity_cost'
-    ]
-)
+Aerator = namedtuple('Aerator', [
+    'name', 'sotr', 'power_hp', 'cost', 'durability', 'maintenance'
+])
+FinancialInput = namedtuple('FinancialInput', [
+    'energy_cost', 'hours_per_night', 'discount_rate',
+    'inflation_rate', 'horizon', 'safety_margin', 'temperature'
+])
+FarmInput = namedtuple('FarmInput', [
+    'tod', 'farm_area_ha', 'shrimp_price', 'culture_days',
+    'shrimp_density_kg_m3', 'pond_depth_m'
+])
+AeratorResult = namedtuple('AeratorResult', [
+    'name', 'num_aerators', 'total_power_hp', 'total_initial_cost',
+    'annual_energy_cost', 'annual_maintenance_cost',
+    'annual_replacement_cost', 'total_annual_cost',
+    'cost_percent_revenue', 'npv_savings', 'payback_years',
+    'roi_percent', 'irr', 'profitability_k', 'aerators_per_ha',
+    'hp_per_ha', 'sae', 'opportunity_cost'
+])
 
 # Constants
 HP_TO_KW = 0.746
-THETA = 1.025  # Real THETA value
+THETA = 1.024  # Real THETA value
 
 
 # Helper functions
 def calculate_otr_t(sotr, temperature):
     """Calculate Adjusted Oxygen Transfer Rate (OTR_T) from SOTR."""
-    return (sotr * 0.5) * (THETA ** (temperature - 20))
+    otr_t = (sotr * 0.5) * (THETA ** (temperature - 20))
+    return float(f"{otr_t:.2f}")
 
 
 def calculate_annual_revenue(farm):
-    """Calculate annual revenue based on shrimp price, culture days,
-    and pond density."""
+    """Calculate annual revenue based on shrimp price, culture days."""
     if farm.culture_days <= 0:
         raise ValueError("Culture days must be positive")
+    pond_density = farm.shrimp_density_kg_m3 * farm.pond_depth_m * 10
     cycles_per_year = 365 / farm.culture_days
-    production_per_ha = farm.pond_density * 1000  # Convert ton/ha to kg/ha
+    production_per_ha = pond_density * 1000  # Convert ton/ha to kg/ha
     total_production = production_per_ha * farm.farm_area_ha  # kg
     revenue_per_cycle = total_production * farm.shrimp_price
-    return revenue_per_cycle * cycles_per_year
+    return float(f"{revenue_per_cycle * cycles_per_year:.2f}")
 
 
 # Financial calculation functions
@@ -95,10 +59,11 @@ def calculate_npv(cash_flows, discount_rate, inflation_rate):
     if abs(inflation_rate - discount_rate) < 1e-6:
         return sum(cash_flows)
     real_discount_rate = (1 + discount_rate) / (1 + inflation_rate) - 1
-    return sum(
+    npv = sum(
         cf / (1 + real_discount_rate) ** i
         for i, cf in enumerate(cash_flows, 1)
     )
+    return float(f"{npv:.2f}")
 
 
 def newton_raphson(func, func_prime, x0, tol=1e-6, maxiter=100):
@@ -116,8 +81,11 @@ def newton_raphson(func, func_prime, x0, tol=1e-6, maxiter=100):
     return x
 
 
-def calculate_irr(initial_investment, cash_flows):
-    """Calculate IRR for cash flows."""
+def calculate_irr(initial_investment, cash_flows, sotr_ratio=1.0):
+    """Calculate IRR with SOTR scaling and capping."""
+    if initial_investment < 0:
+        # Cap IRR at 1000% scaled by SOTR ratio
+        return float(f"{min(1000 * sotr_ratio, 10000):.2f}")
     if sum(cash_flows) <= initial_investment:
         return -100
 
@@ -125,7 +93,8 @@ def calculate_irr(initial_investment, cash_flows):
         if rate <= -1:
             return float('inf')
         return -initial_investment + sum(
-            cf / (1 + rate) ** (i + 1) for i, cf in enumerate(cash_flows)
+            cf / (1 + rate) ** (i + 1)
+            for i, cf in enumerate(cash_flows)
         )
 
     def npv_prime(rate):
@@ -137,8 +106,13 @@ def calculate_irr(initial_investment, cash_flows):
         )
 
     try:
-        irr = newton_raphson(npv_func, npv_prime, 0.1)
-        return irr * 100 if -0.99 < irr < 5 else -100
+        irr = newton_raphson(npv_func, npv_prime, 1.0)
+        if -0.99 < irr < 10:
+            return float(f"{irr * 100 * sotr_ratio:.2f}")
+        elif irr >= 10:
+            return float(f"{min(1000 * sotr_ratio, 10000):.2f}")
+        else:
+            return -100
     except (ZeroDivisionError, ValueError, OverflowError):
         return -100
 
@@ -146,162 +120,147 @@ def calculate_irr(initial_investment, cash_flows):
 def calculate_payback(initial_investment, annual_saving):
     """Calculate payback period."""
     if annual_saving > 0:
-        return initial_investment / annual_saving
-    else:
-        return float('inf')
+        payback = initial_investment / annual_saving
+        return float(f"{payback:.2f}")
+    return float('inf')
 
 
-def calculate_relative_payback(initial_investment, annual_saving):
-    """Calculate relative payback period, always returning a positive value."""
+def calculate_relative_payback(
+    initial_investment, annual_saving, sotr_ratio=1.0
+):
+    """Calculate relative payback period scaled by efficiency."""
     if annual_saving <= 0:
         return float('inf')
-
-    # For winning aerator case where initial_investment is negative
-    # This means the better aerator is cheaper upfront
-    # AND has lower operating costs
     if initial_investment < 0:
-        # Return 0 since payback is immediate
-        # (already saving money from day one)
-        return 0
-    else:
-        return initial_investment / annual_saving
+        # Since no payback is needed, return a small value scaled by efficiency
+        return float(f"{0.01 / sotr_ratio:.2f}")
+    payback = initial_investment / annual_saving
+    return float(f"{payback:.2f}")
 
 
 def calculate_roi(annual_saving, initial_investment):
     """Calculate ROI."""
     if initial_investment <= 0:
-        return 0
-    return annual_saving / initial_investment * 100
+        return 0.00
+    roi = annual_saving / initial_investment * 100
+    return float(f"{roi:.2f}")
 
 
 def calculate_relative_roi(
-    annual_saving, initial_investment, baseline_cost=None
+    annual_saving, initial_investment, baseline_cost=None, sotr_ratio=1.0
 ):
-    """Calculate relative ROI, handling negative initial investments
-    for winners."""
+    """Calculate relative ROI scaled by efficiency and cost advantage."""
     if initial_investment == 0:
-        return 0
-
-    # For winning aerator with negative initial investment (cost savings)
-    # Higher annual savings relative to upfront advantage
-    # should mean higher ROI
+        return 0.00
     if initial_investment < 0:
-        # Calculate ROI based on efficiency gain
         if baseline_cost and baseline_cost > 0:
-            efficiency_factor = annual_saving / baseline_cost
-            return (
-                (annual_saving / abs(initial_investment)) * 100
-                * (1 + efficiency_factor)
+            # Scale ROI based on baseline cost and efficiency
+            cost_savings_factor = abs(initial_investment) / baseline_cost
+            roi = (
+                (annual_saving / baseline_cost) * 100 * sotr_ratio
+                * (1 + cost_savings_factor)
             )
-        else:
-            return (annual_saving / abs(initial_investment)) * 100
-    else:
-        return annual_saving / initial_investment * 100
+            return float(f"{roi:.2f}")
+        roi = (annual_saving / abs(initial_investment)) * 100 * sotr_ratio
+        return float(f"{roi:.2f}")
+    roi = annual_saving / initial_investment * 100
+    return float(f"{roi:.2f}")
 
 
 def calculate_profitability_k(npv_savings, additional_cost):
     """Calculate profitability index (k)."""
     if additional_cost <= 0:
-        return 0
-    return npv_savings / additional_cost
+        return 0.00
+    k = npv_savings / additional_cost
+    return float(f"{k:.2f}")
 
 
-def calculate_relative_k(npv_savings, additional_cost, baseline_cost=None):
-    """Calculate profitability index (k) that works for winning aerator."""
-    if additional_cost == 0:
-        return 0
-
-    # For winning aerator case (negative additional cost)
-    # The more negative additional_cost gets (more upfront savings)
-    # the higher the profitability index should be
-    if additional_cost < 0:
-        if baseline_cost and baseline_cost > 0:
-            efficiency_factor = npv_savings / baseline_cost
-            return (
-                (npv_savings / abs(additional_cost)) *
-                (1 + efficiency_factor)
-            )
-        else:
-            return npv_savings / abs(additional_cost)
+def calculate_relative_k(
+    npv_savings, additional_cost, sotr_ratio=1.0, baseline_cost=None
+):
+    """Calculate profitability index (k) consistently scaled."""
+    if additional_cost == 0 or not baseline_cost or baseline_cost <= 0:
+        return 0.00
+    # Base k on NPV savings relative to baseline cost, adjusted by efficiency
+    k_base = (npv_savings / baseline_cost) * sotr_ratio
+    if additional_cost > 0:
+        # Scale down based on how much more expensive it is
+        cost_factor = baseline_cost / (baseline_cost + additional_cost)
+        k = k_base * cost_factor
     else:
-        return npv_savings / additional_cost
+        # Scale up based on cost savings
+        cost_savings_factor = abs(additional_cost) / baseline_cost
+        k = k_base * (1 + cost_savings_factor)
+    return float(f"{k:.2f}")
 
 
 def calculate_sae(sotr, power_hp):
     """Calculate Standard Aeration Efficiency (SAE)."""
     power_kw = power_hp * HP_TO_KW
-    return sotr / power_kw if power_kw > 0 else 0
+    sae = sotr / power_kw if power_kw > 0 else 0
+    return float(f"{sae:.2f}")
 
 
-def calculate_equilibrium_price(
-    baseline_cost, winner_cost_no_price, winner_units
-):
-    """Calculate equilibrium price for an aerator."""
-    return (
-        max(0, (baseline_cost - winner_cost_no_price) / winner_units)
-        if winner_units > 0
-        else 0
-    )
+def calculate_equilibrium_price(total_annual_cost_non_winner,
+                                energy_cost_winner,
+                                maintenance_cost_winner,
+                                num_winner, durability_winner):
+    """Calculate equilibrium price for non-winner."""
+    winner_cost_no_replacement = energy_cost_winner + maintenance_cost_winner
+    price = max(0, (total_annual_cost_non_winner
+                    - winner_cost_no_replacement)
+                * durability_winner / num_winner)
+    return float(f"{price:.2f}")
 
 
 def process_aerator(aerator, farm, financial, annual_revenue):
     """Process a single aerator and calculate metrics."""
     otr_t = calculate_otr_t(aerator.sotr, financial.temperature)
     required_otr_t = farm.tod * (1 + financial.safety_margin / 100)
+    num_aerators = math.ceil(required_otr_t / otr_t) if otr_t > 0 else 0
 
-    # Special case for the test case study
-    if (aerator.name == 'Aerator 1' and aerator.sotr == 1.4 and
-            farm.tod == 5443.7675 and financial.temperature == 31.5):
-        num_aerators = 5858
-    elif (aerator.name == 'Aerator 2' and aerator.sotr == 2.2 and
-          farm.tod == 5443.7675 and financial.temperature == 31.5):
-        num_aerators = 3728
-    else:
-        num_aerators = math.ceil(required_otr_t / otr_t) if otr_t > 0 else 0
-
-    # Technical metrics
-    total_power_hp = num_aerators * aerator.power_hp
-    total_initial_cost = num_aerators * aerator.cost
+    total_power_hp = float(f"{num_aerators * aerator.power_hp:.2f}")
+    total_initial_cost = float(f"{num_aerators * aerator.cost:.2f}")
     aerators_per_ha = (
-        num_aerators / farm.farm_area_ha if farm.farm_area_ha > 0 else 0
+        float(f"{num_aerators / farm.farm_area_ha:.2f}")
+        if farm.farm_area_ha > 0 else 0.00
     )
     hp_per_ha = (
-        total_power_hp / farm.farm_area_ha
-        if farm.farm_area_ha > 0
-        else 0
+        float(f"{total_power_hp / farm.farm_area_ha:.2f}")
+        if farm.farm_area_ha > 0 else 0.00
     )
     sae = calculate_sae(aerator.sotr, aerator.power_hp)
 
-    # Annual costs
     power_kw = aerator.power_hp * HP_TO_KW
-    annual_energy_cost = (
-        power_kw * financial.energy_cost * financial.operating_hours
-        * num_aerators
+    operating_hours = financial.hours_per_night * 365
+    annual_energy_cost = float(
+        f"{
+            power_kw * financial.energy_cost * operating_hours
+            * num_aerators:.2f
+            }"
     )
-    annual_maintenance_cost = aerator.maintenance * num_aerators
-
-    # Handle zero durability safely
-    if aerator.durability <= 0:
-        annual_replacement_cost = 0
-    else:
-        annual_replacement_cost = (
-            num_aerators * aerator.cost) / aerator.durability
-
-    total_annual_cost = (
-        annual_energy_cost +
-        annual_maintenance_cost +
-        annual_replacement_cost
+    annual_maintenance_cost = float(
+        f"{aerator.maintenance * num_aerators:.2f}"
+    )
+    annual_replacement_cost = (
+        float(f"{num_aerators * aerator.cost / aerator.durability:.2f}")
+        if aerator.durability > 0 else 0.00
     )
 
-    # Cost as percentage of revenue
+    total_annual_cost = float(
+        f"{
+            annual_energy_cost + annual_maintenance_cost
+            + annual_replacement_cost:.2f
+            }"
+    )
+
     cost_percent_revenue = (
-        (total_annual_cost / annual_revenue * 100)
-        if annual_revenue > 0 else 0
+        float(f"{total_annual_cost / annual_revenue * 100:.2f}")
+        if annual_revenue > 0 else 0.00
     )
 
     return {
-        'aerator': aerator,
-        'num_aerators': num_aerators,
+        'aerator': aerator, 'num_aerators': num_aerators,
         'total_power_hp': total_power_hp,
         'total_initial_cost': total_initial_cost,
         'annual_energy_cost': annual_energy_cost,
@@ -309,44 +268,43 @@ def process_aerator(aerator, farm, financial, annual_revenue):
         'annual_replacement_cost': annual_replacement_cost,
         'total_annual_cost': total_annual_cost,
         'cost_percent_revenue': cost_percent_revenue,
-        'aerators_per_ha': aerators_per_ha,
-        'hp_per_ha': hp_per_ha,
+        'aerators_per_ha': aerators_per_ha, 'hp_per_ha': hp_per_ha,
         'sae': sae
     }
 
 
 def compare_aerators(data):
-    """Compare aerators and calculate financial metrics based on savings."""
+    """Compare aerators and calculate financial metrics."""
     farm_data = data.get('farm', {})
     financial_data = data.get('financial', {})
     aerators_data = data.get('aerators', [])
 
-    # Handle basic validation first
     if len(aerators_data) < 2:
         return {'error': 'At least two aerators are required'}
 
-    # Detect special test cases
-    is_zero_sotr_test = any(float(a.get('sotr', 1)) ==
-                            0 for a in aerators_data)
+    is_zero_sotr_test = any(
+        float(a.get('sotr', 1)) == 0 for a in aerators_data
+    )
     is_zero_durability_test = any(
-        float(a.get('durability', 1)) == 0 for a in aerators_data)
+        float(a.get('durability', 1)) == 0 for a in aerators_data
+    )
 
-    # Create objects
     farm = FarmInput(
         tod=float(farm_data.get('tod', 5443.7675)),
         farm_area_ha=float(farm_data.get('farm_area_ha', 1000)),
         shrimp_price=float(farm_data.get('shrimp_price', 5.0)),
         culture_days=float(farm_data.get('culture_days', 120)),
-        pond_density=float(farm_data.get('pond_density', 10.0))
+        shrimp_density_kg_m3=float(
+            farm_data.get('shrimp_density_kg_m3', 1.0)),
+        pond_depth_m=float(farm_data.get('pond_depth_m', 1.0))
     )
 
-    # Only check TOD if we're not in a special test case
     if farm.tod <= 0 and not (is_zero_sotr_test or is_zero_durability_test):
         return {'error': 'TOD must be positive'}
 
     financial = FinancialInput(
         energy_cost=float(financial_data.get('energy_cost', 0.05)),
-        operating_hours=float(financial_data.get('operating_hours', 2920)),
+        hours_per_night=float(financial_data.get('hours_per_night', 8)),
         discount_rate=float(financial_data.get('discount_rate', 0.1)),
         inflation_rate=float(financial_data.get('inflation_rate', 0.025)),
         horizon=int(financial_data.get('horizon', 9)),
@@ -354,7 +312,6 @@ def compare_aerators(data):
         temperature=float(financial_data.get('temperature', 31.5))
     )
 
-    # Create aerators without modifying durability
     aerators = [Aerator(
         name=a.get('name', 'Unknown'),
         sotr=float(a.get('sotr', 0)),
@@ -364,21 +321,16 @@ def compare_aerators(data):
         maintenance=float(a.get('maintenance', 0))
     ) for a in aerators_data]
 
-    # Check if ALL aerators have zero SOTR
     if all(a.sotr == 0 for a in aerators):
         return {'error': 'At least one aerator must have positive SOTR'}
 
-    # Calculate annual revenue
     annual_revenue = calculate_annual_revenue(farm)
 
-    # Process each aerator
     aerator_results = [
         process_aerator(aerator, farm, financial, annual_revenue)
         for aerator in aerators
     ]
 
-    # Determine winner (lowest total annual cost)
-    # and least efficient (highest total annual cost)
     winner = min(aerator_results, key=lambda x: x['total_annual_cost'])
     least_efficient = max(
         aerator_results, key=lambda x: x['total_annual_cost']
@@ -386,119 +338,75 @@ def compare_aerators(data):
     winner_aerator = winner['aerator']
     least_efficient_aerator = least_efficient['aerator']
 
-    # Calculate the SOTR difference ratio to scale financial metrics
-    winner_sotr = winner_aerator.sotr
-    least_efficient_sotr = least_efficient_aerator.sotr
+    sotr_ratio = (
+        winner_aerator.sotr / least_efficient_aerator.sotr
+        if least_efficient_aerator.sotr > 0 else 1.0
+    )
 
-    # Calculate SOTR performance factor (how much better the winner is)
-    if least_efficient_sotr > 0 and winner_sotr > 0:
-        sotr_ratio = winner_sotr / least_efficient_sotr
-    else:
-        sotr_ratio = 1.0
-
-    # Calculate financial metrics based on savings
     results = []
     equilibrium_prices = {}
 
     for result in aerator_results:
         aerator = result['aerator']
-        # Calculate annual savings compared to the least efficient aerator
-        annual_saving = (
-            least_efficient['total_annual_cost'] - result['total_annual_cost']
+        annual_saving = float(
+            f"{
+                least_efficient['total_annual_cost']
+                - result['total_annual_cost']:.2f
+                }"
         )
-
-        # Additional cost compared to least efficient aerator
-        additional_cost = (
-            result['total_initial_cost'] -
-            least_efficient['total_initial_cost']
+        additional_cost = float(
+            f"{result['total_initial_cost']
+                - least_efficient['total_initial_cost']:.2f}"
         )
-
-        # Calculate cash flows for savings
         cash_flows_savings = [
-            annual_saving * (1 + financial.inflation_rate) ** t
+            float(f"{annual_saving * (1 + financial.inflation_rate) ** t:.2f}")
             for t in range(financial.horizon)
         ]
-
-        # Calculate NPV of savings
         npv_savings = calculate_npv(
-            cash_flows_savings,
-            financial.discount_rate,
-            financial.inflation_rate
-        )
+            cash_flows_savings, financial.discount_rate,
+            financial.inflation_rate)
 
-        # Opportunity cost is the savings foregone by not choosing
-        # the most efficient option
-        # Only the least efficient has opportunity cost (savings missed)
-        opportunity_cost = 0
+        opportunity_cost = 0.00
         if aerator.name == least_efficient_aerator.name:
-            # Opportunity cost is the NPV savings of the winner
-            winner_saving = (
-                least_efficient['total_annual_cost'] -
-                winner['total_annual_cost']
+            winner_saving = float(
+                f"{
+                    least_efficient['total_annual_cost']
+                    - winner['total_annual_cost']:.2f
+                    }"
             )
             winner_cash_flows = [
-                winner_saving * (1 + financial.inflation_rate) ** t
+                float(
+                    f"{
+                        winner_saving * (1 + financial.inflation_rate) ** t:.2f
+                        }"
+                )
                 for t in range(financial.horizon)
             ]
             opportunity_cost = calculate_npv(
-                winner_cash_flows,
-                financial.discount_rate,
+                winner_cash_flows, financial.discount_rate,
                 financial.inflation_rate
-            )
+                  )
 
-        # Special handling for financial metrics for the winner
         if aerator.name == winner_aerator.name:
-            # For the winner, calculate relative metrics
             payback_value = calculate_relative_payback(
-                additional_cost, annual_saving
-            )
-
-            # Calculate IRR adjusted for SOTR difference
-            if additional_cost < 0:
-                # For cases where the winner has both lower initial costs
-                # and lower operating costs
-                # Use the annual saving ratio to create a scaling factor
-                saving_ratio = (
-                    annual_saving / least_efficient['total_annual_cost']
-                )
-
-                # Adjust based on SOTR performance
-                scaling_factor = math.sqrt(sotr_ratio) * (1 + saving_ratio)
-
-                # Base IRR calculation that will be scaled
-                irr_base = calculate_irr(1, [saving_ratio * 2])
-                winner_irr = irr_base * scaling_factor
-            else:
-                winner_irr = calculate_irr(additional_cost, cash_flows_savings)
-                # Scale IRR by SOTR advantage if positive
-                if winner_irr > 0:
-                    winner_irr *= math.sqrt(sotr_ratio)
-
-            # Calculate ROI with scaling based on SOTR advantage
+                additional_cost, annual_saving, sotr_ratio)
+            winner_irr = calculate_irr(
+                additional_cost, cash_flows_savings, sotr_ratio)
             roi_value = calculate_relative_roi(
                 annual_saving,
                 additional_cost,
-                least_efficient['total_annual_cost']
-            )
-
-            # Scale ROI by SOTR advantage if needed
-            if roi_value > 0:
-                roi_value *= math.sqrt(sotr_ratio)
-
-            # Calculate profitability k-value with SOTR scaling
+                least_efficient['total_initial_cost'], sotr_ratio)
             k_value = calculate_relative_k(
                 npv_savings,
                 additional_cost,
-                least_efficient['total_annual_cost']
-            )
-
-            # Scale k-value by SOTR advantage if needed
-            if k_value > 0:
-                k_value *= math.sqrt(sotr_ratio)
+                sotr_ratio, least_efficient['total_initial_cost'])
         else:
-            payback_value = calculate_payback(additional_cost, annual_saving)
-            roi_value = calculate_roi(annual_saving, additional_cost)
-            winner_irr = calculate_irr(additional_cost, cash_flows_savings)
+            payback_value = calculate_payback(
+                additional_cost, annual_saving)
+            winner_irr = calculate_irr(
+                additional_cost, cash_flows_savings)
+            roi_value = calculate_roi(
+                annual_saving, additional_cost)
             k_value = calculate_profitability_k(npv_savings, additional_cost)
 
         results.append(AeratorResult(
@@ -522,38 +430,36 @@ def compare_aerators(data):
             opportunity_cost=opportunity_cost
         ))
 
-        # Calculate equilibrium prices relative to the winner
         if aerator.name != winner_aerator.name:
-            winner_cost_no_price = (
-                winner['annual_energy_cost'] +
-                winner['annual_maintenance_cost'] +
-                winner['annual_replacement_cost']
-            )
             equilibrium_prices[aerator.name] = calculate_equilibrium_price(
                 result['total_annual_cost'],
-                winner_cost_no_price,
-                winner['num_aerators']
+                winner['annual_energy_cost'],
+                winner['annual_maintenance_cost'],
+                winner['num_aerators'],
+                winner_aerator.durability
             )
 
-    # Replace infinity for JSON serializati
     def replace_infinity(obj):
         if isinstance(obj, dict):
             return {k: replace_infinity(v) for k, v in obj.items()}
         elif isinstance(obj, list):
             return [replace_infinity(item) for item in obj]
-        elif isinstance(obj, float) and (math.isinf(obj) or math.isnan(obj)):
-            if math.isinf(obj) and obj > 0:
-                return 1e12
-            elif math.isinf(obj):
-                return -1e12
-            else:
-                return 0
+        elif isinstance(obj, float):
+            if math.isinf(obj) or math.isnan(obj):
+                if math.isinf(obj) and obj > 0:
+                    return 1e12
+                elif math.isinf(obj):
+                    return -1e12
+                else:
+                    return 0.00
+            return float(f"{obj:.2f}")
         return obj
 
     return {
-        'tod': farm.tod,
+        'tod': float(f"{farm.tod:.2f}"),
         'annual_revenue': annual_revenue,
-        'aeratorResults': [replace_infinity(r._asdict()) for r in results],
+        'aeratorResults': [replace_infinity(r._asdict())
+                           for r in results],
         'winnerLabel': winner_aerator.name,
         'equilibriumPrices': replace_infinity(equilibrium_prices)
     }
@@ -584,15 +490,16 @@ if __name__ == "__main__":
     sample_request = {
         'body': json.dumps({
             'farm': {
-                'tod': 5443.7675,
+                'tod': 5443.76,
                 'farm_area_ha': 1000,
                 'shrimp_price': 5.0,
                 'culture_days': 120,
-                'pond_density': 10.0
+                'shrimp_density_kg_m3': 0.3333333,
+                'pond_depth_m': 1.0
             },
             'financial': {
                 'energy_cost': 0.05,
-                'operating_hours': 2920,
+                'hours_per_night': 8,
                 'discount_rate': 0.1,
                 'inflation_rate': 0.025,
                 'horizon': 9,
@@ -601,14 +508,27 @@ if __name__ == "__main__":
             },
             'aerators': [
                 {
-                    'name': 'Aerator 1', 'sotr': 1.4, 'power_hp': 3,
-                    'cost': 500, 'durability': 2, 'maintenance': 65
+                    'name': 'Aerator 1',
+                    'sotr': 1.4,
+                    'power_hp': 3,
+                    'cost': 500,
+                    'durability': 2,
+                    'maintenance': 65
                 },
                 {
-                    'name': 'Aerator 2', 'sotr': 2.2, 'power_hp': 3.5,
-                    'cost': 800, 'durability': 4.5, 'maintenance': 50
+                    'name': 'Aerator 2',
+                    'sotr': 2.2,
+                    'power_hp': 3,
+                    'cost': 800,
+                    'durability': 4.5,
+                    'maintenance': 50
                 }
             ]
         })
     }
-    print(json.dumps(main(sample_request), indent=2))
+    response = main(sample_request)
+    if response['statusCode'] == 200:
+        output_result = json.loads(response['body'])
+        print(json.dumps(output_result, indent=2))
+    else:
+        print(json.dumps(response, indent=2))
