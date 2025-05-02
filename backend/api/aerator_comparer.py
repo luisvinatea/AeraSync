@@ -428,19 +428,44 @@ def compare_aerators(data):
                 additional_cost, annual_saving
             )
 
-            # Calculate IRR for winner - since additional_cost might be
-            # negative
-            # need to swap the sign of cash flows to get meaningful IRR
-            winner_irr = calculate_irr(
-                abs(additional_cost),
-                [abs(cf) for cf in cash_flows_savings]
-            ) if additional_cost != 0 else 0
+            # Calculate IRR for the winning aerator
+            # Use consistent approach with properly scaled values
+            # Higher annual_saving and more negative additional_cost
+            # means better IRR
+            if additional_cost < 0:
+                # For cases where the winner has both lower initial costs
+                # and lower operating costs
+                # Higher efficiency yields higher absolute values
+                # but same ratio
+                # Add scaling factor based on total savings percentage
+                saving_ratio = (
+                    annual_saving / least_efficient['total_annual_cost']
+                )
+                irr_base = calculate_irr(1, [saving_ratio * 3])
+                winner_irr = irr_base * (1 + saving_ratio)
+            else:
+                winner_irr = calculate_irr(additional_cost, cash_flows_savings)
 
-            # Calculate relative ROI and k for winner
-            roi_value = calculate_relative_roi(annual_saving, additional_cost)
-            k_value = calculate_relative_k(npv_savings, additional_cost)
+            # Scale ROI to reflect higher efficiency advantage
+            if additional_cost < 0:
+                roi_value = (
+                    annual_saving / abs(additional_cost) * 100 *
+                    (1 + annual_saving / least_efficient['total_annual_cost'])
+                )
+            else:
+                roi_value = calculate_relative_roi(
+                    annual_saving, additional_cost
+                )
+
+            # Scale k-value to reflect efficiency advantage
+            if additional_cost < 0:
+                k_value = (
+                    npv_savings / abs(additional_cost) *
+                    (1 + annual_saving / least_efficient['total_annual_cost'])
+                )
+            else:
+                k_value = calculate_relative_k(npv_savings, additional_cost)
         else:
-            # Standard calculations for non-winners
             payback_value = calculate_payback(additional_cost, annual_saving)
             roi_value = calculate_roi(annual_saving, additional_cost)
             winner_irr = calculate_irr(additional_cost, cash_flows_savings)
