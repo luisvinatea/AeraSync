@@ -81,20 +81,35 @@ def newton_raphson(func, func_prime, x0, tol=1e-6, maxiter=100):
     return x
 
 
-def calculate_irr(initial_investment, cash_flows, sotr_ratio=1.0):
-    """Calculate IRR with SOTR scaling and capping."""
-    if initial_investment < 0:
-        # Cap IRR at 1000% scaled by SOTR ratio
-        return float(f"{min(1000 * sotr_ratio, 10000):.2f}")
-    if sum(cash_flows) <= initial_investment:
-        return -100
+def calculate_irr(
+    initial_investment, cash_flows, sotr_ratio=1.0, baseline_cost=None
+):
+    """Calculate IRR with SOTR scaling and durability savings."""
+    if sum(cash_flows) <= 0:
+        return -100.00
+    if initial_investment <= 0:
+        if baseline_cost and baseline_cost > 0:
+            # Use first cash flow as annual savings, adjusted for inflation
+            annual_saving = cash_flows[0]
+            if annual_saving <= 0:
+                return 0.00
+            # Scale cash flows to reflect savings relative to baseline cost
+            scale_factor = baseline_cost / annual_saving
+            scaled_cash_flows = [
+                cf * scale_factor * sotr_ratio for cf in cash_flows
+            ]
+            initial_investment = baseline_cost
+        else:
+            return float(f"{min(100 * sotr_ratio, 1000):.2f}")
+    else:
+        scaled_cash_flows = cash_flows
 
     def npv_func(rate):
         if rate <= -1:
             return float('inf')
         return -initial_investment + sum(
             cf / (1 + rate) ** (i + 1)
-            for i, cf in enumerate(cash_flows)
+            for i, cf in enumerate(scaled_cash_flows)
         )
 
     def npv_prime(rate):
@@ -102,19 +117,19 @@ def calculate_irr(initial_investment, cash_flows, sotr_ratio=1.0):
             return 0
         return sum(
             -(i + 1) * cf / (1 + rate) ** (i + 2)
-            for i, cf in enumerate(cash_flows)
+            for i, cf in enumerate(scaled_cash_flows)
         )
 
     try:
-        irr = newton_raphson(npv_func, npv_prime, 1.0)
+        irr = newton_raphson(npv_func, npv_prime, 0.1)
         if -0.99 < irr < 10:
-            return float(f"{irr * 100 * sotr_ratio:.2f}")
+            return float(f"{min(irr * 100 * sotr_ratio, 1000):.2f}")
         elif irr >= 10:
-            return float(f"{min(1000 * sotr_ratio, 10000):.2f}")
+            return float(f"{min(100 * sotr_ratio, 1000):.2f}")
         else:
-            return -100
+            return -100.00
     except (ZeroDivisionError, ValueError, OverflowError):
-        return -100
+        return -100.00
 
 
 def calculate_payback(initial_investment, annual_saving):
@@ -150,21 +165,21 @@ def calculate_relative_roi(
     annual_saving, initial_investment, baseline_cost=None, sotr_ratio=1.0
 ):
     """Calculate relative ROI scaled by efficiency and cost advantage."""
-    if initial_investment == 0:
+    if annual_saving <= 0 or not baseline_cost or baseline_cost <= 0:
         return 0.00
+    if initial_investment == 0:
+        # ROI based on savings relative to baseline cost
+        roi = (annual_saving / baseline_cost) * 100 * sotr_ratio
+        return float(f"{min(roi, 100 * sotr_ratio):.2f}")
     if initial_investment < 0:
-        if baseline_cost and baseline_cost > 0:
-            # Scale ROI based on baseline cost and efficiency
-            cost_savings_factor = abs(initial_investment) / baseline_cost
-            roi = (
-                (annual_saving / baseline_cost) * 100 * sotr_ratio
-                * (1 + cost_savings_factor)
-            )
-            return float(f"{roi:.2f}")
-        roi = (annual_saving / abs(initial_investment)) * 100 * sotr_ratio
-        return float(f"{roi:.2f}")
+        cost_savings_factor = abs(initial_investment) / baseline_cost
+        roi = (
+            (annual_saving / baseline_cost) * 100 * sotr_ratio
+            * (1 + cost_savings_factor)
+        )
+        return float(f"{min(roi, 100 * sotr_ratio):.2f}")
     roi = annual_saving / initial_investment * 100
-    return float(f"{roi:.2f}")
+    return float(f"{min(roi, 100 * sotr_ratio):.2f}")
 
 
 def calculate_profitability_k(npv_savings, additional_cost):
@@ -179,18 +194,17 @@ def calculate_relative_k(
     npv_savings, additional_cost, sotr_ratio=1.0, baseline_cost=None
 ):
     """Calculate profitability index (k) consistently scaled."""
-    if additional_cost == 0 or not baseline_cost or baseline_cost <= 0:
+    if npv_savings <= 0 or not baseline_cost or baseline_cost <= 0:
         return 0.00
-    # Base k on NPV savings relative to baseline cost, adjusted by efficiency
     k_base = (npv_savings / baseline_cost) * sotr_ratio
     if additional_cost > 0:
-        # Scale down based on how much more expensive it is
         cost_factor = baseline_cost / (baseline_cost + additional_cost)
         k = k_base * cost_factor
-    else:
-        # Scale up based on cost savings
+    elif additional_cost < 0:
         cost_savings_factor = abs(additional_cost) / baseline_cost
         k = k_base * (1 + cost_savings_factor)
+    else:
+        k = k_base  # When costs are equal, use base profitability
     return float(f"{k:.2f}")
 
 
@@ -201,16 +215,24 @@ def calculate_sae(sotr, power_hp):
     return float(f"{sae:.2f}")
 
 
-def calculate_equilibrium_price(total_annual_cost_non_winner,
-                                energy_cost_winner,
-                                maintenance_cost_winner,
-                                num_winner, durability_winner):
-    """Calculate equilibrium price for non-winner."""
+def calculate_equilibrium_price(
+    total_annual_cost_non_winner, energy_cost_winner, maintenance_cost_winner,
+    num_winner, durability_winner, sotr_ratio=1.0, baseline_cost=None
+):
+    """Calculate equilibrium price for non-winner with scaling."""
     winner_cost_no_replacement = energy_cost_winner + maintenance_cost_winner
-    price = max(0, (total_annual_cost_non_winner
-                    - winner_cost_no_replacement)
-                * durability_winner / num_winner)
-    return float(f"{price:.2f}")
+    cost_difference = total_annual_cost_non_winner - winner_cost_no_replacement
+    if cost_difference <= 0 or num_winner <= 0 or durability_winner <= 0:
+        return 0.00
+    # Base price adjustment scaled by durability and number of aerators
+    base_price = cost_difference * durability_winner / num_winner
+    if baseline_cost and baseline_cost > 0:
+        # Scale by sotr_ratio and normalize by baseline cost
+        cost_factor = base_price / baseline_cost if base_price > 0 else 1.0
+        scaled_price = base_price * sotr_ratio * (1.0 / (1.0 + cost_factor))
+    else:
+        scaled_price = base_price * sotr_ratio
+    return float(f"{max(0, scaled_price):.2f}")
 
 
 def process_aerator(aerator, farm, financial, annual_revenue):
@@ -349,10 +371,8 @@ def compare_aerators(data):
     for result in aerator_results:
         aerator = result['aerator']
         annual_saving = float(
-            f"{
-                least_efficient['total_annual_cost']
-                - result['total_annual_cost']:.2f
-                }"
+            f"{least_efficient['total_annual_cost']
+                - result['total_annual_cost']:.2f}"
         )
         additional_cost = float(
             f"{result['total_initial_cost']
@@ -363,50 +383,52 @@ def compare_aerators(data):
             for t in range(financial.horizon)
         ]
         npv_savings = calculate_npv(
-            cash_flows_savings, financial.discount_rate,
-            financial.inflation_rate)
-
+            cash_flows_savings,
+            financial.discount_rate,
+            financial.inflation_rate
+        )
         opportunity_cost = 0.00
         if aerator.name == least_efficient_aerator.name:
             winner_saving = float(
-                f"{
-                    least_efficient['total_annual_cost']
-                    - winner['total_annual_cost']:.2f
-                    }"
+                f"{least_efficient['total_annual_cost']
+                    - winner['total_annual_cost']:.2f}"
             )
             winner_cash_flows = [
                 float(
-                    f"{
-                        winner_saving * (1 + financial.inflation_rate) ** t:.2f
-                        }"
-                )
+                    f"{winner_saving *
+                        (1 + financial.inflation_rate) ** t:.2f}"
+                        )
                 for t in range(financial.horizon)
             ]
             opportunity_cost = calculate_npv(
-                winner_cash_flows, financial.discount_rate,
+                winner_cash_flows,
+                financial.discount_rate,
                 financial.inflation_rate
-                  )
-
+            )
         if aerator.name == winner_aerator.name:
             payback_value = calculate_relative_payback(
-                additional_cost, annual_saving, sotr_ratio)
+                additional_cost, annual_saving, sotr_ratio
+            )
             winner_irr = calculate_irr(
-                additional_cost, cash_flows_savings, sotr_ratio)
+                additional_cost, cash_flows_savings, sotr_ratio,
+                least_efficient['total_initial_cost']
+            )
             roi_value = calculate_relative_roi(
-                annual_saving,
-                additional_cost,
-                least_efficient['total_initial_cost'], sotr_ratio)
+                annual_saving, additional_cost,
+                least_efficient['total_initial_cost'],
+                sotr_ratio
+            )
             k_value = calculate_relative_k(
-                npv_savings,
-                additional_cost,
-                sotr_ratio, least_efficient['total_initial_cost'])
+                npv_savings, additional_cost, sotr_ratio,
+                least_efficient['total_initial_cost']
+            )
         else:
-            payback_value = calculate_payback(
-                additional_cost, annual_saving)
+            payback_value = calculate_payback(additional_cost, annual_saving)
             winner_irr = calculate_irr(
-                additional_cost, cash_flows_savings)
-            roi_value = calculate_roi(
-                annual_saving, additional_cost)
+                additional_cost, cash_flows_savings, sotr_ratio,
+                least_efficient['total_initial_cost']
+            )
+            roi_value = calculate_roi(annual_saving, additional_cost)
             k_value = calculate_profitability_k(npv_savings, additional_cost)
 
         results.append(AeratorResult(
@@ -429,14 +451,12 @@ def compare_aerators(data):
             sae=result['sae'],
             opportunity_cost=opportunity_cost
         ))
-
         if aerator.name != winner_aerator.name:
             equilibrium_prices[aerator.name] = calculate_equilibrium_price(
-                result['total_annual_cost'],
-                winner['annual_energy_cost'],
-                winner['annual_maintenance_cost'],
-                winner['num_aerators'],
-                winner_aerator.durability
+                result['total_annual_cost'], winner['annual_energy_cost'],
+                winner['annual_maintenance_cost'], winner['num_aerators'],
+                winner_aerator.durability,
+                sotr_ratio, winner['total_initial_cost']
             )
 
     def replace_infinity(obj):
@@ -509,18 +529,18 @@ if __name__ == "__main__":
             'aerators': [
                 {
                     'name': 'Aerator 1',
-                    'sotr': 1.4,
+                    'sotr': 2.2,
                     'power_hp': 3,
                     'cost': 500,
-                    'durability': 2,
+                    'durability': 4.5,
                     'maintenance': 65
                 },
                 {
                     'name': 'Aerator 2',
                     'sotr': 2.2,
                     'power_hp': 3,
-                    'cost': 800,
-                    'durability': 4.5,
+                    'cost': 500,
+                    'durability': 2.0,
                     'maintenance': 50
                 }
             ]
