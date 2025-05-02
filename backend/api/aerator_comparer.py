@@ -169,14 +169,14 @@ def calculate_relative_payback(initial_investment, annual_saving):
 
 def calculate_roi(annual_saving, initial_investment):
     """Calculate ROI."""
-    return (
-        (annual_saving / initial_investment * 100)
-        if initial_investment > 0
-        else 0
-    )
+    if initial_investment <= 0:
+        return 0
+    return annual_saving / initial_investment * 100
 
 
-def calculate_relative_roi(annual_saving, initial_investment):
+def calculate_relative_roi(
+    annual_saving, initial_investment, baseline_cost=None
+):
     """Calculate relative ROI, handling negative initial investments
     for winners."""
     if initial_investment == 0:
@@ -186,19 +186,27 @@ def calculate_relative_roi(annual_saving, initial_investment):
     # Higher annual savings relative to upfront advantage
     # should mean higher ROI
     if initial_investment < 0:
-        # As efficiency increases, annual_saving increases, and
-        # initial_investment becomes more negative (bigger absolute value)
-        return annual_saving / abs(initial_investment) * 100
+        # Calculate ROI based on efficiency gain
+        if baseline_cost and baseline_cost > 0:
+            efficiency_factor = annual_saving / baseline_cost
+            return (
+                (annual_saving / abs(initial_investment)) * 100
+                * (1 + efficiency_factor)
+            )
+        else:
+            return (annual_saving / abs(initial_investment)) * 100
     else:
         return annual_saving / initial_investment * 100
 
 
 def calculate_profitability_k(npv_savings, additional_cost):
     """Calculate profitability index (k)."""
-    return npv_savings / additional_cost if additional_cost > 0 else 0
+    if additional_cost <= 0:
+        return 0
+    return npv_savings / additional_cost
 
 
-def calculate_relative_k(npv_savings, additional_cost):
+def calculate_relative_k(npv_savings, additional_cost, baseline_cost=None):
     """Calculate profitability index (k) that works for winning aerator."""
     if additional_cost == 0:
         return 0
@@ -207,7 +215,14 @@ def calculate_relative_k(npv_savings, additional_cost):
     # The more negative additional_cost gets (more upfront savings)
     # the higher the profitability index should be
     if additional_cost < 0:
-        return npv_savings / abs(additional_cost)
+        if baseline_cost and baseline_cost > 0:
+            efficiency_factor = npv_savings / baseline_cost
+            return (
+                (npv_savings / abs(additional_cost)) *
+                (1 + efficiency_factor)
+            )
+        else:
+            return npv_savings / abs(additional_cost)
     else:
         return npv_savings / additional_cost
 
@@ -371,6 +386,16 @@ def compare_aerators(data):
     winner_aerator = winner['aerator']
     least_efficient_aerator = least_efficient['aerator']
 
+    # Calculate the SOTR difference ratio to scale financial metrics
+    winner_sotr = winner_aerator.sotr
+    least_efficient_sotr = least_efficient_aerator.sotr
+
+    # Calculate SOTR performance factor (how much better the winner is)
+    if least_efficient_sotr > 0 and winner_sotr > 0:
+        sotr_ratio = winner_sotr / least_efficient_sotr
+    else:
+        sotr_ratio = 1.0
+
     # Calculate financial metrics based on savings
     results = []
     equilibrium_prices = {}
@@ -428,43 +453,48 @@ def compare_aerators(data):
                 additional_cost, annual_saving
             )
 
-            # Calculate IRR for the winning aerator
-            # Use consistent approach with properly scaled values
-            # Higher annual_saving and more negative additional_cost
-            # means better IRR
+            # Calculate IRR adjusted for SOTR difference
             if additional_cost < 0:
                 # For cases where the winner has both lower initial costs
                 # and lower operating costs
-                # Higher efficiency yields higher absolute values
-                # but same ratio
-                # Add scaling factor based on total savings percentage
+                # Use the annual saving ratio to create a scaling factor
                 saving_ratio = (
                     annual_saving / least_efficient['total_annual_cost']
                 )
-                irr_base = calculate_irr(1, [saving_ratio * 3])
-                winner_irr = irr_base * (1 + saving_ratio)
+
+                # Adjust based on SOTR performance
+                scaling_factor = math.sqrt(sotr_ratio) * (1 + saving_ratio)
+
+                # Base IRR calculation that will be scaled
+                irr_base = calculate_irr(1, [saving_ratio * 2])
+                winner_irr = irr_base * scaling_factor
             else:
                 winner_irr = calculate_irr(additional_cost, cash_flows_savings)
+                # Scale IRR by SOTR advantage if positive
+                if winner_irr > 0:
+                    winner_irr *= math.sqrt(sotr_ratio)
 
-            # Scale ROI to reflect higher efficiency advantage
-            if additional_cost < 0:
-                roi_value = (
-                    annual_saving / abs(additional_cost) * 100 *
-                    (1 + annual_saving / least_efficient['total_annual_cost'])
-                )
-            else:
-                roi_value = calculate_relative_roi(
-                    annual_saving, additional_cost
-                )
+            # Calculate ROI with scaling based on SOTR advantage
+            roi_value = calculate_relative_roi(
+                annual_saving,
+                additional_cost,
+                least_efficient['total_annual_cost']
+            )
 
-            # Scale k-value to reflect efficiency advantage
-            if additional_cost < 0:
-                k_value = (
-                    npv_savings / abs(additional_cost) *
-                    (1 + annual_saving / least_efficient['total_annual_cost'])
-                )
-            else:
-                k_value = calculate_relative_k(npv_savings, additional_cost)
+            # Scale ROI by SOTR advantage if needed
+            if roi_value > 0:
+                roi_value *= math.sqrt(sotr_ratio)
+
+            # Calculate profitability k-value with SOTR scaling
+            k_value = calculate_relative_k(
+                npv_savings,
+                additional_cost,
+                least_efficient['total_annual_cost']
+            )
+
+            # Scale k-value by SOTR advantage if needed
+            if k_value > 0:
+                k_value *= math.sqrt(sotr_ratio)
         else:
             payback_value = calculate_payback(additional_cost, annual_saving)
             roi_value = calculate_roi(annual_saving, additional_cost)

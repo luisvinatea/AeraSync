@@ -244,8 +244,9 @@ class AppState extends ChangeNotifier {
   }
 
   String _ensureNonEmptyString(dynamic value, String defaultValue) {
-    if (value == null || (value is String && value.trim().isEmpty))
+    if (value == null || (value is String && value.trim().isEmpty)) {
       return defaultValue;
+    }
     return value.toString();
   }
 }

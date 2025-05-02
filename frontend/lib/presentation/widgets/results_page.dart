@@ -281,7 +281,7 @@ class _AeratorComparisonCard extends StatelessWidget {
                         rows: results.map((result) {
                           final isWinner = result.name == winnerLabel;
                           return DataRow(
-                            color: isWinner ? MaterialStateProperty.all(Colors.green.withOpacity(0.1)) : null,
+                            color: isWinner ? WidgetStateProperty.all(Colors.green.withOpacity(0.1)) : null,
                             cells: [
                               DataCell(Text(result.name,
                                   style: isWinner ? const TextStyle(fontWeight: FontWeight.bold) : null)),
@@ -525,7 +525,7 @@ class _EquilibriumPricesCard extends StatelessWidget {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
         ),
