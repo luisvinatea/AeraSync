@@ -168,37 +168,37 @@ class _SurveyPageState extends State<SurveyPage> {
       // Format data according to API expectations
       final surveyData = {
         'farm': {
-          'tod': double.tryParse(_todController.text),
-          'farm_area_ha': double.tryParse(_farmAreaController.text),
-          'shrimp_price': double.tryParse(_shrimpPriceController.text),
-          'culture_days': double.tryParse(_cultureDaysController.text),
-          'pond_density': double.tryParse(_pondDensityController.text),
+          'tod': double.tryParse(_todController.text) ?? 0.0,
+          'farm_area_ha': double.tryParse(_farmAreaController.text) ?? 0.0,
+          'shrimp_price': double.tryParse(_shrimpPriceController.text) ?? 5.0,
+          'culture_days': double.tryParse(_cultureDaysController.text) ?? 120,
+          'pond_density': double.tryParse(_pondDensityController.text) ?? 10.0,
         },
         'financial': {
-          'energy_cost': double.tryParse(_electricityCostController.text),
-          'operating_hours': double.tryParse(_operatingHoursController.text),
+          'energy_cost': double.tryParse(_electricityCostController.text) ?? 0.05,
+          'operating_hours': double.tryParse(_operatingHoursController.text) ?? 2920,
           'discount_rate': (double.tryParse(_discountRateController.text) ?? 10.0) / 100,
-          'inflation_rate': (double.tryParse(_inflationRateController.text) ?? 2.5) / 100,
-          'horizon': int.tryParse(_analysisYearsController.text),
+          'inflation_rate': (double.tryParse(_inflationRateController.text) ?? 3.0) / 100,
+          'horizon': int.tryParse(_analysisYearsController.text) ?? 9,
           'safety_margin': (double.tryParse(_safetyMarginController.text) ?? 0.0) / 100,
-          'temperature': double.tryParse(_temperatureController.text),
+          'temperature': double.tryParse(_temperatureController.text) ?? 31.5,
         },
         'aerators': [
           {
             'name': _aerator1NameController.text,
-            'power_hp': double.tryParse(_aerator1PowerController.text),
-            'sotr': double.tryParse(_aerator1SotrController.text),
-            'cost': double.tryParse(_aerator1CostController.text),
-            'durability': double.tryParse(_aerator1DurabilityController.text),
-            'maintenance': double.tryParse(_aerator1MaintenanceController.text)
+            'power_hp': double.tryParse(_aerator1PowerController.text) ?? 3.0,
+            'sotr': double.tryParse(_aerator1SotrController.text) ?? 1.4,
+            'cost': double.tryParse(_aerator1CostController.text) ?? 500.0,
+            'durability': double.tryParse(_aerator1DurabilityController.text) ?? 2.0,
+            'maintenance': double.tryParse(_aerator1MaintenanceController.text) ?? 65.0
           },
           {
             'name': _aerator2NameController.text,
-            'power_hp': double.tryParse(_aerator2PowerController.text),
-            'sotr': double.tryParse(_aerator2SotrController.text),
-            'cost': double.tryParse(_aerator2CostController.text),
-            'durability': double.tryParse(_aerator2DurabilityController.text),
-            'maintenance': double.tryParse(_aerator2MaintenanceController.text)
+            'power_hp': double.tryParse(_aerator2PowerController.text) ?? 3.0,
+            'sotr': double.tryParse(_aerator2SotrController.text) ?? 2.6,
+            'cost': double.tryParse(_aerator2CostController.text) ?? 800.0,
+            'durability': double.tryParse(_aerator2DurabilityController.text) ?? 4.5,
+            'maintenance': double.tryParse(_aerator2MaintenanceController.text) ?? 50.0
           }
         ]
       };
