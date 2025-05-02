@@ -84,7 +84,8 @@ class SurveyPage extends StatefulWidget {
 }
 
 class _SurveyPageState extends State<SurveyPage> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   final _stepperKey = GlobalKey();
 
   // Farm inputs
@@ -209,7 +210,15 @@ class _SurveyPageState extends State<SurveyPage> {
         
         if (!context.mounted) return;
         
-        // Show success message and use callback to navigate after animation completes
+        // Explicitly navigate to results page after api call is successful
+        await Future.delayed(const Duration(milliseconds: 200));
+        
+        if (!context.mounted) return;
+        
+        // Use pushReplacementNamed to replace current route with results page
+        navigator.pushReplacementNamed('/results');
+        
+        // Show success message after navigation is triggered
         scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(l10n.surveySubmissionSuccessful),
@@ -217,12 +226,6 @@ class _SurveyPageState extends State<SurveyPage> {
             duration: const Duration(milliseconds: 1500),
           ),
         );
-        
-        // Use a slight delay for better UX
-        await Future.delayed(const Duration(milliseconds: 200));
-        
-        if (!context.mounted) return;
-        navigator.pushNamed('/results');
       } catch (e) {
         if (!context.mounted) return;
         developer.log('Error during submission: $e');

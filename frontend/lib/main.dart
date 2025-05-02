@@ -11,8 +11,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final localeCode = prefs.getString('locale') ?? 'en';
-  final supportedLocales = AppLocalizations.supportedLocales.map((l) => l.languageCode).toSet();
-  final validLocaleCode = supportedLocales.contains(localeCode) ? localeCode : 'en';
+  final supportedLocales =
+      AppLocalizations.supportedLocales.map((l) => l.languageCode).toSet();
+  final validLocaleCode =
+      supportedLocales.contains(localeCode) ? localeCode : 'en';
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppState(locale: Locale(validLocaleCode)),
@@ -29,14 +31,8 @@ class MyApp extends StatelessWidget {
     return Consumer<AppState>(
       builder: (context, appState, child) {
         return MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: const [
-            Locale('en'),
-            Locale('es'),
-            Locale('pt'),
-          ],
-          locale: appState.locale,
-          onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+          title: 'AeraSync',
+          debugShowCheckedModeBanner: false,
           theme: ThemeData(
             useMaterial3: true,
             scaffoldBackgroundColor: Colors.transparent,
@@ -44,7 +40,7 @@ class MyApp extends StatelessWidget {
               seedColor: const Color(0xFF1E40AF),
               primary: const Color(0xFF1E40AF),
               secondary: const Color(0xFF60A5FA),
-              surface: Colors.white.withValues(alpha: 0.9),
+              surface: Colors.white.withOpacity(0.9),
               onSurface: const Color(0xFF1E40AF),
             ),
             appBarTheme: const AppBarTheme(
@@ -81,7 +77,8 @@ class MyApp extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1E40AF),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -93,7 +90,7 @@ class MyApp extends StatelessWidget {
             ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.95),
+              fillColor: Colors.white.withOpacity(0.95),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(color: Color(0xFF60A5FA)),
@@ -104,18 +101,23 @@ class MyApp extends StatelessWidget {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF1E40AF), width: 2),
+                borderSide:
+                    const BorderSide(color: Color(0xFF1E40AF), width: 2),
               ),
               labelStyle: TextStyle(
-                backgroundColor: Colors.white.withValues(alpha: 0.8),
+                backgroundColor: Colors.white.withOpacity(0.8),
                 color: const Color(0xFF1E40AF),
                 fontWeight: FontWeight.w500,
                 fontSize: 16,
               ),
               floatingLabelBehavior: FloatingLabelBehavior.always,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             ),
           ),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          initialRoute: '/',
           routes: {
             '/': (context) => const HomePage(),
             '/survey': (context) => const SurveyPage(),

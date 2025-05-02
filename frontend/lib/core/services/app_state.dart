@@ -9,6 +9,7 @@ class AppState extends ChangeNotifier {
 
   // State variables
   Map<String, dynamic>? _apiResults;
+  bool _resultsAvailable = false;
   Locale _locale;
   String? _error;
   bool _isApiHealthy = true;
@@ -24,6 +25,7 @@ class AppState extends ChangeNotifier {
 
   // Getters
   Map<String, dynamic>? get apiResults => _apiResults;
+  bool get resultsAvailable => _resultsAvailable;
   Locale get locale => _locale;
   String? get error => _error;
   bool get isApiHealthy => _isApiHealthy;
@@ -136,16 +138,31 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setApiResults(Map<String, dynamic> results) {
+    _apiResults = results;
+    _resultsAvailable = true;
+    notifyListeners();
+  }
+
+  void clearResults() {
+    _apiResults = null;
+    _resultsAvailable = false;
+    notifyListeners();
+  }
+
   // Compare aerators
   Future<void> compareAerators(Map<String, dynamic> surveyData) async {
     clearError();
     try {
       final normalizedData = _normalizeData(surveyData);
       _apiResults = await _apiService.compareAerators(normalizedData);
+      _resultsAvailable = true;
       notifyListeners();
     } catch (e) {
-      if (e.toString().contains('SocketException') || e.toString().contains('TimeoutException')) {
-        setError('Failed to connect to the server. Please check your internet connection and try again.');
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        setError(
+            'Failed to connect to the server. Please check your internet connection and try again.');
       } else {
         setError('An unexpected error occurred: $e');
       }
@@ -165,11 +182,15 @@ class AppState extends ChangeNotifier {
       },
       'financial': {
         'energy_cost': _ensurePositiveDouble(data['financial']['energy_cost']),
-        'operating_hours': _ensurePositiveDouble(data['financial']['operating_hours']),
-        'discount_rate': _ensurePositiveDouble(data['financial']['discount_rate']),
-        'inflation_rate': _ensurePositiveDouble(data['financial']['inflation_rate']),
+        'operating_hours':
+            _ensurePositiveDouble(data['financial']['operating_hours']),
+        'discount_rate':
+            _ensurePositiveDouble(data['financial']['discount_rate']),
+        'inflation_rate':
+            _ensurePositiveDouble(data['financial']['inflation_rate']),
         'horizon': _ensurePositiveInt(data['financial']['horizon']),
-        'safety_margin': _ensureNonNegativeDouble(data['financial']['safety_margin']),
+        'safety_margin':
+            _ensureNonNegativeDouble(data['financial']['safety_margin']),
         'temperature': _ensurePositiveDouble(data['financial']['temperature']),
       },
       'aerators': [],
@@ -223,7 +244,8 @@ class AppState extends ChangeNotifier {
   }
 
   String _ensureNonEmptyString(dynamic value, String defaultValue) {
-    if (value == null || (value is String && value.trim().isEmpty)) return defaultValue;
+    if (value == null || (value is String && value.trim().isEmpty))
+      return defaultValue;
     return value.toString();
   }
 }
