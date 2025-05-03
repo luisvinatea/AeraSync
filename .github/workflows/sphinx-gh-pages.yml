@@ -42,8 +42,7 @@ jobs:
           
       - name: Build documentation
         run: |
-          cd source
-          make html
+          sphinx-build -b html source source/_build/html
           
       - name: Create .nojekyll file
         run: touch source/_build/html/.nojekyll
