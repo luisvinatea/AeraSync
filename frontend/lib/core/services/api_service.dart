@@ -24,12 +24,29 @@ class ApiService {
   /// Returns true if healthy, false otherwise.
   Future<bool> checkHealth() async {
     try {
+      // Try the primary health endpoint
       final response = await client.get(
         Uri.parse('$baseUrl/health'),
         headers: _getHeaders(),
-      );
-      return response.statusCode == 200;
+      ).timeout(const Duration(seconds: 5));
+      
+      if (response.statusCode == 200) {
+        return true;
+      }
+      
+      // If primary fails and CORS retries are enabled, try the alternative endpoint
+      if (corsRetries) {
+        final altResponse = await client.get(
+          Uri.parse('$baseUrl/api/health'),
+          headers: _getHeaders(),
+        ).timeout(const Duration(seconds: 5));
+        
+        return altResponse.statusCode == 200;
+      }
+      
+      return false;
     } catch (e) {
+      debugPrint('Health check failed: $e');
       return false;
     }
   }
@@ -62,11 +79,14 @@ class ApiService {
       
       if (response.statusCode == 200) {
         // Add debug logging
-        debugPrint('API Response: ${response.body}');
+        debugPrint('API Response status: ${response.statusCode}');
         final result = jsonDecode(response.body);
         
-        // Ensure the result is a Map<String, dynamic>
+        // Check for API errors
         if (result is Map<String, dynamic>) {
+          if (result.containsKey('error')) {
+            throw Exception('API error: ${result['error']}');
+          }
           return result;
         } else {
           throw Exception('Invalid response format from API');
@@ -90,7 +110,6 @@ class ApiService {
   /// Fallback method that tries alternative API endpoints if CORS issues happen
   Future<Map<String, dynamic>> _corsRetryCompareAerators(
       Map<String, dynamic> inputs) async {
-    // Try with /api/compare endpoint instead
     try {
       final uri = Uri.parse('$baseUrl/api/compare');
       final headers = _getHeaders();
@@ -100,7 +119,7 @@ class ApiService {
         uri,
         headers: headers,
         body: body,
-      );
+      ).timeout(const Duration(seconds: 12));
       
       if (response.statusCode >= 200 && response.statusCode < 300 && response.body.isNotEmpty) {
         final result = jsonDecode(response.body) as Map<String, dynamic>;

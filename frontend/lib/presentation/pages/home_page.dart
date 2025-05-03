@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.all(16.0),
               child: Card(
                 elevation: 4,
-                color: Colors.white.withValues(alpha: 0.9),
+                color: Colors.white.withAlpha(230),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                       if (!_isApiHealthy) ...[
                         Container(
                           padding: const EdgeInsets.all(8.0),
-                          color: Colors.red.withValues(alpha: 0.1),
+                          color: Colors.red.withAlpha(26),
                           child: Row(
                             children: [
                               const Icon(Icons.warning, color: Colors.red),

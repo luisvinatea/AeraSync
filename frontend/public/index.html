@@ -40,6 +40,15 @@
       window.flutterWebRenderer = "canvaskit";
     })();
     
+    // Required buildConfig for Flutter web initialization
+    window._flutter = {
+      loader: {},
+      buildConfig: {
+        renderer: "canvaskit",
+        canvasKitBaseUrl: "/canvaskit/"
+      }
+    };
+    
     // The value below is injected by flutter build, do not touch.
     const serviceWorkerVersion = null;
   </script>
@@ -130,21 +139,17 @@
           });
       }
 
-      // Prevent default browser handling for multi-touch
-      document.addEventListener('touchstart', function(event) {
-        if (event.touches.length > 1) {
-          event.stopPropagation();
-        }
-      }, { passive: false });
-      
-      // New Flutter initialization using recommended API
-      _flutter.loader.load({
+      // Initialize Flutter app using the updated API
+      _flutter.loader.loadEntrypoint({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
-        }
-      }).then(function(appRunner) {
-        appRunner.runApp({
-          onEntrypointLoaded: function() {
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine({
+            renderer: "canvaskit",
+            canvasKitBaseUrl: "/canvaskit/",
+          }).then(function(appRunner) {
+            appRunner.runApp();
             // Remove loading screen once Flutter app is ready
             if (loadingScreen) {
               loadingScreen.style.opacity = '0';
@@ -152,10 +157,8 @@
                 loadingScreen.style.display = 'none';
               }, 500);
             }
-          }
-        });
-      }).catch(function(error) {
-        console.error("Failed to initialize Flutter: " + error);
+          });
+        }
       });
     });
   </script>

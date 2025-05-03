@@ -537,5 +537,17 @@
   "months": "Months",
   "@months": {
     "description": "Text for months unit"
+  },
+  "shrimpDensityLabel": "Shrimp Density",
+  "@shrimpDensityLabel": {
+    "description": "Label for the shrimp density input field"
+  },
+  "energyCostLabel": "Energy Cost (USD)",
+  "@energyCostLabel": {
+    "description": "Label for the energy cost input field in USD"
+  },
+  "hoursPerNightLabel": "Hours per Night",
+  "@hoursPerNightLabel": {
+    "description": "Label for the hours per night input field"
   }
 }

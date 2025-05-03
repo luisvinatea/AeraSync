@@ -57,14 +57,14 @@ class AeratorResult {
       annualReplacementCost: (json['annual_replacement_cost'] as num?)?.toDouble() ?? 0.0,
       totalAnnualCost: (json['total_annual_cost'] as num?)?.toDouble() ?? 0.0,
       costPercentRevenue: (json['cost_percent_revenue'] as num?)?.toDouble() ?? 0.0,
-      aeratorsPerHa: (json['aerators_per_ha'] as num?)?.toDouble() ?? 0.0,
-      hpPerHa: (json['hp_per_ha'] as num?)?.toDouble() ?? 0.0,
-      sae: (json['sae'] as num?)?.toDouble() ?? 0.0,
       npvSavings: (json['npv_savings'] as num?)?.toDouble() ?? 0.0,
       paybackYears: (json['payback_years'] as num?)?.toDouble() ?? double.infinity,
       roiPercent: (json['roi_percent'] as num?)?.toDouble() ?? 0.0,
       irr: (json['irr'] as num?)?.toDouble() ?? -100.0,
       profitabilityK: (json['profitability_k'] as num?)?.toDouble() ?? 0.0,
+      aeratorsPerHa: (json['aerators_per_ha'] as num?)?.toDouble() ?? 0.0,
+      hpPerHa: (json['hp_per_ha'] as num?)?.toDouble() ?? 0.0,
+      sae: (json['sae'] as num?)?.toDouble() ?? 0.0,
       opportunityCost: (json['opportunity_cost'] as num?)?.toDouble() ?? 0.0,
     );
   }
@@ -281,7 +281,7 @@ class _AeratorComparisonCard extends StatelessWidget {
                         rows: results.map((result) {
                           final isWinner = result.name == winnerLabel;
                           return DataRow(
-                            color: isWinner ? WidgetStateProperty.all(Colors.green.withOpacity(0.1)) : null,
+                            color: isWinner ? WidgetStateProperty.all(Colors.green.withAlpha(26)) : null,
                             cells: [
                               DataCell(Text(result.name,
                                   style: isWinner ? const TextStyle(fontWeight: FontWeight.bold) : null)),

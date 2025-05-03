@@ -74,8 +74,18 @@
 
       // The value below is injected by flutter build, do not touch.
       const serviceWorkerVersion = null;
+
+      // Required buildConfig for Flutter web initialization
+      window._flutter = {
+        loader: {},
+        buildConfig: {
+          renderer: "canvaskit",
+          canvasKitBaseUrl: "/canvaskit/",
+        },
+      };
     </script>
-    
+
+    <link rel="preload" href="flutter.js" as="script" />
     <script src="flutter.js" defer></script>
 
     <style>
@@ -182,22 +192,20 @@
             });
         }
 
-        // Prevent default browser handling for multi-touch
-        document.addEventListener(
-          "touchstart",
-          function (event) {
-            if (event.touches.length > 1) {
-              event.stopPropagation();
-            }
+        // Initialize Flutter app using the updated API
+        _flutter.loader.loadEntrypoint({
+          serviceWorker: {
+            serviceWorkerVersion: serviceWorkerVersion,
           },
-          { passive: false }
-        );
-
-        // Initialize Flutter using the standard initialization
-        _flutter = {
-          loader: {
-            loadEntrypoint: function(options) {
-              window.addEventListener("flutter-first-frame", function() {
+          onEntrypointLoaded: function (engineInitializer) {
+            engineInitializer
+              .initializeEngine({
+                renderer: "canvaskit",
+                canvasKitBaseUrl: "/canvaskit/",
+              })
+              .then(function (appRunner) {
+                appRunner.runApp();
+                // Remove loading screen once Flutter app is ready
                 if (loadingScreen) {
                   loadingScreen.style.opacity = "0";
                   setTimeout(function () {
@@ -205,31 +213,7 @@
                   }, 500);
                 }
               });
-              
-              // Load main.dart.js
-              var scriptTag = document.createElement("script");
-              scriptTag.src = "main.dart.js";
-              scriptTag.type = "application/javascript";
-              document.body.appendChild(scriptTag);
-              
-              if (options && options.onEntrypointLoaded) {
-                options.onEntrypointLoaded({
-                  initializeEngine: function(config) {
-                    return Promise.resolve({
-                      runApp: function() {}
-                    });
-                  }
-                });
-              }
-            }
-          }
-        };
-        
-        // Call loadEntrypoint
-        _flutter.loader.loadEntrypoint({
-          serviceWorker: {
-            serviceWorkerVersion: serviceWorkerVersion,
-          }
+          },
         });
       });
     </script>

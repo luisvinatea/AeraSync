@@ -21,36 +21,63 @@ class SurveyPage extends StatefulWidget {
       final surveyData = {
         'farm': {
           'tod': double.tryParse(state._todController.text) ?? 0.0,
-          'farm_area_ha': double.tryParse(state._farmAreaController.text) ?? 0.0,
-          'shrimp_price': double.tryParse(state._shrimpPriceController.text) ?? 5.0,
-          'culture_days': double.tryParse(state._cultureDaysController.text) ?? 120,
-          'pond_density': double.tryParse(state._pondDensityController.text) ?? 10.0,
+          'farm_area_ha':
+              double.tryParse(state._farmAreaController.text) ?? 0.0,
+          'shrimp_price':
+              double.tryParse(state._shrimpPriceController.text) ?? 5.0,
+          'culture_days':
+              double.tryParse(state._cultureDaysController.text) ?? 120,
+          'shrimp_density_kg_m3':
+              double.tryParse(state._shrimpDensityController.text) ?? 0.3333333,
+          'pond_depth_m':
+              double.tryParse(state._pondDepthController.text) ?? 1.0,
         },
         'financial': {
-          'energy_cost': double.tryParse(state._electricityCostController.text) ?? 0.05,
-          'operating_hours': double.tryParse(state._operatingHoursController.text) ?? 2920,
-          'discount_rate': (double.tryParse(state._discountRateController.text) ?? 10.0) / 100,
-          'inflation_rate': (double.tryParse(state._inflationRateController.text) ?? 3.0) / 100,
-          'horizon': int.tryParse(state._analysisYearsController.text) ?? 9,
-          'safety_margin': (double.tryParse(state._safetyMarginController.text) ?? 0.0) / 100,
-          'temperature': double.tryParse(state._temperatureController.text) ?? 31.5,
+          'energy_cost':
+              double.tryParse(state._energyCostController.text) ?? 0.05,
+          'hours_per_night':
+              double.tryParse(state._hoursPerNightController.text) ?? 8,
+          'discount_rate':
+              (double.tryParse(state._discountRateController.text) ?? 10.0) /
+                  100,
+          'inflation_rate':
+              (double.tryParse(state._inflationRateController.text) ?? 3.0) /
+                  100,
+          'horizon': int.tryParse(state._horizonController.text) ?? 9,
+          'safety_margin':
+              (double.tryParse(state._safetyMarginController.text) ?? 0.0) /
+                  100,
+          'temperature':
+              double.tryParse(state._temperatureController.text) ?? 31.5,
         },
         'aerators': [
           {
             'name': state._aerator1NameController.text,
-            'power_hp': double.tryParse(state._aerator1PowerController.text) ?? 3.0,
+            'power_hp':
+                double.tryParse(state._aerator1PowerController.text) ?? 3.0,
             'sotr': double.tryParse(state._aerator1SotrController.text) ?? 1.4,
-            'cost': double.tryParse(state._aerator1CostController.text) ?? 500.0,
-            'durability': double.tryParse(state._aerator1DurabilityController.text) ?? 2.0,
-            'maintenance': double.tryParse(state._aerator1MaintenanceController.text) ?? 65.0
+            'cost':
+                double.tryParse(state._aerator1CostController.text) ?? 500.0,
+            'durability':
+                double.tryParse(state._aerator1DurabilityController.text) ??
+                    2.0,
+            'maintenance':
+                double.tryParse(state._aerator1MaintenanceController.text) ??
+                    65.0
           },
           {
             'name': state._aerator2NameController.text,
-            'power_hp': double.tryParse(state._aerator2PowerController.text) ?? 3.0,
+            'power_hp':
+                double.tryParse(state._aerator2PowerController.text) ?? 3.0,
             'sotr': double.tryParse(state._aerator2SotrController.text) ?? 2.6,
-            'cost': double.tryParse(state._aerator2CostController.text) ?? 800.0,
-            'durability': double.tryParse(state._aerator2DurabilityController.text) ?? 4.5,
-            'maintenance': double.tryParse(state._aerator2MaintenanceController.text) ?? 50.0
+            'cost':
+                double.tryParse(state._aerator2CostController.text) ?? 800.0,
+            'durability':
+                double.tryParse(state._aerator2DurabilityController.text) ??
+                    4.5,
+            'maintenance':
+                double.tryParse(state._aerator2MaintenanceController.text) ??
+                    50.0
           }
         ]
       };
@@ -85,7 +112,6 @@ class SurveyPage extends StatefulWidget {
 
 class _SurveyPageState extends State<SurveyPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   final _stepperKey = GlobalKey();
 
   // Farm inputs
@@ -93,14 +119,15 @@ class _SurveyPageState extends State<SurveyPage> {
   final _farmAreaController = TextEditingController(text: "1000");
   final _shrimpPriceController = TextEditingController(text: "5.0");
   final _cultureDaysController = TextEditingController(text: "120");
-  final _pondDensityController = TextEditingController(text: "10.0");
+  final _shrimpDensityController = TextEditingController(text: "0.3333333");
+  final _pondDepthController = TextEditingController(text: "1.0");
 
   // Financial inputs
-  final _electricityCostController = TextEditingController(text: "0.05");
-  final _operatingHoursController = TextEditingController(text: "2920");
+  final _energyCostController = TextEditingController(text: "0.05");
+  final _hoursPerNightController = TextEditingController(text: "8");
   final _discountRateController = TextEditingController(text: "10.0");
   final _inflationRateController = TextEditingController(text: "3.0");
-  final _analysisYearsController = TextEditingController(text: "9");
+  final _horizonController = TextEditingController(text: "9");
   final _safetyMarginController = TextEditingController(text: "0");
   final _temperatureController = TextEditingController(text: "31.5");
 
@@ -129,12 +156,13 @@ class _SurveyPageState extends State<SurveyPage> {
     _farmAreaController.dispose();
     _shrimpPriceController.dispose();
     _cultureDaysController.dispose();
-    _pondDensityController.dispose();
-    _electricityCostController.dispose();
-    _operatingHoursController.dispose();
+    _shrimpDensityController.dispose();
+    _pondDepthController.dispose();
+    _energyCostController.dispose();
+    _hoursPerNightController.dispose();
     _discountRateController.dispose();
     _inflationRateController.dispose();
-    _analysisYearsController.dispose();
+    _horizonController.dispose();
     _safetyMarginController.dispose();
     _temperatureController.dispose();
     _aerator1NameController.dispose();
@@ -172,15 +200,21 @@ class _SurveyPageState extends State<SurveyPage> {
           'farm_area_ha': double.tryParse(_farmAreaController.text) ?? 0.0,
           'shrimp_price': double.tryParse(_shrimpPriceController.text) ?? 5.0,
           'culture_days': double.tryParse(_cultureDaysController.text) ?? 120,
-          'pond_density': double.tryParse(_pondDensityController.text) ?? 10.0,
+          'shrimp_density_kg_m3':
+              double.tryParse(_shrimpDensityController.text) ?? 0.3333333,
+          'pond_depth_m': double.tryParse(_pondDepthController.text) ?? 1.0,
         },
         'financial': {
-          'energy_cost': double.tryParse(_electricityCostController.text) ?? 0.05,
-          'operating_hours': double.tryParse(_operatingHoursController.text) ?? 2920,
-          'discount_rate': (double.tryParse(_discountRateController.text) ?? 10.0) / 100,
-          'inflation_rate': (double.tryParse(_inflationRateController.text) ?? 3.0) / 100,
-          'horizon': int.tryParse(_analysisYearsController.text) ?? 9,
-          'safety_margin': (double.tryParse(_safetyMarginController.text) ?? 0.0) / 100,
+          'energy_cost': double.tryParse(_energyCostController.text) ?? 0.05,
+          'hours_per_night':
+              double.tryParse(_hoursPerNightController.text) ?? 8,
+          'discount_rate':
+              (double.tryParse(_discountRateController.text) ?? 10.0) / 100,
+          'inflation_rate':
+              (double.tryParse(_inflationRateController.text) ?? 3.0) / 100,
+          'horizon': int.tryParse(_horizonController.text) ?? 9,
+          'safety_margin':
+              (double.tryParse(_safetyMarginController.text) ?? 0.0) / 100,
           'temperature': double.tryParse(_temperatureController.text) ?? 31.5,
         },
         'aerators': [
@@ -189,16 +223,20 @@ class _SurveyPageState extends State<SurveyPage> {
             'power_hp': double.tryParse(_aerator1PowerController.text) ?? 3.0,
             'sotr': double.tryParse(_aerator1SotrController.text) ?? 1.4,
             'cost': double.tryParse(_aerator1CostController.text) ?? 500.0,
-            'durability': double.tryParse(_aerator1DurabilityController.text) ?? 2.0,
-            'maintenance': double.tryParse(_aerator1MaintenanceController.text) ?? 65.0
+            'durability':
+                double.tryParse(_aerator1DurabilityController.text) ?? 2.0,
+            'maintenance':
+                double.tryParse(_aerator1MaintenanceController.text) ?? 65.0
           },
           {
             'name': _aerator2NameController.text,
             'power_hp': double.tryParse(_aerator2PowerController.text) ?? 3.0,
             'sotr': double.tryParse(_aerator2SotrController.text) ?? 2.6,
             'cost': double.tryParse(_aerator2CostController.text) ?? 800.0,
-            'durability': double.tryParse(_aerator2DurabilityController.text) ?? 4.5,
-            'maintenance': double.tryParse(_aerator2MaintenanceController.text) ?? 50.0
+            'durability':
+                double.tryParse(_aerator2DurabilityController.text) ?? 4.5,
+            'maintenance':
+                double.tryParse(_aerator2MaintenanceController.text) ?? 50.0
           }
         ]
       };
@@ -207,17 +245,17 @@ class _SurveyPageState extends State<SurveyPage> {
         developer.log('Calling compareAerators with data: $surveyData');
         await appState.compareAerators(surveyData);
         developer.log('CompareAerators completed successfully');
-        
+
         if (!context.mounted) return;
-        
+
         // Explicitly navigate to results page after api call is successful
         await Future.delayed(const Duration(milliseconds: 200));
-        
+
         if (!context.mounted) return;
-        
+
         // Use pushReplacementNamed to replace current route with results page
         navigator.pushReplacementNamed('/results');
-        
+
         // Show success message after navigation is triggered
         scaffoldMessenger.showSnackBar(
           SnackBar(
@@ -273,8 +311,8 @@ class _SurveyPageState extends State<SurveyPage> {
     }
   }
 
-  TextFormField _buildNumberField(
-      TextEditingController controller, String label, String suffix, bool required,
+  TextFormField _buildNumberField(TextEditingController controller,
+      String label, String suffix, bool required,
       {double? min, double? max, String? hint}) {
     final l10n = AppLocalizations.of(context)!;
 
@@ -286,7 +324,8 @@ class _SurveyPageState extends State<SurveyPage> {
         hintText: hint,
         filled: true,
         fillColor: Colors.white.withAlpha(242),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
         labelStyle: TextStyle(
           backgroundColor: Colors.white.withAlpha(204),
           color: const Color.fromARGB(255, 5, 1, 55),
@@ -329,7 +368,8 @@ class _SurveyPageState extends State<SurveyPage> {
     );
   }
 
-  TextFormField _buildTextField(TextEditingController controller, String label) {
+  TextFormField _buildTextField(
+      TextEditingController controller, String label) {
     final l10n = AppLocalizations.of(context)!;
 
     return TextFormField(
@@ -338,7 +378,8 @@ class _SurveyPageState extends State<SurveyPage> {
         labelText: label,
         filled: true,
         fillColor: Colors.white.withAlpha(242),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
         labelStyle: TextStyle(
           backgroundColor: Colors.white.withAlpha(204),
           color: const Color.fromARGB(255, 5, 1, 55),
@@ -396,15 +437,18 @@ class _SurveyPageState extends State<SurveyPage> {
                     type: StepperType.vertical,
                     currentStep: _currentStep,
                     onStepTapped: (step) {
-                      if (_formKey.currentState!.validate() || step < _currentStep) {
+                      if (_formKey.currentState!.validate() ||
+                          step < _currentStep) {
                         setState(() {
                           _currentStep = step;
                         });
-                        developer.log('Step tapped, moved to step: $_currentStep');
+                        developer
+                            .log('Step tapped, moved to step: $_currentStep');
                       }
                     },
                     controlsBuilder: (context, controls) {
-                      developer.log('Rendering controls for step: $_currentStep');
+                      developer
+                          .log('Rendering controls for step: $_currentStep');
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Row(
@@ -478,18 +522,28 @@ class _SurveyPageState extends State<SurveyPage> {
                             ),
                             const SizedBox(height: 16),
                             _buildNumberField(
-                              _pondDensityController,
-                              l10n.pondDensityLabel,
-                              'ton/ha',
+                              _shrimpDensityController,
+                              l10n.shrimpDensityLabel,
+                              'kg/m³',
                               true,
                               min: 0.1,
-                              max: 100.0,
-                              hint: '10.0',
+                              max: 10.0,
+                              hint: '0.3333333',
                             ),
                             const SizedBox(height: 16),
                             _buildNumberField(
-                              _electricityCostController,
-                              l10n.electricityCostLabel,
+                              _pondDepthController,
+                              l10n.pondDepthLabel,
+                              'm',
+                              true,
+                              min: 0.1,
+                              max: 5.0,
+                              hint: '1.0',
+                            ),
+                            const SizedBox(height: 16),
+                            _buildNumberField(
+                              _energyCostController,
+                              l10n.energyCostLabel,
                               'USD/kWh',
                               true,
                               min: 0.0,
@@ -498,13 +552,13 @@ class _SurveyPageState extends State<SurveyPage> {
                             ),
                             const SizedBox(height: 16),
                             _buildNumberField(
-                              _operatingHoursController,
-                              l10n.operatingHoursLabel,
-                              'hours/year',
+                              _hoursPerNightController,
+                              l10n.hoursPerNightLabel,
+                              'hours',
                               true,
                               min: 1,
-                              max: 8760,
-                              hint: '2920',
+                              max: 24,
+                              hint: '8',
                             ),
                             const SizedBox(height: 16),
                             _buildNumberField(
@@ -528,7 +582,7 @@ class _SurveyPageState extends State<SurveyPage> {
                             ),
                             const SizedBox(height: 16),
                             _buildNumberField(
-                              _analysisYearsController,
+                              _horizonController,
                               l10n.analysisHorizonLabel,
                               'years',
                               true,
@@ -570,7 +624,8 @@ class _SurveyPageState extends State<SurveyPage> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 8),
-                            _buildTextField(_aerator1NameController, l10n.nameLabel),
+                            _buildTextField(
+                                _aerator1NameController, l10n.nameLabel),
                             const SizedBox(height: 8),
                             _buildNumberField(
                               _aerator1PowerController,
@@ -627,7 +682,8 @@ class _SurveyPageState extends State<SurveyPage> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 8),
-                            _buildTextField(_aerator2NameController, l10n.nameLabel),
+                            _buildTextField(
+                                _aerator2NameController, l10n.nameLabel),
                             const SizedBox(height: 8),
                             _buildNumberField(
                               _aerator2PowerController,

@@ -537,5 +537,17 @@
   "months": "Meses",
   "@months": {
     "description": "Texto para la unidad de meses"
+  },
+  "shrimpDensityLabel": "Densidad de Camarones",
+  "@shrimpDensityLabel": {
+    "description": "Etiqueta para el campo de entrada de densidad de camarones"
+  },
+  "energyCostLabel": "Costo de Energía (USD)",
+  "@energyCostLabel": {
+    "description": "Etiqueta para el campo de entrada de costo de energía en USD"
+  },
+  "hoursPerNightLabel": "Horas por Noche",
+  "@hoursPerNightLabel": {
+    "description": "Etiqueta para el campo de entrada de horas por noche"
   }
 }
