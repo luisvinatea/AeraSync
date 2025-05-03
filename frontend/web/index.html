@@ -147,9 +147,9 @@
       <div class="wave-overlay"></div>
       <div class="loading">
         <picture>
-          <source srcset="https://aerasync-web.vercel.app/icons/aerasync.webp" type="image/webp" />
+          <source srcset="https://aerasync-web.vercel.app/icons/watermark.webp" type="image/webp" />
           <img
-            src="https://aerasync-web.vercel.app/icons/aerasync.webp"
+            src="https://aerasync-web.vercel.app/icons/watermark.webp"
             alt="AeraSync Logo - A stylized wave representing water and aeration"
             class="app-logo"
             loading="lazy"
@@ -195,9 +195,8 @@
         document.head.appendChild(waveStyles);
 
         // Update background gradient animation
-        document.getElementById('loading-screen').style.background = 'linear-gradient(135deg, #141f41, #1e40af, #3b82f6, #141f41)';
-        document.getElementById('loading-screen').style.backgroundSize = '400% 400%';
-        document.getElementById('loading-screen').style.animation = 'gradient 10s ease infinite';
+        document.getElementById('loading-screen').style.background = 'url("https://aerasync-web.vercel.app/icons/background.webp") center center no-repeat';
+        document.getElementById('loading-screen').style.backgroundSize = 'cover';
 
         // Add gradient animation keyframes
         const gradientStyles = document.createElement('style');
