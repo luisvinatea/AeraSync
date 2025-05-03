@@ -549,5 +549,25 @@
   "hoursPerNightLabel": "Horas por Noche",
   "@hoursPerNightLabel": {
     "description": "Etiqueta para el campo de entrada de horas por noche"
+  },
+  "farmSpecifications": "Especificaciones de la Camaronera",
+  "@farmSpecifications": {
+    "description": "Etiqueta para la sección de especificaciones de la camaronera"
+  },
+  "metricLabel": "Metric",
+  "@metricLabel": {
+    "description": "Etiqueta para el métrico"
+  },
+  "valueLabel": "Valor",
+  "@valueLabel": {
+    "description": "Etiqueta para el valor"
+  },
+  "financialParameters": "Parámetros Financieros",
+  "@financialParameters": {
+    "description": "Etiqueta para la sección de parámetros financieros"
+  },
+  "costBreakdown": "Desglose de Costos",
+  "@costBreakdown": {
+    "description": "Etiqueta para la sección de desglose de costos"
   }
 }

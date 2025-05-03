@@ -549,5 +549,25 @@
   "hoursPerNightLabel": "Horas por Noite",
   "@hoursPerNightLabel": {
     "description": "Etiqueta para o campo de entrada de horas por noite"
+  },
+  "farmSpecifications": "Especificações da Fazenda",
+  "@farmSpecifications": {
+    "description": "Etiqueta para a seção de especificações da fazenda"
+  },
+  "metricLabel": "Métrica",
+  "@metricLabel": {
+    "description": "Etiqueta para la métrica"
+  },
+  "valueLabel": "Valor",
+  "@valueLabel": {
+    "description": "Etiqueta para el valor"
+  },
+  "financialParameters": "Parâmetros Financeiros",
+  "@financialParameters": {
+    "description": "Etiqueta para a seção de parâmetros financeiros"
+  },
+  "costBreakdown": "Decomposição dos Custos",
+  "@costBreakdown": {
+    "description": "Etiqueta para a seção de quebra de custos"
   }
 }

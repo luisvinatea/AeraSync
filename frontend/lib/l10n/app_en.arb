@@ -549,5 +549,25 @@
   "hoursPerNightLabel": "Hours per Night",
   "@hoursPerNightLabel": {
     "description": "Label for the hours per night input field"
+  },
+  "farmSpecifications": "Farm Specifications",
+  "@farmSpecifications": {
+    "description": "Label for the farm specifications section"
+  },
+  "metricLabel": "Metric",
+  "@metricLabel": {
+    "description": "Label for the metric"
+  },
+  "valueLabel": "Value",
+  "@valueLabel": {
+    "description": "Label for the value"
+  },
+  "financialParameters": "Financial Parameters",
+  "@financialParameters": {
+    "description": "Label for the financial parameters section"
+  },
+  "costBreakdown": "Cost Breakdown",
+  "@costBreakdown": {
+    "description": "Label for the cost breakdown section"
   }
 }

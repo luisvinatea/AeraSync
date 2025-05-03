@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:math';
 import '../../core/services/app_state.dart';
 
 class AeratorResult {
@@ -125,6 +126,7 @@ class ResultsPage extends StatelessWidget {
     final tod = (apiResults['tod'] as num?)?.toDouble() ?? 0.0;
     final annualRevenue = (apiResults['annual_revenue'] as num?)?.toDouble() ?? 0.0;
     final equilibriumPrices = apiResults['equilibriumPrices'] as Map<String, dynamic>? ?? {};
+    final surveyData = apiResults['surveyData'] as Map<String, dynamic>?;
 
     return Scaffold(
       appBar: AppBar(
@@ -144,11 +146,13 @@ class ResultsPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _SummaryCard(
+                _EnhancedSummaryCard(
                   l10n: l10n,
                   tod: tod,
                   winnerLabel: winnerLabel,
                   annualRevenue: annualRevenue,
+                  surveyData: surveyData,
+                  results: results,
                 ),
                 const SizedBox(height: 16),
                 _AeratorComparisonCard(
@@ -182,17 +186,21 @@ class ResultsPage extends StatelessWidget {
   }
 }
 
-class _SummaryCard extends StatelessWidget {
+class _EnhancedSummaryCard extends StatelessWidget {
   final AppLocalizations l10n;
   final double tod;
   final String winnerLabel;
   final double annualRevenue;
+  final Map<String, dynamic>? surveyData;
+  final List<AeratorResult> results;
 
-  const _SummaryCard({
+  const _EnhancedSummaryCard({
     required this.l10n,
     required this.tod,
     required this.winnerLabel,
     required this.annualRevenue,
+    required this.surveyData,
+    required this.results,
   });
 
   @override
@@ -226,11 +234,407 @@ class _SummaryCard extends StatelessWidget {
                       color: Colors.green.shade800,
                     ),
               ),
+              if (surveyData != null &&
+                  surveyData?['farm'] != null &&
+                  surveyData?['financial'] != null &&
+                  surveyData?['aerators'] != null &&
+                  surveyData?['aerators'] is List &&
+                  surveyData?['aerators'].length >= 2 &&
+                  results.length >= 2)
+                Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                l10n.farmSpecifications,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Table(
+                                columnWidths: const {
+                                  0: FlexColumnWidth(1.2),
+                                  1: FlexColumnWidth(1),
+                                },
+                                defaultVerticalAlignment:
+                                    TableCellVerticalAlignment.middle,
+                                border: TableBorder.all(color: Colors.blue.shade200),
+                                children: [
+                                  TableRow(
+                                    decoration: BoxDecoration(color: Colors.blue.shade100),
+                                    children: [
+                                      _buildTableHeaderCell(context, l10n.metricLabel),
+                                      _buildTableHeaderCell(context, l10n.valueLabel),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.totalOxygenDemand),
+                                      _buildTableCell(
+                                        context,
+                                        '${surveyData?['farm']?['tod']?.toStringAsFixed(2) ?? 'N/A'} kg O₂/h',
+                                      ),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.farmAreaLabel),
+                                      _buildTableCell(
+                                        context,
+                                        '${surveyData?['farm']?['farm_area_ha']?.toStringAsFixed(2) ?? 'N/A'} ha',
+                                      ),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.shrimpPriceLabel),
+                                      _buildTableCell(
+                                        context,
+                                        '\$${surveyData?['farm']?['shrimp_price']?.toStringAsFixed(2) ?? 'N/A'}',
+                                      ),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.cultureDaysLabel),
+                                      _buildTableCell(
+                                        context,
+                                        '${surveyData?['farm']?['culture_days']?.toStringAsFixed(0) ?? 'N/A'}',
+                                      ),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.shrimpDensityLabel),
+                                      _buildTableCell(
+                                        context,
+                                        '${surveyData?['farm']?['shrimp_density_kg_m3']?.toStringAsFixed(2) ?? 'N/A'} kg/m³',
+                                      ),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.pondDepthLabel),
+                                      _buildTableCell(
+                                        context,
+                                        '${surveyData?['farm']?['pond_depth_m']?.toStringAsFixed(1) ?? 'N/A'} m',
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                l10n.financialParameters,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Table(
+                                columnWidths: const {
+                                  0: FlexColumnWidth(1.2),
+                                  1: FlexColumnWidth(1),
+                                },
+                                defaultVerticalAlignment:
+                                    TableCellVerticalAlignment.middle,
+                                border: TableBorder.all(color: Colors.blue.shade200),
+                                children: [
+                                  TableRow(
+                                    decoration: BoxDecoration(color: Colors.blue.shade100),
+                                    children: [
+                                      _buildTableHeaderCell(context, l10n.metricLabel),
+                                      _buildTableHeaderCell(context, l10n.valueLabel),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.energyCostLabel),
+                                      _buildTableCell(
+                                        context,
+                                        '\$${surveyData?['financial']?['energy_cost']?.toStringAsFixed(2) ?? 'N/A'}/kWh',
+                                      ),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.hoursPerNightLabel),
+                                      _buildTableCell(
+                                        context,
+                                        '${surveyData?['financial']?['hours_per_night']?.toStringAsFixed(0) ?? 'N/A'}',
+                                      ),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.discountRateLabel),
+                                      _buildTableCell(
+                                        context,
+                                        '${((surveyData?['financial']?['discount_rate'] as double?) ?? 0.0 * 100).toStringAsFixed(1)}%',
+                                      ),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.inflationRateLabel),
+                                      _buildTableCell(
+                                        context,
+                                        '${((surveyData?['financial']?['inflation_rate'] as double?) ?? 0.0 * 100).toStringAsFixed(1)}%',
+                                      ),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      _buildTableCell(context, l10n.analysisHorizonLabel),
+                                      _buildTableCell(
+                                        context,
+                                        '${surveyData?['financial']?['horizon']?.toStringAsFixed(0) ?? 'N/A'} ${l10n.years}',
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        if (results.length >= 2)
+                          Expanded(
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 8),
+                                Text(
+                                  l10n.costBreakdown,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                SizedBox(
+                                  height: 200,
+                                  child: PieChartWidget(
+                                    dataMap: {
+                                      l10n.initialCostLabel: results[0].totalInitialCost / 5,
+                                      l10n.annualEnergyCostLabel: results[0].annualEnergyCost,
+                                      l10n.annualMaintenanceCostLabel: results[0].annualMaintenanceCost,
+                                      l10n.annualReplacementCostLabel: results[0].annualReplacementCost,
+                                    },
+                                    title: results[0].name,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                SizedBox(
+                                  height: 200,
+                                  child: PieChartWidget(
+                                    dataMap: {
+                                      l10n.initialCostLabel: results[1].totalInitialCost / 5,
+                                      l10n.annualEnergyCostLabel: results[1].annualEnergyCost,
+                                      l10n.annualMaintenanceCostLabel: results[1].annualMaintenanceCost,
+                                      l10n.annualReplacementCostLabel: results[1].annualReplacementCost,
+                                    },
+                                    title: results[1].name,
+                                    isWinner: results[1].name == winnerLabel,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildTableHeaderCell(BuildContext context, String label) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTableCell(BuildContext context, String value) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(child: Text(value, textAlign: TextAlign.center)),
+    );
+  }
+}
+
+class PieChartWidget extends StatelessWidget {
+  final Map<String, double> dataMap;
+  final String title;
+  final bool isWinner;
+
+  const PieChartWidget({
+    super.key,
+    required this.dataMap,
+    required this.title,
+    this.isWinner = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      color: isWinner ? Colors.green.shade50 : null,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                if (isWinner)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 20,
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: CustomPaint(
+                painter: PieChartPainter(dataMap: dataMap),
+                child: Container(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              alignment: WrapAlignment.center,
+              children: dataMap.entries.map((entry) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: getColor(dataMap.keys.toList().indexOf(entry.key)),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        entry.key.split(' ')[0],
+                        style: TextStyle(fontSize: 10),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color getColor(int index) {
+    const colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.red,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+    ];
+    return colors[index % colors.length];
+  }
+}
+
+class PieChartPainter extends CustomPainter {
+  final Map<String, double> dataMap;
+
+  PieChartPainter({required this.dataMap});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    double total = 0;
+    for (var element in dataMap.values) {
+      total += element;
+    }
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = min(size.width / 2, size.height / 2) - 4;
+    double startAngle = -pi / 2;
+
+    int i = 0;
+    for (var entry in dataMap.entries) {
+      final sweepAngle = 2 * pi * (entry.value / total);
+      final paint = Paint()
+        ..color = getColor(i)
+        ..style = PaintingStyle.fill;
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        true,
+        paint,
+      );
+
+      final borderPaint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        true,
+        borderPaint,
+      );
+
+      startAngle += sweepAngle;
+      i++;
+    }
+  }
+
+  Color getColor(int index) {
+    const colors = [
+      Colors.blue,
+      Colors.green,
+      Colors.red,
+      Colors.orange,
+      Colors.purple,
+      Colors.teal,
+    ];
+    return colors[index % colors.length];
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }
 
@@ -386,20 +790,17 @@ class _AeratorComparisonCard extends StatelessWidget {
     if (!paybackYears.isFinite || (paybackYears >= 100 && !isWinner)) {
       return l10n.notApplicable;
     }
-    
-    // For small periods (less than 30 days), show in days
-    if (paybackYears < 0.0822) { // ~30 days
+
+    if (paybackYears < 0.0822) {
       final days = (paybackYears * 365).round();
       return '$days ${l10n.days}';
     }
-    
-    // For periods between 30 days and 1 year, show in months
+
     if (paybackYears < 1) {
       final months = (paybackYears * 12).round();
       return '$months ${l10n.months}';
     }
-    
-    // For periods over 1 year, show in years with 1 decimal place
+
     return '${paybackYears.toStringAsFixed(1)} ${l10n.years}';
   }
 
@@ -407,15 +808,14 @@ class _AeratorComparisonCard extends StatelessWidget {
     if (roi <= 0 && !isWinner) {
       return l10n.notApplicable;
     }
-    
-    // Format high ROI values with K or M suffix for better readability
+
     if (roi >= 1000) {
       if (roi >= 1000000) {
         return '${(roi / 1000000).toStringAsFixed(1)}M%';
       }
       return '${(roi / 1000).toStringAsFixed(1)}K%';
     }
-    
+
     return '${roi.toStringAsFixed(1)}%';
   }
 
@@ -423,15 +823,14 @@ class _AeratorComparisonCard extends StatelessWidget {
     if (irr <= -50 && !isWinner) {
       return l10n.notApplicable;
     }
-    
-    // Format high IRR values with K or M suffix for better readability
+
     if (irr >= 1000) {
       if (irr >= 1000000) {
         return '${(irr / 1000000).toStringAsFixed(1)}M%';
       }
       return '${(irr / 1000).toStringAsFixed(1)}K%';
     }
-    
+
     return '${irr.toStringAsFixed(1)}%';
   }
 
@@ -439,15 +838,14 @@ class _AeratorComparisonCard extends StatelessWidget {
     if (!k.isFinite && !isWinner) {
       return l10n.notApplicable;
     }
-    
-    // Format high k values with K or M suffix for better readability
+
     if (k >= 1000) {
       if (k >= 1000000) {
         return '${(k / 1000000).toStringAsFixed(1)}M';
       }
       return '${(k / 1000).toStringAsFixed(1)}K';
     }
-    
+
     return k.toStringAsFixed(2);
   }
 

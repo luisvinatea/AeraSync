@@ -57,11 +57,11 @@
     <link
       rel="apple-touch-icon"
       sizes="180x180"
-      href="/icons/aerasync180.webp"
+      href="https://aerasync-web.vercel.app/icons/aerasync180.webp"
     />
-    <link rel="icon" type="image/webp" href="/icons/aerasync64.webp" />
+    <link rel="icon" type="image/webp" href="https://aerasync-web.vercel.app/icons/aerasync64.webp" />
     <title>AeraSync - Shrimp Farm Aerator Comparison</title>
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="https://aerasync-web.vercel.app/manifest.json" />
 
     <!-- Fix resource loading -->
     <script>
@@ -87,7 +87,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: #1e40af;
+        background-color: #141f41;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -147,15 +147,14 @@
       <div class="wave-overlay"></div>
       <div class="loading">
         <picture>
-          <source srcset="/icons/aerasync.webp" type="image/webp" />
+          <source srcset="https://aerasync-web.vercel.app/icons/aerasync.webp" type="image/webp" />
           <img
-            src="/icons/aerasync.webp"
+            src="https://aerasync-web.vercel.app/icons/aerasync.webp"
             alt="AeraSync Logo - A stylized wave representing water and aeration"
             class="app-logo"
             loading="lazy"
           />
         </picture>
-        <h1 lang="en">AeraSync</h1>
         <div class="spinner" aria-hidden="true"></div>
       </div>
     </div>
@@ -167,7 +166,71 @@
         // Initialize Flutter web with compatible API
         let targetDiv = document.querySelector("#flutter-target");
         let loadingScreen = document.getElementById("loading-screen");
+        // Initialize Flutter web
+        const _flutter = window.flutter_web_sdk;
 
+        // Define wave animation styles
+        const waveStyles = document.createElement('style');
+        waveStyles.textContent = `
+          @keyframes wave-move {
+            0% { transform: translateX(0) scaleY(1); }
+            50% { transform: translateX(-25%) scaleY(0.95); }
+            100% { transform: translateX(0) scaleY(1); }
+          }
+          .wave-animation {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            overflow: hidden;
+            z-index: 1;
+          }
+          .wave-animation svg {
+            width: 100%;
+            height: auto;
+            animation: wave-move 4s ease-in-out infinite;
+          }
+        `;
+        document.head.appendChild(waveStyles);
+
+        // Update background gradient animation
+        document.getElementById('loading-screen').style.background = 'linear-gradient(135deg, #141f41, #1e40af, #3b82f6, #141f41)';
+        document.getElementById('loading-screen').style.backgroundSize = '400% 400%';
+        document.getElementById('loading-screen').style.animation = 'gradient 10s ease infinite';
+
+        // Add gradient animation keyframes
+        const gradientStyles = document.createElement('style');
+        gradientStyles.textContent = `
+          @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+        `;
+        document.head.appendChild(gradientStyles);
+
+        // Apply gradient to logo
+        const logoImage = loadingScreen.querySelector('.app-logo');
+        if (logoImage) {
+          logoImage.style.filter = 'drop-shadow(0 0 8px rgba(96, 165, 250, 0.8))';
+          const logoContainer = document.createElement('div');
+          logoContainer.style.position = 'relative';
+          logoContainer.style.overflow = 'hidden';
+          logoContainer.style.width = '200px';
+          logoContainer.style.margin = '0 auto';
+          logoImage.parentNode.insertBefore(logoContainer, logoImage);
+          logoContainer.appendChild(logoImage);
+          
+          const overlayAnimation = document.createElement('style');
+          overlayAnimation.textContent = `
+            @keyframes gradient-shift {
+              0% { opacity: 0.4; transform: translateX(-10%); }
+              100% { opacity: 0.7; transform: translateX(10%); }
+            }
+          `;
+          document.head.appendChild(overlayAnimation);
+        }
         // Register Service Worker for PWA capabilities
         if ("serviceWorker" in navigator) {
           navigator.serviceWorker

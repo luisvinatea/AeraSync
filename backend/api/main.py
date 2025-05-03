@@ -2,6 +2,7 @@
 FastAPI backend for AeraSync Aerator Comparison API.
 Handles incoming requests for aerator comparisons and health checks.
 """
+
 import os
 import json
 from fastapi import FastAPI, Request
@@ -29,7 +30,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],  # Added OPTIONS for preflight
     allow_headers=["Content-Type"],
-    max_age=86400  # Cache preflight responses for 24 hours
+    max_age=86400,  # Cache preflight responses for 24 hours
 )
 
 
@@ -54,10 +55,7 @@ async def health_check():
     """
     Health check endpoint to verify service status.
     """
-    return {
-        "status": "healthy",
-        "message": "Service is running smoothly"
-    }
+    return {"status": "healthy", "message": "Service is running smoothly"}
 
 
 @app.post("/compare")
@@ -99,8 +97,9 @@ async def catch_all(request: Request, path_name: str):
 
     if endpoint == "health" or path_name == "api/health":
         return await health_check()
-    elif ((endpoint == "compare" or path_name == "api/compare") and
-            request.method == "POST"):
+    elif (
+        endpoint == "compare" or path_name == "api/compare"
+    ) and request.method == "POST":
         try:
             # Call the comparison endpoint logic directly
             return await compare_aerators_endpoint(request)
@@ -109,7 +108,7 @@ async def catch_all(request: Request, path_name: str):
             # Bad Request status code for JSON errors
             return JSONResponse(
                 content={"error": f"Failed to parse JSON body: {str(e)}"},
-                status_code=400
+                status_code=400,
             )
     elif path_name == "api":
         return await read_root()
@@ -117,5 +116,5 @@ async def catch_all(request: Request, path_name: str):
         # Return a JSON response with a 404 Not Found status code
         return JSONResponse(
             content={"error": f"Endpoint not found: /{path_name}"},
-            status_code=404
+            status_code=404,
         )

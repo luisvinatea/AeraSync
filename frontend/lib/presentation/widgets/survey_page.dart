@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -39,14 +41,14 @@ class SurveyPage extends StatefulWidget {
               double.tryParse(state._hoursPerNightController.text) ?? 8,
           'discount_rate':
               (double.tryParse(state._discountRateController.text) ?? 10.0) /
-                  100,
+              100,
           'inflation_rate':
               (double.tryParse(state._inflationRateController.text) ?? 3.0) /
-                  100,
+              100,
           'horizon': int.tryParse(state._horizonController.text) ?? 9,
           'safety_margin':
               (double.tryParse(state._safetyMarginController.text) ?? 0.0) /
-                  100,
+              100,
           'temperature':
               double.tryParse(state._temperatureController.text) ?? 31.5,
         },
@@ -60,10 +62,10 @@ class SurveyPage extends StatefulWidget {
                 double.tryParse(state._aerator1CostController.text) ?? 500.0,
             'durability':
                 double.tryParse(state._aerator1DurabilityController.text) ??
-                    2.0,
+                2.0,
             'maintenance':
                 double.tryParse(state._aerator1MaintenanceController.text) ??
-                    65.0
+                65.0,
           },
           {
             'name': state._aerator2NameController.text,
@@ -74,12 +76,12 @@ class SurveyPage extends StatefulWidget {
                 double.tryParse(state._aerator2CostController.text) ?? 800.0,
             'durability':
                 double.tryParse(state._aerator2DurabilityController.text) ??
-                    4.5,
+                4.5,
             'maintenance':
                 double.tryParse(state._aerator2MaintenanceController.text) ??
-                    50.0
-          }
-        ]
+                50.0,
+          },
+        ],
       };
 
       try {
@@ -110,16 +112,17 @@ class SurveyPage extends StatefulWidget {
   _SurveyPageState createState() => _SurveyPageState();
 }
 
-class _SurveyPageState extends State<SurveyPage> {
+class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _stepperKey = GlobalKey();
+  late TabController _tabController;
 
   // Farm inputs
-  final _todController = TextEditingController(text: "5443.7675");
+  final _todController = TextEditingController(text: "5443.76");
   final _farmAreaController = TextEditingController(text: "1000");
   final _shrimpPriceController = TextEditingController(text: "5.0");
   final _cultureDaysController = TextEditingController(text: "120");
-  final _shrimpDensityController = TextEditingController(text: "0.3333333");
+  final _shrimpDensityController = TextEditingController(text: "0.33");
   final _pondDepthController = TextEditingController(text: "1.0");
 
   // Financial inputs
@@ -151,6 +154,12 @@ class _SurveyPageState extends State<SurveyPage> {
   int _currentStep = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
   void dispose() {
     _todController.dispose();
     _farmAreaController.dispose();
@@ -177,6 +186,7 @@ class _SurveyPageState extends State<SurveyPage> {
     _aerator2CostController.dispose();
     _aerator2DurabilityController.dispose();
     _aerator2MaintenanceController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -226,7 +236,7 @@ class _SurveyPageState extends State<SurveyPage> {
             'durability':
                 double.tryParse(_aerator1DurabilityController.text) ?? 2.0,
             'maintenance':
-                double.tryParse(_aerator1MaintenanceController.text) ?? 65.0
+                double.tryParse(_aerator1MaintenanceController.text) ?? 65.0,
           },
           {
             'name': _aerator2NameController.text,
@@ -236,9 +246,9 @@ class _SurveyPageState extends State<SurveyPage> {
             'durability':
                 double.tryParse(_aerator2DurabilityController.text) ?? 4.5,
             'maintenance':
-                double.tryParse(_aerator2MaintenanceController.text) ?? 50.0
-          }
-        ]
+                double.tryParse(_aerator2MaintenanceController.text) ?? 50.0,
+          },
+        ],
       };
 
       try {
@@ -311,101 +321,117 @@ class _SurveyPageState extends State<SurveyPage> {
     }
   }
 
-  TextFormField _buildNumberField(TextEditingController controller,
-      String label, String suffix, bool required,
-      {double? min, double? max, String? hint}) {
+  Widget _buildNumberField(
+    TextEditingController controller,
+    String label,
+    String suffix,
+    bool required, {
+    double? min,
+    double? max,
+    String? hint,
+  }) {
     final l10n = AppLocalizations.of(context)!;
 
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label + (required ? '' : ' (${l10n.optionalField})'),
-        suffixText: suffix,
-        hintText: hint,
-        filled: true,
-        fillColor: Colors.white.withAlpha(242),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
-        labelStyle: TextStyle(
-          backgroundColor: Colors.white.withAlpha(204),
-          color: const Color.fromARGB(255, 5, 1, 55),
-          fontWeight: FontWeight.w600,
-          fontSize: 16,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label + (required ? '' : ' (${l10n.optionalField})'),
+          labelStyle: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+          suffixText: suffix,
+          suffixStyle: const TextStyle(color: Colors.white),
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.white70),
+          filled: true,
+          fillColor: Colors.blue.shade900.withOpacity(0.5),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 16,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.blue.shade300, width: 1),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.blue.shade300, width: 1),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            borderSide: BorderSide(color: Colors.white, width: 2),
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.blue.shade300, width: 1),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.blue.shade300, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF1E40AF), width: 2),
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        validator:
+            required
+                ? (value) {
+                  if (value == null || value.isEmpty) {
+                    return l10n.requiredField;
+                  }
+                  final numValue = double.tryParse(value);
+                  if (numValue == null) {
+                    return l10n.invalidNumber;
+                  }
+                  if (min != null && numValue < min) {
+                    return l10n.minimumValueError('$min');
+                  }
+                  if (max != null && numValue > max) {
+                    return l10n.rangeError('$min', '$max');
+                  }
+                  return null;
+                }
+                : null,
       ),
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      validator: required
-          ? (value) {
-              if (value == null || value.isEmpty) {
-                return l10n.requiredField;
-              }
-              final numValue = double.tryParse(value);
-              if (numValue == null) {
-                return l10n.invalidNumber;
-              }
-              if (min != null && numValue < min) {
-                return l10n.minimumValueError('$min');
-              }
-              if (max != null && numValue > max) {
-                return l10n.rangeError('$min', '$max');
-              }
-              return null;
-            }
-          : null,
     );
   }
 
-  TextFormField _buildTextField(
-      TextEditingController controller, String label) {
+  Widget _buildTextField(TextEditingController controller, String label) {
     final l10n = AppLocalizations.of(context)!;
 
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: Colors.white.withAlpha(242),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
-        labelStyle: TextStyle(
-          backgroundColor: Colors.white.withAlpha(204),
-          color: const Color.fromARGB(255, 5, 1, 55),
-          fontWeight: FontWeight.w600,
-          fontSize: 16,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+          filled: true,
+          fillColor: Colors.blue.shade900.withOpacity(0.5),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.blue.shade300, width: 1),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.blue.shade300, width: 1),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            borderSide: BorderSide(color: Colors.white, width: 2),
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.blue.shade300, width: 1),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.blue.shade300, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF1E40AF), width: 2),
-        ),
-        floatingLabelBehavior: FloatingLabelBehavior.always,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return l10n.requiredField;
+          }
+          return null;
+        },
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return l10n.requiredField;
-        }
-        return null;
-      },
     );
   }
 
@@ -416,7 +442,14 @@ class _SurveyPageState extends State<SurveyPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.survey),
+        title: Text(
+          l10n.survey,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.blue.shade800,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -427,319 +460,380 @@ class _SurveyPageState extends State<SurveyPage> {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Form(
-                  key: _formKey,
-                  child: Stepper(
-                    key: _stepperKey,
-                    type: StepperType.vertical,
-                    currentStep: _currentStep,
-                    onStepTapped: (step) {
-                      if (_formKey.currentState!.validate() ||
-                          step < _currentStep) {
-                        setState(() {
-                          _currentStep = step;
-                        });
-                        developer
-                            .log('Step tapped, moved to step: $_currentStep');
-                      }
-                    },
-                    controlsBuilder: (context, controls) {
-                      developer
-                          .log('Rendering controls for step: $_currentStep');
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        child: Row(
-                          children: [
-                            if (_currentStep > 0)
-                              ElevatedButton(
-                                key: const Key('back_button'),
-                                onPressed: _prevStep,
-                                child: Text(l10n.back),
+          padding: const EdgeInsets.all(24.0), // Increased padding here
+          child:
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Form(
+                    key: _formKey,
+                    child: Stepper(
+                      key: _stepperKey,
+                      type: StepperType.vertical,
+                      currentStep: _currentStep,
+                      onStepTapped: (step) {
+                        if (_formKey.currentState!.validate() ||
+                            step < _currentStep) {
+                          setState(() {
+                            _currentStep = step;
+                          });
+                          developer.log(
+                            'Step tapped, moved to step: $_currentStep',
+                          );
+                        }
+                      },
+                      controlsBuilder: (context, controls) {
+                        developer.log(
+                          'Rendering controls for step: $_currentStep',
+                        );
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              if (_currentStep > 0)
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: ElevatedButton(
+                                      key: const Key('back_button'),
+                                      onPressed: _prevStep,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue.shade700,
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        l10n.back,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              if (_currentStep < 1)
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: ElevatedButton(
+                                      key: const Key('next_button'),
+                                      onPressed: _nextStep,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue.shade700,
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        l10n.next,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              if (_currentStep == 1)
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0,
+                                    ),
+                                    child: ElevatedButton(
+                                      key: const Key('submit_button'),
+                                      onPressed: () => _submitSurvey(context),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green.shade700,
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        l10n.submit,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                      steps: [
+                        Step(
+                          title: Text(
+                            l10n.farmFinancialDetails,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          isActive: _currentStep == 0,
+                          content: Column(
+                            children: [
+                              _buildNumberField(
+                                _todController,
+                                l10n.totalOxygenDemand,
+                                'kg O₂/h',
+                                true,
+                                min: 0.1,
+                                hint: '5443.76',
                               ),
-                            const SizedBox(width: 16),
-                            if (_currentStep < 1)
-                              ElevatedButton(
-                                key: const Key('next_button'),
-                                onPressed: _nextStep,
-                                child: Text(l10n.next),
+                              _buildNumberField(
+                                _farmAreaController,
+                                l10n.farmAreaLabel,
+                                'ha',
+                                true,
+                                min: 0.1,
+                                max: 10000.0,
+                                hint: '1000',
                               ),
-                            if (_currentStep == 1)
-                              ElevatedButton(
-                                key: const Key('submit_button'),
-                                onPressed: () => _submitSurvey(context),
-                                child: Text(l10n.submit),
+                              _buildNumberField(
+                                _shrimpPriceController,
+                                l10n.shrimpPriceLabel,
+                                'USD/kg',
+                                true,
+                                min: 0.1,
+                                max: 100.0,
+                                hint: '5.0',
                               ),
-                          ],
+                              _buildNumberField(
+                                _cultureDaysController,
+                                l10n.cultureDaysLabel,
+                                'days',
+                                true,
+                                min: 30,
+                                max: 365,
+                                hint: '120',
+                              ),
+                              _buildNumberField(
+                                _shrimpDensityController,
+                                l10n.shrimpDensityLabel,
+                                'kg/m³',
+                                true,
+                                min: 0.1,
+                                max: 10.0,
+                                hint: '0.33',
+                              ),
+                              _buildNumberField(
+                                _pondDepthController,
+                                l10n.pondDepthLabel,
+                                'm',
+                                true,
+                                min: 0.1,
+                                max: 5.0,
+                                hint: '1.0',
+                              ),
+                              _buildNumberField(
+                                _energyCostController,
+                                l10n.energyCostLabel,
+                                'USD/kWh',
+                                true,
+                                min: 0.0,
+                                max: 2.0,
+                                hint: '0.05',
+                              ),
+                              _buildNumberField(
+                                _hoursPerNightController,
+                                l10n.hoursPerNightLabel,
+                                'hours',
+                                true,
+                                min: 1,
+                                max: 24,
+                                hint: '8',
+                              ),
+                              _buildNumberField(
+                                _discountRateController,
+                                l10n.discountRateLabel,
+                                '%',
+                                true,
+                                min: 0.0,
+                                max: 100.0,
+                                hint: '10.0',
+                              ),
+                              _buildNumberField(
+                                _inflationRateController,
+                                l10n.inflationRateLabel,
+                                '%',
+                                true,
+                                min: 0.0,
+                                max: 100.0,
+                                hint: '3.0',
+                              ),
+                              _buildNumberField(
+                                _horizonController,
+                                l10n.analysisHorizonLabel,
+                                'years',
+                                true,
+                                min: 1,
+                                max: 50,
+                                hint: '9',
+                              ),
+                              _buildNumberField(
+                                _safetyMarginController,
+                                l10n.safetyMarginLabel,
+                                '%',
+                                false,
+                                min: 0.0,
+                                max: 100.0,
+                                hint: '0',
+                              ),
+                              _buildNumberField(
+                                _temperatureController,
+                                l10n.temperatureLabel,
+                                '°C',
+                                true,
+                                min: 0.0,
+                                max: 50.0,
+                                hint: '31.5',
+                              ),
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                    steps: [
-                      Step(
-                        title: Text(l10n.farmFinancialDetails),
-                        isActive: _currentStep == 0,
-                        content: Column(
-                          children: [
-                            _buildNumberField(
-                              _todController,
-                              l10n.totalOxygenDemand,
-                              'kg O₂/h',
-                              true,
-                              min: 0.1,
-                              hint: '5443.7675',
+                        Step(
+                          title: Text(
+                            l10n.aeratorDetails,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _farmAreaController,
-                              l10n.farmAreaLabel,
-                              'ha',
-                              true,
-                              min: 0.1,
-                              max: 10000.0,
-                              hint: '1000',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _shrimpPriceController,
-                              l10n.shrimpPriceLabel,
-                              'USD/kg',
-                              true,
-                              min: 0.1,
-                              max: 100.0,
-                              hint: '5.0',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _cultureDaysController,
-                              l10n.cultureDaysLabel,
-                              'days',
-                              true,
-                              min: 30,
-                              max: 365,
-                              hint: '120',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _shrimpDensityController,
-                              l10n.shrimpDensityLabel,
-                              'kg/m³',
-                              true,
-                              min: 0.1,
-                              max: 10.0,
-                              hint: '0.3333333',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _pondDepthController,
-                              l10n.pondDepthLabel,
-                              'm',
-                              true,
-                              min: 0.1,
-                              max: 5.0,
-                              hint: '1.0',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _energyCostController,
-                              l10n.energyCostLabel,
-                              'USD/kWh',
-                              true,
-                              min: 0.0,
-                              max: 2.0,
-                              hint: '0.05',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _hoursPerNightController,
-                              l10n.hoursPerNightLabel,
-                              'hours',
-                              true,
-                              min: 1,
-                              max: 24,
-                              hint: '8',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _discountRateController,
-                              l10n.discountRateLabel,
-                              '%',
-                              true,
-                              min: 0.0,
-                              max: 100.0,
-                              hint: '10.0',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _inflationRateController,
-                              l10n.inflationRateLabel,
-                              '%',
-                              true,
-                              min: 0.0,
-                              max: 100.0,
-                              hint: '3.0',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _horizonController,
-                              l10n.analysisHorizonLabel,
-                              'years',
-                              true,
-                              min: 1,
-                              max: 50,
-                              hint: '9',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _safetyMarginController,
-                              l10n.safetyMarginLabel,
-                              '%',
-                              false,
-                              min: 0.0,
-                              max: 100.0,
-                              hint: '0',
-                            ),
-                            const SizedBox(height: 16),
-                            _buildNumberField(
-                              _temperatureController,
-                              l10n.temperatureLabel,
-                              '°C',
-                              true,
-                              min: 0.0,
-                              max: 50.0,
-                              hint: '31.5',
-                            ),
-                          ],
+                          ),
+                          isActive: _currentStep == 1,
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Center(
+                                child: Text(
+                                  "${l10n.aeratorLabel} 1",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              _buildTextField(
+                                _aerator1NameController,
+                                l10n.nameLabel,
+                              ),
+                              _buildNumberField(
+                                _aerator1PowerController,
+                                l10n.horsepowerLabel,
+                                'hp',
+                                true,
+                                min: 0.1,
+                                max: 100,
+                                hint: '3.0',
+                              ),
+                              _buildNumberField(
+                                _aerator1SotrController,
+                                l10n.sotrLabel,
+                                'kg O₂/h',
+                                true,
+                                min: 0.1,
+                                max: 100,
+                                hint: '1.4',
+                              ),
+                              _buildNumberField(
+                                _aerator1CostController,
+                                l10n.priceLabel,
+                                'USD',
+                                true,
+                                min: 0,
+                                max: 50000,
+                                hint: '500',
+                              ),
+                              _buildNumberField(
+                                _aerator1DurabilityController,
+                                l10n.durabilityLabel,
+                                'years',
+                                true,
+                                min: 0.1,
+                                max: 50,
+                                hint: '2',
+                              ),
+                              _buildNumberField(
+                                _aerator1MaintenanceController,
+                                l10n.maintenanceCostLabel,
+                                'USD/year',
+                                true,
+                                min: 0,
+                                max: 10000,
+                                hint: '65',
+                              ),
+                              const SizedBox(height: 16),
+                              Center(
+                                child: Text(
+                                  "${l10n.aeratorLabel} 2",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              _buildTextField(
+                                _aerator2NameController,
+                                l10n.nameLabel,
+                              ),
+                              _buildNumberField(
+                                _aerator2PowerController,
+                                l10n.horsepowerLabel,
+                                'hp',
+                                true,
+                                min: 0.1,
+                                max: 100,
+                                hint: '3.0',
+                              ),
+                              _buildNumberField(
+                                _aerator2SotrController,
+                                l10n.sotrLabel,
+                                'kg O₂/h',
+                                true,
+                                min: 0.1,
+                                max: 100,
+                                hint: '2.6',
+                              ),
+                              _buildNumberField(
+                                _aerator2CostController,
+                                l10n.priceLabel,
+                                'USD',
+                                true,
+                                min: 0,
+                                max: 50000,
+                                hint: '800',
+                              ),
+                              _buildNumberField(
+                                _aerator2DurabilityController,
+                                l10n.durabilityLabel,
+                                'years',
+                                true,
+                                min: 0.1,
+                                max: 50,
+                                hint: '4.5',
+                              ),
+                              _buildNumberField(
+                                _aerator2MaintenanceController,
+                                l10n.maintenanceCostLabel,
+                                'USD/year',
+                                true,
+                                min: 0,
+                                max: 10000,
+                                hint: '50',
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Step(
-                        title: Text(l10n.aeratorDetails),
-                        isActive: _currentStep == 1,
-                        content: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "${l10n.aeratorLabel} 1",
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            _buildTextField(
-                                _aerator1NameController, l10n.nameLabel),
-                            const SizedBox(height: 8),
-                            _buildNumberField(
-                              _aerator1PowerController,
-                              l10n.horsepowerLabel,
-                              'hp',
-                              true,
-                              min: 0.1,
-                              max: 100,
-                              hint: '3.0',
-                            ),
-                            const SizedBox(height: 8),
-                            _buildNumberField(
-                              _aerator1SotrController,
-                              l10n.sotrLabel,
-                              'kg O₂/h',
-                              true,
-                              min: 0.1,
-                              max: 100,
-                              hint: '1.4',
-                            ),
-                            const SizedBox(height: 8),
-                            _buildNumberField(
-                              _aerator1CostController,
-                              l10n.priceLabel,
-                              'USD',
-                              true,
-                              min: 0,
-                              max: 50000,
-                              hint: '500',
-                            ),
-                            const SizedBox(height: 8),
-                            _buildNumberField(
-                              _aerator1DurabilityController,
-                              l10n.durabilityLabel,
-                              'years',
-                              true,
-                              min: 0.1,
-                              max: 50,
-                              hint: '2',
-                            ),
-                            const SizedBox(height: 8),
-                            _buildNumberField(
-                              _aerator1MaintenanceController,
-                              l10n.maintenanceCostLabel,
-                              'USD/year',
-                              true,
-                              min: 0,
-                              max: 10000,
-                              hint: '65',
-                            ),
-                            const Divider(height: 32),
-                            Text(
-                              "${l10n.aeratorLabel} 2",
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            _buildTextField(
-                                _aerator2NameController, l10n.nameLabel),
-                            const SizedBox(height: 8),
-                            _buildNumberField(
-                              _aerator2PowerController,
-                              l10n.horsepowerLabel,
-                              'hp',
-                              true,
-                              min: 0.1,
-                              max: 100,
-                              hint: '3.0',
-                            ),
-                            const SizedBox(height: 8),
-                            _buildNumberField(
-                              _aerator2SotrController,
-                              l10n.sotrLabel,
-                              'kg O₂/h',
-                              true,
-                              min: 0.1,
-                              max: 100,
-                              hint: '2.6',
-                            ),
-                            const SizedBox(height: 8),
-                            _buildNumberField(
-                              _aerator2CostController,
-                              l10n.priceLabel,
-                              'USD',
-                              true,
-                              min: 0,
-                              max: 50000,
-                              hint: '800',
-                            ),
-                            const SizedBox(height: 8),
-                            _buildNumberField(
-                              _aerator2DurabilityController,
-                              l10n.durabilityLabel,
-                              'years',
-                              true,
-                              min: 0.1,
-                              max: 50,
-                              hint: '4.5',
-                            ),
-                            const SizedBox(height: 8),
-                            _buildNumberField(
-                              _aerator2MaintenanceController,
-                              l10n.maintenanceCostLabel,
-                              'USD/year',
-                              true,
-                              min: 0,
-                              max: 10000,
-                              hint: '50',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
         ),
       ),
     );

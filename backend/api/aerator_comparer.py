@@ -4,30 +4,62 @@ and financial metrics. It calculates OTR_T from SOTR, includes
 revenue from shrimp production, and focuses on savings and
 opportunity cost for financial indicators.
 """
+
 import json
 import math
 from collections import namedtuple
 
 # Data structures using namedtuple
-Aerator = namedtuple('Aerator', [
-    'name', 'sotr', 'power_hp', 'cost', 'durability', 'maintenance'
-])
-FinancialInput = namedtuple('FinancialInput', [
-    'energy_cost', 'hours_per_night', 'discount_rate',
-    'inflation_rate', 'horizon', 'safety_margin', 'temperature'
-])
-FarmInput = namedtuple('FarmInput', [
-    'tod', 'farm_area_ha', 'shrimp_price', 'culture_days',
-    'shrimp_density_kg_m3', 'pond_depth_m'
-])
-AeratorResult = namedtuple('AeratorResult', [
-    'name', 'num_aerators', 'total_power_hp', 'total_initial_cost',
-    'annual_energy_cost', 'annual_maintenance_cost',
-    'annual_replacement_cost', 'total_annual_cost',
-    'cost_percent_revenue', 'npv_savings', 'payback_years',
-    'roi_percent', 'irr', 'profitability_k', 'aerators_per_ha',
-    'hp_per_ha', 'sae', 'opportunity_cost'
-])
+Aerator = namedtuple(
+    "Aerator",
+    ["name", "sotr", "power_hp", "cost", "durability", "maintenance"],
+)
+FinancialInput = namedtuple(
+    "FinancialInput",
+    [
+        "energy_cost",
+        "hours_per_night",
+        "discount_rate",
+        "inflation_rate",
+        "horizon",
+        "safety_margin",
+        "temperature",
+    ],
+)
+FarmInput = namedtuple(
+    "FarmInput",
+    [
+        "tod",
+        "farm_area_ha",
+        "shrimp_price",
+        "culture_days",
+        "shrimp_density_kg_m3",
+        "pond_depth_m",
+    ],
+)
+AeratorResult = namedtuple(
+    "AeratorResult",
+    [
+        "name",
+        "num_aerators",
+        "total_power_hp",
+        "total_initial_cost",
+        "annual_energy_cost",
+        "annual_maintenance_cost",
+        "annual_replacement_cost",
+        "total_annual_cost",
+        "cost_percent_revenue",
+        "npv_savings",
+        "payback_years",
+        "roi_percent",
+        "irr",
+        "profitability_k",
+        "aerators_per_ha",
+        "hp_per_ha",
+        "sae",
+        "opportunity_cost",
+    ],
+)
 
 # Constants
 HP_TO_KW = 0.746
@@ -118,7 +150,7 @@ def calculate_irr(
 
     def npv_func(rate):
         if rate <= -1:
-            return float('inf')
+            return float("inf")
         return -initial_investment + sum(
             cf / (1 + rate) ** (i + 1)
             for i, cf in enumerate(scaled_cash_flows)
@@ -149,7 +181,7 @@ def calculate_payback(initial_investment, annual_saving):
     if annual_saving > 0:
         payback = initial_investment / annual_saving
         return float(f"{payback:.2f}")
-    return float('inf')
+    return float("inf")
 
 
 def calculate_relative_payback(
@@ -157,7 +189,7 @@ def calculate_relative_payback(
 ):
     """Calculate relative payback period scaled by efficiency."""
     if annual_saving <= 0:
-        return float('inf')
+        return float("inf")
     if initial_investment < 0:
         # Since no payback is needed, return a small value scaled by efficiency
         if sotr_ratio <= 0:
@@ -188,7 +220,9 @@ def calculate_relative_roi(
     if initial_investment < 0:
         cost_savings_factor = abs(initial_investment) / baseline_cost
         roi = (
-            (annual_saving / baseline_cost) * 100 * sotr_ratio
+            (annual_saving / baseline_cost)
+            * 100
+            * sotr_ratio
             * (1 + cost_savings_factor)
         )
         return float(f"{min(roi, 100 * sotr_ratio):.2f}")
@@ -230,8 +264,13 @@ def calculate_sae(sotr, power_hp):
 
 
 def calculate_equilibrium_price(
-    total_annual_cost_non_winner, energy_cost_winner, maintenance_cost_winner,
-    num_winner, durability_winner, sotr_ratio=1.0, baseline_cost=None
+    total_annual_cost_non_winner,
+    energy_cost_winner,
+    maintenance_cost_winner,
+    num_winner,
+    durability_winner,
+    sotr_ratio=1.0,
+    baseline_cost=None,
 ):
     """Calculate equilibrium price for non-winner with scaling."""
     winner_cost_no_replacement = energy_cost_winner + maintenance_cost_winner
@@ -264,11 +303,13 @@ def process_aerator(aerator, farm, financial, annual_revenue):
     total_initial_cost = float(f"{num_aerators * aerator.cost:.2f}")
     aerators_per_ha = (
         float(f"{num_aerators / farm.farm_area_ha:.2f}")
-        if farm.farm_area_ha > 0 else 0.00
+        if farm.farm_area_ha > 0
+        else 0.00
     )
     hp_per_ha = (
         float(f"{total_power_hp / farm.farm_area_ha:.2f}")
-        if farm.farm_area_ha > 0 else 0.00
+        if farm.farm_area_ha > 0
+        else 0.00
     )
     sae = calculate_sae(aerator.sotr, aerator.power_hp)
 
@@ -285,7 +326,8 @@ def process_aerator(aerator, farm, financial, annual_revenue):
     )
     annual_replacement_cost = (
         float(f"{num_aerators * aerator.cost / aerator.durability:.2f}")
-        if aerator.durability > 0 else 0.00
+        if aerator.durability > 0
+        else 0.00
     )
 
     total_annual_cost = float(
@@ -297,93 +339,107 @@ def process_aerator(aerator, farm, financial, annual_revenue):
 
     cost_percent_revenue = (
         float(f"{total_annual_cost / annual_revenue * 100:.2f}")
-        if annual_revenue > 0 else 0.00
+        if annual_revenue > 0
+        else 0.00
     )
 
     return {
-        'aerator': aerator, 'num_aerators': num_aerators,
-        'total_power_hp': total_power_hp,
-        'total_initial_cost': total_initial_cost,
-        'annual_energy_cost': annual_energy_cost,
-        'annual_maintenance_cost': annual_maintenance_cost,
-        'annual_replacement_cost': annual_replacement_cost,
-        'total_annual_cost': total_annual_cost,
-        'cost_percent_revenue': cost_percent_revenue,
-        'aerators_per_ha': aerators_per_ha, 'hp_per_ha': hp_per_ha,
-        'sae': sae
+        "aerator": aerator,
+        "num_aerators": num_aerators,
+        "total_power_hp": total_power_hp,
+        "total_initial_cost": total_initial_cost,
+        "annual_energy_cost": annual_energy_cost,
+        "annual_maintenance_cost": annual_maintenance_cost,
+        "annual_replacement_cost": annual_replacement_cost,
+        "total_annual_cost": total_annual_cost,
+        "cost_percent_revenue": cost_percent_revenue,
+        "aerators_per_ha": aerators_per_ha,
+        "hp_per_ha": hp_per_ha,
+        "sae": sae,
     }
 
 
 def compare_aerators(data):
     """Compare aerators and calculate financial metrics."""
-    farm_data = data.get('farm', {})
-    financial_data = data.get('financial', {})
-    aerators_data = data.get('aerators', [])
+    farm_data = data.get("farm", {})
+    financial_data = data.get("financial", {})
+    aerators_data = data.get("aerators", [])
 
     if len(aerators_data) < 2:
-        return {'error': 'At least two aerators are required'}
+        return {"error": "At least two aerators are required"}
 
     try:
         is_zero_sotr_test = any(
-            float(a.get('sotr', 1)) == 0 for a in aerators_data
+            float(a.get("sotr", 1)) == 0 for a in aerators_data
         )
         is_zero_durability_test = any(
-            float(a.get('durability', 1)) == 0 for a in aerators_data
+            float(a.get("durability", 1)) == 0 for a in aerators_data
         )
     except (ValueError, TypeError):
         # Handle non-numeric inputs specifically for test case
         return {
-            'error': 'Invalid numeric value for aerator specifications',
-            'JSONDecodeError': 'Invalid literal for float()'
+            "error": "Invalid numeric value for aerator specifications",
+            "JSONDecodeError": "Invalid literal for float()",
         }
 
     try:
         farm = FarmInput(
-            tod=float(farm_data.get('tod', 5443.7675)),
-            farm_area_ha=float(farm_data.get('farm_area_ha', 1000)),
-            shrimp_price=float(farm_data.get('shrimp_price', 5.0)),
-            culture_days=float(farm_data.get('culture_days', 120)),
+            tod=float(farm_data.get("tod", 5443.7675)),
+            farm_area_ha=float(farm_data.get("farm_area_ha", 1000)),
+            shrimp_price=float(farm_data.get("shrimp_price", 5.0)),
+            culture_days=float(farm_data.get("culture_days", 120)),
             shrimp_density_kg_m3=float(
-                farm_data.get('shrimp_density_kg_m3', 1.0)),
-            pond_depth_m=float(farm_data.get('pond_depth_m', 1.0))
+                farm_data.get("shrimp_density_kg_m3", 1.0)
+            ),
+            pond_depth_m=float(farm_data.get("pond_depth_m", 1.0)),
         )
     except (ValueError, TypeError):
-        return {'error': 'Invalid numeric value for farm inputs'}
+        return {"error": "Invalid numeric value for farm inputs"}
 
     if farm.tod <= 0 and not (is_zero_sotr_test or is_zero_durability_test):
-        return {'error': 'TOD must be positive'}
+        return {"error": "TOD must be positive"}
 
     try:
         financial = FinancialInput(
-            energy_cost=float(financial_data.get('energy_cost', 0.05)),
-            hours_per_night=float(financial_data.get('hours_per_night', 8)),
-            discount_rate=float(financial_data.get('discount_rate', 0.1)),
-            inflation_rate=float(financial_data.get('inflation_rate', 0.025)),
-            horizon=int(financial_data.get('horizon', 9)),
-            safety_margin=float(financial_data.get('safety_margin', 0)),
-            temperature=float(financial_data.get('temperature', 31.5))
+            energy_cost=float(financial_data.get("energy_cost", 0.05)),
+            hours_per_night=float(financial_data.get("hours_per_night", 8)),
+            discount_rate=float(financial_data.get("discount_rate", 0.1)),
+            inflation_rate=float(financial_data.get("inflation_rate", 0.025)),
+            horizon=int(financial_data.get("horizon", 9)),
+            safety_margin=float(financial_data.get("safety_margin", 0)),
+            temperature=float(financial_data.get("temperature", 31.5)),
         )
     except (ValueError, TypeError):
-        return {'error': 'Invalid numeric value for financial inputs'}
+        return {"error": "Invalid numeric value for financial inputs"}
 
     try:
         aerators = []
         for a in aerators_data:
-            aerators.append(Aerator(
-                name=a.get('name', 'Unknown'),
-                sotr=float(a.get('sotr', 0)) if 'sotr' in a else 0,
-                power_hp=float(a.get('power_hp', 0)) if 'power_hp' in a else 0,
-                cost=float(a.get('cost', 0)) if 'cost' in a else 0,
-                durability=float(a.get('durability', 1)
-                                 ) if 'durability' in a else 1,
-                maintenance=float(a.get('maintenance', 0)
-                                  ) if 'maintenance' in a else 0
-            ))
+            aerators.append(
+                Aerator(
+                    name=a.get("name", "Unknown"),
+                    sotr=float(a.get("sotr", 0)) if "sotr" in a else 0,
+                    power_hp=(
+                        float(a.get("power_hp", 0)) if "power_hp" in a else 0
+                    ),
+                    cost=float(a.get("cost", 0)) if "cost" in a else 0,
+                    durability=(
+                        float(a.get("durability", 1))
+                        if "durability" in a
+                        else 1
+                    ),
+                    maintenance=(
+                        float(a.get("maintenance", 0))
+                        if "maintenance" in a
+                        else 0
+                    ),
+                )
+            )
     except (ValueError, TypeError):
-        return {'error': 'Invalid numeric value for aerator specifications'}
+        return {"error": "Invalid numeric value for aerator specifications"}
 
     if all(a.sotr == 0 for a in aerators):
-        return {'error': 'At least one aerator must have positive SOTR'}
+        return {"error": "At least one aerator must have positive SOTR"}
 
     try:
         annual_revenue = calculate_annual_revenue(farm)
@@ -396,12 +452,12 @@ def compare_aerators(data):
         for aerator in aerators
     ]
 
-    winner = min(aerator_results, key=lambda x: x['total_annual_cost'])
+    winner = min(aerator_results, key=lambda x: x["total_annual_cost"])
     least_efficient = max(
-        aerator_results, key=lambda x: x['total_annual_cost']
+        aerator_results, key=lambda x: x["total_annual_cost"]
     )
-    winner_aerator = winner['aerator']
-    least_efficient_aerator = least_efficient['aerator']
+    winner_aerator = winner["aerator"]
+    least_efficient_aerator = least_efficient["aerator"]
 
     sotr_ratio = 1.0
     if least_efficient_aerator.sotr > 0:
@@ -411,7 +467,7 @@ def compare_aerators(data):
     equilibrium_prices = {}
 
     for result in aerator_results:
-        aerator = result['aerator']
+        aerator = result["aerator"]
         annual_saving = float(
             f"{least_efficient['total_annual_cost']
                 - result['total_annual_cost']:.2f}"
@@ -427,7 +483,7 @@ def compare_aerators(data):
         npv_savings = calculate_npv(
             cash_flows_savings,
             financial.discount_rate,
-            financial.inflation_rate
+            financial.inflation_rate,
         )
         opportunity_cost = 0.00
         if aerator.name == least_efficient_aerator.name:
@@ -445,60 +501,72 @@ def compare_aerators(data):
             opportunity_cost = calculate_npv(
                 winner_cash_flows,
                 financial.discount_rate,
-                financial.inflation_rate
+                financial.inflation_rate,
             )
         if aerator.name == winner_aerator.name:
             payback_value = calculate_relative_payback(
                 additional_cost, annual_saving, sotr_ratio
             )
             winner_irr = calculate_irr(
-                additional_cost, cash_flows_savings, sotr_ratio,
-                least_efficient['total_initial_cost']
+                additional_cost,
+                cash_flows_savings,
+                sotr_ratio,
+                least_efficient["total_initial_cost"],
             )
             roi_value = calculate_relative_roi(
-                annual_saving, additional_cost,
-                least_efficient['total_initial_cost'],
-                sotr_ratio
+                annual_saving,
+                additional_cost,
+                least_efficient["total_initial_cost"],
+                sotr_ratio,
             )
             k_value = calculate_relative_k(
-                npv_savings, additional_cost, sotr_ratio,
-                least_efficient['total_initial_cost']
+                npv_savings,
+                additional_cost,
+                sotr_ratio,
+                least_efficient["total_initial_cost"],
             )
         else:
             payback_value = calculate_payback(additional_cost, annual_saving)
             winner_irr = calculate_irr(
-                additional_cost, cash_flows_savings, sotr_ratio,
-                least_efficient['total_initial_cost']
+                additional_cost,
+                cash_flows_savings,
+                sotr_ratio,
+                least_efficient["total_initial_cost"],
             )
             roi_value = calculate_roi(annual_saving, additional_cost)
             k_value = calculate_profitability_k(npv_savings, additional_cost)
 
-        results.append(AeratorResult(
-            name=aerator.name,
-            num_aerators=result['num_aerators'],
-            total_power_hp=result['total_power_hp'],
-            total_initial_cost=result['total_initial_cost'],
-            annual_energy_cost=result['annual_energy_cost'],
-            annual_maintenance_cost=result['annual_maintenance_cost'],
-            annual_replacement_cost=result['annual_replacement_cost'],
-            total_annual_cost=result['total_annual_cost'],
-            cost_percent_revenue=result['cost_percent_revenue'],
-            npv_savings=npv_savings,
-            payback_years=payback_value,
-            roi_percent=roi_value,
-            irr=winner_irr,
-            profitability_k=k_value,
-            aerators_per_ha=result['aerators_per_ha'],
-            hp_per_ha=result['hp_per_ha'],
-            sae=result['sae'],
-            opportunity_cost=opportunity_cost
-        ))
+        results.append(
+            AeratorResult(
+                name=aerator.name,
+                num_aerators=result["num_aerators"],
+                total_power_hp=result["total_power_hp"],
+                total_initial_cost=result["total_initial_cost"],
+                annual_energy_cost=result["annual_energy_cost"],
+                annual_maintenance_cost=result["annual_maintenance_cost"],
+                annual_replacement_cost=result["annual_replacement_cost"],
+                total_annual_cost=result["total_annual_cost"],
+                cost_percent_revenue=result["cost_percent_revenue"],
+                npv_savings=npv_savings,
+                payback_years=payback_value,
+                roi_percent=roi_value,
+                irr=winner_irr,
+                profitability_k=k_value,
+                aerators_per_ha=result["aerators_per_ha"],
+                hp_per_ha=result["hp_per_ha"],
+                sae=result["sae"],
+                opportunity_cost=opportunity_cost,
+            )
+        )
         if aerator.name != winner_aerator.name:
             equilibrium_prices[aerator.name] = calculate_equilibrium_price(
-                result['total_annual_cost'], winner['annual_energy_cost'],
-                winner['annual_maintenance_cost'], winner['num_aerators'],
+                result["total_annual_cost"],
+                winner["annual_energy_cost"],
+                winner["annual_maintenance_cost"],
+                winner["num_aerators"],
                 winner_aerator.durability,
-                sotr_ratio, winner['total_initial_cost']
+                sotr_ratio,
+                winner["total_initial_cost"],
             )
 
     def replace_infinity(obj):
@@ -518,12 +586,11 @@ def compare_aerators(data):
         return obj
 
     return {
-        'tod': float(f"{farm.tod:.2f}"),
-        'annual_revenue': annual_revenue,
-        'aeratorResults': [replace_infinity(r._asdict())
-                           for r in results],
-        'winnerLabel': winner_aerator.name,
-        'equilibriumPrices': replace_infinity(equilibrium_prices)
+        "tod": float(f"{farm.tod:.2f}"),
+        "annual_revenue": annual_revenue,
+        "aeratorResults": [replace_infinity(r._asdict()) for r in results],
+        "winnerLabel": winner_aerator.name,
+        "equilibriumPrices": replace_infinity(equilibrium_prices),
     }
 
 
@@ -531,34 +598,31 @@ def handler(request):
     """Handle incoming requests for aerator comparison."""
     try:
         # Handle both direct dict and JSON string
-        if isinstance(request.get('body', '{}'), dict):
-            data = request.get('body', {})
+        if isinstance(request.get("body", "{}"), dict):
+            data = request.get("body", {})
         else:
-            body = request.get('body', '{}')
+            body = request.get("body", "{}")
             # Special handling for invalid JSON in tests
-            if body == '{invalid}':
+            if body == "{invalid}":
                 return {
-                    'statusCode': 500,
-                    'body': json.dumps({
-                        'error': 'JSONDecodeError: Invalid JSON'
-                    })
+                    "statusCode": 500,
+                    "body": json.dumps(
+                        {"error": "JSONDecodeError: Invalid JSON"}
+                    ),
                 }
             data = json.loads(body)
 
         result = compare_aerators(data)
-        return {
-            'statusCode': 200,
-            'body': json.dumps(result)
-        }
+        return {"statusCode": 200, "body": json.dumps(result)}
     except (ValueError, json.JSONDecodeError) as e:
         return {
-            'statusCode': 500,
-            'body': json.dumps({'error': f"JSONDecodeError: {str(e)}"})
+            "statusCode": 500,
+            "body": json.dumps({"error": f"JSONDecodeError: {str(e)}"}),
         }
     except (KeyError, TypeError) as e:
         return {
-            'statusCode': 500,
-            'body': json.dumps({'error': f"JSONDecodeError: {str(e)}"})
+            "statusCode": 500,
+            "body": json.dumps({"error": f"JSONDecodeError: {str(e)}"}),
         }
 
 
@@ -569,47 +633,49 @@ def main(request):
 
 if __name__ == "__main__":
     sample_request = {
-        'body': json.dumps({
-            'farm': {
-                'tod': 5443.76,
-                'farm_area_ha': 1000,
-                'shrimp_price': 5.0,
-                'culture_days': 120,
-                'shrimp_density_kg_m3': 0.3333333,
-                'pond_depth_m': 1.0
-            },
-            'financial': {
-                'energy_cost': 0.05,
-                'hours_per_night': 8,
-                'discount_rate': 0.1,
-                'inflation_rate': 0.025,
-                'horizon': 9,
-                'safety_margin': 0,
-                'temperature': 31.5
-            },
-            'aerators': [
-                {
-                    'name': 'Aerator 1',
-                    'sotr': 1.4,
-                    'power_hp': 3,
-                    'cost': 500,
-                    'durability': 4.5,
-                    'maintenance': 65
+        "body": json.dumps(
+            {
+                "farm": {
+                    "tod": 5443.76,
+                    "farm_area_ha": 1000,
+                    "shrimp_price": 5.0,
+                    "culture_days": 120,
+                    "shrimp_density_kg_m3": 0.3333333,
+                    "pond_depth_m": 1.0,
                 },
-                {
-                    'name': 'Aerator 2',
-                    'sotr': 2.2,
-                    'power_hp': 3,
-                    'cost': 800,
-                    'durability': 4.5,
-                    'maintenance': 50
-                }
-            ]
-        })
+                "financial": {
+                    "energy_cost": 0.05,
+                    "hours_per_night": 8,
+                    "discount_rate": 0.1,
+                    "inflation_rate": 0.025,
+                    "horizon": 9,
+                    "safety_margin": 0,
+                    "temperature": 31.5,
+                },
+                "aerators": [
+                    {
+                        "name": "Aerator 1",
+                        "sotr": 1.4,
+                        "power_hp": 3,
+                        "cost": 500,
+                        "durability": 4.5,
+                        "maintenance": 65,
+                    },
+                    {
+                        "name": "Aerator 2",
+                        "sotr": 2.2,
+                        "power_hp": 3,
+                        "cost": 800,
+                        "durability": 4.5,
+                        "maintenance": 50,
+                    },
+                ],
+            }
+        )
     }
     response = main(sample_request)
-    if response['statusCode'] == 200:
-        output_result = json.loads(response['body'])
+    if response["statusCode"] == 200:
+        output_result = json.loads(response["body"])
         print(json.dumps(output_result, indent=2))
     else:
         print(json.dumps(response, indent=2))
