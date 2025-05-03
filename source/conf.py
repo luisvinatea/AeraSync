@@ -1,7 +1,9 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
+Configuration file for the Sphinx documentation builder for AeraSync.
+
+This module contains all the configuration settings for generating
+the AeraSync documentation using Sphinx.
+"""
 
 # -- Path setup --------------------------------------------------------------
 import os
@@ -12,10 +14,10 @@ sys.path.insert(0, os.path.abspath('../backend'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'AeraSync'
-copyright = '2025, Luis Vinatea'
-author = 'Luis Vinatea'
-release = '1.0.0'
+PROJECT = 'AeraSync'
+COPYRIGHT = '2025, Luis Vinatea'
+AUTHOR = 'Luis Vinatea'
+RELEASE = '1.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -32,29 +34,28 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # Napoleon settings
-napoleon_google_docstring = True
-napoleon_numpy_docstring = True
-napoleon_include_init_with_doc = False
-napoleon_include_private_with_doc = False
-napoleon_include_special_with_doc = True
-napoleon_use_admonition_for_examples = False
-napoleon_use_admonition_for_notes = False
-napoleon_use_admonition_for_references = False
-napoleon_use_ivar = False
-napoleon_use_param = True
-napoleon_use_rtype = True
-napoleon_preprocess_types = False
-napoleon_type_aliases = None
-napoleon_attr_annotations = True
+NAPOLEON_GOOGLE_DOCSTRING = True
+NAPOLEON_INCLUDE_INIT_WITH_DOC = False
+NAPOLEON_INCLUDE_PRIVATE_WITH_DOC = False
+NAPOLEON_INCLUDE_SPECIAL_WITH_DOC = True
+NAPOLEON_USE_ADMONITION_FOR_EXAMPLES = False
+NAPOLEON_USE_ADMONITION_FOR_NOTES = False
+NAPOLEON_USE_ADMONITION_FOR_REFERENCES = False
+NAPOLEON_USE_IVAR = False
+NAPOLEON_USE_PARAM = True
+NAPOLEON_USE_RTYPE = True
+NAPOLEON_PREPROCESS_TYPES = False
+NAPOLEON_TYPE_ALIASES = None
+NAPOLEON_ATTR_ANNOTATIONS = True
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
-html_title = "AeraSync Documentation"
-html_logo = None  # Add a path to your logo if you have one
-html_favicon = None  # Add a path to your favicon if you have one
+HTML_THEME = 'sphinx_rtd_theme'
+HTML_STATIC_PATH = ['_static']
+HTML_TITLE = "AeraSync Documentation"
+HTML_LOGO = None  # Add a path to your logo if you have one
+HTML_FAVICON = None  # Add a path to your favicon if you have one
 
 # -- Intersphinx configuration ----------------------------------------------
 intersphinx_mapping = {
