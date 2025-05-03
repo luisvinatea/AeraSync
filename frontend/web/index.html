@@ -74,15 +74,6 @@
 
       // The value below is injected by flutter build, do not touch.
       const serviceWorkerVersion = null;
-
-      // Required buildConfig for Flutter web initialization
-      window._flutter = {
-        loader: {},
-        buildConfig: {
-          renderer: "canvaskit",
-          canvasKitBaseUrl: "/canvaskit/",
-        },
-      };
     </script>
 
     <link rel="preload" href="flutter.js" as="script" />
@@ -96,7 +87,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: #ffffff;
+        background-color: #1e40af;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -173,7 +164,7 @@
 
     <script>
       window.addEventListener("load", function () {
-        // Initialize Flutter web with current API
+        // Initialize Flutter web with compatible API
         let targetDiv = document.querySelector("#flutter-target");
         let loadingScreen = document.getElementById("loading-screen");
 
@@ -192,29 +183,53 @@
             });
         }
 
-        // Initialize Flutter app using the updated API
-        _flutter.loader.loadEntrypoint({
-          serviceWorker: {
-            serviceWorkerVersion: serviceWorkerVersion,
-          },
-          onEntrypointLoaded: function (engineInitializer) {
-            engineInitializer
-              .initializeEngine({
-                renderer: "canvaskit",
-                canvasKitBaseUrl: "/canvaskit/",
-              })
-              .then(function (appRunner) {
-                appRunner.runApp();
-                // Remove loading screen once Flutter app is ready
-                if (loadingScreen) {
-                  loadingScreen.style.opacity = "0";
-                  setTimeout(function () {
-                    loadingScreen.style.display = "none";
-                  }, 500);
-                }
-              });
-          },
-        });
+        // Initialize Flutter app using the proper API method
+        // First check if we're using the newer Flutter loader API
+        if (window.Flutter) {
+          window.Flutter.loader.loadEntrypoint({
+            serviceWorker: {
+              serviceWorkerVersion: serviceWorkerVersion,
+            },
+            onEntrypointLoaded: function (engineInitializer) {
+              engineInitializer
+                .initializeEngine({
+                  renderer: "canvaskit",
+                  canvasKitBaseUrl: "/canvaskit/",
+                })
+                .then(function (appRunner) {
+                  appRunner.runApp();
+                  hideLoadingScreen();
+                });
+            },
+          });
+        } else {
+          // Fallback to traditional bootstrap method for older Flutter versions
+          _flutter.loader
+            .loadEntrypoint({
+              serviceWorker: {
+                serviceWorkerVersion: serviceWorkerVersion,
+              },
+            })
+            .then(function (engineInitializer) {
+              return engineInitializer.initializeEngine();
+            })
+            .then(function (appRunner) {
+              return appRunner.runApp();
+            })
+            .then(function () {
+              hideLoadingScreen();
+            });
+        }
+
+        function hideLoadingScreen() {
+          // Remove loading screen once Flutter app is ready
+          if (loadingScreen) {
+            loadingScreen.style.opacity = "0";
+            setTimeout(function () {
+              loadingScreen.style.display = "none";
+            }, 500);
+          }
+        }
       });
     </script>
   </body>
