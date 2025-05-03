@@ -182,41 +182,18 @@
             });
         }
 
-        // Initialize Flutter app using the proper API method
-        // First check if we're using the newer Flutter loader API
-        if (window.Flutter) {
-          window.Flutter.loader.loadEntrypoint({
-            serviceWorker: {
-              serviceWorkerVersion: serviceWorkerVersion,
-            },
-            onEntrypointLoaded: function (engineInitializer) {
-              engineInitializer
-                .initializeEngine({
-                  renderer: "canvaskit",
-                  canvasKitBaseUrl: "/canvaskit/",
-                })
-                .then(function (appRunner) {
-                  appRunner.runApp();
-                  hideLoadingScreen();
-                });
-            },
-          });
-        } else {
-          // Fallback to traditional bootstrap method for older Flutter versions
+        // Use modern Flutter API with proper fallback
+        if (_flutter) {
           _flutter.loader
-            .loadEntrypoint({
-              serviceWorker: {
-                serviceWorkerVersion: serviceWorkerVersion,
-              },
-            })
-            .then(function (engineInitializer) {
-              return engineInitializer.initializeEngine();
-            })
+            .load()
             .then(function (appRunner) {
               return appRunner.runApp();
             })
             .then(function () {
               hideLoadingScreen();
+            })
+            .catch(function (error) {
+              console.error("Error initializing Flutter app:", error);
             });
         }
 
