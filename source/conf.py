@@ -10,6 +10,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('../backend'))
+sys.path.insert(0, os.path.abspath('../frontend/web'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -54,8 +55,9 @@ NAPOLEON_ATTR_ANNOTATIONS = True
 HTML_THEME = 'sphinx_rtd_theme'
 HTML_STATIC_PATH = ['_static']
 HTML_TITLE = "AeraSync Documentation"
-HTML_LOGO = None  # Add a path to your logo if you have one
-HTML_FAVICON = None  # Add a path to your favicon if you have one
+HTML_PROJECT = 'AeraSync'
+HTML_LOGO = 'icons/aerasync.webp'
+HTML_FAVICON = 'favicon.webp'
 
 # -- Intersphinx configuration ----------------------------------------------
 intersphinx_mapping = {
