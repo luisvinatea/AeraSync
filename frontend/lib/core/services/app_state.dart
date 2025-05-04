@@ -176,6 +176,7 @@ class AppState extends ChangeNotifier {
     try {
       final normalizedData = _normalizeData(surveyData);
       _apiResults = await _apiService.compareAerators(normalizedData);
+      _apiResults?['surveyData'] = normalizedData; // <-- NEW
       _resultsAvailable = true;
       notifyListeners();
 

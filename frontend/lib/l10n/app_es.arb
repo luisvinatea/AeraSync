@@ -302,7 +302,7 @@
   "@recommended": {
     "description": "Etiqueta para el aerador recomendado"
   },
-  "equilibriumPriceExplanation": "Precio al cual este aerador se vuelve financieramente equivalente a la opción recomendada",
+  "equilibriumPriceExplanation": "El verdadero costo unitario de este aireador cuando se considera el costo de oportunidad.",
   "@equilibriumPriceExplanation": {
     "description": "Descripción de lo que significa el precio de equilibrio"
   },
@@ -385,5 +385,13 @@
   "farmFinancialDetails": "Detalles Financieros de la Camaronera",
   "@farmFinancialDetails": {
     "description": "Etiqueta para la sección de detalles financieros de la camaronera"
+  },
+  "surveyInputs": "Entradas de la Encuesta",
+  "@surveyInputs": {
+    "description": "Título para la sección de entradas de la encuesta en los resultados resumidos"
+  },
+  "profitabilityIndexExplanation": "Cuánto devolverá un dólar extra invertido en el aerador ganador en el futuro. Un índice de rentabilidad mayor que 1 indica una inversión rentable.",
+  "@profitabilityIndexExplanation": {
+    "description": "Descripción para la explicación del índice de rentabilidad"
   }
 }

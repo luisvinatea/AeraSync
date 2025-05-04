@@ -302,7 +302,7 @@
   "@recommended": {
     "description": "Label for the recommended aerator"
   },
-  "equilibriumPriceExplanation": "Price at which this aerator becomes financially equivalent to the recommended option",
+  "equilibriumPriceExplanation": "The real unitary cost of this aerator when the opportunity cost is considered.",
   "@equilibriumPriceExplanation": {
     "description": "Explanation of what equilibrium price means"
   },
@@ -385,5 +385,13 @@
   "farmFinancialDetails": "Farm Financial Details",
   "@farmFinancialDetails": {
     "description": "Title for the farm financial details section"
+  },
+  "surveyInputs": "Survey Inputs",
+  "@surveyInputs": {
+    "description": "Title for the survey inputs section in the summary results"
+  },
+  "profitabilityIndexExplanation": "How much an extra dollar invested in the winner aerator will return in the future. A profitability index greater than 1 indicates a profitable investment.",
+  "@profitabilityIndexExplanation": {
+    "description": "Description for the profitability index explanation"
   }
 }
