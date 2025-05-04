@@ -401,5 +401,13 @@
   "annualCostComposition": "Annual cost composition for each aerator option",
   "@annualCostComposition": {
     "description": "Description for the cost breakdown visualization"
+  },
+  "costEvolutionVisualization": "Cost Evolution Visualization",
+  "@costEvolutionVisualization": {
+    "description": "Title for the cost evolution visualization card"
+  },
+  "costEvolutionExplanation": "Annual cost evolution for each aerator option",
+  "@costEvolutionExplanation": {
+    "description": "Description for the cost evolution visualization"
   }
 }

@@ -401,5 +401,13 @@
   "annualCostComposition": "Composición del costo anual para cada opción de aireador",
   "@annualCostComposition": {
     "description": "Descripción para la tarjeta de visualización del desglose de costos"
+  },
+  "costEvolutionVisualization": "Visualización de la Evolución de Costos",
+  "@costEvolutionVisualization": {
+    "description": "Descripción para la tarjeta de visualización de la evolución de costos"
+  },
+  "costEvolutionExplanation": "Evolución del costo anual para cada opción de aireador.",
+  "@costEvolutionExplanation": {
+    "description": "Descripción para la visualización de la evolución de costos"
   }
 }

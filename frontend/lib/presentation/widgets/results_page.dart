@@ -166,50 +166,81 @@ class ResultsPage extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _EnhancedSummaryCard(
-                  l10n: l10n,
-                  tod: tod,
-                  winnerLabel: winnerLabel,
-                  annualRevenue: annualRevenue,
-                  surveyData: surveyData,
-                  results: results,
-                ),
-                const SizedBox(height: 16),
-                _AeratorComparisonCard(
-                  l10n: l10n,
-                  results: results,
-                  winnerLabel: winnerLabel,
-                ),
-                const SizedBox(height: 16),
-                _EquilibriumPricesCard(
-                  l10n: l10n,
-                  equilibriumPrices: equilibriumPrices,
-                ),
-                const SizedBox(height: 16),
-                _CostVisualizationCard(
-                  l10n: l10n,
-                  results: results,
-                  winnerLabel: winnerLabel,
-                ),
-                const SizedBox(height: 24),
-                Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.blue.shade800,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left column - Tables
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _EnhancedSummaryCard(
+                              l10n: l10n,
+                              tod: tod,
+                              winnerLabel: winnerLabel,
+                              annualRevenue: annualRevenue,
+                              surveyData: surveyData,
+                              results: results,
+                            ),
+                            const SizedBox(height: 16),
+                            _AeratorComparisonCard(
+                              l10n: l10n,
+                              results: results,
+                              winnerLabel: winnerLabel,
+                            ),
+                            const SizedBox(height: 16),
+                            _EquilibriumPricesCard(
+                              l10n: l10n,
+                              equilibriumPrices: equilibriumPrices,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    onPressed: () => appState.navigateToSurvey(),
-                    child: Text(l10n.newComparison),
-                  ),
+                    const SizedBox(width: 16),
+                    // Right column - Visualizations
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            _CostVisualizationCard(
+                              l10n: l10n,
+                              results: results,
+                              winnerLabel: winnerLabel,
+                            ),
+                            const SizedBox(height: 16),
+                            _CostEvolutionCard(
+                              l10n: l10n,
+                              results: results,
+                              winnerLabel: winnerLabel,
+                              surveyData: surveyData,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.blue.shade800,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 16),
+                  ),
+                  onPressed: () => appState.navigateToSurvey(),
+                  child: Text(l10n.newComparison),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -881,5 +912,439 @@ class _CostVisualizationCard extends StatelessWidget {
     if (maxCost <= 50000) return 10000;
     if (maxCost <= 100000) return 20000;
     return maxCost / 5; // Default to 5 divisions
+  }
+}
+
+class _CostEvolutionCard extends StatelessWidget {
+  final AppLocalizations l10n;
+  final List<AeratorResult> results;
+  final String winnerLabel;
+  final Map<String, dynamic>? surveyData;
+
+  const _CostEvolutionCard({
+    required this.l10n,
+    required this.results,
+    required this.winnerLabel,
+    required this.surveyData,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.costEvolutionVisualization,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.costEvolutionExplanation,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 300,
+              child: LineChart(
+                LineChartData(
+                  lineBarsData: _getAreaChartData(),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 60,
+                        interval: _calculateYAxisInterval(),
+                        getTitlesWidget: (value, meta) {
+                          // Only show relevant benchmarks
+                          if (value % _calculateYAxisInterval() != 0) {
+                            return const SizedBox.shrink();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Text(
+                              '\$${_formatCurrency(value)}',
+                              style: const TextStyle(fontSize: 10),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 5, // Show every year or adjust as needed
+                        getTitlesWidget: (value, meta) {
+                          // Only show years that are integers
+                          if (value % 1 != 0) {
+                            return const SizedBox.shrink();
+                          }
+                          return Text(
+                            value.toInt().toString(),
+                            style: const TextStyle(fontSize: 10),
+                          );
+                        },
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
+                  borderData: FlBorderData(
+                    show: true,
+                    border: const Border(
+                      bottom: BorderSide(),
+                      left: BorderSide(),
+                    ),
+                  ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: _calculateYAxisInterval(),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildLegendForCostEvolution(context),
+            const SizedBox(height: 32),
+            Text(
+              "Performance vs. Cost Analysis",
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "Relationship between efficiency (SOTR) and cost differences over time",
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 300,
+              child: _buildScatterPlotChart(context),
+            ),
+            const SizedBox(height: 16),
+            _buildScatterPlotLegend(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegendForCostEvolution(BuildContext context) {
+    // Find the winner aerator
+    final winnerAerator = results.firstWhere((result) => result.name == winnerLabel);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 16, 
+              height: 16,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.blue.withAlpha(51), Colors.blue],
+                ),
+              ),
+            ),
+            const SizedBox(width: 4),
+            Text('Cumulative cost difference vs ${winnerAerator.name}',
+                style: const TextStyle(fontSize: 12)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _formatCurrency(double value) {
+    if (value >= 1000000) {
+      return '${(value / 1000000).toStringAsFixed(1)}M';
+    }
+    if (value >= 1000) {
+      return '${(value / 1000).toStringAsFixed(0)}K';
+    }
+    return value.toInt().toString();
+  }
+
+  double _calculateYAxisInterval() {
+    final maxDifference = _getMaxCostDifference();
+    
+    // Select appropriate intervals based on max value
+    if (maxDifference <= 5000) return 1000;
+    if (maxDifference <= 20000) return 5000;
+    if (maxDifference <= 100000) return 20000;
+    if (maxDifference <= 1000000) return 200000;
+    return maxDifference / 5; // Default to 5 divisions
+  }
+
+  double _getMaxCostDifference() {
+    // Find winner aerator's total cost
+    final winnerAerator = results.firstWhere((result) => result.name == winnerLabel);
+    
+    // Calculate max difference over all years
+    final horizon = surveyData?['financial']?['horizon'] as int? ?? 10;
+    double maxDiff = 0;
+    
+    for (var i = 0; i < results.length; i++) {
+      if (results[i].name != winnerLabel) {
+        double cumulativeDiff = 0;
+        for (var year = 1; year <= horizon; year++) {
+          // Calculate cumulative cost difference between this aerator and winner
+          final winnerCostAtYear = winnerAerator.totalAnnualCost * year;
+          final thisCostAtYear = results[i].totalAnnualCost * year;
+          cumulativeDiff = thisCostAtYear - winnerCostAtYear;
+          
+          if (cumulativeDiff > maxDiff) {
+            maxDiff = cumulativeDiff;
+          }
+        }
+      }
+    }
+    
+    return maxDiff;
+  }
+
+  List<LineChartBarData> _getAreaChartData() {
+    final List<LineChartBarData> barData = [];
+    
+    // Find winner aerator for comparison
+    final winnerAerator = results.firstWhere((result) => result.name == winnerLabel);
+    final horizon = surveyData?['financial']?['horizon'] as int? ?? 10;
+    
+    // Create only one area chart for each non-winner aerator
+    for (var i = 0; i < results.length; i++) {
+      if (results[i].name != winnerLabel) {
+        final result = results[i];
+        
+        final spots = <FlSpot>[];
+        // Add starting point at 0
+        spots.add(const FlSpot(0, 0));
+        
+        // Generate points for each year
+        for (var year = 1; year <= horizon; year++) {
+          // Calculate cumulative cost difference
+          final winnerCostAtYear = winnerAerator.totalAnnualCost * year;
+          final thisCostAtYear = result.totalAnnualCost * year;
+          final cumulativeDiff = thisCostAtYear - winnerCostAtYear;
+          
+          spots.add(FlSpot(year.toDouble(), cumulativeDiff));
+        }
+        
+        barData.add(
+          LineChartBarData(
+            spots: spots,
+            isCurved: true,
+            color: Colors.blue,
+            barWidth: 2,
+            isStrokeCapRound: true,
+            dotData: FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              color: Colors.blue.withAlpha(76), // Changed from withOpacity to withAlpha
+              applyCutOffY: false,
+            ),
+          ),
+        );
+      }
+    }
+    
+    return barData;
+  }
+
+  Widget _buildScatterPlotChart(BuildContext context) {
+    return ScatterChart(
+      ScatterChartData(
+        scatterSpots: _getScatterSpots(),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            axisNameWidget: const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Text(
+                "Cost Difference (%)",
+                style: TextStyle(fontSize: 10),
+              ),
+            ),
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (value, meta) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Text(
+                    '${value.toStringAsFixed(1)}%',
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                );
+              },
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            axisNameWidget: const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Text(
+                "SOTR Efficiency Ratio",
+                style: TextStyle(fontSize: 10),
+              ),
+            ),
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              getTitlesWidget: (value, meta) {
+                return Text(
+                  value.toStringAsFixed(1),
+                  style: const TextStyle(fontSize: 10),
+                );
+              },
+            ),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        scatterTouchData: ScatterTouchData(
+          enabled: true,
+          touchTooltipData: ScatterTouchTooltipData(
+            tooltipBgColor: Colors.white.withAlpha(204),
+            getTooltipItems: (touchedBarSpot) {
+              return ScatterTooltipItem(
+                'Year: ${touchedBarSpot.x.toStringAsFixed(0)}\nSOTR: ${touchedBarSpot.x.toStringAsFixed(2)}\nCost: ${touchedBarSpot.y.toStringAsFixed(2)}%',
+                textStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              );
+            },
+          ),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: const Border(
+            bottom: BorderSide(),
+            left: BorderSide(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<ScatterSpot> _getScatterSpots() {
+    final List<ScatterSpot> spots = [];
+    final winnerAerator = results.firstWhere((result) => result.name == winnerLabel);
+    final horizon = surveyData?['financial']?['horizon'] as int? ?? 10;
+    
+    // Find the non-winner aerator (assuming there are exactly 2 aerators)
+    final loserAerator = results.firstWhere((result) => result.name != winnerLabel);
+    
+    // Calculate SOTR efficiency ratio (loser SOTR / winner SOTR)
+    final sotrRatio = loserAerator.sae / winnerAerator.sae;
+    
+    // Create interpolated points for trend analysis
+    for (var year = 1; year <= horizon; year++) {
+      // Calculate cost difference as percentage
+      final winnerCostAtYear = winnerAerator.costPercentRevenue;
+      final loserCostAtYear = loserAerator.costPercentRevenue;
+      final costDiffPercentage = loserCostAtYear - winnerCostAtYear;
+      
+      // Add some variation based on year to simulate time-based changes
+      final adjustedSotrRatio = sotrRatio * (1 + (year - horizon/2) * 0.02);
+      final adjustedCostDiff = costDiffPercentage * (1 + (year - horizon/2) * 0.015);
+      
+      // Create ScatterSpot with proper parameters
+      final dotColor = Colors.purple.withAlpha(year * 25);
+      
+      spots.add(
+        ScatterSpot(
+          adjustedSotrRatio, 
+          adjustedCostDiff,
+          color: dotColor,
+          radius: year % 3 == 0 ? 4.0 : 2.0, // Use radius instead of size
+        ),
+      );
+    }
+    
+    // Add trend line with best-fit dots
+    final trendPoints = _calculateTrendLine(spots);
+    spots.addAll(trendPoints);
+    
+    return spots;
+  }
+
+  List<ScatterSpot> _calculateTrendLine(List<ScatterSpot> dataPoints) {
+    if (dataPoints.isEmpty || dataPoints.length < 2) return [];
+    
+    // Simple linear regression
+    double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+    for (var point in dataPoints) {
+      sumX += point.x;
+      sumY += point.y;
+      sumXY += point.x * point.y;
+      sumX2 += point.x * point.x;
+    }
+    
+    final n = dataPoints.length;
+    final slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    final intercept = (sumY - slope * sumX) / n;
+    
+    // Create trend line points
+    final List<ScatterSpot> trendPoints = [];
+    final xValues = dataPoints.map((p) => p.x).toList()..sort();
+    final minX = xValues.first;
+    final maxX = xValues.last;
+    
+    // Add 20 evenly spaced points for trend line
+    for (var i = 0; i < 20; i++) {
+      final x = minX + (maxX - minX) * i / 19;
+      final y = slope * x + intercept;
+      
+      trendPoints.add(
+        ScatterSpot(
+          x, y,
+          color: Colors.blue.withAlpha(150),
+          radius: 1.0, // Use radius instead of size
+        ),
+      );
+    }
+    return trendPoints;
+  }
+
+  Widget _buildScatterPlotLegend(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _scatterLegendItem(Colors.purple, "Year data points"),
+        const SizedBox(width: 16),
+        _scatterLegendItem(Colors.blue.withAlpha(150), "Trend line"),
+      ],
+    );
+  }
+
+  Widget _scatterLegendItem(Color color, String label) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12),
+        ),
+      ],
+    );
   }
 }

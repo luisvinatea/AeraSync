@@ -401,5 +401,13 @@
   "annualCostComposition": "Composição do Custo Anual para cada opção de aerador",
   "@annualCostComposition": {
     "description": "Descrição para a composição do custo anual"
+  },
+  "costEvolutionVisualization": "Visualização da Evolução do Custo",
+  "@costEvolutionVisualization": {
+    "description": "Descrição para o cartão de visualização da evolução do custo"
+  },
+  "costEvolutionExplanation": "Evolução do custo anual para cada opção de aerador.",
+  "@costEvolutionExplanation": {
+    "description": "Descrição para a visualização da evolução do custo"
   }
 }
