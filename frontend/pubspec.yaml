@@ -17,6 +17,7 @@ dependencies:
     sdk: flutter
   url_launcher: ^6.3.1
   flutter_svg: ^2.1.0
+  fl_chart: ^0.65.0  # Added for data visualization
 
 dev_dependencies:
   flutter_test:

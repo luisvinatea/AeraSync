@@ -393,5 +393,13 @@
   "profitabilityIndexExplanation": "Cuánto devolverá un dólar extra invertido en el aerador ganador en el futuro. Un índice de rentabilidad mayor que 1 indica una inversión rentable.",
   "@profitabilityIndexExplanation": {
     "description": "Descripción para la explicación del índice de rentabilidad"
+  },
+  "costBreakdownVisualization": "Visualización del Desglose de Costos",
+  "@costBreakdownVisualization": {
+    "description": "Descripción para la tarjeta de visualización del desglose de costos"
+  },
+  "annualCostComposition": "Composición del costo anual para cada opción de aireador",
+  "@annualCostComposition": {
+    "description": "Descripción para la tarjeta de visualización del desglose de costos"
   }
 }

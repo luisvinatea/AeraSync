@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../core/services/app_state.dart';
 
 class AeratorResult {
@@ -187,6 +188,12 @@ class ResultsPage extends StatelessWidget {
                 _EquilibriumPricesCard(
                   l10n: l10n,
                   equilibriumPrices: equilibriumPrices,
+                ),
+                const SizedBox(height: 16),
+                _CostVisualizationCard(
+                  l10n: l10n,
+                  results: results,
+                  winnerLabel: winnerLabel,
                 ),
                 const SizedBox(height: 24),
                 Center(
@@ -479,7 +486,9 @@ class _AeratorComparisonCard extends StatelessWidget {
   String _formatPaybackPeriod(double paybackYears, AppLocalizations l10n,
       {bool isWinner = false}) {
     // Treat extremely large values (e.g., > 100 years) as effectively infinite
-    if (paybackYears < 0 || paybackYears == double.infinity || paybackYears > 100) {
+    if (paybackYears < 0 ||
+        paybackYears == double.infinity ||
+        paybackYears > 100) {
       if (isWinner) {
         return '< 1 ${l10n.year}';
       }
@@ -591,5 +600,286 @@ class _EquilibriumPricesCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _CostVisualizationCard extends StatelessWidget {
+  final AppLocalizations l10n;
+  final List<AeratorResult> results;
+  final String winnerLabel;
+
+  const _CostVisualizationCard({
+    required this.l10n,
+    required this.results,
+    required this.winnerLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.costBreakdownVisualization,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.annualCostComposition,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 450, // Increased height from 300 to 450
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16.0, bottom: 24.0), // Added bottom padding
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: _getMaxCost() * 1.3, // Increased headroom from 1.2 to 1.3
+                    barGroups: _getBarGroups(),
+                    titlesData: FlTitlesData(
+                      show: true,
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          getTitlesWidget: (value, meta) {
+                            // Check if the value is within our results range
+                            if (value >= 0 && value < results.length) {
+                              final name = results[value.toInt()].name;
+                              final isWinner = name == winnerLabel;
+
+                              // Display "Winner" for winner aerator and just "Other" for others
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Text(
+                                  isWinner
+                                      ? l10n.recommended
+                                      : "Less Preferred",
+                                  style: TextStyle(
+                                    color: isWinner
+                                        ? Colors.green.shade700
+                                        : const Color.fromARGB(255, 252, 7, 7),
+                                    fontWeight: isWinner
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 60, // Increased from 40 to give more space
+                          interval: _calculateYAxisInterval(), // Dynamic interval based on max value
+                          getTitlesWidget: (value, meta) {
+                            // Format values in thousands (K) with better spacing
+                            if (value % _calculateYAxisInterval() != 0) {
+                              return const SizedBox.shrink(); // Only show labels at interval points
+                            }
+                            
+                            final formattedValue = value >= 1000
+                                ? '${(value / 1000).toStringAsFixed(0)}K' // Remove decimal for cleaner display
+                                : value.toInt().toString();
+                                
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Text(
+                                '\$$formattedValue',
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 12, // Increased from 10 for better readability
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                    ),
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: false,
+                      horizontalInterval: _calculateYAxisInterval(), // Match the interval of the labels
+                    ),
+                    borderData: FlBorderData(
+                      show: true,
+                      border: const Border(
+                        bottom: BorderSide(),
+                        left: BorderSide(),
+                      ),
+                    ),
+                    barTouchData: BarTouchData(
+                      enabled: true,
+                      handleBuiltInTouches: false, // Disable built-in touch handling
+                      touchTooltipData: BarTouchTooltipData(
+                        tooltipBgColor: Colors.white.withAlpha(204), // Changed from withOpacity to withAlpha
+                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          final result = results[groupIndex];
+                          String component;
+                          double value;
+                          
+                          // Get the specific stack item that was clicked
+                          if (rodIndex < 0 || rodIndex >= rod.rodStackItems.length) {
+                            return null;
+                          }
+                          
+                          switch (rodIndex) {
+                            case 0:
+                              component = l10n.annualEnergyCostLabel;
+                              value = result.annualEnergyCost;
+                              break;
+                            case 1:
+                              component = l10n.annualMaintenanceCostLabel;
+                              value = result.annualMaintenanceCost;
+                              break;
+                            case 2:
+                              component = l10n.annualReplacementCostLabel;
+                              value = result.annualReplacementCost;
+                              break;
+                            default:
+                              return null;
+                          }
+                          
+                          return BarTooltipItem(
+                            '$component\n${ResultsPage.formatCurrencyK(value)}',
+                            const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                          );
+                        },
+                      ),
+                      touchCallback: (FlTouchEvent event, BarTouchResponse? response) {
+                        if (response == null || response.spot == null) return;
+                        
+                        // Only respond to tap down events for clicking
+                        if (event is! FlTapDownEvent) return;
+                        
+                        // We don't need to do anything with these variables since we're just using the
+                        // touch event to show tooltips. The fl_chart library will handle the tooltips.
+                        
+                        // Note: These variables were previously unused and causing lint warnings
+                        // final groupIndex = response.spot!.touchedBarGroupIndex;
+                        // final rodIndex = response.spot!.touchedRodDataIndex;
+                        // final result = results[groupIndex];
+                        // final touchedY = response.spot!.touchedStackItemIndex;
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildLegend(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegend(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _legendItem(Colors.blue.shade300, l10n.annualEnergyCostLabel),
+        const SizedBox(width: 16),
+        _legendItem(Colors.green.shade300, l10n.annualMaintenanceCostLabel),
+        const SizedBox(width: 16),
+        _legendItem(Colors.orange.shade300, l10n.annualReplacementCostLabel),
+      ],
+    );
+  }
+
+  Widget _legendItem(Color color, String label) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          color: color,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12),
+        ),
+      ],
+    );
+  }
+
+  double _getMaxCost() {
+    double maxCost = 0;
+    for (final result in results) {
+      final totalCost = result.annualEnergyCost +
+          result.annualMaintenanceCost +
+          result.annualReplacementCost;
+      if (totalCost > maxCost) {
+        maxCost = totalCost;
+      }
+    }
+    return maxCost;
+  }
+
+  List<BarChartGroupData> _getBarGroups() {
+    return List.generate(results.length, (index) {
+      final result = results[index];
+      final isWinner = result.name == winnerLabel;
+
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(
+            toY: result.annualEnergyCost +
+                result.annualMaintenanceCost +
+                result.annualReplacementCost,
+            width: 100, // Increased from 25 to 75 (3x wider)
+            borderRadius: BorderRadius.zero,
+            rodStackItems: [
+              BarChartRodStackItem(
+                  0, result.annualEnergyCost, Colors.blue.shade300),
+              BarChartRodStackItem(
+                  result.annualEnergyCost,
+                  result.annualEnergyCost + result.annualMaintenanceCost,
+                  Colors.green.shade300),
+              BarChartRodStackItem(
+                  result.annualEnergyCost + result.annualMaintenanceCost,
+                  result.annualEnergyCost +
+                      result.annualMaintenanceCost +
+                      result.annualReplacementCost,
+                  Colors.orange.shade300),
+            ],
+            borderSide: isWinner
+                ? BorderSide(color: Colors.green.shade700, width: 2)
+                : BorderSide.none,
+          ),
+        ],
+      );
+    });
+  }
+
+  double _calculateYAxisInterval() {
+    final maxCost = _getMaxCost();
+    
+    // Select an appropriate interval based on the max cost
+    if (maxCost <= 100) return 20;  
+    if (maxCost <= 500) return 100;
+    if (maxCost <= 1000) return 200;
+    if (maxCost <= 5000) return 1000;
+    if (maxCost <= 10000) return 2000;
+    if (maxCost <= 50000) return 10000;
+    if (maxCost <= 100000) return 20000;
+    return maxCost / 5; // Default to 5 divisions
   }
 }

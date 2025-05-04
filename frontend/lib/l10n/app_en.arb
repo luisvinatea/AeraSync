@@ -393,5 +393,13 @@
   "profitabilityIndexExplanation": "How much an extra dollar invested in the winner aerator will return in the future. A profitability index greater than 1 indicates a profitable investment.",
   "@profitabilityIndexExplanation": {
     "description": "Description for the profitability index explanation"
+  },
+  "costBreakdownVisualization": "Cost Breakdown Visualization",
+  "@costBreakdownVisualization": {
+    "description": "Title for the cost breakdown visualization card"
+  },
+  "annualCostComposition": "Annual cost composition for each aerator option",
+  "@annualCostComposition": {
+    "description": "Description for the cost breakdown visualization"
   }
 }
