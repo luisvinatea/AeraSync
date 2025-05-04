@@ -33,10 +33,7 @@
       property="og:description"
       content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results."
     />
-    <meta
-      property="og:image"
-      content="icons/aerasync180.webp"
-    />
+    <meta property="og:image" content="icons/aerasync180.webp" />
     <meta property="og:url" content="https://aerasync-web.vercel.app/" />
     <meta property="og:type" content="website" />
 
@@ -49,10 +46,7 @@
       name="twitter:description"
       content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results."
     />
-    <meta
-      name="twitter:image"
-      content="icons/aerasync180.webp"
-    />
+    <meta name="twitter:image" content="icons/aerasync180.webp" />
 
     <link
       rel="apple-touch-icon"
@@ -148,7 +142,10 @@
       <div class="wave-overlay"></div>
       <div class="loading">
         <picture>
-          <source srcset="https://aerasync-web.vercel.app/icons/watermark.webp" type="image/webp" />
+          <source
+            srcset="https://aerasync-web.vercel.app/icons/watermark.webp"
+            type="image/webp"
+          />
           <img
             src="https://aerasync-web.vercel.app/icons/watermark.webp"
             alt="AeraSync Logo - A stylized wave representing water and aeration"
@@ -165,118 +162,33 @@
 
     <script>
       window.addEventListener("load", function () {
-        // Initialize Flutter web with compatible API
-        let targetDiv = document.querySelector("#flutter-target");
-        let loadingScreen = document.getElementById("loading-screen");
-        // Initialize Flutter web
-        const _flutter = window.flutter_web_sdk;
+        const loadingScreen = document.getElementById("loading-screen");
 
-        // Define wave animation styles
-        const waveStyles = document.createElement('style');
-        waveStyles.textContent = `
-          @keyframes wave-move {
-            0% { transform: translateX(0) scaleY(1); }
-            50% { transform: translateX(-25%) scaleY(0.95); }
-            100% { transform: translateX(0) scaleY(1); }
-          }
-          .wave-animation {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 30%;
-            overflow: hidden;
-            z-index: 1;
-            pointer-events: none;
-            background: linear-gradient(
-              0deg,
-              rgba(96, 165, 250, 0.5) 0%,
-              rgba(255, 255, 255, 0) 100%
-            );
-          }
-          .wave-animation svg {
-            width: 100%;
-            height: auto;
-            animation: wave-move 4s ease-in-out infinite;
-          }
-        `;
-        document.head.appendChild(waveStyles);
-
-        // Update background gradient animation
-        document.getElementById('loading-screen').style.background = 'url("https://aerasync-web.vercel.app/icons/background.webp") center center no-repeat';
-        document.getElementById('loading-screen').style.backgroundSize = 'cover';
-
-        // Add gradient animation keyframes
-        const gradientStyles = document.createElement('style');
-        gradientStyles.textContent = `
-          @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-        `;
-        document.head.appendChild(gradientStyles);
-
-        // Apply gradient to logo
-        const logoImage = loadingScreen.querySelector('.app-logo');
-        if (logoImage) {
-          logoImage.style.filter = 'drop-shadow(0 0 8px rgba(96, 165, 250, 0.8))';
-          const logoContainer = document.createElement('div');
-          logoContainer.style.position = 'relative';
-          logoContainer.style.overflow = 'hidden';
-          logoContainer.style.width = '200px';
-          logoContainer.style.margin = '0 auto';
-          logoImage.parentNode.insertBefore(logoContainer, logoImage);
-          logoContainer.appendChild(logoImage);
-          
-          const overlayAnimation = document.createElement('style');
-          overlayAnimation.textContent = `
-            @keyframes gradient-shift {
-              0% { opacity: 0.4; transform: translateX(-10%); }
-              100% { opacity: 0.7; transform: translateX(10%); }
-            }
-          `;
-          document.head.appendChild(overlayAnimation);
-        }
-        // Register Service Worker for PWA capabilities
         if ("serviceWorker" in navigator) {
-          navigator.serviceWorker
-            .register("/flutter_service_worker.js")
-            .then(function (registration) {
-              console.log(
-                "Service Worker registered with scope: ",
-                registration.scope
-              );
-            })
-            .catch(function (error) {
-              console.log("Service Worker registration failed: ", error);
-            });
+          navigator.serviceWorker.register("/flutter_service_worker.js");
         }
 
-        // Use modern Flutter API with proper fallback
-        if (_flutter) {
-          _flutter.loader
-            .load()
-            .then(function (appRunner) {
-              return appRunner.runApp();
-            })
-            .then(function () {
-              hideLoadingScreen();
-            })
-            .catch(function (error) {
-              console.error("Error initializing Flutter app:", error);
-            });
-        }
-
-        function hideLoadingScreen() {
-          // Remove loading screen once Flutter app is ready
-          if (loadingScreen) {
+        _flutter.loader
+          .loadEntrypoint({
+            serviceWorker: {
+              serviceWorkerVersion: serviceWorkerVersion,
+            },
+          })
+          .then(function (engineInitializer) {
+            return engineInitializer.initializeEngine();
+          })
+          .then(function (appRunner) {
+            return appRunner.runApp();
+          })
+          .then(function () {
             loadingScreen.style.opacity = "0";
             setTimeout(function () {
               loadingScreen.style.display = "none";
             }, 500);
-          }
-        }
+          })
+          .catch(function (error) {
+            console.error("Error initializing Flutter app:", error);
+          });
       });
     </script>
   </body>
