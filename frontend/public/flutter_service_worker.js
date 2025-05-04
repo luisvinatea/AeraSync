@@ -3,15 +3,17 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"favicon.webp": "08014e88337bf135714c4cf99c4baeb1",
-"flutter_bootstrap.js": "f8fab6a26f76e62862055f2d243d7e87",
-"index.html": "e652b17832459741085abccb66c61a65",
-"/": "e652b17832459741085abccb66c61a65",
+const RESOURCES = {"favicon.webp": "c47a7f48fa95de062c07bcb4e6e76ff1",
+"flutter_bootstrap.js": "12074fd0edb5b245f0becc22cc97805b",
+"index.html": "bd31f8ea9b363b1363b999960f85b925",
+"/": "bd31f8ea9b363b1363b999960f85b925",
 "icons/aerasync180.webp": "fb66a85740a99e579915b01f94def02b",
 "icons/aerasync64.png": "4a0fe9b747bfbbdf906470938732ca25",
 "icons/aerasync.png": "76313e87c4dc958b2f5c023f69740e39",
 "icons/aerasync180.png": "1709edc36cc18d58ce33074f976a25d8",
+"icons/background.webp": "7f136cef044e916827e19d2bc074153e",
 "icons/aerasync.webp": "f6a0d6a39601a30257dade84f4ecb08d",
+"icons/watermark.webp": "194ddacc7783f40601658f6aa89584da",
 "icons/aerasync64.webp": "08014e88337bf135714c4cf99c4baeb1",
 "flutter.js": "76f08d47ff9f5715220992f993002504",
 "canvaskit/skwasm_st.js.symbols": "c7e7aac7cd8b612defd62b43e3050bdd",
@@ -27,18 +29,28 @@ const RESOURCES = {"favicon.webp": "08014e88337bf135714c4cf99c4baeb1",
 "canvaskit/chromium/canvaskit.wasm": "64a386c87532ae52ae041d18a32a3635",
 "canvaskit/skwasm.js.symbols": "80806576fa1056b43dd6d0b445b4b6f7",
 "assets/web/icons/aerasync180.webp": "fb66a85740a99e579915b01f94def02b",
+"assets/web/icons/background.webp": "7f136cef044e916827e19d2bc074153e",
 "assets/web/icons/aerasync.webp": "f6a0d6a39601a30257dade84f4ecb08d",
 "assets/web/icons/aerasync64.webp": "08014e88337bf135714c4cf99c4baeb1",
-"assets/web/manifest.json": "3a360d04b35689d16428e621dbea3375",
+"assets/web/assets/wave.svg": "5516c44a9fbdc7d8d6bedbc1385a65c3",
+"assets/web/fonts/NotoSerif-Black.ttf": "4c3a3d4839b80e97610b7f175956c2be",
+"assets/web/fonts/NotoSerif-BoldItalic.ttf": "91d0e6f48c74a826f00cf9be25f55be1",
+"assets/web/fonts/NotoSerif-BlackItalic.ttf": "dc79f1ec7faafb84ae8fde2f03f41d28",
+"assets/web/fonts/NotoSerif-Bold.ttf": "619d81e0d70ea90db309b131ebc52ede",
 "assets/wave.svg": "5516c44a9fbdc7d8d6bedbc1385a65c3",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
-"assets/AssetManifest.bin": "6db251e7a02552b3e4f8a52598c14ace",
-"assets/AssetManifest.bin.json": "1be28668ec13fb96bc225228ff353933",
-"assets/NOTICES": "6334303bf637e911d6eee3e24b96f9ac",
-"assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
-"assets/fonts/MaterialIcons-Regular.otf": "f15ae4e2c03f16b2adb4f4c72d9aa939",
-"assets/AssetManifest.json": "34b1707a3c71eae02f0f14caf4aa6580",
-"main.dart.js": "893638b586308151feb1258bafecb6eb",
+"assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "33b7d9392238c04c131b6ce224e13711",
+"assets/AssetManifest.bin": "da480c1895ac8209b4db7bf29987c665",
+"assets/AssetManifest.bin.json": "e42cbaaa41fc368269647c9416a18dda",
+"assets/NOTICES": "678d39cec484cee2a0864d4ce45a2f29",
+"assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
+"assets/fonts/MaterialIcons-Regular.otf": "bc501f7741968bb48fa58fe75f3c5b03",
+"assets/AssetManifest.json": "b841aea8e2b0a6caef1d9a0b8156baf7",
+"main.dart.js": "fcabf88f96ff41448eb01d636803ff1a",
+"fonts/NotoSerif-Black.ttf": "4c3a3d4839b80e97610b7f175956c2be",
+"fonts/NotoSerif-BoldItalic.ttf": "91d0e6f48c74a826f00cf9be25f55be1",
+"fonts/NotoSerif-BlackItalic.ttf": "dc79f1ec7faafb84ae8fde2f03f41d28",
+"fonts/NotoSerif-Bold.ttf": "619d81e0d70ea90db309b131ebc52ede",
 "manifest.json": "3a360d04b35689d16428e621dbea3375",
 "version.json": "dcbfb966ebfd8b4b032c9107c204633a",
 "privacy.html": "c0dc0fee494b0d25aeab233dca23530b"};
@@ -135,31 +147,9 @@ self.addEventListener("fetch", (event) => {
   if (event.request.url == origin || event.request.url.startsWith(origin + '/#') || key == '') {
     key = '/';
   }
-
-  // If the URL contains a fragment, this can cause issues with router
-  if (key.indexOf('#') !== -1) {
-    key = key.split('#')[0];
-  }
-
-  // Handle API requests - don't try to load from cache
-  if (key.startsWith('api/') || event.request.url.includes('aerasync-api.vercel.app')) {
-    return;
-  }
-
   // If the URL is not the RESOURCE list then return to signal that the
   // browser should take over.
   if (!RESOURCES[key]) {
-    // For navigation requests, try to serve index.html from cache
-    // If not available, fetch it
-    if (event.request.mode === 'navigate') {
-      return caches.match('/').then((response) => {
-        if (response) {
-          return response;
-        }
-        // If we don't have the index page cached, fetch it
-        return fetch(event.request).catch(() => caches.match('/'));
-      });
-    }
     return;
   }
   // If the URL is the index.html, perform an online-first request.

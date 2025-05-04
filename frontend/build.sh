@@ -21,21 +21,22 @@ fi
 echo "Flutter version:"
 flutter --version
 
-# Ensure Flutter dependencies are up-to-date
-echo "Updating dependencies..."
-flutter pub get
 
 # Clean previous builds
 echo "Cleaning previous builds..."
 rm -rf build
 
+# Ensure Flutter dependencies are up-to-date
+echo "Updating dependencies..."
+flutter pub get
+
+# Generate localization files
+echo "Generating localization files..."
+flutter gen-l10n
+
 # Build the app with optimizations
 echo "Building web app with optimizations..."
-flutter build web \
-  --release \
-  --web-renderer canvaskit \
-  --dart-define=FLUTTER_WEB_CANVASKIT_URL=/canvaskit/ \
-  --pwa-strategy offline-first
+flutter build web --release 
 
 # Check if the build was successful
 if [ ! -d "build/web" ]; then
