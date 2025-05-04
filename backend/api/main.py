@@ -19,6 +19,8 @@ if not cors_origins or cors_origins == [""]:
     cors_origins = [
         "http://127.0.0.1:8080",  # Local Flutter dev
         "http://localhost:8080",  # Alternative localhost
+        "http://127.0.0.1:*",  # Cover any local port
+        "http://localhost:*",  # Cover any local port
         "https://aerasync-web.vercel.app",  # Production URL
         "https://aerasync-web-devinatea.vercel.app",  # Development URL
     ]
@@ -26,16 +28,16 @@ if not cors_origins or cors_origins == [""]:
 # Configure CORS with appropriate preflight handling
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=["*"],  # Allow all origins temporarily for debugging
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],  # Added OPTIONS for preflight
-    allow_headers=["Content-Type"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],  # Allow all headers for debugging
     max_age=86400,  # Cache preflight responses for 24 hours
 )
 
 
 @app.options("/{path:path}")
-async def options_handler(request: Request, _: str):
+async def options_handler(request: Request, _path: str):
     """
     Handle OPTIONS preflight requests with proper CORS headers.
     """
@@ -44,7 +46,7 @@ async def options_handler(request: Request, _: str):
         headers={
             "Access-Control-Allow-Origin": request.headers.get("Origin", "*"),
             "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Headers": "*",  # Allow all headers
             "Access-Control-Max-Age": "86400",
         },
     )

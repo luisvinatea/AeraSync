@@ -3,17 +3,27 @@
   "framework": null,
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "api/main.py"
+    },
+    {
       "src": "/(.*)",
       "dest": "api/main.py",
+      "methods": ["OPTIONS"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Max-Age": "86400"
       }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "api/main.py"
     }
   ],
   "env": {
-    "CORS_ORIGINS": "https://aerasync-web.vercel.app"
+    "CORS_ORIGINS": "https://aerasync-web.vercel.app,http://localhost:37897,http://localhost:*,http://127.0.0.1:*"
   },
   "builds": [
     {

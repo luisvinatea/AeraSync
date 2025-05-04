@@ -62,8 +62,6 @@
       // Dynamically adjust the base href if needed
       (function () {
         var pathname = window.location.pathname;
-        // Set the Flutter Web Renderer
-        window.flutterWebRenderer = "canvaskit";
       })();
 
       // The value below is injected by flutter build, do not touch.
@@ -175,7 +173,10 @@
             },
           })
           .then(function (engineInitializer) {
-            return engineInitializer.initializeEngine();
+            // Use the new API with proper config instead of window.flutterWebRenderer
+            return engineInitializer.initializeEngine({
+              renderer: "canvaskit", // Explicitly set renderer here
+            });
           })
           .then(function (appRunner) {
             return appRunner.runApp();
