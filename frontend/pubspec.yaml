@@ -31,4 +31,7 @@ flutter:
     - web/icons/aerasync64.webp
     - web/icons/aerasync180.webp
     - web/icons/aerasync.webp
+    - web/icons/background.webp
+    - web/favicon.webp
     - web/manifest.json
+    - web/assets/wave.svg
