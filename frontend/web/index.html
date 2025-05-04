@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <base href="$FLUTTER_BASE_HREF" />
+    <!-- Change base href to always work with any path -->
+    <base href="/" />
 
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -56,12 +57,38 @@
     <title>AeraSync - Shrimp Farm Aerator Comparison</title>
     <link rel="manifest" href="manifest.json" />
 
+    <!-- Fix resource loading -->
     <script>
+      // Dynamically adjust the base href if needed
+      (function () {
+        // Get the path segments and adjust base if needed
+        var pathSegments = window.location.pathname.split("/");
+        if (pathSegments.length > 2) {
+          // If we're in a deeper path, adjust as needed
+          var baseElement = document.querySelector("base");
+          if (baseElement) {
+            var basePath = window.location.pathname.endsWith("/")
+              ? window.location.pathname
+              : window.location.pathname + "/";
+            baseElement.href = basePath;
+          }
+        }
+      })();
+
+      // Required Flutter web configuration
+      window._flutter = {
+        loader: {},
+        buildConfig: {
+          renderer: "canvaskit",
+          canvasKitBaseUrl: "/canvaskit/",
+        },
+      };
+
       // The value below is injected by flutter build, do not touch.
-      // Used {{flutter_service_worker_version}} template token as recommended
       var serviceWorkerVersion = "{{flutter_service_worker_version}}";
     </script>
-    <!-- This script adds the flutter initialization JS code -->
+
+    <link rel="preload" href="flutter.js" as="script" />
     <script src="flutter.js" defer></script>
 
     <style>
@@ -112,6 +139,11 @@
           rgba(255, 255, 255, 0) 100%
         );
       }
+      #flutter-target {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
       .app-logo {
         width: 200px;
         height: auto;
@@ -141,9 +173,14 @@
       </div>
     </div>
 
+    <div id="flutter-target"></div>
+
     <script>
-      window.addEventListener("load", function (ev) {
-        // Using updated Flutter.load() method instead of loadEntrypoint
+      window.addEventListener("load", function () {
+        const loadingScreen = document.getElementById("loading-screen");
+        const flutterTarget = document.getElementById("flutter-target");
+
+        // Initialize Flutter using the modern API
         _flutter.loader
           .load({
             serviceWorker: {
@@ -151,20 +188,24 @@
             },
           })
           .then(function (engineInitializer) {
-            return engineInitializer.initializeEngine();
+            return engineInitializer.initializeEngine({
+              hostElement: flutterTarget,
+            });
           })
           .then(function (appRunner) {
             return appRunner.runApp();
           })
           .then(function () {
-            // Hide loading screen
-            const loadingScreen = document.getElementById("loading-screen");
-            if (loadingScreen) {
+            // Hide loading screen when app is ready
+            setTimeout(function () {
               loadingScreen.style.opacity = "0";
               setTimeout(function () {
                 loadingScreen.style.display = "none";
               }, 500);
-            }
+            }, 100);
+          })
+          .catch(function (error) {
+            console.error("Failed to initialize Flutter: ", error);
           });
       });
     </script>
