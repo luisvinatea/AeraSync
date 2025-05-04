@@ -189,7 +189,7 @@ $$
 
 ### Aerator Specifications and Calculated Metrics
 
-| Parameter                             | Aireador 1          | Aireador 2 (Ganador) | Unit / Notes                  |
+| Parameter                             | Aerator 1          | Aireator 2 (Winner) | Unit / Notes                  |
 | :------------------------------------ | :------------------ | :------------------- | :---------------------------- |
 | **Technical Specs** |                     |                      |                               |
 | SOTR                                  | 1.9                 | 3.5                  | kg O$_2$/hr                   |
