@@ -200,7 +200,6 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
 
       final appState = Provider.of<AppState>(context, listen: false);
       final l10n = AppLocalizations.of(context)!;
-      final navigator = Navigator.of(context);
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       // Format data according to API expectations
@@ -256,17 +255,12 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
         await appState.compareAerators(surveyData);
         developer.log('CompareAerators completed successfully');
 
-        if (!context.mounted) return;
-
-        // Explicitly navigate to results page after api call is successful
-        await Future.delayed(const Duration(milliseconds: 200));
+        // Navigation is now handled automatically by AppState
+        // No need to manually navigate here
 
         if (!context.mounted) return;
 
-        // Use pushReplacementNamed to replace current route with results page
-        navigator.pushReplacementNamed('/results');
-
-        // Show success message after navigation is triggered
+        // Show success message
         scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(l10n.surveySubmissionSuccessful),

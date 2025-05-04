@@ -4,6 +4,9 @@ import 'api_service.dart';
 import 'dart:math';
 
 class AppState extends ChangeNotifier {
+  // Static GlobalKey for navigation
+  static final navigatorKey = GlobalKey<NavigatorState>();
+
   // API service
   final ApiService _apiService;
 
@@ -142,12 +145,29 @@ class AppState extends ChangeNotifier {
     _apiResults = results;
     _resultsAvailable = true;
     notifyListeners();
+
+    // Navigate to results page automatically
+    _navigateToResults();
   }
 
   void clearResults() {
     _apiResults = null;
     _resultsAvailable = false;
     notifyListeners();
+  }
+
+  // Navigate to results page
+  void _navigateToResults() {
+    if (_resultsAvailable && navigatorKey.currentState != null) {
+      navigatorKey.currentState!.pushReplacementNamed('/results');
+    }
+  }
+
+  // Navigate to survey page
+  void navigateToSurvey() {
+    if (navigatorKey.currentState != null) {
+      navigatorKey.currentState!.pushReplacementNamed('/survey');
+    }
   }
 
   // Compare aerators
@@ -158,6 +178,9 @@ class AppState extends ChangeNotifier {
       _apiResults = await _apiService.compareAerators(normalizedData);
       _resultsAvailable = true;
       notifyListeners();
+
+      // Navigate to results page automatically
+      _navigateToResults();
     } catch (e) {
       if (e.toString().contains('SocketException') ||
           e.toString().contains('TimeoutException')) {
@@ -178,16 +201,21 @@ class AppState extends ChangeNotifier {
         'farm_area_ha': _ensurePositiveDouble(data['farm']['farm_area_ha']),
         'shrimp_price': _ensurePositiveDouble(data['farm']['shrimp_price']),
         'culture_days': _ensurePositiveDouble(data['farm']['culture_days']),
-        'shrimp_density_kg_m3': _ensurePositiveDouble(data['farm']['shrimp_density_kg_m3']),
+        'shrimp_density_kg_m3':
+            _ensurePositiveDouble(data['farm']['shrimp_density_kg_m3']),
         'pond_depth_m': _ensurePositiveDouble(data['farm']['pond_depth_m']),
       },
       'financial': {
         'energy_cost': _ensurePositiveDouble(data['financial']['energy_cost']),
-        'hours_per_night': _ensurePositiveDouble(data['financial']['hours_per_night']),
-        'discount_rate': _ensurePositiveDouble(data['financial']['discount_rate']),
-        'inflation_rate': _ensurePositiveDouble(data['financial']['inflation_rate']),
+        'hours_per_night':
+            _ensurePositiveDouble(data['financial']['hours_per_night']),
+        'discount_rate':
+            _ensurePositiveDouble(data['financial']['discount_rate']),
+        'inflation_rate':
+            _ensurePositiveDouble(data['financial']['inflation_rate']),
         'horizon': _ensurePositiveInt(data['financial']['horizon']),
-        'safety_margin': _ensureNonNegativeDouble(data['financial']['safety_margin']),
+        'safety_margin':
+            _ensureNonNegativeDouble(data['financial']['safety_margin']),
         'temperature': _ensurePositiveDouble(data['financial']['temperature']),
       },
       'aerators': [],

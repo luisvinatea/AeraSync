@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Change base href to always work with any path -->
-    <base href="/" />
+    <base href="$FLUTTER_BASE_HREF" />
 
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -57,29 +56,11 @@
     <title>AeraSync - Shrimp Farm Aerator Comparison</title>
     <link rel="manifest" href="manifest.json" />
 
-    <!-- Fix resource loading -->
     <script>
-      // Dynamically adjust the base href if needed
-      (function () {
-        // Get the path segments and adjust base if needed
-        var pathSegments = window.location.pathname.split('/');
-        if (pathSegments.length > 2) {
-          // If we're in a deeper path, adjust as needed
-          var baseElement = document.querySelector('base');
-          if (baseElement) {
-            var basePath = window.location.pathname.endsWith('/') 
-              ? window.location.pathname 
-              : window.location.pathname + '/';
-            baseElement.href = basePath;
-          }
-        }
-      })();
-
       // The value below is injected by flutter build, do not touch.
       var serviceWorkerVersion = null;
     </script>
-
-    <link rel="preload" href="flutter.js" as="script" />
+    <!-- This script adds the flutter initialization JS code -->
     <script src="flutter.js" defer></script>
 
     <style>
@@ -130,11 +111,6 @@
           rgba(255, 255, 255, 0) 100%
         );
       }
-      #flutter-target {
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-      }
       .app-logo {
         width: 200px;
         height: auto;
@@ -151,10 +127,7 @@
       <div class="wave-overlay"></div>
       <div class="loading">
         <picture>
-          <source
-            srcset="icons/aerasync.webp"
-            type="image/webp"
-          />
+          <source srcset="icons/aerasync.webp" type="image/webp" />
           <img
             src="icons/aerasync.webp"
             alt="AeraSync Logo - A stylized wave representing water and aeration"
@@ -167,75 +140,27 @@
       </div>
     </div>
 
-    <div id="flutter-target"></div>
-
     <script>
-      window.addEventListener("load", function () {
-        const loadingScreen = document.getElementById("loading-screen");
+      window.addEventListener("load", function (ev) {
+        // Download main.dart.js
+        _flutter.loader.loadEntrypoint({
+          serviceWorker: {
+            serviceWorkerVersion: serviceWorkerVersion,
+          },
+          onEntrypointLoaded: function (engineInitializer) {
+            engineInitializer.initializeEngine().then(function (appRunner) {
+              appRunner.runApp();
 
-        // Service worker registration
-        if ("serviceWorker" in navigator) {
-          window.addEventListener('flutter-first-frame', function() {
-            navigator.serviceWorker.register('flutter_service_worker.js');
-          });
-        }
-
-        // Initialize Flutter Web
-        var scriptLoaded = false;
-        function loadMainDartJs() {
-          if (scriptLoaded) {
-            return;
-          }
-          scriptLoaded = true;
-          
-          var scriptTag = document.createElement('script');
-          scriptTag.src = 'main.dart.js';
-          scriptTag.type = 'application/javascript';
-          document.body.append(scriptTag);
-        }
-
-        if ('serviceWorker' in navigator) {
-          // Service worker URLs are scoped to the base URL.
-          var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
-          
-          navigator.serviceWorker.register(serviceWorkerUrl)
-            .then((reg) => {
-              function waitForActivation(serviceWorker) {
-                serviceWorker.addEventListener('statechange', () => {
-                  if (serviceWorker.state == 'activated') {
-                    console.log('Installed new service worker.');
-                    loadMainDartJs();
-                  }
-                });
-              }
-              if (!reg.active && (reg.installing || reg.waiting)) {
-                // Handle new service workers
-                waitForActivation(reg.installing || reg.waiting);
-              } else if (!reg.active.scriptURL.endsWith(serviceWorkerVersion)) {
-                // Handle service worker update
-                console.log('New service worker available.');
-                reg.update();
-                waitForActivation(reg.installing);
-              } else {
-                // Registration successful
-                console.log('Service worker registered for flutter.');
-                loadMainDartJs();
+              // Hide loading screen
+              const loadingScreen = document.getElementById("loading-screen");
+              if (loadingScreen) {
+                loadingScreen.style.opacity = "0";
+                setTimeout(function () {
+                  loadingScreen.style.display = "none";
+                }, 500);
               }
             });
-        } else {
-          // Service workers not available
-          loadMainDartJs();
-        }
-
-        // Initialize Flutter engine
-        window.addEventListener('flutter-initialized', function(e) {
-          // Initialize Flutter app once loaded
-          setTimeout(function() {
-            loadingScreen.style.opacity = '0';
-            setTimeout(function() {
-              loadingScreen.style.display = 'none';
-            }, 500);
-          }, 100);
+          },
         });
       });
     </script>
