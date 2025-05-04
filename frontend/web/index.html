@@ -61,11 +61,22 @@
     <script>
       // Dynamically adjust the base href if needed
       (function () {
-        var pathname = window.location.pathname;
+        // Get the path segments and adjust base if needed
+        var pathSegments = window.location.pathname.split('/');
+        if (pathSegments.length > 2) {
+          // If we're in a deeper path, adjust as needed
+          var baseElement = document.querySelector('base');
+          if (baseElement) {
+            var basePath = window.location.pathname.endsWith('/') 
+              ? window.location.pathname 
+              : window.location.pathname + '/';
+            baseElement.href = basePath;
+          }
+        }
       })();
 
       // The value below is injected by flutter build, do not touch.
-      const serviceWorkerVersion = "{{flutter_service_worker_version}}";
+      var serviceWorkerVersion = null;
     </script>
 
     <link rel="preload" href="flutter.js" as="script" />
@@ -141,11 +152,11 @@
       <div class="loading">
         <picture>
           <source
-            srcset="https://aerasync-web.vercel.app/icons/aerasync.webp"
+            srcset="icons/aerasync.webp"
             type="image/webp"
           />
           <img
-            src="https://aerasync-web.vercel.app/icons/aerasync.webp"
+            src="icons/aerasync.webp"
             alt="AeraSync Logo - A stylized wave representing water and aeration"
             class="app-logo"
             loading="lazy"
@@ -162,34 +173,70 @@
       window.addEventListener("load", function () {
         const loadingScreen = document.getElementById("loading-screen");
 
+        // Service worker registration
         if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.register("/flutter_service_worker.js");
+          window.addEventListener('flutter-first-frame', function() {
+            navigator.serviceWorker.register('flutter_service_worker.js');
+          });
         }
 
-        _flutter.loader
-          .loadEntrypoint({
-            serviceWorker: {
-              serviceWorkerVersion: serviceWorkerVersion,
-            },
-          })
-          .then(function (engineInitializer) {
-            // Use the new API with proper config instead of window.flutterWebRenderer
-            return engineInitializer.initializeEngine({
-              renderer: "canvaskit", // Explicitly set renderer here
+        // Initialize Flutter Web
+        var scriptLoaded = false;
+        function loadMainDartJs() {
+          if (scriptLoaded) {
+            return;
+          }
+          scriptLoaded = true;
+          
+          var scriptTag = document.createElement('script');
+          scriptTag.src = 'main.dart.js';
+          scriptTag.type = 'application/javascript';
+          document.body.append(scriptTag);
+        }
+
+        if ('serviceWorker' in navigator) {
+          // Service worker URLs are scoped to the base URL.
+          var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
+          
+          navigator.serviceWorker.register(serviceWorkerUrl)
+            .then((reg) => {
+              function waitForActivation(serviceWorker) {
+                serviceWorker.addEventListener('statechange', () => {
+                  if (serviceWorker.state == 'activated') {
+                    console.log('Installed new service worker.');
+                    loadMainDartJs();
+                  }
+                });
+              }
+              if (!reg.active && (reg.installing || reg.waiting)) {
+                // Handle new service workers
+                waitForActivation(reg.installing || reg.waiting);
+              } else if (!reg.active.scriptURL.endsWith(serviceWorkerVersion)) {
+                // Handle service worker update
+                console.log('New service worker available.');
+                reg.update();
+                waitForActivation(reg.installing);
+              } else {
+                // Registration successful
+                console.log('Service worker registered for flutter.');
+                loadMainDartJs();
+              }
             });
-          })
-          .then(function (appRunner) {
-            return appRunner.runApp();
-          })
-          .then(function () {
-            loadingScreen.style.opacity = "0";
-            setTimeout(function () {
-              loadingScreen.style.display = "none";
+        } else {
+          // Service workers not available
+          loadMainDartJs();
+        }
+
+        // Initialize Flutter engine
+        window.addEventListener('flutter-initialized', function(e) {
+          // Initialize Flutter app once loaded
+          setTimeout(function() {
+            loadingScreen.style.opacity = '0';
+            setTimeout(function() {
+              loadingScreen.style.display = 'none';
             }, 500);
-          })
-          .catch(function (error) {
-            console.error("Error initializing Flutter app:", error);
-          });
+          }, 100);
+        });
       });
     </script>
   </body>
