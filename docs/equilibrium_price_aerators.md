@@ -195,7 +195,7 @@ $$
 | SOTR                                  | 1.9                 | 3.5                  | kg O$_2$/hr                   |
 | Power                                 | 3                   | 3                    | HP                            |
 | Power (kW)                            | 2.238               | 2.238                | kW                            |
-| OTR$_T$ (@ 31.5°C)                     | 1.26                | 2.33                 | kg O$_2$/hr (Script Rounded) |
+| OTR$_T$ (@ 31.5°C)                     | 1.26                | 2.33                 | kg O$_2$/hr |
 | SAE                                   | 0.85                | 1.56                 | kg O$_2$/kWh                 |
 | **Unit Costs & Durability** |                     |                      |                               |
 | Cost per Unit                         | \$700               | \$900                | USD                           |
