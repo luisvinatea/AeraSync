@@ -24,22 +24,6 @@
   "@retry": {
     "description": "Button to retry API health check"
   },
-  "dataDisclosure": "Data Disclosure",
-  "@dataDisclosure": {
-    "description": "Title for the data disclosure popup"
-  },
-  "dataDisclosureMessage": "We collect anonymous usage data to improve the app.",
-  "@dataDisclosureMessage": {
-    "description": "Message explaining data collection in the disclosure popup"
-  },
-  "agree": "Agree",
-  "@agree": {
-    "description": "Label for the agree button in the disclosure popup"
-  },
-  "learnMore": "Learn More",
-  "@learnMore": {
-    "description": "Label for the learn more link in the disclosure popup"
-  },
   "error": "Error",
   "@error": {
     "description": "Label for error messages"
@@ -76,225 +60,89 @@
   "@submit": {
     "description": "Label for the submit button to process the survey"
   },
-  "farmFinancialDetails": "Farm & Financial Details",
-  "@farmFinancialDetails": {
-    "description": "Title for the farm and financial details section"
-  },
   "aerator": "Aerator",
   "@aerator": {
     "description": "Label for the aerator section"
-  },
-  "totalOxygenDemand": "Total Oxygen Demand",
-  "@totalOxygenDemand": {
-    "description": "Label for the total oxygen demand input field"
-  },
-  "farmArea": "Farm Area",
-  "@farmArea": {
-    "description": "Label for the farm area input field"
-  },
-  "energyCost": "Electricity Cost",
-  "@energyCost": {
-    "description": "Label for the electricity cost input field"
-  },
-  "operatingHours": "Operating Hours",
-  "@operatingHours": {
-    "description": "Label for the operating hours input field"
-  },
-  "discountRate": "Discount Rate",
-  "@discountRate": {
-    "description": "Label for the discount rate input field"
-  },
-  "inflationRate": "Inflation Rate",
-  "@inflationRate": {
-    "description": "Label for the inflation rate input field"
-  },
-  "analysisHorizon": "Analysis Years",
-  "@analysisHorizon": {
-    "description": "Label for the analysis horizon input field"
-  },
-  "safetyMargin": "Safety Margin",
-  "@safetyMargin": {
-    "description": "Label for the safety margin input field"
-  },
-  "name": "Name",
-  "@name": {
-    "description": "Label for the name input field"
-  },
-  "horsepower": "Power",
-  "@horsepower": {
-    "description": "Label for the horsepower input field"
-  },
-  "sotr": "Standard Oxygen Transfer Rate",
-  "@sotr": {
-    "description": "Label for the Standard Oxygen Transfer Rate input field"
-  },
-  "cost": "Cost",
-  "@cost": {
-    "description": "Label for the cost input field"
-  },
-  "durability": "Durability",
-  "@durability": {
-    "description": "Label for the durability input field"
-  },
-  "maintenanceCost": "Maintenance Cost",
-  "@maintenanceCost": {
-    "description": "Label for the maintenance cost input field"
-  },
-  "addAerator": "Add Aerator",
-  "@addAerator": {
-    "description": "Label for the button to add a new aerator"
   },
   "nameLabel": "Aerator Name",
   "@nameLabel": {
     "description": "Label for the aerator name input field"
   },
-  "nameTooltip": "Unique name for the aerator",
-  "@nameTooltip": {
-    "description": "Tooltip for the aerator name input field"
-  },
   "horsepowerLabel": "Horsepower (hp)",
   "@horsepowerLabel": {
     "description": "Label for the power rating of the aerator in horsepower"
-  },
-  "horsepowerTooltip": "Power rating of the aerator in horsepower (0.1 to 100)",
-  "@horsepowerTooltip": {
-    "description": "Tooltip for the aerator horsepower input field"
   },
   "sotrLabel": "SOTR (kg O₂/h)",
   "@sotrLabel": {
     "description": "Label for the Standard Oxygen Transfer Rate of the aerator in kg O₂ per hour"
   },
-  "sotrTooltip": "Standard Oxygen Transfer Rate per hour (0.1 to 10)",
-  "@sotrTooltip": {
-    "description": "Tooltip for the SOTR input field"
-  },
   "priceLabel": "Price (USD)",
   "@priceLabel": {
     "description": "Label for the aerator price input field"
-  },
-  "priceAeratorTooltip": "Initial purchase cost of the aerator in USD (0 to 10000)",
-  "@priceAeratorTooltip": {
-    "description": "Tooltip for the aerator price input field"
   },
   "durabilityLabel": "Durability (years)",
   "@durabilityLabel": {
     "description": "Label for the aerator durability input field"
   },
-  "durabilityAeratorTooltip": "Expected lifespan of the aerator in years (0.1 to 20)",
-  "@durabilityAeratorTooltip": {
-    "description": "Tooltip for the aerator durability input field"
-  },
   "maintenanceCostLabel": "Annual Maintenance Cost (USD)",
   "@maintenanceCostLabel": {
     "description": "Label for the aerator maintenance cost input field"
-  },
-  "maintenanceCostAeratorTooltip": "Annual maintenance cost of the aerator in USD (0 to 1000)",
-  "@maintenanceCostAeratorTooltip": {
-    "description": "Tooltip for the aerator maintenance cost input field"
   },
   "farmAreaLabel": "Total Farm Area (ha)",
   "@farmAreaLabel": {
     "description": "Label for the farm area input field"
   },
-  "farmAreaTooltip": "Total area of the farm in hectares (0.1 to 100000)",
-  "@farmAreaTooltip": {
-    "description": "Tooltip for the farm area input field"
+  "totalOxygenDemand": "Total Oxygen Demand",
+  "@totalOxygenDemand": {
+    "description": "Label for the total oxygen demand input field"
   },
-  "waterTemperatureLabel": "Water Temperature (°C)",
-  "@waterTemperatureLabel": {
-    "description": "Label for the water temperature input field"
-  },
-  "waterTemperatureTooltip": "Average water temperature in Celsius (0 to 40)",
-  "@waterTemperatureTooltip": {
-    "description": "Tooltip for the water temperature input field"
-  },
-  "salinityLabel": "Salinity (ppt)",
-  "@salinityLabel": {
-    "description": "Label for the water salinity input field"
-  },
-  "salinityTooltip": "Water salinity in parts per thousand (0 to 40)",
-  "@salinityTooltip": {
-    "description": "Tooltip for the water salinity input field"
+  "todLabel": "Total Oxygen Demand (kg O₂/ha)",
+  "@todLabel": {
+    "description": "Label for the total oxygen demand input field"
   },
   "pondDepthLabel": "Pond Depth (m)",
   "@pondDepthLabel": {
     "description": "Label for the depth of the pond in meters"
   },
-  "pondDepthTooltip": "Average depth of the ponds in meters (0.5 to 5)",
-  "@pondDepthTooltip": {
-    "description": "Tooltip for the pond depth input field"
-  },
-  "averageShrimpWeightLabel": "Average Shrimp Weight (g)",
-  "@averageShrimpWeightLabel": {
-    "description": "Label for the average shrimp weight input field"
-  },
-  "averageShrimpWeightTooltip": "Average weight of shrimp in grams (0 to 50)",
-  "@averageShrimpWeightTooltip": {
-    "description": "Tooltip for the average shrimp weight input field"
-  },
-  "shrimpBiomassLabel": "Shrimp Biomass (kg/ha)",
-  "@shrimpBiomassLabel": {
-    "description": "Label for the shrimp biomass input field"
-  },
-  "shrimpBiomassTooltip": "Biomass of shrimp per hectare (0 to 100000)",
-  "@shrimpBiomassTooltip": {
-    "description": "Tooltip for the shrimp biomass input field"
-  },
-  "safetyMarginLabel": "Safety Margin (%)",
-  "@safetyMarginLabel": {
-    "description": "Label for the safety margin input field"
-  },
-  "safetyMarginTooltip": "Safety margin for calculations (0 to 100)",
-  "@safetyMarginTooltip": {
-    "description": "Tooltip for the safety margin input field"
-  },
   "shrimpPriceLabel": "Shrimp Price (USD/kg)",
   "@shrimpPriceLabel": {
     "description": "Label for the shrimp price input field"
   },
-  "shrimpPriceTooltip": "Market price of shrimp per kilogram (0.1 to 50)",
-  "@shrimpPriceTooltip": {
-    "description": "Tooltip for the shrimp price input field"
+  "cultureDaysLabel": "Culture Days",
+  "@cultureDaysLabel": {
+    "description": "Label for the culture days input field"
   },
-  "electricityCostLabel": "Electricity Cost (USD/kWh)",
-  "@electricityCostLabel": {
-    "description": "Label for the cost of electricity per kilowatt-hour in USD"
+  "shrimpDensityLabel": "Shrimp Density",
+  "@shrimpDensityLabel": {
+    "description": "Label for the shrimp density input field"
   },
-  "electricityCostTooltip": "Cost of electricity per kilowatt-hour (0 to 1)",
-  "@electricityCostTooltip": {
-    "description": "Tooltip for the electricity cost input field"
+  "energyCostLabel": "Energy Cost (USD/kWh)",
+  "@energyCostLabel": {
+    "description": "Label for the energy cost input field in USD"
   },
-  "operatingHoursLabel": "Operating Hours per Year",
-  "@operatingHoursLabel": {
-    "description": "Label for the total hours aerators run per year"
-  },
-  "operatingHoursTooltip": "Total hours aerators run per year (0 to 8760)",
-  "@operatingHoursTooltip": {
-    "description": "Tooltip for the aerator operating hours input field"
+  "hoursPerNightLabel": "Hours per Night",
+  "@hoursPerNightLabel": {
+    "description": "Label for the hours per night input field"
   },
   "discountRateLabel": "Discount Rate (%)",
   "@discountRateLabel": {
     "description": "Label for the discount rate input field"
   },
-  "discountRateTooltip": "Discount rate for financial calculations (0 to 100)",
-  "@discountRateTooltip": {
-    "description": "Tooltip for the discount rate input field"
-  },
   "inflationRateLabel": "Inflation Rate (%)",
   "@inflationRateLabel": {
     "description": "Label for the inflation rate input field"
-  },
-  "inflationRateTooltip": "Annual inflation rate (0 to 100)",
-  "@inflationRateTooltip": {
-    "description": "Tooltip for the inflation rate input field"
   },
   "analysisHorizonLabel": "Analysis Horizon (years)",
   "@analysisHorizonLabel": {
     "description": "Label for the analysis horizon input field"
   },
-  "analysisHorizonTooltip": "Time period for financial analysis (1 to 50)",
-  "@analysisHorizonTooltip": {
-    "description": "Tooltip for the analysis horizon input field"
+  "safetyMarginLabel": "Safety Margin (%)",
+  "@safetyMarginLabel": {
+    "description": "Label for the safety margin input field"
+  },
+  "temperatureLabel": "Water Temperature",
+  "@temperatureLabel": {
+    "description": "Label for the water temperature input field"
   },
   "requiredField": "This field is required",
   "@requiredField": {
@@ -309,11 +157,9 @@
     "description": "Validation message for input out of range",
     "placeholders": {
       "min": {
-        "type": "String",
         "example": "0"
       },
       "max": {
-        "type": "String",
         "example": "100"
       }
     }
@@ -323,25 +169,15 @@
     "description": "Validation message for minimum value input",
     "placeholders": {
       "value": {
-        "type": "String",
         "example": "0"
       }
     }
-  },
-  "optionalField": "Optional",
-  "@optionalField": {
-    "description": "Label for optional input fields"
-  },
-  "minimumAeratorsError": "At least two aerators are required",
-  "@minimumAeratorsError": {
-    "description": "Error message when fewer than two aerators are provided"
   },
   "submissionFailed": "Failed to submit survey: {error}",
   "@submissionFailed": {
     "description": "Error message when survey submission fails",
     "placeholders": {
       "error": {
-        "type": "String",
         "example": "Network error"
       }
     }
@@ -402,9 +238,9 @@
   "@annualMaintenanceCostLabel": {
     "description": "Label for the annual maintenance cost column in the comparison table"
   },
-  "npvCostLabel": "NPV of Costs",
+  "npvCostLabel": "NPV Cost",
   "@npvCostLabel": {
-    "description": "Label for the NPV of costs column in the comparison table"
+    "description": "Label for the NPV cost column in the comparison table"
   },
   "saeLabel": "SAE (kg O₂/kWh)",
   "@saeLabel": {
@@ -446,30 +282,6 @@
   "@noDataAvailableDescription": {
     "description": "Accessibility description for no data available message"
   },
-  "todLabel": "Total Oxygen Demand",
-  "@todLabel": {
-    "description": "Label for total oxygen demand input field"
-  },
-  "costLabel": "Cost (USD)",
-  "@costLabel": {
-    "description": "Label for the cost input field in USD"
-  },
-  "npvSavingsLabel": "NPV Savings",
-  "@npvSavingsLabel": {
-    "description": "Label for the NPV savings column in the comparison table"
-  },
-  "cultureDaysLabel": "Culture Days",
-  "@cultureDaysLabel": {
-    "description": "Label for the culture days input field"
-  },
-  "pondDensityLabel": "Pond Density",
-  "@pondDensityLabel": {
-    "description": "Label for the pond density input field"
-  },
-  "temperatureLabel": "Water Temperature",
-  "@temperatureLabel": {
-    "description": "Label for the water temperature input field"
-  },
   "surveySubmissionSuccessful": "Survey submission was successful",
   "@surveySubmissionSuccessful": {
     "description": "Message shown when survey submission is successful"
@@ -486,37 +298,53 @@
   "@annualRevenueLabel": {
     "description": "Label for the annual revenue metric"
   },
+  "recommended": "Recommended",
+  "@recommended": {
+    "description": "Label for the recommended aerator"
+  },
+  "equilibriumPriceExplanation": "Price at which this aerator becomes financially equivalent to the recommended option",
+  "@equilibriumPriceExplanation": {
+    "description": "Explanation of what equilibrium price means"
+  },
+  "dataDisclosure": "Data Disclosure",
+  "@dataDisclosure": {
+    "description": "Label for the data disclosure section"
+  },
+  "dataDisclosureMessage": "The data collected in this survey will be used to improve the AeraSync application and provide better recommendations. Your data will be kept confidential and will not be shared with third parties.",
+  "@dataDisclosureMessage": {
+    "description": "Message explaining the data disclosure policy"
+  },
+  "learnMore": "Learn More",
+  "@learnMore": {
+    "description": "Label for the learn more link"
+  },
+  "agree": "I Agree",
+  "@agree": {
+    "description": "Label for the agree button in the data disclosure section"
+  },
   "annualCostLabel": "Annual Cost",
   "@annualCostLabel": {
     "description": "Label for the annual cost column in the comparison table"
   },
-  "notApplicable": "N/A",
-  "@notApplicable": {
-    "description": "Label used when a value is not applicable"
-  },
-  "years": "years",
-  "@years": {
-    "description": "Text for years unit"
+  "npvSavingsLabel": "NPV Savings",
+  "@npvSavingsLabel": {
+    "description": "Label for the NPV savings column in the comparison table"
   },
   "detailedResults": "Detailed Results",
   "@detailedResults": {
     "description": "Title for the detailed results section"
   },
-  "recommended": "Recommended",
-  "@recommended": {
-    "description": "Label for the recommended aerator"
-  },
-  "aeratorsPerHaLabel": "Aerators per Hectare",
+  "aeratorsPerHaLabel": "Aerators per ha",
   "@aeratorsPerHaLabel": {
-    "description": "Label for aerators per hectare metric"
+    "description": "Label for aerators per hectare"
   },
-  "horsepowerPerHaLabel": "Horsepower per Hectare",
+  "horsepowerPerHaLabel": "Horsepower per ha",
   "@horsepowerPerHaLabel": {
-    "description": "Label for horsepower per hectare metric"
+    "description": "Label for horsepower per hectare"
   },
-  "costPercentRevenueLabel": "Cost % of Revenue",
+  "costPercentRevenueLabel": "Cost (% of Revenue)",
   "@costPercentRevenueLabel": {
-    "description": "Label for cost as percentage of revenue"
+    "description": "Label for cost as a percentage of revenue"
   },
   "annualReplacementCostLabel": "Annual Replacement Cost",
   "@annualReplacementCostLabel": {
@@ -524,50 +352,38 @@
   },
   "opportunityCostLabel": "Opportunity Cost",
   "@opportunityCostLabel": {
-    "description": "Label for the opportunity cost metric"
+    "description": "Label for opportunity cost"
   },
-  "equilibriumPriceExplanation": "Price at which this aerator becomes financially equivalent to the recommended option",
-  "@equilibriumPriceExplanation": {
-    "description": "Explanation of what equilibrium price means"
+  "notApplicable": "N/A",
+  "@notApplicable": {
+    "description": "Label used when a value is not applicable"
+  },
+  "profitabilityIndexLabel": "Profitability Index",
+  "@profitabilityIndexLabel": {
+    "description": "Label for the profitability index metric"
+  },
+  "year": "Year",
+  "@year": {
+    "description": "Label for a single year"
   },
   "days": "Days",
   "@days": {
-    "description": "Text for days unit"
+    "description": "Label for days"
   },
   "months": "Months",
   "@months": {
-    "description": "Text for months unit"
+    "description": "Label for months"
   },
-  "shrimpDensityLabel": "Shrimp Density",
-  "@shrimpDensityLabel": {
-    "description": "Label for the shrimp density input field"
+  "years": "Years",
+  "@years": {
+    "description": "Label for years (plural)"
   },
-  "energyCostLabel": "Energy Cost (USD)",
-  "@energyCostLabel": {
-    "description": "Label for the energy cost input field in USD"
+  "optionalField": "Optional",
+  "@optionalField": {
+    "description": "Label for optional fields in the survey"
   },
-  "hoursPerNightLabel": "Hours per Night",
-  "@hoursPerNightLabel": {
-    "description": "Label for the hours per night input field"
-  },
-  "farmSpecifications": "Farm Specifications",
-  "@farmSpecifications": {
-    "description": "Label for the farm specifications section"
-  },
-  "metricLabel": "Metric",
-  "@metricLabel": {
-    "description": "Label for the metric"
-  },
-  "valueLabel": "Value",
-  "@valueLabel": {
-    "description": "Label for the value"
-  },
-  "financialParameters": "Financial Parameters",
-  "@financialParameters": {
-    "description": "Label for the financial parameters section"
-  },
-  "costBreakdown": "Cost Breakdown",
-  "@costBreakdown": {
-    "description": "Label for the cost breakdown section"
+  "farmFinancialDetails": "Farm Financial Details",
+  "@farmFinancialDetails": {
+    "description": "Title for the farm financial details section"
   }
 }

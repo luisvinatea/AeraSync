@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
     return Consumer<AppState>(
       builder: (context, appState, child) {
         return MaterialApp(
+          navigatorKey: AppState.navigatorKey, // Use the global navigator key
           title: 'AeraSync',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(

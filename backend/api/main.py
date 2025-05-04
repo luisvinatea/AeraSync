@@ -37,86 +37,49 @@ app.add_middleware(
 
 
 @app.options("/{path:path}")
-async def options_handler(request: Request, _path: str):
-    """
-    Handle OPTIONS preflight requests with proper CORS headers.
-    """
-    return JSONResponse(
-        content={},
-        headers={
-            "Access-Control-Allow-Origin": request.headers.get("Origin", "*"),
-            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-            "Access-Control-Allow-Headers": "*",  # Allow all headers
-            "Access-Control-Max-Age": "86400",
-        },
-    )
+async def options_handler(request: Request, path: str):
+    """Handle OPTIONS requests for CORS preflight."""
+    return JSONResponse(content={}, status_code=200)
 
 
 @app.get("/health")
 async def health_check():
-    """
-    Health check endpoint to verify service status.
-    """
-    return {"status": "healthy", "message": "Service is running smoothly"}
+    """Health check endpoint to verify API is running."""
+    return {"status": "healthy", "version": "1.0.0"}
 
 
 @app.post("/compare")
-async def compare_aerators_endpoint(request: Request):
-    """
-    Compare aerators based on provided JSON input.
-    Expects TOD, farm area, financial parameters, and list of aerators.
-    """
+async def compare(request: Request):
+    """Compare aerators based on provided parameters and return results."""
     try:
-        # Parse the request body
-        body = await request.json()
-        result = compare_aerators(body)
-        return result
-    except json.JSONDecodeError as e:
-        return {"error": f"Failed to parse JSON body: {str(e)}"}
-    except ValueError as e:
-        return {"error": f"Invalid input data: {str(e)}"}
-    except KeyError as e:
-        return {"error": f"Missing required field: {str(e)}"}
-    except TypeError as e:
-        return {"error": f"Type error in input data: {str(e)}"}
+        data = await request.json()
+        results = compare_aerators(data)
+        return results
+    except Exception as e:
+        return JSONResponse(
+            content={"error": str(e)},
+            status_code=500
+        )
 
 
 @app.get("/")
-async def read_root():
-    """
-    Root endpoint with a welcome message.
-    """
-    return {"message": "Welcome to the AeraSync API!"}
+async def root():
+    """Root endpoint with API information."""
+    return {
+        "name": "AeraSync Aerator Comparison API",
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "redoc_url": "/redoc"
+    }
 
 
 @app.api_route("/{path_name:path}", methods=["GET", "POST"])
 async def catch_all(request: Request, path_name: str):
-    """
-    Catch-all endpoint to handle Vercel routing with query parameters.
-    This enables support for both /health and /api/health style routes.
-    """
-    endpoint = request.query_params.get("endpoint")
-
-    if endpoint == "health" or path_name == "api/health":
-        return await health_check()
-    elif (
-        endpoint == "compare" or path_name == "api/compare"
-    ) and request.method == "POST":
-        try:
-            # Call the comparison endpoint logic directly
-            return await compare_aerators_endpoint(request)
-        except json.JSONDecodeError as e:
-            # Return a JSON response with a 400
-            # Bad Request status code for JSON errors
-            return JSONResponse(
-                content={"error": f"Failed to parse JSON body: {str(e)}"},
-                status_code=400,
-            )
-    elif path_name == "api":
-        return await read_root()
-    else:
-        # Return a JSON response with a 404 Not Found status code
-        return JSONResponse(
-            content={"error": f"Endpoint not found: /{path_name}"},
-            status_code=404,
-        )
+    """Catch-all route for unhandled endpoints."""
+    return JSONResponse(
+        content={
+            "error": f"Endpoint '/{path_name}' not found",
+            "available_endpoints": ["/", "/health", "/compare"]
+        },
+        status_code=404
+    )

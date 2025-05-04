@@ -273,15 +273,14 @@ analysis_benchmark.json
 
 # Flutter/Dart/Pub related
 **/doc/api/
-.dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
 **/generated_plugin_registrant.dart
 .packages
 .pub-preload-cache/
+.dart_tool/
 .pub/
 build/
-flutter_*.png
 linked_*.ds
 unlinked.ds
 unlinked_spec.ds
@@ -360,11 +359,9 @@ app.*.symbols
 # See https://www.dartlang.org/guides/libraries/private-files
 
 # Files and directories created by pub
-.dart_tool/
 .packages
 build/
 # If you're building an application, you may want to check-in your pubspec.lock
-pubspec.lock
 
 # Directory created by dartdoc
 # If you don't generate documentation locally you can remove this line.

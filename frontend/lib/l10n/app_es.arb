@@ -24,22 +24,6 @@
   "@retry": {
     "description": "Etiqueta para reintentar la verificación de salud de la API"
   },
-  "dataDisclosure": "Divulgación de Datos",
-  "@dataDisclosure": {
-    "description": "Título para la ventana emergente de divulgación de datos"
-  },
-  "dataDisclosureMessage": "Recopilamos datos de uso anónimos para mejorar la aplicación.",
-  "@dataDisclosureMessage": {
-    "description": "Mensaje explicando la recopilación de datos en la ventana emergente de divulgación"
-  },
-  "agree": "Aceptar",
-  "@agree": {
-    "description": "Etiqueta para el botón de aceptar en la ventana emergente de divulgación"
-  },
-  "learnMore": "Aprender más",
-  "@learnMore": {
-    "description": "Etiqueta para el enlace de aprender más en la ventana emergente de divulgación"
-  },
   "error": "Error",
   "@error": {
     "description": "Etiqueta para los mensajes de error"
@@ -76,225 +60,89 @@
   "@submit": {
     "description": "Etiqueta para el botón de enviar para procesar la encuesta"
   },
-  "farmFinancialDetails": "Detalles de la Camaronera y Financieros",
-  "@farmFinancialDetails": {
-    "description": "Etiqueta para la sección de detalles de la camaronera y financieros"
-  },
   "aerator": "Aireador",
   "@aerator": {
     "description": "Etiqueta para la sección de aireador"
-  },
-  "totalOxygenDemand": "Demanda Total de Oxígeno",
-  "@totalOxygenDemand": {
-    "description": "Etiqueta para el campo de entrada de la demanda total de oxígeno"
-  },
-  "farmArea": "Área de la Camaronera (ha)",
-  "@farmArea": {
-    "description": "Etiqueta para el campo de entrada del área de la camaronera"
-  },
-  "energyCost": "Costo de Electricidad",
-  "@energyCost": {
-    "description": "Etiqueta para el campo de entrada del costo de electricidad"
-  },
-  "operatingHours": "Horas de Operación",
-  "@operatingHours": {
-    "description": "Etiqueta para el campo de entrada de las horas de operación"
-  },
-  "discountRate": "Tasa de Descuento",
-  "@discountRate": {
-    "description": "Etiqueta para el campo de entrada de la tasa de descuento"
-  },
-  "inflationRate": "Tasa de Inflación",
-  "@inflationRate": {
-    "description": "Etiqueta para el campo de entrada de la tasa de inflación"
-  },
-  "analysisHorizon": "Años de Análisis",
-  "@analysisHorizon": {
-    "description": "Etiqueta para el campo de entrada del horizonte de análisis"
-  },
-  "safetyMargin": "Margen de Seguridad",
-  "@safetyMargin": {
-    "description": "Etiqueta para el campo de entrada del margen de seguridad"
-  },
-  "name": "Nombre",
-  "@name": {
-    "description": "Etiqueta para el campo de entrada del nombre"
-  },
-  "horsepower": "Potencia",
-  "@horsepower": {
-    "description": "Etiqueta para el campo de entrada de la potencia del aireador en caballos de fuerza"
-  },
-  "sotr": "Tasa de Transferencia de Oxígeno Estándar",
-  "@sotr": {
-    "description": "Etiqueta para el campo de entrada de la Tasa de Transferencia de Oxígeno Estándar"
-  },
-  "cost": "Costo",
-  "@cost": {
-    "description": "Etiqueta para el campo de entrada del costo"
-  },
-  "durability": "Durabilidad",
-  "@durability": {
-    "description": "Etiqueta para el campo de entrada de la durabilidad"
-  },
-  "maintenanceCost": "Costo de Mantenimiento",
-  "@maintenanceCost": {
-    "description": "Etiqueta para el campo de entrada del costo de mantenimiento"
-  },
-  "addAerator": "Agregar Aireador",
-  "@addAerator": {
-    "description": "Etiqueta para el botón de agregar un nuevo aireador"
   },
   "nameLabel": "Nombre del Aireador",
   "@nameLabel": {
     "description": "Etiqueta para el campo de entrada del nombre del aireador"
   },
-  "nameTooltip": "Nombre único para el aireador",
-  "@nameTooltip": {
-    "description": "Etiqueta para el tooltip del campo de entrada del nombre del aireador"
-  },
   "horsepowerLabel": "Potencia (hp)",
   "@horsepowerLabel": {
     "description": "Etiqueta para la potencia del aireador en caballos de fuerza"
-  },
-  "horsepowerTooltip": "Potencia del aireador en caballos de fuerza (0.1 a 100)",
-  "@horsepowerTooltip": {
-    "description": "Etiqueta para el tooltip del campo de entrada del nombre del aireador"
   },
   "sotrLabel": "SOTR (kg O₂/h)",
   "@sotrLabel": {
     "description": "Etiqueta para la Tasa de Transferencia de Oxígeno Estándar del aireador en kg O₂ por hora"
   },
-  "sotrTooltip": "Tasa de Transferencia de Oxígeno Estándar por hora (0.1 a 10)",
-  "@sotrTooltip": {
-    "description": "Etiqueta para el tooltip del campo de entrada de la Tasa de Transferencia de Oxígeno Estándar"
-  },
   "priceLabel": "Precio (USD)",
   "@priceLabel": {
-    "description": "Etiqueta para el campo de entrada del precio del aireador"
-  },
-  "priceAeratorTooltip": "Costo inicial de compra del aireador en USD (0 a 10000)",
-  "@priceAeratorTooltip": {
     "description": "Etiqueta para el campo de entrada del precio del aireador"
   },
   "durabilityLabel": "Durabilidad (años)",
   "@durabilityLabel": {
     "description": "Etiqueta para el campo de entrada de la durabilidad del aireador"
   },
-  "durabilityAeratorTooltip": "Duración esperada del aireador en años (0.1 a 20)",
-  "@durabilityAeratorTooltip": {
-    "description": "Etiqueta para el campo de entrada de la durabilidad del aireador"
-  },
   "maintenanceCostLabel": "Costo de Mantenimiento Anual (USD)",
   "@maintenanceCostLabel": {
-    "description": "Etiqueta para el campo de entrada del costo de mantenimiento del aireador"
-  },
-  "maintenanceCostAeratorTooltip": "Costo de mantenimiento anual del aireador en USD (0 a 1000)",
-  "@maintenanceCostAeratorTooltip": {
     "description": "Etiqueta para el campo de entrada del costo de mantenimiento del aireador"
   },
   "farmAreaLabel": "Área Total de la Camaronera (ha)",
   "@farmAreaLabel": {
     "description": "Etiqueta para el campo de entrada del área de la camaronera"
   },
-  "farmAreaTooltip": "Área total de la camaronera en hectáreas (0.1 a 100000)",
-  "@farmAreaTooltip": {
-    "description": "Etiqueta para el campo de entrada del área de la camaronera"
+  "totalOxygenDemand": "Demanda Total de Oxígeno",
+  "@totalOxygenDemand": {
+    "description": "Etiqueta para el campo de entrada de la demanda total de oxígeno"
   },
-  "waterTemperatureLabel": "Temperatura del Agua (°C)",
-  "@waterTemperatureLabel": {
-    "description": "Etiqueta para el campo de entrada de la temperatura del agua"
-  },
-  "waterTemperatureTooltip": "Temperatura media del agua en Celsius (0 a 40)",
-  "@waterTemperatureTooltip": {
-    "description": "Etiqueta para el campo de entrada de la temperatura del agua"
-  },
-  "salinityLabel": "Salinidad (ppt)",
-  "@salinityLabel": {
-    "description": "Etiqueta para el campo de entrada de la salinidad del agua"
-  },
-  "salinityTooltip": "Salinidad del agua en partes por mil (0 a 40)",
-  "@salinityTooltip": {
-    "description": "Etiqueta para el campo de entrada de la salinidad del agua"
+  "todLabel": "Demanda Total de Oxígeno (kg O₂/ha)",
+  "@todLabel": {
+    "description": "Etiqueta para el campo de entrada de demanda total de oxígeno"
   },
   "pondDepthLabel": "Profundidad del Estanque (m)",
   "@pondDepthLabel": {
     "description": "Etiqueta para el campo de entrada de la profundidad del estanque en metros"
   },
-  "pondDepthTooltip": "Promedio de la profundidad de los estanques en metros (0.5 a 5)",
-  "@pondDepthTooltip": {
-    "description": "Etiqueta para el campo de entrada de la profundidad del estanque en metros"
-  },
-  "averageShrimpWeightLabel": "Peso Promedio de los Camarones (g)",
-  "@averageShrimpWeightLabel": {
-    "description": "Etiqueta para el campo de entrada del peso promedio de los camarones en gramos"
-  },
-  "averageShrimpWeightTooltip": "Peso promedio de los camarones en gramos (0 a 50)",
-  "@averageShrimpWeightTooltip": {
-    "description": "Etiqueta para el campo de entrada del peso promedio de los camarones en gramos"
-  },
-  "shrimpBiomassLabel": "Biomasa de Camarones (kg/ha)",
-  "@shrimpBiomassLabel": {
-    "description": "Etiqueta para el campo de entrada de la biomasa de camarones en kg/ha"
-  },
-  "shrimpBiomassTooltip": "Biomasa de camarones por hectárea (0 a 100000)",
-  "@shrimpBiomassTooltip": {
-    "description": "Etiqueta para el campo de entrada de la biomasa de camarones en kg/ha"
-  },
-  "safetyMarginLabel": "Margen de Seguridad (%)",
-  "@safetyMarginLabel": {
-    "description": "Etiqueta para el campo de entrada del margen de seguridad"
-  },
-  "safetyMarginTooltip": "Margen de seguridad para cálculos (0 a 100)",
-  "@safetyMarginTooltip": {
-    "description": "Etiqueta para el campo de entrada del margen de seguridad"
-  },
   "shrimpPriceLabel": "Precio de los Camarones (USD/kg)",
   "@shrimpPriceLabel": {
     "description": "Etiqueta para el campo de entrada del precio de los camarones"
   },
-  "shrimpPriceTooltip": "Precio de mercado de los camarones por kilogramo (0.1 a 50)",
-  "@shrimpPriceTooltip": {
-    "description": "Etiqueta para el campo de entrada del precio de los camarones"
+  "cultureDaysLabel": "Días de Cultivo",
+  "@cultureDaysLabel": {
+    "description": "Etiqueta para el campo de entrada de días de cultivo"
   },
-  "electricityCostLabel": "Costo de Electricidad (USD/kWh)",
-  "@electricityCostLabel": {
+  "shrimpDensityLabel": "Densidad de Camarones",
+  "@shrimpDensityLabel": {
+    "description": "Etiqueta para el campo de entrada de densidad de camarones"
+  },
+  "energyCostLabel": "Costo de Electricidad (USD/kWh)",
+  "@energyCostLabel": {
     "description": "Etiqueta para el campo de entrada del costo de electricidad por kilovatio-hora en USD"
   },
-  "electricityCostTooltip": "Costo de electricidad por kilovatio-hora (0 a 1)",
-  "@electricityCostTooltip": {
-    "description": "Etiqueta para el campo de entrada del costo de electricidad por kilovatio-hora"
-  },
-  "operatingHoursLabel": "Horas de Operación por Año",
-  "@operatingHoursLabel": {
-    "description": "Etiqueta para el total de horas que los aireadores funcionan por año"
-  },
-  "operatingHoursTooltip": "Total de horas que los aireadores funcionan por año (0 a 8760)",
-  "@operatingHoursTooltip": {
-    "description": "Etiqueta para el campo de entrada de las horas de operación de los aireadores por año"
+  "hoursPerNightLabel": "Horas por Noche",
+  "@hoursPerNightLabel": {
+    "description": "Etiqueta para el campo de entrada de horas por noche"
   },
   "discountRateLabel": "Tasa de Descuento (%)",
   "@discountRateLabel": {
-    "description": "Etiqueta para el campo de entrada de la tasa de descuento"
-  },
-  "discountRateTooltip": "Tasa de descuento para cálculos financieros (0 a 100)",
-  "@discountRateTooltip": {
     "description": "Etiqueta para el campo de entrada de la tasa de descuento"
   },
   "inflationRateLabel": "Tasa de Inflación (%)",
   "@inflationRateLabel": {
     "description": "Etiqueta para el campo de entrada de la tasa de inflación"
   },
-  "inflationRateTooltip": "Tasa de inflación anual (0 a 100)",
-  "@inflationRateTooltip": {
-    "description": "Etiqueta para el campo de entrada de la tasa de inflación"
-  },
   "analysisHorizonLabel": "Horizonte de Análisis (años)",
   "@analysisHorizonLabel": {
     "description": "Etiqueta para el campo de entrada del horizonte de análisis"
   },
-  "analysisHorizonTooltip": "Período de tiempo para el análisis financiero (1 a 50)",
-  "@analysisHorizonTooltip": {
-    "description": "Etiqueta para el campo de entrada del horizonte de análisis"
+  "safetyMarginLabel": "Margen de Seguridad (%)",
+  "@safetyMarginLabel": {
+    "description": "Etiqueta para el campo de entrada del margen de seguridad"
+  },
+  "temperatureLabel": "Temperatura del Agua",
+  "@temperatureLabel": {
+    "description": "Etiqueta para el campo de entrada de temperatura del agua"
   },
   "requiredField": "Este campo es obligatorio",
   "@requiredField": {
@@ -309,28 +157,34 @@
     "description": "Mensaje de validación para entradas fuera de rango",
     "placeholders": {
       "min": {
-        "type": "String",
         "example": "0"
       },
       "max": {
-        "type": "String",
         "example": "100"
       }
     }
   },
-  "minimumAeratorsError": "Se requieren al menos dos aireadores",
-  "@minimumAeratorsError": {
-    "description": "Se requiere un mínimo de dos aireadores"
+  "minimumValueError": "Por favor ingrese un valor mayor o igual a {value}",
+  "@minimumValueError": {
+    "description": "Valor mínimo permitido para un campo de entrada",
+    "placeholders": {
+      "value": {
+        "example": "0"
+      }
+    }
   },
   "submissionFailed": "Error al enviar la encuesta: {error}",
   "@submissionFailed": {
     "description": "Error al enviar la encuesta: {error}",
     "placeholders": {
       "error": {
-        "type": "String",
         "example": "Network error"
       }
     }
+  },
+  "surveyError": "Error al enviar la encuesta",
+  "@surveyError": {
+    "description": "Mensaje de error cuando falla el envío de la encuesta"
   },
   "results": "Resultados",
   "@results": {
@@ -428,48 +282,6 @@
   "@noDataAvailableDescription": {
     "description": "Descripción de accesibilidad para el mensaje de no hay datos disponibles"
   },
-  "minimumValueError": "Por favor ingrese un valor mayor o igual a {value}",
-  "@minimumValueError": {
-    "description": "Valor mínimo permitido para un campo de entrada",
-    "placeholders": {
-      "value": {
-        "type": "String",
-        "example": "0"
-      }
-    }
-  },
-  "optionalField": "Opcional",
-  "@optionalField": {
-    "description": "Etiqueta para campos de entrada opcionales"
-  },
-  "surveyError": "Error al enviar la encuesta",
-  "@surveyError": {
-    "description": "Mensaje de error cuando falla el envío de la encuesta"
-  },
-    "todLabel": "Demanda Total de Oxígeno (kg O₂/ha)",
-  "@todLabel": {
-    "description": "Etiqueta para el campo de entrada de demanda total de oxígeno"
-  },
-  "costLabel": "Costo (USD)",
-  "@costLabel": {
-    "description": "Etiqueta para el campo de entrada de costo en USD"
-  },
-  "npvSavingsLabel": "Ahorros VPN (USD)",
-  "@npvSavingsLabel": {
-    "description": "Etiqueta para el campo de entrada de ahorros VPN en USD"
-  },
-  "cultureDaysLabel": "Días de Cultivo",
-  "@cultureDaysLabel": {
-    "description": "Etiqueta para el campo de entrada de días de cultivo"
-  },
-  "pondDensityLabel": "Densidad del Estanque",
-  "@pondDensityLabel": {
-    "description": "Etiqueta para el campo de entrada de densidad del estanque"
-  },
-  "temperatureLabel": "Temperatura del Agua",
-  "@temperatureLabel": {
-    "description": "Etiqueta para el campo de entrada de temperatura del agua"
-  },
   "surveySubmissionSuccessful": "El envío de la encuesta fue exitoso",
   "@surveySubmissionSuccessful": {
     "description": "Mensaje mostrado cuando el envío de la encuesta es exitoso"
@@ -486,88 +298,92 @@
   "@annualRevenueLabel": {
     "description": "Etiqueta para el métrico de ingresos anuales"
   },
-  "annualCostLabel": "Costo Anual",
-  "@annualCostLabel": {
-    "description": "Etiqueta para la columna de costo anual en la tabla de comparación"
-  },
-  "notApplicable": "N/A",
-  "@notApplicable": {
-    "description": "Etiqueta utilizada cuando un valor no es aplicable"
-  },
-  "years": "años",
-  "@years": {
-    "description": "Texto para la unidad de años"
-  },
-  "detailedResults": "Resultados Detallados",
-  "@detailedResults": {
-    "description": "Descripción para la sección de resultados detallados"
-  },
   "recommended": "Recomendado",
   "@recommended": {
     "description": "Etiqueta para el aerador recomendado"
-  },
-  "aeratorsPerHaLabel": "Aeradores por Hectárea",
-  "@aeratorsPerHaLabel": {
-    "description": "Etiqueta para el métrico de aeradores por hectárea"
-  },
-  "horsepowerPerHaLabel": "Potencia por Hectárea",
-  "@horsepowerPerHaLabel": {
-    "description": "Etiqueta para el métrico de potencia por hectárea"
-  },
-  "costPercentRevenueLabel": "Costo % de los Ingresos",
-  "@costPercentRevenueLabel": {
-    "description": "Etiqueta para el costo como porcentaje de los ingresos"
-  },
-  "annualReplacementCostLabel": "Costo Anual de Reemplazo",
-  "@annualReplacementCostLabel": {
-    "description": "Etiqueta para el costo anual de reemplazo"
-  },
-  "opportunityCostLabel": "Costo de Oportunidad",
-  "@opportunityCostLabel": {
-    "description": "Etiqueta para el métrico de costo de oportunidad"
   },
   "equilibriumPriceExplanation": "Precio al cual este aerador se vuelve financieramente equivalente a la opción recomendada",
   "@equilibriumPriceExplanation": {
     "description": "Descripción de lo que significa el precio de equilibrio"
   },
-  "days": "Dias",
+  "dataDisclosure": "Divulgación de Datos",
+  "@dataDisclosure": {
+    "description": "Etiqueta para la sección de divulgación de datos"
+  },
+  "dataDisclosureMessage": "Los datos recopilados en esta encuesta se utilizarán para mejorar la aplicación AeraSync y proporcionar mejores recomendaciones. Sus datos se mantendrán confidenciales y no se compartirán con terceros.",
+  "@dataDisclosureMessage": {
+    "description": "Mensaje explicando la política de divulgación de datos"
+  },
+  "learnMore": "Saber Más",
+  "@learnMore": {
+    "description": "Etiqueta para el enlace de aprender más"
+  },
+  "agree": "Estoy de Acuerdo",
+  "@agree": {
+    "description": "Etiqueta para el botón de estoy de acuerdo en la sección de divulgación de datos"
+  },
+  "annualCostLabel": "Costo Anual",
+  "@annualCostLabel": {
+    "description": "Etiqueta para la columna de costo anual en la tabla de comparación"
+  },
+  "npvSavingsLabel": "Ahorros VPN",
+  "@npvSavingsLabel": {
+    "description": "Etiqueta para la columna de ahorros VPN en la tabla de comparación"
+  },
+  "detailedResults": "Resultados Detallados",
+  "@detailedResults": {
+    "description": "Etiqueta para la sección de resultados detallados"
+  },
+  "aeratorsPerHaLabel": "Aireadores por ha",
+  "@aeratorsPerHaLabel": {
+    "description": "Etiqueta para aireadores por hectárea"
+  },
+  "horsepowerPerHaLabel": "Potencia por ha",
+  "@horsepowerPerHaLabel": {
+    "description": "Etiqueta para potencia por hectárea"
+  },
+  "costPercentRevenueLabel": "Costo (% de Ingresos)",
+  "@costPercentRevenueLabel": {
+    "description": "Etiqueta para el costo como un porcentaje de los ingresos"
+  },
+  "annualReplacementCostLabel": "Costo de Reemplazo Anual",
+  "@annualReplacementCostLabel": {
+    "description": "Etiqueta para el costo de reemplazo anual"
+  },
+  "opportunityCostLabel": "Costo de Oportunidad",
+  "@opportunityCostLabel": {
+    "description": "Etiqueta para el costo de oportunidad"
+  },
+  "notApplicable": "N/A",
+  "@notApplicable": {
+    "description": "Etiqueta utilizada cuando un valor no es aplicable"
+  },
+  "profitabilityIndexLabel": "Índice de Rentabilidad",
+  "@profitabilityIndexLabel": {
+    "description": "Etiqueta para el índice de rentabilidad"
+  },
+  "year": "Año",
+  "@year": {
+    "description": "Etiqueta para un solo año"
+  },
+  "days": "Días",
   "@days": {
-    "description": "Texto para la unidad de días"
+    "description": "Etiqueta para días"
   },
   "months": "Meses",
   "@months": {
-    "description": "Texto para la unidad de meses"
+    "description": "Etiqueta para meses"
   },
-  "shrimpDensityLabel": "Densidad de Camarones",
-  "@shrimpDensityLabel": {
-    "description": "Etiqueta para el campo de entrada de densidad de camarones"
+  "years": "Años",
+  "@years": {
+    "description": "Etiqueta para años (plural)"
   },
-  "energyCostLabel": "Costo de Energía (USD)",
-  "@energyCostLabel": {
-    "description": "Etiqueta para el campo de entrada de costo de energía en USD"
+  "optionalField": "Opcional",
+  "@optionalField": {
+    "description": "Etiqueta para campos opcionales en la encuesta"
   },
-  "hoursPerNightLabel": "Horas por Noche",
-  "@hoursPerNightLabel": {
-    "description": "Etiqueta para el campo de entrada de horas por noche"
-  },
-  "farmSpecifications": "Especificaciones de la Camaronera",
-  "@farmSpecifications": {
-    "description": "Etiqueta para la sección de especificaciones de la camaronera"
-  },
-  "metricLabel": "Metric",
-  "@metricLabel": {
-    "description": "Etiqueta para el métrico"
-  },
-  "valueLabel": "Valor",
-  "@valueLabel": {
-    "description": "Etiqueta para el valor"
-  },
-  "financialParameters": "Parámetros Financieros",
-  "@financialParameters": {
-    "description": "Etiqueta para la sección de parámetros financieros"
-  },
-  "costBreakdown": "Desglose de Costos",
-  "@costBreakdown": {
-    "description": "Etiqueta para la sección de desglose de costos"
+  "farmFinancialDetails": "Detalles Financieros de la Camaronera",
+  "@farmFinancialDetails": {
+    "description": "Etiqueta para la sección de detalles financieros de la camaronera"
   }
 }
