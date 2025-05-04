@@ -22,6 +22,7 @@ dependencies:
   flutter_pdfview: ^1.4.0+1
   path_provider: ^2.1.5
   printing: ^5.14.2
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -40,3 +41,7 @@ flutter:
     - web/icons/aerasync.webp
     - web/icons/background.webp
     - web/assets/wave.svg
+    - web/fonts/NotoSerif-Black.ttf
+    - web/fonts/NotoSerif-Bold.ttf
+    - web/fonts/NotoSerif-BlackItalic.ttf
+    - web/fonts/NotoSerif-BoldItalic.ttf

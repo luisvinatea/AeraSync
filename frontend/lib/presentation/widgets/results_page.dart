@@ -79,8 +79,9 @@ class AeratorResult {
   }
 
   String formatCurrencyK(double value) {
-    if (value >= 1_000_000)
+    if (value >= 1_000_000) {
       return '\$${(value / 1_000_000).toStringAsFixed(2)}M';
+    }
     if (value >= 1000) return '\$${(value / 1000).toStringAsFixed(2)}K';
     return '\$${value.toStringAsFixed(2)}';
   }

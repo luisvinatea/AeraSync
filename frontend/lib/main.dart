@@ -6,6 +6,7 @@ import 'core/services/app_state.dart';
 import 'presentation/pages/home_page.dart';
 import 'presentation/widgets/survey_page.dart';
 import 'presentation/widgets/results_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +45,25 @@ class MyApp extends StatelessWidget {
               surface: Colors.white.withAlpha(230),
               onSurface: const Color(0xFF1E40AF),
             ),
+            textTheme: TextTheme(
+              bodyMedium: TextStyle(
+                fontFamily: 'NotoSerif',
+                fontFamilyFallback: [
+                  GoogleFonts.notoSans().fontFamily!,
+                  GoogleFonts.notoSerif().fontFamily!,
+                ],
+              ),
+              headlineMedium: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E40AF),
+              ),
+              labelMedium: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF1E40AF),
+              ),
+            ),
             appBarTheme: const AppBarTheme(
               backgroundColor: Color(0xFF1E40AF),
               foregroundColor: Colors.white,
@@ -56,23 +76,6 @@ class MyApp extends StatelessWidget {
             cardTheme: const CardTheme(
               elevation: 4,
               margin: EdgeInsets.symmetric(vertical: 8),
-            ),
-            textTheme: const TextTheme(
-              headlineMedium: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1E40AF),
-              ),
-              bodyMedium: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: Color(0xFF1E40AF),
-              ),
-              labelMedium: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF1E40AF),
-              ),
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
