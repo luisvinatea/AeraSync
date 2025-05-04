@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/services/app_state.dart';
@@ -129,12 +128,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Use SVG icon if available, otherwise can use default Flutter icon
-            SvgPicture.asset(
+            // Replace SVG with Image widget for WebP file
+            Image.asset(
               'web/icons/aerasync.webp',
               height: 30,
-              placeholderBuilder: (BuildContext context) =>
-                  const CircularProgressIndicator(),
             ),
             const SizedBox(width: 8),
             Text(l10n.appTitle, style: const TextStyle(color: Colors.white)),

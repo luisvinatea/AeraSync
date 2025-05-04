@@ -41,14 +41,14 @@ class SurveyPage extends StatefulWidget {
               double.tryParse(state._hoursPerNightController.text) ?? 8,
           'discount_rate':
               (double.tryParse(state._discountRateController.text) ?? 10.0) /
-              100,
+                  100,
           'inflation_rate':
               (double.tryParse(state._inflationRateController.text) ?? 3.0) /
-              100,
+                  100,
           'horizon': int.tryParse(state._horizonController.text) ?? 9,
           'safety_margin':
               (double.tryParse(state._safetyMarginController.text) ?? 0.0) /
-              100,
+                  100,
           'temperature':
               double.tryParse(state._temperatureController.text) ?? 31.5,
         },
@@ -62,10 +62,10 @@ class SurveyPage extends StatefulWidget {
                 double.tryParse(state._aerator1CostController.text) ?? 500.0,
             'durability':
                 double.tryParse(state._aerator1DurabilityController.text) ??
-                2.0,
+                    2.0,
             'maintenance':
                 double.tryParse(state._aerator1MaintenanceController.text) ??
-                65.0,
+                    65.0,
           },
           {
             'name': state._aerator2NameController.text,
@@ -76,10 +76,10 @@ class SurveyPage extends StatefulWidget {
                 double.tryParse(state._aerator2CostController.text) ?? 800.0,
             'durability':
                 double.tryParse(state._aerator2DurabilityController.text) ??
-                4.5,
+                    4.5,
             'maintenance':
                 double.tryParse(state._aerator2MaintenanceController.text) ??
-                50.0,
+                    50.0,
           },
         ],
       };
@@ -91,7 +91,7 @@ class SurveyPage extends StatefulWidget {
 
         if (!context.mounted) return;
         developer.log('Navigating to results page');
-        navigator.pushNamed('/results');
+        navigator.pushReplacementNamed('/results');
       } catch (e) {
         if (!context.mounted) return;
         developer.log('Error during submission: $e');
@@ -368,25 +368,24 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
           floatingLabelBehavior: FloatingLabelBehavior.always,
         ),
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        validator:
-            required
-                ? (value) {
-                  if (value == null || value.isEmpty) {
-                    return l10n.requiredField;
-                  }
-                  final numValue = double.tryParse(value);
-                  if (numValue == null) {
-                    return l10n.invalidNumber;
-                  }
-                  if (min != null && numValue < min) {
-                    return l10n.minimumValueError('$min');
-                  }
-                  if (max != null && numValue > max) {
-                    return l10n.rangeError('$min', '$max');
-                  }
-                  return null;
+        validator: required
+            ? (value) {
+                if (value == null || value.isEmpty) {
+                  return l10n.requiredField;
                 }
-                : null,
+                final numValue = double.tryParse(value);
+                if (numValue == null) {
+                  return l10n.invalidNumber;
+                }
+                if (min != null && numValue < min) {
+                  return l10n.minimumValueError('$min');
+                }
+                if (max != null && numValue > max) {
+                  return l10n.rangeError('$min', '$max');
+                }
+                return null;
+              }
+            : null,
       ),
     );
   }
@@ -461,379 +460,378 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
         ),
         child: Padding(
           padding: const EdgeInsets.all(24.0), // Increased padding here
-          child:
-              _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : Form(
-                    key: _formKey,
-                    child: Stepper(
-                      key: _stepperKey,
-                      type: StepperType.vertical,
-                      currentStep: _currentStep,
-                      onStepTapped: (step) {
-                        if (_formKey.currentState!.validate() ||
-                            step < _currentStep) {
-                          setState(() {
-                            _currentStep = step;
-                          });
-                          developer.log(
-                            'Step tapped, moved to step: $_currentStep',
-                          );
-                        }
-                      },
-                      controlsBuilder: (context, controls) {
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Form(
+                  key: _formKey,
+                  child: Stepper(
+                    key: _stepperKey,
+                    type: StepperType.vertical,
+                    currentStep: _currentStep,
+                    onStepTapped: (step) {
+                      if (_formKey.currentState!.validate() ||
+                          step < _currentStep) {
+                        setState(() {
+                          _currentStep = step;
+                        });
                         developer.log(
-                          'Rendering controls for step: $_currentStep',
+                          'Step tapped, moved to step: $_currentStep',
                         );
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              if (_currentStep > 0)
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                    ),
-                                    child: ElevatedButton(
-                                      key: const Key('back_button'),
-                                      onPressed: _prevStep,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue.shade700,
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                      }
+                    },
+                    controlsBuilder: (context, controls) {
+                      developer.log(
+                        'Rendering controls for step: $_currentStep',
+                      );
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            if (_currentStep > 0)
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                  ),
+                                  child: ElevatedButton(
+                                    key: const Key('back_button'),
+                                    onPressed: _prevStep,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue.shade700,
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      child: Text(
-                                        l10n.back,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                        ),
+                                    ),
+                                    child: Text(
+                                      l10n.back,
+                                      style: const TextStyle(
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
                                 ),
-                              if (_currentStep < 1)
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                    ),
-                                    child: ElevatedButton(
-                                      key: const Key('next_button'),
-                                      onPressed: _nextStep,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue.shade700,
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                              ),
+                            if (_currentStep < 1)
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                  ),
+                                  child: ElevatedButton(
+                                    key: const Key('next_button'),
+                                    onPressed: _nextStep,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue.shade700,
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      child: Text(
-                                        l10n.next,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                        ),
+                                    ),
+                                    child: Text(
+                                      l10n.next,
+                                      style: const TextStyle(
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
                                 ),
-                              if (_currentStep == 1)
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                    ),
-                                    child: ElevatedButton(
-                                      key: const Key('submit_button'),
-                                      onPressed: () => _submitSurvey(context),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.green.shade700,
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                              ),
+                            if (_currentStep == 1)
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                  ),
+                                  child: ElevatedButton(
+                                    key: const Key('submit_button'),
+                                    onPressed: () => _submitSurvey(context),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green.shade700,
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      child: Text(
-                                        l10n.submit,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                        ),
+                                    ),
+                                    child: Text(
+                                      l10n.submit,
+                                      style: const TextStyle(
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
                                 ),
-                            ],
-                          ),
-                        );
-                      },
-                      steps: [
-                        Step(
-                          title: Text(
-                            l10n.farmFinancialDetails,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          isActive: _currentStep == 0,
-                          content: Column(
-                            children: [
-                              _buildNumberField(
-                                _todController,
-                                l10n.totalOxygenDemand,
-                                'kg O₂/h',
-                                true,
-                                min: 0.1,
-                                hint: '5443.76',
                               ),
-                              _buildNumberField(
-                                _farmAreaController,
-                                l10n.farmAreaLabel,
-                                'ha',
-                                true,
-                                min: 0.1,
-                                max: 10000.0,
-                                hint: '1000',
-                              ),
-                              _buildNumberField(
-                                _shrimpPriceController,
-                                l10n.shrimpPriceLabel,
-                                'USD/kg',
-                                true,
-                                min: 0.1,
-                                max: 100.0,
-                                hint: '5.0',
-                              ),
-                              _buildNumberField(
-                                _cultureDaysController,
-                                l10n.cultureDaysLabel,
-                                'days',
-                                true,
-                                min: 30,
-                                max: 365,
-                                hint: '120',
-                              ),
-                              _buildNumberField(
-                                _shrimpDensityController,
-                                l10n.shrimpDensityLabel,
-                                'kg/m³',
-                                true,
-                                min: 0.1,
-                                max: 10.0,
-                                hint: '0.33',
-                              ),
-                              _buildNumberField(
-                                _pondDepthController,
-                                l10n.pondDepthLabel,
-                                'm',
-                                true,
-                                min: 0.1,
-                                max: 5.0,
-                                hint: '1.0',
-                              ),
-                              _buildNumberField(
-                                _energyCostController,
-                                l10n.energyCostLabel,
-                                'USD/kWh',
-                                true,
-                                min: 0.0,
-                                max: 2.0,
-                                hint: '0.05',
-                              ),
-                              _buildNumberField(
-                                _hoursPerNightController,
-                                l10n.hoursPerNightLabel,
-                                'hours',
-                                true,
-                                min: 1,
-                                max: 24,
-                                hint: '8',
-                              ),
-                              _buildNumberField(
-                                _discountRateController,
-                                l10n.discountRateLabel,
-                                '%',
-                                true,
-                                min: 0.0,
-                                max: 100.0,
-                                hint: '10.0',
-                              ),
-                              _buildNumberField(
-                                _inflationRateController,
-                                l10n.inflationRateLabel,
-                                '%',
-                                true,
-                                min: 0.0,
-                                max: 100.0,
-                                hint: '3.0',
-                              ),
-                              _buildNumberField(
-                                _horizonController,
-                                l10n.analysisHorizonLabel,
-                                'years',
-                                true,
-                                min: 1,
-                                max: 50,
-                                hint: '9',
-                              ),
-                              _buildNumberField(
-                                _safetyMarginController,
-                                l10n.safetyMarginLabel,
-                                '%',
-                                false,
-                                min: 0.0,
-                                max: 100.0,
-                                hint: '0',
-                              ),
-                              _buildNumberField(
-                                _temperatureController,
-                                l10n.temperatureLabel,
-                                '°C',
-                                true,
-                                min: 0.0,
-                                max: 50.0,
-                                hint: '31.5',
-                              ),
-                            ],
+                          ],
+                        ),
+                      );
+                    },
+                    steps: [
+                      Step(
+                        title: Text(
+                          l10n.farmFinancialDetails,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        Step(
-                          title: Text(
-                            l10n.aeratorDetails,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                        isActive: _currentStep == 0,
+                        content: Column(
+                          children: [
+                            _buildNumberField(
+                              _todController,
+                              l10n.totalOxygenDemand,
+                              'kg O₂/h',
+                              true,
+                              min: 0.1,
+                              hint: '5443.76',
                             ),
-                          ),
-                          isActive: _currentStep == 1,
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Center(
-                                child: Text(
-                                  "${l10n.aeratorLabel} 1",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              _buildTextField(
-                                _aerator1NameController,
-                                l10n.nameLabel,
-                              ),
-                              _buildNumberField(
-                                _aerator1PowerController,
-                                l10n.horsepowerLabel,
-                                'hp',
-                                true,
-                                min: 0.1,
-                                max: 100,
-                                hint: '3.0',
-                              ),
-                              _buildNumberField(
-                                _aerator1SotrController,
-                                l10n.sotrLabel,
-                                'kg O₂/h',
-                                true,
-                                min: 0.1,
-                                max: 100,
-                                hint: '1.4',
-                              ),
-                              _buildNumberField(
-                                _aerator1CostController,
-                                l10n.priceLabel,
-                                'USD',
-                                true,
-                                min: 0,
-                                max: 50000,
-                                hint: '500',
-                              ),
-                              _buildNumberField(
-                                _aerator1DurabilityController,
-                                l10n.durabilityLabel,
-                                'years',
-                                true,
-                                min: 0.1,
-                                max: 50,
-                                hint: '2',
-                              ),
-                              _buildNumberField(
-                                _aerator1MaintenanceController,
-                                l10n.maintenanceCostLabel,
-                                'USD/year',
-                                true,
-                                min: 0,
-                                max: 10000,
-                                hint: '65',
-                              ),
-                              const SizedBox(height: 16),
-                              Center(
-                                child: Text(
-                                  "${l10n.aeratorLabel} 2",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              _buildTextField(
-                                _aerator2NameController,
-                                l10n.nameLabel,
-                              ),
-                              _buildNumberField(
-                                _aerator2PowerController,
-                                l10n.horsepowerLabel,
-                                'hp',
-                                true,
-                                min: 0.1,
-                                max: 100,
-                                hint: '3.0',
-                              ),
-                              _buildNumberField(
-                                _aerator2SotrController,
-                                l10n.sotrLabel,
-                                'kg O₂/h',
-                                true,
-                                min: 0.1,
-                                max: 100,
-                                hint: '2.6',
-                              ),
-                              _buildNumberField(
-                                _aerator2CostController,
-                                l10n.priceLabel,
-                                'USD',
-                                true,
-                                min: 0,
-                                max: 50000,
-                                hint: '800',
-                              ),
-                              _buildNumberField(
-                                _aerator2DurabilityController,
-                                l10n.durabilityLabel,
-                                'years',
-                                true,
-                                min: 0.1,
-                                max: 50,
-                                hint: '4.5',
-                              ),
-                              _buildNumberField(
-                                _aerator2MaintenanceController,
-                                l10n.maintenanceCostLabel,
-                                'USD/year',
-                                true,
-                                min: 0,
-                                max: 10000,
-                                hint: '50',
-                              ),
-                            ],
+                            _buildNumberField(
+                              _farmAreaController,
+                              l10n.farmAreaLabel,
+                              'ha',
+                              true,
+                              min: 0.1,
+                              max: 10000.0,
+                              hint: '1000',
+                            ),
+                            _buildNumberField(
+                              _shrimpPriceController,
+                              l10n.shrimpPriceLabel,
+                              'USD/kg',
+                              true,
+                              min: 0.1,
+                              max: 100.0,
+                              hint: '5.0',
+                            ),
+                            _buildNumberField(
+                              _cultureDaysController,
+                              l10n.cultureDaysLabel,
+                              'days',
+                              true,
+                              min: 30,
+                              max: 365,
+                              hint: '120',
+                            ),
+                            _buildNumberField(
+                              _shrimpDensityController,
+                              l10n.shrimpDensityLabel,
+                              'kg/m³',
+                              true,
+                              min: 0.1,
+                              max: 10.0,
+                              hint: '0.33',
+                            ),
+                            _buildNumberField(
+                              _pondDepthController,
+                              l10n.pondDepthLabel,
+                              'm',
+                              true,
+                              min: 0.1,
+                              max: 5.0,
+                              hint: '1.0',
+                            ),
+                            _buildNumberField(
+                              _energyCostController,
+                              l10n.energyCostLabel,
+                              'USD/kWh',
+                              true,
+                              min: 0.0,
+                              max: 2.0,
+                              hint: '0.05',
+                            ),
+                            _buildNumberField(
+                              _hoursPerNightController,
+                              l10n.hoursPerNightLabel,
+                              'hours',
+                              true,
+                              min: 1,
+                              max: 24,
+                              hint: '8',
+                            ),
+                            _buildNumberField(
+                              _discountRateController,
+                              l10n.discountRateLabel,
+                              '%',
+                              true,
+                              min: 0.0,
+                              max: 100.0,
+                              hint: '10.0',
+                            ),
+                            _buildNumberField(
+                              _inflationRateController,
+                              l10n.inflationRateLabel,
+                              '%',
+                              true,
+                              min: 0.0,
+                              max: 100.0,
+                              hint: '3.0',
+                            ),
+                            _buildNumberField(
+                              _horizonController,
+                              l10n.analysisHorizonLabel,
+                              'years',
+                              true,
+                              min: 1,
+                              max: 50,
+                              hint: '9',
+                            ),
+                            _buildNumberField(
+                              _safetyMarginController,
+                              l10n.safetyMarginLabel,
+                              '%',
+                              false,
+                              min: 0.0,
+                              max: 100.0,
+                              hint: '0',
+                            ),
+                            _buildNumberField(
+                              _temperatureController,
+                              l10n.temperatureLabel,
+                              '°C',
+                              true,
+                              min: 0.0,
+                              max: 50.0,
+                              hint: '31.5',
+                            ),
+                          ],
+                        ),
+                      ),
+                      Step(
+                        title: Text(
+                          l10n.aeratorDetails,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                      ],
-                    ),
+                        isActive: _currentStep == 1,
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Center(
+                              child: Text(
+                                "${l10n.aeratorLabel} 1",
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            _buildTextField(
+                              _aerator1NameController,
+                              l10n.nameLabel,
+                            ),
+                            _buildNumberField(
+                              _aerator1PowerController,
+                              l10n.horsepowerLabel,
+                              'hp',
+                              true,
+                              min: 0.1,
+                              max: 100,
+                              hint: '3.0',
+                            ),
+                            _buildNumberField(
+                              _aerator1SotrController,
+                              l10n.sotrLabel,
+                              'kg O₂/h',
+                              true,
+                              min: 0.1,
+                              max: 100,
+                              hint: '1.4',
+                            ),
+                            _buildNumberField(
+                              _aerator1CostController,
+                              l10n.priceLabel,
+                              'USD',
+                              true,
+                              min: 0,
+                              max: 50000,
+                              hint: '500',
+                            ),
+                            _buildNumberField(
+                              _aerator1DurabilityController,
+                              l10n.durabilityLabel,
+                              'years',
+                              true,
+                              min: 0.1,
+                              max: 50,
+                              hint: '2',
+                            ),
+                            _buildNumberField(
+                              _aerator1MaintenanceController,
+                              l10n.maintenanceCostLabel,
+                              'USD/year',
+                              true,
+                              min: 0,
+                              max: 10000,
+                              hint: '65',
+                            ),
+                            const SizedBox(height: 16),
+                            Center(
+                              child: Text(
+                                "${l10n.aeratorLabel} 2",
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            _buildTextField(
+                              _aerator2NameController,
+                              l10n.nameLabel,
+                            ),
+                            _buildNumberField(
+                              _aerator2PowerController,
+                              l10n.horsepowerLabel,
+                              'hp',
+                              true,
+                              min: 0.1,
+                              max: 100,
+                              hint: '3.0',
+                            ),
+                            _buildNumberField(
+                              _aerator2SotrController,
+                              l10n.sotrLabel,
+                              'kg O₂/h',
+                              true,
+                              min: 0.1,
+                              max: 100,
+                              hint: '2.6',
+                            ),
+                            _buildNumberField(
+                              _aerator2CostController,
+                              l10n.priceLabel,
+                              'USD',
+                              true,
+                              min: 0,
+                              max: 50000,
+                              hint: '800',
+                            ),
+                            _buildNumberField(
+                              _aerator2DurabilityController,
+                              l10n.durabilityLabel,
+                              'years',
+                              true,
+                              min: 0.1,
+                              max: 50,
+                              hint: '4.5',
+                            ),
+                            _buildNumberField(
+                              _aerator2MaintenanceController,
+                              l10n.maintenanceCostLabel,
+                              'USD/year',
+                              true,
+                              min: 0,
+                              max: 10000,
+                              hint: '50',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
+                ),
         ),
       ),
     );
