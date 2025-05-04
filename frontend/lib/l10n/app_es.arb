@@ -409,5 +409,9 @@
   "costEvolutionExplanation": "Evolución del costo anual para cada opción de aireador.",
   "@costEvolutionExplanation": {
     "description": "Descripción para la visualización de la evolución de costos"
+  },
+  "exportToPdf": "Exportar a PDF",
+  "@exportToPdf": {
+    "description": "Etiqueta para el botón para exportar resultados a PDF"
   }
 }

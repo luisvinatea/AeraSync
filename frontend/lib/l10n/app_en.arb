@@ -409,5 +409,9 @@
   "costEvolutionExplanation": "Annual cost evolution for each aerator option",
   "@costEvolutionExplanation": {
     "description": "Description for the cost evolution visualization"
+  },
+  "exportToPdf": "Export to PDF",
+  "@exportToPdf": {
+    "description": "Label for the button to export results to PDF"
   }
 }
