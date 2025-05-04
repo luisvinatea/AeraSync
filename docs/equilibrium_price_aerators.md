@@ -236,7 +236,7 @@ The analysis, applying the adapted mathematical models, clearly demonstrates the
 6. **High Opportunity Cost:** Choosing Aerator 1 incurs a massive opportunity cost, equivalent to \$14.6 million in present value terms – the savings forgone by not selecting Aerator 2.
 7. **Equilibrium Price Insight:** The equilibrium price calculation shows that Aerator 1 would need to cost less than zero (\$9,082 was the calculated threshold price for Aerator 2 to match Aerator 1's negative outcome structure, interpreted as A1 needing a price far below zero to compete), highlighting that the \$200 per unit "saving" on Aerator 1 is insignificant compared to its long-term operational inefficiency.
 
-This analysis powerfully reinforces the principle that focusing solely on minimizing upfront unit costs without considering operational efficiency (SAE, $OTR_T$) and durability is economically detrimental in the long run. The use of comprehensive mathematical models, adapted for comparing essential equipment based on life-cycle cost and efficiency (including NPV, opportunity cost, and equilibrium pricing), provides crucial decision support for sustainable and profitable shrimp farm management[cite: 1].
+This analysis powerfully reinforces the principle that focusing solely on minimizing upfront unit costs without considering operational efficiency (SAE, $OTR_T$) and durability is economically detrimental in the long run. The use of comprehensive mathematical models, adapted for comparing essential equipment based on life-cycle cost and efficiency (including NPV, opportunity cost, and equilibrium pricing), provides crucial decision support for sustainable and profitable shrimp farm management.
 
 ## References
 
