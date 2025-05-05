@@ -130,26 +130,78 @@ class ResultsPage extends StatelessWidget {
       bold: boldFont,
     );
 
-    // Prepare table rows synchronously to avoid async callback issues
-    final farmAreaRow = _createPdfTableRow(
-        l10n.farmAreaLabel, 
-        surveyData?['farm']?['farm_area_ha']?.toString() ?? 'N/A'
-    );
+    // Prepare all survey input table rows
+    final surveyInputRows = <pw.TableRow>[];
     
-    final energyCostRow = _createPdfTableRow(
-        l10n.energyCostLabel,
-        surveyData?['financial']?['energy_cost']?.toString() ?? 'N/A'
-    );
-    
-    final hoursPerNightRow = _createPdfTableRow(
-        l10n.hoursPerNightLabel,
-        surveyData?['financial']?['hours_per_night']?.toString() ?? 'N/A'
-    );
-    
-    final analysisHorizonRow = _createPdfTableRow(
-        l10n.analysisHorizonLabel,
-        surveyData?['financial']?['horizon']?.toString() ?? 'N/A'
-    );
+    if (surveyData != null) {
+      // Farm data
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.farmAreaLabel,
+          surveyData['farm']?['farm_area_ha']?.toString() ?? 'N/A'
+      ));
+      
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.shrimpPriceLabel,
+          surveyData['farm']?['shrimp_price']?.toString() ?? 'N/A'
+      ));
+      
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.cultureDaysLabel,
+          surveyData['farm']?['culture_days']?.toString() ?? 'N/A'
+      ));
+      
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.shrimpDensityLabel,
+          surveyData['farm']?['shrimp_density_kg_m3']?.toString() ?? 'N/A'
+      ));
+      
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.pondDepthLabel,
+          surveyData['farm']?['pond_depth_m']?.toString() ?? 'N/A'
+      ));
+      
+      // Financial data
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.energyCostLabel,
+          surveyData['financial']?['energy_cost']?.toString() ?? 'N/A'
+      ));
+      
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.hoursPerNightLabel,
+          surveyData['financial']?['hours_per_night']?.toString() ?? 'N/A'
+      ));
+      
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.discountRateLabel,
+          surveyData['financial']?['discount_rate'] != null
+              ? '${((surveyData['financial']['discount_rate'] as num) * 100).toStringAsFixed(1)}%'
+              : 'N/A'
+      ));
+      
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.inflationRateLabel,
+          surveyData['financial']?['inflation_rate'] != null
+              ? '${((surveyData['financial']['inflation_rate'] as num) * 100).toStringAsFixed(1)}%'
+              : 'N/A'
+      ));
+      
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.analysisHorizonLabel,
+          surveyData['financial']?['horizon']?.toString() ?? 'N/A'
+      ));
+      
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.safetyMarginLabel,
+          surveyData['financial']?['safety_margin'] != null
+              ? '${((surveyData['financial']['safety_margin'] as num) * 100).toStringAsFixed(1)}%'
+              : 'N/A'
+      ));
+      
+      surveyInputRows.add(_createPdfTableRow(
+          l10n.temperatureLabel,
+          surveyData['financial']?['temperature']?.toString() ?? 'N/A'
+      ));
+    }
 
     // Pre-generate all detail rows for each result
     final detailSections = results.map((result) {
@@ -178,6 +230,23 @@ class ResultsPage extends StatelessWidget {
         _createPdfTableRow(l10n.annualEnergyCostLabel, ResultsPage.formatCurrencyK(result.annualEnergyCost)),
         _createPdfTableRow(l10n.annualMaintenanceCostLabel, ResultsPage.formatCurrencyK(result.annualMaintenanceCost)),
         _createPdfTableRow(l10n.annualReplacementCostLabel, ResultsPage.formatCurrencyK(result.annualReplacementCost)),
+      ];
+
+      if (result.opportunityCost > 0) {
+        costBreakdownRows.add(_createPdfTableRow(
+          l10n.opportunityCostLabel,
+          ResultsPage.formatCurrencyK(result.opportunityCost)
+        ));
+      }
+
+      // Financial metrics rows
+      final financialMetricsRows = [
+        _createPdfTableRow(l10n.paybackPeriod, _formatPaybackPeriodForPdf(result.paybackYears, l10n, isWinner: isWinner)),
+        _createPdfTableRow(l10n.roiLabel, _formatROIForPdf(result.roiPercent, l10n, isWinner: isWinner)),
+        _createPdfTableRow(
+            l10n.irrLabel,
+            result.irr <= -100 ? l10n.notApplicable : '${result.irr.toStringAsFixed(2)}%'),
+        _createPdfTableRow(l10n.profitabilityIndexLabel, _formatProfitabilityKForPdf(result.profitabilityK)),
       ];
 
       return pw.Container(
@@ -221,6 +290,14 @@ class ResultsPage extends StatelessWidget {
               ],
             ),
             pw.Divider(),
+            pw.Text(
+              l10n.mainMetrics,
+              style: pw.TextStyle(
+                fontSize: 14,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+            pw.SizedBox(height: 5),
             pw.Table(
               columnWidths: {
                 0: const pw.FlexColumnWidth(3),
@@ -243,6 +320,22 @@ class ResultsPage extends StatelessWidget {
                 1: const pw.FlexColumnWidth(2),
               },
               children: costBreakdownRows,
+            ),
+            pw.SizedBox(height: 10),
+            pw.Text(
+              l10n.financialMetrics,
+              style: pw.TextStyle(
+                fontSize: 14,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+            pw.SizedBox(height: 5),
+            pw.Table(
+              columnWidths: {
+                0: const pw.FlexColumnWidth(3),
+                1: const pw.FlexColumnWidth(2),
+              },
+              children: financialMetricsRows,
             ),
           ],
         ),
@@ -329,12 +422,7 @@ class ResultsPage extends StatelessWidget {
                         0: const pw.FlexColumnWidth(2),
                         1: const pw.FlexColumnWidth(1),
                       },
-                      children: [
-                        farmAreaRow,
-                        energyCostRow,
-                        hoursPerNightRow,
-                        analysisHorizonRow,
-                      ],
+                      children: surveyInputRows,
                     ),
                 ],
               ),
@@ -387,6 +475,48 @@ class ResultsPage extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _formatPaybackPeriodForPdf(double paybackYears, AppLocalizations l10n, {bool isWinner = false}) {
+    if (paybackYears < 0 || paybackYears == double.infinity || paybackYears > 100) {
+      if (isWinner) {
+        return '< 1 ${l10n.year}';
+      }
+      return l10n.notApplicable;
+    }
+
+    if (paybackYears < 0.0822) {
+      final days = (paybackYears * 365).round();
+      return '$days ${l10n.days}';
+    }
+
+    if (paybackYears < 1) {
+      final months = (paybackYears * 12).round();
+      return '$months ${l10n.months}';
+    }
+
+    return '${paybackYears.toStringAsFixed(1)} ${l10n.years}';
+  }
+
+  String _formatROIForPdf(double roi, AppLocalizations l10n, {bool isWinner = false}) {
+    if (roi <= 0 && !isWinner) {
+      return l10n.notApplicable;
+    }
+
+    if (roi >= 1000) {
+      if (roi >= 1000000) {
+        return '${(roi / 1000000).toStringAsFixed(2)}M%';
+      }
+      return '${(roi / 1000).toStringAsFixed(2)}K%';
+    }
+
+    return '${roi.toStringAsFixed(2)}%';
+  }
+
+  String _formatProfitabilityKForPdf(double k) {
+    if (k >= 1_000_000) return '${(k / 1_000_000).toStringAsFixed(2)}M';
+    if (k >= 1000) return '${(k / 1000).toStringAsFixed(2)}K';
+    return k.toStringAsFixed(2);
   }
 
   @override

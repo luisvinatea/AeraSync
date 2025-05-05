@@ -413,5 +413,13 @@
   "exportToPdf": "Exportar em PDF",
   "@exportToPdf": {
     "description": "Etiqueta para o botão de exportar resultados em PDF"
+  },
+  "mainMetrics": "Principais Métricas",
+  "@mainMetrics": {
+    "description": "Título para a seção de principais métricas"
+  },
+  "financialMetrics": "Métricas Financeiras",
+  "@financialMetrics": {
+    "description": "Descrição para a seção de métricas financeiras"
   }
 }

@@ -413,5 +413,13 @@
   "exportToPdf": "Export to PDF",
   "@exportToPdf": {
     "description": "Label for the button to export results to PDF"
+  },
+  "mainMetrics": "Main Metrics",
+  "@mainMetrics": {
+    "description": "Title for the main metrics section"
+  },
+  "financialMetrics": "Financial Metrics",
+  "@financialMetrics": {
+    "description": "Title for the financial metrics section"
   }
 }
