@@ -43,7 +43,21 @@ class SurveyFormField extends StatelessWidget {
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.white70),
           filled: true,
-          fillColor: Colors.blue.shade900.withOpacity(0.5),
+          fillColor: Colors.blue.shade900.withValues(),
+          focusColor: Colors.white,
+          hoverColor: Colors.white,
+          errorStyle: const TextStyle(
+            color: Colors.red,
+            fontSize: 12,
+          ),
+          errorBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            borderSide: BorderSide(color: Colors.red, width: 1),
+          ),
+          focusedErrorBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+            borderSide: BorderSide(color: Colors.red, width: 1),
+          ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 24,
             vertical: 16,
