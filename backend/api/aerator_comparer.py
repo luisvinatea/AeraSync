@@ -317,7 +317,9 @@ def process_aerator(aerator, farm, financial, annual_revenue):
     operating_hours = financial.hours_per_night * 365
     annual_energy_cost = float(
         f"{
-            power_kw * financial.energy_cost * operating_hours
+            power_kw
+            * financial.energy_cost
+            * operating_hours
             * num_aerators:.2f
         }"
     )
@@ -332,7 +334,8 @@ def process_aerator(aerator, farm, financial, annual_revenue):
 
     total_annual_cost = float(
         f"{
-            annual_energy_cost + annual_maintenance_cost
+            annual_energy_cost
+            + annual_maintenance_cost
             + annual_replacement_cost:.2f
         }"
     )
@@ -469,12 +472,16 @@ def compare_aerators(data):
     for result in aerator_results:
         aerator = result["aerator"]
         annual_saving = float(
-            f"{least_efficient['total_annual_cost']
-                - result['total_annual_cost']:.2f}"
+            f"{
+                least_efficient['total_annual_cost']
+                - result['total_annual_cost']:.2f
+            }"
         )
         additional_cost = float(
-            f"{result['total_initial_cost']
-                - least_efficient['total_initial_cost']:.2f}"
+            f"{
+                result['total_initial_cost']
+                - least_efficient['total_initial_cost']:.2f
+            }"
         )
         cash_flows_savings = [
             float(f"{annual_saving * (1 + financial.inflation_rate) ** t:.2f}")
@@ -488,13 +495,16 @@ def compare_aerators(data):
         opportunity_cost = 0.00
         if aerator.name == least_efficient_aerator.name:
             winner_saving = float(
-                f"{least_efficient['total_annual_cost']
-                    - winner['total_annual_cost']:.2f}"
+                f"{
+                    least_efficient['total_annual_cost']
+                    - winner['total_annual_cost']:.2f
+                }"
             )
             winner_cash_flows = [
                 float(
-                    f"{winner_saving *
-                        (1 + financial.inflation_rate) ** t:.2f}"
+                    f"{
+                        winner_saving * (1 + financial.inflation_rate) ** t:.2f
+                    }"
                 )
                 for t in range(financial.horizon)
             ]
@@ -606,9 +616,9 @@ def handler(request):
             if body == "{invalid}":
                 return {
                     "statusCode": 500,
-                    "body": json.dumps(
-                        {"error": "JSONDecodeError: Invalid JSON"}
-                    ),
+                    "body": json.dumps({
+                        "error": "JSONDecodeError: Invalid JSON"
+                    }),
                 }
             data = json.loads(body)
 
@@ -633,45 +643,43 @@ def main(request):
 
 if __name__ == "__main__":
     sample_request = {
-        "body": json.dumps(
-            {
-                "farm": {
-                    "tod": 5443.76,
-                    "farm_area_ha": 1000,
-                    "shrimp_price": 5.0,
-                    "culture_days": 120,
-                    "shrimp_density_kg_m3": 0.3333333,
-                    "pond_depth_m": 1.0,
+        "body": json.dumps({
+            "farm": {
+                "tod": 5443.76,
+                "farm_area_ha": 1000,
+                "shrimp_price": 5.0,
+                "culture_days": 120,
+                "shrimp_density_kg_m3": 0.3333333,
+                "pond_depth_m": 1.0,
+            },
+            "financial": {
+                "energy_cost": 0.05,
+                "hours_per_night": 8,
+                "discount_rate": 0.1,
+                "inflation_rate": 0.025,
+                "horizon": 10,
+                "safety_margin": 0,
+                "temperature": 31.5,
+            },
+            "aerators": [
+                {
+                    "name": "Aerator 1",
+                    "sotr": 1.9,
+                    "power_hp": 3,
+                    "cost": 700,
+                    "durability": 2.0,
+                    "maintenance": 65,
                 },
-                "financial": {
-                    "energy_cost": 0.05,
-                    "hours_per_night": 8,
-                    "discount_rate": 0.1,
-                    "inflation_rate": 0.025,
-                    "horizon": 10,
-                    "safety_margin": 0,
-                    "temperature": 31.5,
+                {
+                    "name": "Aerator 2",
+                    "sotr": 3.5,
+                    "power_hp": 3,
+                    "cost": 900,
+                    "durability": 5.0,
+                    "maintenance": 50,
                 },
-                "aerators": [
-                    {
-                        "name": "Aerator 1",
-                        "sotr": 1.9,
-                        "power_hp": 3,
-                        "cost": 700,
-                        "durability": 2.0,
-                        "maintenance": 65,
-                    },
-                    {
-                        "name": "Aerator 2",
-                        "sotr": 3.5,
-                        "power_hp": 3,
-                        "cost": 900,
-                        "durability": 5.0,
-                        "maintenance": 50,
-                    },
-                ],
-            }
-        )
+            ],
+        })
     }
     response = main(sample_request)
     if response["statusCode"] == 200:

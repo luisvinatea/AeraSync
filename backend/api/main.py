@@ -4,7 +4,6 @@ Handles incoming requests for aerator comparisons and health checks.
 """
 
 import os
-import json
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -56,10 +55,7 @@ async def compare(request: Request):
         results = compare_aerators(data)
         return results
     except Exception as e:
-        return JSONResponse(
-            content={"error": str(e)},
-            status_code=500
-        )
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
 @app.get("/")
@@ -69,7 +65,7 @@ async def root():
         "name": "AeraSync Aerator Comparison API",
         "version": "1.0.0",
         "docs_url": "/docs",
-        "redoc_url": "/redoc"
+        "redoc_url": "/redoc",
     }
 
 
@@ -79,7 +75,7 @@ async def catch_all(request: Request, path_name: str):
     return JSONResponse(
         content={
             "error": f"Endpoint '/{path_name}' not found",
-            "available_endpoints": ["/", "/health", "/compare"]
+            "available_endpoints": ["/", "/health", "/compare"],
         },
-        status_code=404
+        status_code=404,
     )
