@@ -444,7 +444,7 @@ class ResultsPage extends StatelessWidget {
                     ),
                   ],
                 );
-              }).toList(),
+              }),
             ],
           ),
         ],
