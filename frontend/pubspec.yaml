@@ -22,7 +22,6 @@ dependencies:
   flutter_pdfview: ^1.4.0+1
   path_provider: ^2.1.5
   printing: ^5.14.2
-  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -44,7 +43,7 @@ flutter:
         - asset: web/fonts/NotoSerif-BoldItalic.ttf
           weight: 700
           style: italic
-      
+
     - family: NotoSans
       fonts:
         - asset: web/fonts/NotoSans-Black.ttf
@@ -54,7 +53,7 @@ flutter:
         - asset: web/fonts/NotoSans-BoldItalic.ttf
           weight: 700
           style: italic
-    
+
     - family: Roboto
       fonts:
         - asset: web/fonts/Roboto-Black.ttf
@@ -62,13 +61,13 @@ flutter:
           weight: 700
         - asset: web/fonts/Roboto-BlackItalic.ttf
           style: italic
-    
+
     - family: DejaVuSans
       fonts:
         - asset: web/fonts/DejaVuSans.ttf
         - asset: web/fonts/DejaVuSans-Bold.ttf
           weight: 700
-    
+
     - family: ArialUnicodeMS
       fonts:
         - asset: web/fonts/ArialUnicodeMS.otf

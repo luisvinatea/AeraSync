@@ -6,7 +6,6 @@ import 'core/services/app_state.dart';
 import 'presentation/pages/home_page.dart';
 import 'presentation/widgets/survey_page.dart';
 import 'presentation/widgets/results_page.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,20 +44,22 @@ class MyApp extends StatelessWidget {
               surface: Colors.white.withAlpha(230),
               onSurface: const Color(0xFF1E40AF),
             ),
-            textTheme: TextTheme(
+            textTheme: const TextTheme(
               bodyMedium: TextStyle(
                 fontFamily: 'NotoSerif',
                 fontFamilyFallback: [
-                  GoogleFonts.notoSans().fontFamily!,
-                  GoogleFonts.notoSerif().fontFamily!,
+                  'NotoSans',
+                  'Roboto',
+                  'DejaVuSans',
+                  'ArialUnicodeMS'
                 ],
               ),
-              headlineMedium: const TextStyle(
+              headlineMedium: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF1E40AF),
               ),
-              labelMedium: const TextStyle(
+              labelMedium: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF1E40AF),

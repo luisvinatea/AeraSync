@@ -28,11 +28,6 @@ frontend/public/
 backend/test/
 frontend/test/
 docs/
-source/
-
-# Font files
-*.ttf
-*.otf
 
 # Frontend specific
 frontend/*.jsbundle
