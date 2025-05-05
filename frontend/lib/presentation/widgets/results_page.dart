@@ -1,121 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../../core/services/app_state.dart';
 import 'dart:typed_data';
-
-/// Helper method to create a TextStyle with proper font fallbacks for subscript characters
-TextStyle getSubscriptTextStyle(BuildContext context, {TextStyle? baseStyle}) {
-  // Add specific fonts that support Unicode subscripts
-  final fallbackFonts = [
-    'Noto Sans',
-    'Noto Serif',
-    'Roboto',
-    'DejaVu Sans',
-    'Arial Unicode MS',
-    'Symbola'
-  ];
-  return (baseStyle ?? Theme.of(context).textTheme.bodyMedium!).copyWith(
-    fontFamilyFallback: fallbackFonts,
-    fontFeatures: const [FontFeature.subscripts()],
-  );
-}
-
-class AeratorResult {
-  final String name;
-  final int numAerators;
-  final double totalPowerHp;
-  final double totalInitialCost;
-  final double annualEnergyCost;
-  final double annualMaintenanceCost;
-  final double annualReplacementCost;
-  final double totalAnnualCost;
-  final double costPercentRevenue;
-  final double npvSavings;
-  final double paybackYears;
-  final double roiPercent;
-  final double irr;
-  final double profitabilityK;
-  final double aeratorsPerHa;
-  final double hpPerHa;
-  final double sae;
-  final double opportunityCost;
-
-  AeratorResult({
-    required this.name,
-    required this.numAerators,
-    required this.totalPowerHp,
-    required this.totalInitialCost,
-    required this.annualEnergyCost,
-    required this.annualMaintenanceCost,
-    required this.annualReplacementCost,
-    required this.totalAnnualCost,
-    required this.costPercentRevenue,
-    required this.npvSavings,
-    required this.paybackYears,
-    required this.roiPercent,
-    required this.irr,
-    required this.profitabilityK,
-    required this.aeratorsPerHa,
-    required this.hpPerHa,
-    required this.sae,
-    required this.opportunityCost,
-  });
-
-  factory AeratorResult.fromJson(Map<String, dynamic> json) {
-    return AeratorResult(
-      name: json['name'] ?? 'Unknown',
-      numAerators: json['num_aerators'] is int
-          ? json['num_aerators']
-          : (json['num_aerators'] as num?)?.toInt() ?? 0,
-      totalPowerHp: (json['total_power_hp'] as num?)?.toDouble() ?? 0.0,
-      totalInitialCost: (json['total_initial_cost'] as num?)?.toDouble() ?? 0.0,
-      annualEnergyCost: (json['annual_energy_cost'] as num?)?.toDouble() ?? 0.0,
-      annualMaintenanceCost:
-          (json['annual_maintenance_cost'] as num?)?.toDouble() ?? 0.0,
-      annualReplacementCost:
-          (json['annual_replacement_cost'] as num?)?.toDouble() ?? 0.0,
-      totalAnnualCost: (json['total_annual_cost'] as num?)?.toDouble() ?? 0.0,
-      costPercentRevenue:
-          (json['cost_percent_revenue'] as num?)?.toDouble() ?? 0.0,
-      npvSavings: (json['npv_savings'] as num?)?.toDouble() ?? 0.0,
-      paybackYears:
-          (json['payback_years'] as num?)?.toDouble() ?? double.infinity,
-      roiPercent: (json['roi_percent'] as num?)?.toDouble() ?? 0.0,
-      irr: (json['irr'] as num?)?.toDouble() ?? -100.0,
-      profitabilityK: (json['profitability_k'] as num?)?.toDouble() ?? 0.0,
-      aeratorsPerHa: (json['aerators_per_ha'] as num?)?.toDouble() ?? 0.0,
-      hpPerHa: (json['hp_per_ha'] as num?)?.toDouble() ?? 0.0,
-      sae: (json['sae'] as num?)?.toDouble() ?? 0.0,
-      opportunityCost: (json['opportunity_cost'] as num?)?.toDouble() ?? 0.0,
-    );
-  }
-
-  String formatCurrencyK(double value) {
-    if (value >= 1_000_000) {
-      return '\$${(value / 1_000_000).toStringAsFixed(2)}M';
-    }
-    if (value >= 1000) return '\$${(value / 1000).toStringAsFixed(2)}K';
-    return '\$${value.toStringAsFixed(2)}';
-  }
-}
+import 'components/aerator_result.dart';
+import 'components/enhanced_summary_card.dart';
+import 'components/aerator_comparison_card.dart';
+import 'components/equilibrium_prices_card.dart';
+import 'components/cost_visualization_card.dart';
+import 'components/cost_evolution_card.dart';
+import 'utils/formatting_utils.dart';
 
 class ResultsPage extends StatelessWidget {
   const ResultsPage({super.key});
-
-  static String formatCurrencyK(double value) {
-    if (value >= 1000000) {
-      return '\$${(value / 1000000).toStringAsFixed(2)}M';
-    }
-    if (value >= 1000) {
-      return '\$${(value / 1000).toStringAsFixed(2)}K';
-    }
-    return '\$${value.toStringAsFixed(2)}';
-  }
 
   Future<Uint8List> _generatePdf(
       AppLocalizations l10n,
@@ -203,13 +103,13 @@ class ResultsPage extends StatelessWidget {
         _createPdfTableRow(l10n.horsepowerPerHaLabel,
             '${result.hpPerHa.toStringAsFixed(2)} hp/ha'),
         _createPdfTableRow(l10n.initialCostLabel,
-            ResultsPage.formatCurrencyK(result.totalInitialCost)),
+            FormattingUtils.formatCurrencyK(result.totalInitialCost)),
         _createPdfTableRow(l10n.annualCostLabel,
-            ResultsPage.formatCurrencyK(result.totalAnnualCost)),
+            FormattingUtils.formatCurrencyK(result.totalAnnualCost)),
         _createPdfTableRow(l10n.costPercentRevenueLabel,
             '${result.costPercentRevenue.toStringAsFixed(2)}%'),
         _createPdfTableRow(l10n.npvSavingsLabel,
-            ResultsPage.formatCurrencyK(result.npvSavings)),
+            FormattingUtils.formatCurrencyK(result.npvSavings)),
         _createPdfTableRow(
             l10n.saeLabel, '${result.sae.toStringAsFixed(2)} kg O₂/kWh',
             useSubscriptFont: true,
@@ -220,33 +120,35 @@ class ResultsPage extends StatelessWidget {
       // Create cost breakdown rows
       final costBreakdownRows = [
         _createPdfTableRow(l10n.annualEnergyCostLabel,
-            ResultsPage.formatCurrencyK(result.annualEnergyCost)),
+            FormattingUtils.formatCurrencyK(result.annualEnergyCost)),
         _createPdfTableRow(l10n.annualMaintenanceCostLabel,
-            ResultsPage.formatCurrencyK(result.annualMaintenanceCost)),
+            FormattingUtils.formatCurrencyK(result.annualMaintenanceCost)),
         _createPdfTableRow(l10n.annualReplacementCostLabel,
-            ResultsPage.formatCurrencyK(result.annualReplacementCost)),
+            FormattingUtils.formatCurrencyK(result.annualReplacementCost)),
       ];
 
       if (result.opportunityCost > 0) {
         costBreakdownRows.add(_createPdfTableRow(l10n.opportunityCostLabel,
-            ResultsPage.formatCurrencyK(result.opportunityCost)));
+            FormattingUtils.formatCurrencyK(result.opportunityCost)));
       }
 
       // Financial metrics rows
       final financialMetricsRows = [
         _createPdfTableRow(
             l10n.paybackPeriod,
-            _formatPaybackPeriodForPdf(result.paybackYears, l10n,
+            FormattingUtils.formatPaybackPeriod(result.paybackYears, l10n,
                 isWinner: isWinner)),
-        _createPdfTableRow(l10n.roiLabel,
-            _formatROIForPdf(result.roiPercent, l10n, isWinner: isWinner)),
+        _createPdfTableRow(
+            l10n.roiLabel,
+            FormattingUtils.formatROI(result.roiPercent, l10n,
+                isWinner: isWinner)),
         _createPdfTableRow(
             l10n.irrLabel,
             result.irr <= -100
                 ? l10n.notApplicable
                 : '${result.irr.toStringAsFixed(2)}%'),
         _createPdfTableRow(l10n.profitabilityIndexLabel,
-            _formatProfitabilityKForPdf(result.profitabilityK)),
+            FormattingUtils.formatProfitabilityK(result.profitabilityK)),
       ];
 
       return pw.Container(
@@ -426,25 +328,26 @@ class ResultsPage extends StatelessWidget {
                     ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text(
-                          ResultsPage.formatCurrencyK(result.annualEnergyCost)),
+                      child: pw.Text(FormattingUtils.formatCurrencyK(
+                          result.annualEnergyCost)),
                     ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text(ResultsPage.formatCurrencyK(
+                      child: pw.Text(FormattingUtils.formatCurrencyK(
                           result.annualMaintenanceCost)),
                     ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text(ResultsPage.formatCurrencyK(
+                      child: pw.Text(FormattingUtils.formatCurrencyK(
                           result.annualReplacementCost)),
                     ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(5),
                       child: pw.Text(
-                        ResultsPage.formatCurrencyK(result.annualEnergyCost +
-                            result.annualMaintenanceCost +
-                            result.annualReplacementCost),
+                        FormattingUtils.formatCurrencyK(
+                            result.annualEnergyCost +
+                                result.annualMaintenanceCost +
+                                result.annualReplacementCost),
                         style: isWinner
                             ? pw.TextStyle(fontWeight: pw.FontWeight.bold)
                             : null,
@@ -514,7 +417,7 @@ class ResultsPage extends StatelessWidget {
                     ),
                   ),
                   pw.Text(
-                      '${l10n.annualRevenueLabel}: ${ResultsPage.formatCurrencyK(annualRevenue)}'),
+                      '${l10n.annualRevenueLabel}: ${FormattingUtils.formatCurrencyK(annualRevenue)}'),
                   pw.Text(
                     '${l10n.recommendedAerator}: $winnerLabel',
                     style: pw.TextStyle(
@@ -598,52 +501,6 @@ class ResultsPage extends StatelessWidget {
     );
   }
 
-  String _formatPaybackPeriodForPdf(double paybackYears, AppLocalizations l10n,
-      {bool isWinner = false}) {
-    if (paybackYears < 0 ||
-        paybackYears == double.infinity ||
-        paybackYears > 100) {
-      if (isWinner) {
-        return '< 1 ${l10n.year}';
-      }
-      return l10n.notApplicable;
-    }
-
-    if (paybackYears < 0.0822) {
-      final days = (paybackYears * 365).round();
-      return '$days ${l10n.days}';
-    }
-
-    if (paybackYears < 1) {
-      final months = (paybackYears * 12).round();
-      return '$months ${l10n.months}';
-    }
-
-    return '${paybackYears.toStringAsFixed(1)} ${l10n.years}';
-  }
-
-  String _formatROIForPdf(double roi, AppLocalizations l10n,
-      {bool isWinner = false}) {
-    if (roi <= 0 && !isWinner) {
-      return l10n.notApplicable;
-    }
-
-    if (roi >= 1000) {
-      if (roi >= 1000000) {
-        return '${(roi / 1000000).toStringAsFixed(2)}M%';
-      }
-      return '${(roi / 1000).toStringAsFixed(2)}K%';
-    }
-
-    return '${roi.toStringAsFixed(2)}%';
-  }
-
-  String _formatProfitabilityKForPdf(double k) {
-    if (k >= 1_000_000) return '${(k / 1_000_000).toStringAsFixed(2)}M';
-    if (k >= 1000) return '${(k / 1000).toStringAsFixed(2)}K';
-    return k.toStringAsFixed(2);
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -667,7 +524,7 @@ class ResultsPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.warning_amber_rounded,
+                const Icon(Icons.warning_amber_rounded,
                     size: 64, color: Colors.amber),
                 const SizedBox(height: 16),
                 Text(
@@ -728,7 +585,7 @@ class ResultsPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            _EnhancedSummaryCard(
+                            EnhancedSummaryCard(
                               l10n: l10n,
                               tod: tod,
                               winnerLabel: winnerLabel,
@@ -737,13 +594,13 @@ class ResultsPage extends StatelessWidget {
                               results: results,
                             ),
                             const SizedBox(height: 16),
-                            _AeratorComparisonCard(
+                            AeratorComparisonCard(
                               l10n: l10n,
                               results: results,
                               winnerLabel: winnerLabel,
                             ),
                             const SizedBox(height: 16),
-                            _EquilibriumPricesCard(
+                            EquilibriumPricesCard(
                               l10n: l10n,
                               equilibriumPrices: equilibriumPrices,
                             ),
@@ -756,13 +613,13 @@ class ResultsPage extends StatelessWidget {
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            _CostVisualizationCard(
+                            CostVisualizationCard(
                               l10n: l10n,
                               results: results,
                               winnerLabel: winnerLabel,
                             ),
                             const SizedBox(height: 16),
-                            _CostEvolutionCard(
+                            CostEvolutionCard(
                               l10n: l10n,
                               results: results,
                               winnerLabel: winnerLabel,
@@ -812,952 +669,5 @@ class ResultsPage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _EnhancedSummaryCard extends StatelessWidget {
-  final AppLocalizations l10n;
-  final double tod;
-  final String winnerLabel;
-  final double annualRevenue;
-  final Map<String, dynamic>? surveyData;
-  final List<AeratorResult> results;
-
-  const _EnhancedSummaryCard({
-    required this.l10n,
-    required this.tod,
-    required this.winnerLabel,
-    required this.annualRevenue,
-    required this.surveyData,
-    required this.results,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    Widget buildDetailRow(String label, String value) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-            Text(value),
-          ],
-        ),
-      );
-    }
-
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Semantics(
-          label: l10n.summaryMetricsDescription,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.summaryMetrics,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              // Enhanced styling for total oxygen demand with proper subscript
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  children: [
-                    TextSpan(
-                      text: '${l10n.totalDemandLabel}: ',
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    TextSpan(text: '${tod.toStringAsFixed(2)} kg '),
-                    TextSpan(
-                      text: 'O',
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    WidgetSpan(
-                      alignment: PlaceholderAlignment.bottom,
-                      baseline: TextBaseline.alphabetic,
-                      child: Transform.translate(
-                        offset: const Offset(0, 2),
-                        child: Text(
-                          '2',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            height: 0.7,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const TextSpan(text: '/h'),
-                  ],
-                ),
-              ),
-
-              Text(
-                '${l10n.annualRevenueLabel}: ${ResultsPage.formatCurrencyK(annualRevenue)}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                '${l10n.recommendedAerator}: $winnerLabel',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green.shade800,
-                    ),
-              ),
-              const Divider(),
-              Text(
-                l10n.surveyInputs,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              if (surveyData != null) ...[
-                buildDetailRow(
-                  l10n.farmAreaLabel,
-                  surveyData?['farm']?['farm_area_ha']?.toString() ?? 'N/A',
-                ),
-                buildDetailRow(
-                  l10n.shrimpPriceLabel,
-                  surveyData?['farm']?['shrimp_price']?.toString() ?? 'N/A',
-                ),
-                buildDetailRow(
-                  l10n.cultureDaysLabel,
-                  surveyData?['farm']?['culture_days']?.toString() ?? 'N/A',
-                ),
-                buildDetailRow(
-                  l10n.shrimpDensityLabel,
-                  surveyData?['farm']?['shrimp_density_kg_m3']?.toString() ??
-                      'N/A',
-                ),
-                buildDetailRow(
-                  l10n.pondDepthLabel,
-                  surveyData?['farm']?['pond_depth_m']?.toString() ?? 'N/A',
-                ),
-                buildDetailRow(
-                  l10n.energyCostLabel,
-                  surveyData?['financial']?['energy_cost']?.toString() ?? 'N/A',
-                ),
-                buildDetailRow(
-                  l10n.hoursPerNightLabel,
-                  surveyData?['financial']?['hours_per_night']?.toString() ??
-                      'N/A',
-                ),
-                buildDetailRow(
-                  l10n.discountRateLabel,
-                  surveyData?['financial']?['discount_rate'] != null
-                      ? '${((surveyData?['financial']['discount_rate'] as num) * 100).toStringAsFixed(1)}%'
-                      : 'N/A',
-                ),
-                buildDetailRow(
-                  l10n.inflationRateLabel,
-                  surveyData?['financial']?['inflation_rate'] != null
-                      ? '${((surveyData?['financial']['inflation_rate'] as num) * 100).toStringAsFixed(1)}%'
-                      : 'N/A',
-                ),
-                buildDetailRow(
-                  l10n.analysisHorizonLabel,
-                  surveyData?['financial']?['horizon']?.toString() ?? 'N/A',
-                ),
-                buildDetailRow(
-                  l10n.safetyMarginLabel,
-                  surveyData?['financial']?['safety_margin'] != null
-                      ? '${((surveyData?['financial']['safety_margin'] as num) * 100).toStringAsFixed(1)}%'
-                      : 'N/A',
-                ),
-                buildDetailRow(
-                  l10n.temperatureLabel,
-                  surveyData?['financial']?['temperature']?.toString() ?? 'N/A',
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AeratorComparisonCard extends StatelessWidget {
-  final AppLocalizations l10n;
-  final List<AeratorResult> results;
-  final String winnerLabel;
-
-  const _AeratorComparisonCard({
-    required this.l10n,
-    required this.results,
-    required this.winnerLabel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Semantics(
-          label: l10n.aeratorComparisonResultsDescription,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.aeratorComparisonResults,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 16),
-              ...results
-                  .map((result) => _buildDetailedResultCard(context, result)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailedResultCard(BuildContext context, AeratorResult result) {
-    final isWinner = result.name == winnerLabel;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: isWinner ? Colors.green.shade50 : null,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    result.name,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-                if (isWinner)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      l10n.recommended,
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-              ],
-            ),
-            const Divider(),
-            _detailRow(l10n.unitsNeeded, result.numAerators.toString()),
-            _detailRow(l10n.aeratorsPerHaLabel,
-                result.aeratorsPerHa.toStringAsFixed(2)),
-            _detailRow(l10n.horsepowerPerHaLabel,
-                '${result.hpPerHa.toStringAsFixed(2)} hp/ha'),
-            _detailRow(l10n.initialCostLabel,
-                ResultsPage.formatCurrencyK(result.totalInitialCost)),
-            _detailRow(l10n.annualCostLabel,
-                ResultsPage.formatCurrencyK(result.totalAnnualCost)),
-            _detailRow(l10n.costPercentRevenueLabel,
-                '${result.costPercentRevenue.toStringAsFixed(2)}%'),
-            _detailRow(l10n.annualEnergyCostLabel,
-                ResultsPage.formatCurrencyK(result.annualEnergyCost)),
-            _detailRow(l10n.annualMaintenanceCostLabel,
-                ResultsPage.formatCurrencyK(result.annualMaintenanceCost)),
-            _detailRow(l10n.annualReplacementCostLabel,
-                ResultsPage.formatCurrencyK(result.annualReplacementCost)),
-            if (result.opportunityCost > 0)
-              _detailRow(l10n.opportunityCostLabel,
-                  ResultsPage.formatCurrencyK(result.opportunityCost)),
-            const Divider(),
-            _detailRow(
-              l10n.npvSavingsLabel,
-              ResultsPage.formatCurrencyK(result.npvSavings),
-            ),
-            _detailRow(
-                l10n.paybackPeriod,
-                _formatPaybackPeriod(result.paybackYears, l10n,
-                    isWinner: isWinner)),
-            _detailRow(l10n.roiLabel,
-                _formatROI(result.roiPercent, l10n, isWinner: isWinner)),
-            _detailRow(
-                l10n.irrLabel,
-                result.irr <= -100
-                    ? l10n.notApplicable
-                    : '${result.irr.toStringAsFixed(2)}%'),
-            _detailRow(l10n.profitabilityIndexLabel,
-                _formatProfitabilityK(result.profitabilityK)),
-            _detailRow(
-              l10n.saeLabel,
-              '${result.sae.toStringAsFixed(2)} kg O₂/kWh',
-              useSubscript: true,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _detailRow(String label, String value, {bool useSubscript = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-          useSubscript
-              ? Builder(
-                  builder: (context) => RichText(
-                    text: TextSpan(
-                      style: DefaultTextStyle.of(context).style,
-                      children: [
-                        const TextSpan(text: ''),
-                        ...parseSaeText(value),
-                      ],
-                    ),
-                  ),
-                )
-              : Text(value),
-        ],
-      ),
-    );
-  }
-
-  List<InlineSpan> parseSaeText(String text) {
-    final List<InlineSpan> spans = [];
-    // Match typical scientific notation with subscripts like O₂ or kg O₂/kWh
-    final RegExp pattern = RegExp(r'O2|O₂');
-
-    // Split text at each occurrence of oxygen notation
-    final parts = text.split(pattern);
-
-    for (int i = 0; i < parts.length; i++) {
-      // Add the text before O2
-      spans.add(TextSpan(text: parts[i]));
-
-      // Add O2 with proper subscript (except after the last part)
-      if (i < parts.length - 1) {
-        spans.add(
-          TextSpan(text: 'O'),
-        );
-        spans.add(
-          WidgetSpan(
-            alignment: PlaceholderAlignment.bottom,
-            baseline: TextBaseline.alphabetic,
-            child: Transform.translate(
-              offset: const Offset(0, 2),
-              child: const Text(
-                '2',
-                style: TextStyle(
-                  fontSize: 10,
-                  height: 0.7,
-                ),
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
-    return spans;
-  }
-
-  String _formatPaybackPeriod(double paybackYears, AppLocalizations l10n,
-      {bool isWinner = false}) {
-    if (paybackYears < 0 ||
-        paybackYears == double.infinity ||
-        paybackYears > 100) {
-      if (isWinner) {
-        return '< 1 ${l10n.year}';
-      }
-      return l10n.notApplicable;
-    }
-
-    if (paybackYears < 0.0822) {
-      final days = (paybackYears * 365).round();
-      return '$days ${l10n.days}';
-    }
-
-    if (paybackYears < 1) {
-      final months = (paybackYears * 12).round();
-      return '$months ${l10n.months}';
-    }
-
-    return '${paybackYears.toStringAsFixed(1)} ${l10n.years}';
-  }
-
-  String _formatROI(double roi, AppLocalizations l10n,
-      {bool isWinner = false}) {
-    if (roi <= 0 && !isWinner) {
-      return l10n.notApplicable;
-    }
-
-    if (roi >= 1000) {
-      if (roi >= 1000000) {
-        return '${(roi / 1000000).toStringAsFixed(2)}M%';
-      }
-      return '${(roi / 1000).toStringAsFixed(2)}K%';
-    }
-
-    return '${roi.toStringAsFixed(2)}%';
-  }
-
-  String _formatProfitabilityK(double k) {
-    if (k >= 1_000_000) return '${(k / 1_000_000).toStringAsFixed(2)}M';
-    if (k >= 1000) return '${(k / 1000).toStringAsFixed(2)}K';
-    return k.toStringAsFixed(2);
-  }
-}
-
-class _EquilibriumPricesCard extends StatelessWidget {
-  final AppLocalizations l10n;
-  final Map<String, dynamic> equilibriumPrices;
-
-  const _EquilibriumPricesCard({
-    required this.l10n,
-    required this.equilibriumPrices,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (equilibriumPrices.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Semantics(
-          label: l10n.equilibriumPricesDescription,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.equilibriumPrices,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.equilibriumPriceExplanation,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 16),
-              ...equilibriumPrices.entries.map((entry) {
-                final price =
-                    (entry.value is num) ? entry.value.toDouble() : 0.0;
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            entry.key,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Text(
-                          ResultsPage.formatCurrencyK(price),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CostVisualizationCard extends StatelessWidget {
-  final AppLocalizations l10n;
-  final List<AeratorResult> results;
-  final String winnerLabel;
-
-  const _CostVisualizationCard({
-    required this.l10n,
-    required this.results,
-    required this.winnerLabel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.costBreakdownVisualization,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.annualCostComposition,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 450,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 16.0, bottom: 24.0),
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: _getMaxCost() * 1.3,
-                    barGroups: _getBarGroups(),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            if (value >= 0 && value < results.length) {
-                              final name = results[value.toInt()].name;
-                              final isWinner = name == winnerLabel;
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  isWinner
-                                      ? l10n.recommended
-                                      : "Less Preferred",
-                                  style: TextStyle(
-                                    color: isWinner
-                                        ? Colors.green.shade700
-                                        : const Color.fromARGB(255, 252, 7, 7),
-                                    fontWeight: isWinner
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 60,
-                          interval: _calculateYAxisInterval(),
-                          getTitlesWidget: (value, meta) {
-                            if (value % _calculateYAxisInterval() != 0) {
-                              return const SizedBox.shrink();
-                            }
-                            final formattedValue = value >= 1_000_000
-                                ? '${(value / 1_000_000).toStringAsFixed(1)}M'
-                                : value >= 1000
-                                    ? '${(value / 1000).toStringAsFixed(0)}K'
-                                    : value.toInt().toString();
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: Text(
-                                '\$$formattedValue',
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: _calculateYAxisInterval(),
-                    ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: const Border(
-                        bottom: BorderSide(),
-                        left: BorderSide(),
-                      ),
-                    ),
-                    barTouchData: BarTouchData(
-                      enabled: true,
-                      handleBuiltInTouches: false,
-                      touchTooltipData: BarTouchTooltipData(
-                        tooltipBgColor: Colors.white.withAlpha(204),
-                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                          final result = results[groupIndex];
-                          String component;
-                          double value;
-                          if (rodIndex < 0 ||
-                              rodIndex >= rod.rodStackItems.length) {
-                            return null;
-                          }
-                          switch (rodIndex) {
-                            case 0:
-                              component = l10n.annualEnergyCostLabel;
-                              value = result.annualEnergyCost;
-                              break;
-                            case 1:
-                              component = l10n.annualMaintenanceCostLabel;
-                              value = result.annualMaintenanceCost;
-                              break;
-                            case 2:
-                              component = l10n.annualReplacementCostLabel;
-                              value = result.annualReplacementCost;
-                              break;
-                            default:
-                              return null;
-                          }
-                          return BarTooltipItem(
-                            '$component\n${ResultsPage.formatCurrencyK(value)}',
-                            const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          );
-                        },
-                      ),
-                      touchCallback:
-                          (FlTouchEvent event, BarTouchResponse? response) {
-                        if (response == null || response.spot == null) return;
-                        if (event is! FlTapDownEvent) return;
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildLegend(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLegend(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _legendItem(Colors.blue.shade300, l10n.annualEnergyCostLabel),
-        const SizedBox(width: 16),
-        _legendItem(Colors.green.shade300, l10n.annualMaintenanceCostLabel),
-        const SizedBox(width: 16),
-        _legendItem(Colors.orange.shade300, l10n.annualReplacementCostLabel),
-      ],
-    );
-  }
-
-  Widget _legendItem(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 16,
-          height: 16,
-          color: color,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12),
-        ),
-      ],
-    );
-  }
-
-  double _getMaxCost() {
-    double maxCost = 0;
-    for (final result in results) {
-      final totalCost = result.annualEnergyCost +
-          result.annualMaintenanceCost +
-          result.annualReplacementCost;
-      if (totalCost > maxCost) {
-        maxCost = totalCost;
-      }
-    }
-    return maxCost;
-  }
-
-  List<BarChartGroupData> _getBarGroups() {
-    return List.generate(results.length, (index) {
-      final result = results[index];
-      final isWinner = result.name == winnerLabel;
-
-      return BarChartGroupData(
-        x: index,
-        barRods: [
-          BarChartRodData(
-            toY: result.annualEnergyCost +
-                result.annualMaintenanceCost +
-                result.annualReplacementCost,
-            width: 100,
-            borderRadius: BorderRadius.zero,
-            rodStackItems: [
-              BarChartRodStackItem(
-                  0, result.annualEnergyCost, Colors.blue.shade300),
-              BarChartRodStackItem(
-                  result.annualEnergyCost,
-                  result.annualEnergyCost + result.annualMaintenanceCost,
-                  Colors.green.shade300),
-              BarChartRodStackItem(
-                  result.annualEnergyCost + result.annualMaintenanceCost,
-                  result.annualEnergyCost +
-                      result.annualMaintenanceCost +
-                      result.annualReplacementCost,
-                  Colors.orange.shade300),
-            ],
-            borderSide: isWinner
-                ? BorderSide(color: Colors.green.shade700, width: 2)
-                : BorderSide.none,
-          ),
-        ],
-      );
-    });
-  }
-
-  double _calculateYAxisInterval() {
-    final maxCost = _getMaxCost();
-    if (maxCost <= 100) return 20;
-    if (maxCost <= 500) return 100;
-    if (maxCost <= 1000) return 200;
-    if (maxCost <= 5000) return 1000;
-    if (maxCost <= 10000) return 2000;
-    if (maxCost <= 50000) return 10000;
-    if (maxCost <= 100000) return 20000;
-    return maxCost / 5;
-  }
-}
-
-class _CostEvolutionCard extends StatelessWidget {
-  final AppLocalizations l10n;
-  final List<AeratorResult> results;
-  final String winnerLabel;
-  final Map<String, dynamic>? surveyData;
-
-  const _CostEvolutionCard({
-    required this.l10n,
-    required this.results,
-    required this.winnerLabel,
-    required this.surveyData,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.costEvolutionVisualization,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Cumulative cost difference (including initial cost) vs. recommended aerator over time',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 300,
-              child: LineChart(
-                LineChartData(
-                  lineBarsData: _getAreaChartData(),
-                  titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 60,
-                        interval: _calculateYAxisInterval(),
-                        getTitlesWidget: (value, meta) {
-                          if (value % _calculateYAxisInterval() != 0) {
-                            return const SizedBox.shrink();
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: Text(
-                              ResultsPage.formatCurrencyK(value),
-                              style: const TextStyle(fontSize: 10),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        interval: 5,
-                        getTitlesWidget: (value, meta) {
-                          if (value % 1 != 0) {
-                            return const SizedBox.shrink();
-                          }
-                          return Text(
-                            value.toInt().toString(),
-                            style: const TextStyle(fontSize: 10),
-                          );
-                        },
-                      ),
-                    ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                  ),
-                  borderData: FlBorderData(
-                    show: true,
-                    border: const Border(
-                      bottom: BorderSide(),
-                      left: BorderSide(),
-                    ),
-                  ),
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: false,
-                    horizontalInterval: _calculateYAxisInterval(),
-                  ),
-                  extraLinesData: ExtraLinesData(
-                    horizontalLines: [
-                      HorizontalLine(
-                        y: 0,
-                        color: Colors.red,
-                        strokeWidth: 1,
-                        dashArray: [5, 5],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildLegendForCostEvolution(context),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLegendForCostEvolution(BuildContext context) {
-    final winnerAerator =
-        results.firstWhere((result) => result.name == winnerLabel);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.blue.withAlpha(51), Colors.blue],
-                ),
-              ),
-            ),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                'Cumulative cost difference vs ${winnerAerator.name}',
-                style: const TextStyle(fontSize: 12),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 2,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  double _calculateYAxisInterval() {
-    final maxDifference = _getMaxCostDifference();
-    if (maxDifference <= 5000) return 1000;
-    if (maxDifference <= 20000) return 5000;
-    if (maxDifference <= 100000) return 20000;
-    if (maxDifference <= 1000000) return 200000;
-    return maxDifference / 5;
-  }
-
-  double _getMaxCostDifference() {
-    final winnerAerator =
-        results.firstWhere((result) => result.name == winnerLabel);
-    final horizon = surveyData?['financial']?['horizon'] as int? ?? 10;
-    double maxDiff = 0;
-    double minDiff = 0;
-
-    for (var result in results) {
-      if (result.name != winnerLabel) {
-        double cumulativeDiff =
-            result.totalInitialCost - winnerAerator.totalInitialCost;
-        if (cumulativeDiff > maxDiff) maxDiff = cumulativeDiff;
-        if (cumulativeDiff < minDiff) minDiff = cumulativeDiff;
-        for (var year = 1; year <= horizon; year++) {
-          cumulativeDiff +=
-              result.totalAnnualCost - winnerAerator.totalAnnualCost;
-          if (cumulativeDiff > maxDiff) maxDiff = cumulativeDiff;
-          if (cumulativeDiff < minDiff) minDiff = cumulativeDiff;
-        }
-      }
-    }
-    return (maxDiff.abs() > minDiff.abs()) ? maxDiff : minDiff.abs();
-  }
-
-  List<LineChartBarData> _getAreaChartData() {
-    final List<LineChartBarData> barData = [];
-    final winnerAerator =
-        results.firstWhere((result) => result.name == winnerLabel);
-    final horizon = surveyData?['financial']?['horizon'] as int? ?? 10;
-
-    for (var result in results) {
-      if (result.name != winnerLabel) {
-        final spots = <FlSpot>[];
-        double cumulativeDiff =
-            result.totalInitialCost - winnerAerator.totalInitialCost;
-        spots.add(FlSpot(0, cumulativeDiff));
-        for (var year = 1; year <= horizon; year++) {
-          cumulativeDiff +=
-              result.totalAnnualCost - winnerAerator.totalAnnualCost;
-          spots.add(FlSpot(year.toDouble(), cumulativeDiff));
-        }
-        barData.add(
-          LineChartBarData(
-            spots: spots,
-            isCurved: true,
-            color: Colors.blue,
-            barWidth: 2,
-            isStrokeCapRound: true,
-            dotData: FlDotData(show: false),
-            belowBarData: BarAreaData(
-              show: true,
-              color: Colors.blue.withAlpha(76),
-              applyCutOffY: false,
-            ),
-          ),
-        );
-      }
-    }
-    return barData;
   }
 }
