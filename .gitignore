@@ -28,6 +28,7 @@ frontend/public/
 backend/test/
 frontend/test/
 docs/
+source/
 
 # Font files
 *.ttf
