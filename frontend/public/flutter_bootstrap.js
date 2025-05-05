@@ -10,7 +10,12 @@ _flutter.buildConfig = {"engineRevision":"cf56914b326edb0ccb123ffdc60f00060bd513
 
 
 _flutter.loader.load({
-  serviceWorkerSettings: {
-    serviceWorkerVersion: "4251078519"
-  }
+  serviceWorker: {
+    serviceWorkerVersion: ""4034593923"",
+  },
+  hostElement: document.querySelector('#flutter-target'),
+}).then(function(engineInitializer) {
+  return engineInitializer.initializeEngine();
+}).then(function(appRunner) {
+  return appRunner.runApp();
 });
