@@ -1,5 +1,4 @@
 # Declare targets that are not files, so 'make' always runs the commands
-# Added clean, deploy, all to the phony list
 .PHONY: run-flutter build-web gen-l10n test clean deploy all
 
 # Default target: Generate localization and run tests
