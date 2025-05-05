@@ -10,7 +10,15 @@ import 'dart:typed_data';
 
 /// Helper method to create a TextStyle with proper font fallbacks for subscript characters
 TextStyle getSubscriptTextStyle(BuildContext context, {TextStyle? baseStyle}) {
-  final fallbackFonts = ['Noto Sans', 'Noto Serif', 'Roboto'];
+  // Add specific fonts that support Unicode subscripts
+  final fallbackFonts = [
+    'Noto Sans',
+    'Noto Serif',
+    'Roboto',
+    'DejaVu Sans',
+    'Arial Unicode MS',
+    'Symbola'
+  ];
   return (baseStyle ?? Theme.of(context).textTheme.bodyMedium!).copyWith(
     fontFamilyFallback: fallbackFonts,
     fontFeatures: const [FontFeature.subscripts()],

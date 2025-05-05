@@ -60,8 +60,18 @@ npm-debug.log
 # pnpm
 pnpm-debug.log
 # Build
-dist/
-build/
+*dist/
+*build/
+*public/
+# Fonts
+*.ttf
+*.otf
+*.bin.json
+*.bin
+AssetManifest*
+FontManifest*
+# Compiled source
+
 
 # Sphinx documentation
 source/_build/

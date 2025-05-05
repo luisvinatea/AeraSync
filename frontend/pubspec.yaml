@@ -44,6 +44,36 @@ flutter:
         - asset: web/fonts/NotoSerif-BoldItalic.ttf
           weight: 700
           style: italic
+      
+    - family: NotoSans
+      fonts:
+        - asset: web/fonts/NotoSans-Black.ttf
+        - asset: web/fonts/NotoSans-Bold.ttf
+          weight: 700
+        - asset: web/fonts/NotoSans-BlackItalic.ttf
+        - asset: web/fonts/NotoSans-BoldItalic.ttf
+          weight: 700
+          style: italic
+    
+    - family: Roboto
+      fonts:
+        - asset: web/fonts/Roboto-Black.ttf
+        - asset: web/fonts/Roboto-Bold.ttf
+          weight: 700
+        - asset: web/fonts/Roboto-BlackItalic.ttf
+          style: italic
+    
+    - family: DejaVuSans
+      fonts:
+        - asset: web/fonts/DejaVuSans.ttf
+        - asset: web/fonts/DejaVuSans-Bold.ttf
+          weight: 700
+    
+    - family: ArialUnicodeMS
+      fonts:
+        - asset: web/fonts/ArialUnicodeMS.otf
+        - asset: web/fonts/ArialUnicodeMS-Bold.otf
+          weight: 700
   assets:
     - web/assets/
     - web/icons/aerasync64.webp
@@ -55,3 +85,14 @@ flutter:
     - web/fonts/NotoSerif-Bold.ttf
     - web/fonts/NotoSerif-BlackItalic.ttf
     - web/fonts/NotoSerif-BoldItalic.ttf
+    - web/fonts/NotoSans-Black.ttf
+    - web/fonts/NotoSans-Bold.ttf
+    - web/fonts/NotoSans-BlackItalic.ttf
+    - web/fonts/NotoSans-BoldItalic.ttf
+    - web/fonts/Roboto-Black.ttf
+    - web/fonts/Roboto-Bold.ttf
+    - web/fonts/Roboto-BlackItalic.ttf
+    - web/fonts/DejaVuSans.ttf
+    - web/fonts/DejaVuSans-Bold.ttf
+    - web/fonts/ArialUnicodeMS.otf
+    - web/fonts/ArialUnicodeMS-Bold.otf
