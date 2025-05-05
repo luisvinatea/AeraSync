@@ -62,6 +62,7 @@ pnpm-debug.log
 # Build
 *dist/
 *build/
+docs/
 *public/
 # Fonts
 *.ttf
