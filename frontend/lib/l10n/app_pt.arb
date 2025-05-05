@@ -421,5 +421,13 @@
   "financialMetrics": "Métricas Financeiras",
   "@financialMetrics": {
     "description": "Descrição para a seção de métricas financeiras"
+  },
+  "replacementCostLabel": "Custo de Substituição",
+  "@replacementCostLabel": {
+    "description": "Descrição para a coluna de custo de substituição na tabela de comparação"
+  },
+  "totalLabel": "Custo Total",
+  "@totalLabel": {
+    "description": "Descrição para a coluna de custo total na tabela de comparação"
   }
 }

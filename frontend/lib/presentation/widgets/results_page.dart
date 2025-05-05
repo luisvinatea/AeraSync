@@ -13,6 +13,7 @@ TextStyle getSubscriptTextStyle(BuildContext context, {TextStyle? baseStyle}) {
   final fallbackFonts = ['Noto Sans', 'Noto Serif', 'Roboto'];
   return (baseStyle ?? Theme.of(context).textTheme.bodyMedium!).copyWith(
     fontFamilyFallback: fallbackFonts,
+    fontFeatures: const [FontFeature.subscripts()],
   );
 }
 
@@ -116,7 +117,7 @@ class ResultsPage extends StatelessWidget {
       double annualRevenue,
       Map<String, dynamic>? surveyData) async {
     final pdf = pw.Document();
-    
+
     // Load fonts first before using them
     final baseFont = await PdfGoogleFonts.robotoRegular();
     final boldFont = await PdfGoogleFonts.robotoBold();
@@ -132,121 +133,112 @@ class ResultsPage extends StatelessWidget {
 
     // Prepare all survey input table rows
     final surveyInputRows = <pw.TableRow>[];
-    
+
     if (surveyData != null) {
       // Farm data
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.farmAreaLabel,
-          surveyData['farm']?['farm_area_ha']?.toString() ?? 'N/A'
-      ));
-      
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.shrimpPriceLabel,
-          surveyData['farm']?['shrimp_price']?.toString() ?? 'N/A'
-      ));
-      
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.cultureDaysLabel,
-          surveyData['farm']?['culture_days']?.toString() ?? 'N/A'
-      ));
-      
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.shrimpDensityLabel,
-          surveyData['farm']?['shrimp_density_kg_m3']?.toString() ?? 'N/A'
-      ));
-      
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.pondDepthLabel,
-          surveyData['farm']?['pond_depth_m']?.toString() ?? 'N/A'
-      ));
-      
+      surveyInputRows.add(_createPdfTableRow(l10n.farmAreaLabel,
+          surveyData['farm']?['farm_area_ha']?.toString() ?? 'N/A'));
+
+      surveyInputRows.add(_createPdfTableRow(l10n.shrimpPriceLabel,
+          surveyData['farm']?['shrimp_price']?.toString() ?? 'N/A'));
+
+      surveyInputRows.add(_createPdfTableRow(l10n.cultureDaysLabel,
+          surveyData['farm']?['culture_days']?.toString() ?? 'N/A'));
+
+      surveyInputRows.add(_createPdfTableRow(l10n.shrimpDensityLabel,
+          surveyData['farm']?['shrimp_density_kg_m3']?.toString() ?? 'N/A'));
+
+      surveyInputRows.add(_createPdfTableRow(l10n.pondDepthLabel,
+          surveyData['farm']?['pond_depth_m']?.toString() ?? 'N/A'));
+
       // Financial data
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.energyCostLabel,
-          surveyData['financial']?['energy_cost']?.toString() ?? 'N/A'
-      ));
-      
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.hoursPerNightLabel,
-          surveyData['financial']?['hours_per_night']?.toString() ?? 'N/A'
-      ));
-      
+      surveyInputRows.add(_createPdfTableRow(l10n.energyCostLabel,
+          surveyData['financial']?['energy_cost']?.toString() ?? 'N/A'));
+
+      surveyInputRows.add(_createPdfTableRow(l10n.hoursPerNightLabel,
+          surveyData['financial']?['hours_per_night']?.toString() ?? 'N/A'));
+
       surveyInputRows.add(_createPdfTableRow(
           l10n.discountRateLabel,
           surveyData['financial']?['discount_rate'] != null
               ? '${((surveyData['financial']['discount_rate'] as num) * 100).toStringAsFixed(1)}%'
-              : 'N/A'
-      ));
-      
+              : 'N/A'));
+
       surveyInputRows.add(_createPdfTableRow(
           l10n.inflationRateLabel,
           surveyData['financial']?['inflation_rate'] != null
               ? '${((surveyData['financial']['inflation_rate'] as num) * 100).toStringAsFixed(1)}%'
-              : 'N/A'
-      ));
-      
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.analysisHorizonLabel,
-          surveyData['financial']?['horizon']?.toString() ?? 'N/A'
-      ));
-      
+              : 'N/A'));
+
+      surveyInputRows.add(_createPdfTableRow(l10n.analysisHorizonLabel,
+          surveyData['financial']?['horizon']?.toString() ?? 'N/A'));
+
       surveyInputRows.add(_createPdfTableRow(
           l10n.safetyMarginLabel,
           surveyData['financial']?['safety_margin'] != null
               ? '${((surveyData['financial']['safety_margin'] as num) * 100).toStringAsFixed(1)}%'
-              : 'N/A'
-      ));
-      
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.temperatureLabel,
-          surveyData['financial']?['temperature']?.toString() ?? 'N/A'
-      ));
+              : 'N/A'));
+
+      surveyInputRows.add(_createPdfTableRow(l10n.temperatureLabel,
+          surveyData['financial']?['temperature']?.toString() ?? 'N/A'));
     }
 
     // Pre-generate all detail rows for each result
     final detailSections = results.map((result) {
       final isWinner = result.name == winnerLabel;
-      
+
       // Create table rows for each detail
       final detailRows = [
         _createPdfTableRow(l10n.unitsNeeded, result.numAerators.toString()),
-        _createPdfTableRow(l10n.aeratorsPerHaLabel, result.aeratorsPerHa.toStringAsFixed(2)),
-        _createPdfTableRow(l10n.horsepowerPerHaLabel, '${result.hpPerHa.toStringAsFixed(2)} hp/ha'),
-        _createPdfTableRow(l10n.initialCostLabel, ResultsPage.formatCurrencyK(result.totalInitialCost)),
-        _createPdfTableRow(l10n.annualCostLabel, ResultsPage.formatCurrencyK(result.totalAnnualCost)),
-        _createPdfTableRow(l10n.costPercentRevenueLabel, '${result.costPercentRevenue.toStringAsFixed(2)}%'),
-        _createPdfTableRow(l10n.npvSavingsLabel, ResultsPage.formatCurrencyK(result.npvSavings)),
         _createPdfTableRow(
-            l10n.saeLabel,
-            '${result.sae.toStringAsFixed(2)} kg O₂/kWh',
+            l10n.aeratorsPerHaLabel, result.aeratorsPerHa.toStringAsFixed(2)),
+        _createPdfTableRow(l10n.horsepowerPerHaLabel,
+            '${result.hpPerHa.toStringAsFixed(2)} hp/ha'),
+        _createPdfTableRow(l10n.initialCostLabel,
+            ResultsPage.formatCurrencyK(result.totalInitialCost)),
+        _createPdfTableRow(l10n.annualCostLabel,
+            ResultsPage.formatCurrencyK(result.totalAnnualCost)),
+        _createPdfTableRow(l10n.costPercentRevenueLabel,
+            '${result.costPercentRevenue.toStringAsFixed(2)}%'),
+        _createPdfTableRow(l10n.npvSavingsLabel,
+            ResultsPage.formatCurrencyK(result.npvSavings)),
+        _createPdfTableRow(
+            l10n.saeLabel, '${result.sae.toStringAsFixed(2)} kg O₂/kWh',
             useSubscriptFont: true,
             notoSerifBlackFont: notoSerifBlackFont,
-            notoSerifFont: notoSerifFont
-        ),
+            notoSerifFont: notoSerifFont),
       ];
 
       // Create cost breakdown rows
       final costBreakdownRows = [
-        _createPdfTableRow(l10n.annualEnergyCostLabel, ResultsPage.formatCurrencyK(result.annualEnergyCost)),
-        _createPdfTableRow(l10n.annualMaintenanceCostLabel, ResultsPage.formatCurrencyK(result.annualMaintenanceCost)),
-        _createPdfTableRow(l10n.annualReplacementCostLabel, ResultsPage.formatCurrencyK(result.annualReplacementCost)),
+        _createPdfTableRow(l10n.annualEnergyCostLabel,
+            ResultsPage.formatCurrencyK(result.annualEnergyCost)),
+        _createPdfTableRow(l10n.annualMaintenanceCostLabel,
+            ResultsPage.formatCurrencyK(result.annualMaintenanceCost)),
+        _createPdfTableRow(l10n.annualReplacementCostLabel,
+            ResultsPage.formatCurrencyK(result.annualReplacementCost)),
       ];
 
       if (result.opportunityCost > 0) {
-        costBreakdownRows.add(_createPdfTableRow(
-          l10n.opportunityCostLabel,
-          ResultsPage.formatCurrencyK(result.opportunityCost)
-        ));
+        costBreakdownRows.add(_createPdfTableRow(l10n.opportunityCostLabel,
+            ResultsPage.formatCurrencyK(result.opportunityCost)));
       }
 
       // Financial metrics rows
       final financialMetricsRows = [
-        _createPdfTableRow(l10n.paybackPeriod, _formatPaybackPeriodForPdf(result.paybackYears, l10n, isWinner: isWinner)),
-        _createPdfTableRow(l10n.roiLabel, _formatROIForPdf(result.roiPercent, l10n, isWinner: isWinner)),
+        _createPdfTableRow(
+            l10n.paybackPeriod,
+            _formatPaybackPeriodForPdf(result.paybackYears, l10n,
+                isWinner: isWinner)),
+        _createPdfTableRow(l10n.roiLabel,
+            _formatROIForPdf(result.roiPercent, l10n, isWinner: isWinner)),
         _createPdfTableRow(
             l10n.irrLabel,
-            result.irr <= -100 ? l10n.notApplicable : '${result.irr.toStringAsFixed(2)}%'),
-        _createPdfTableRow(l10n.profitabilityIndexLabel, _formatProfitabilityKForPdf(result.profitabilityK)),
+            result.irr <= -100
+                ? l10n.notApplicable
+                : '${result.irr.toStringAsFixed(2)}%'),
+        _createPdfTableRow(l10n.profitabilityIndexLabel,
+            _formatProfitabilityKForPdf(result.profitabilityK)),
       ];
 
       return pw.Container(
@@ -273,7 +265,8 @@ class ResultsPage extends StatelessWidget {
                 ),
                 if (isWinner)
                   pw.Container(
-                    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const pw.EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
                     decoration: pw.BoxDecoration(
                       color: PdfColors.green700,
                       borderRadius: pw.BorderRadius.circular(12),
@@ -342,6 +335,122 @@ class ResultsPage extends StatelessWidget {
       );
     }).toList();
 
+    // Create simple bar chart for cost visualization
+    final costChartSection = pw.Container(
+      margin: const pw.EdgeInsets.only(bottom: 15),
+      padding: const pw.EdgeInsets.all(10),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.grey300),
+        borderRadius: pw.BorderRadius.circular(5),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            l10n.costBreakdownVisualization,
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+          pw.SizedBox(height: 10),
+
+          // Simple table representation of cost breakdown
+          pw.Table(
+            border: pw.TableBorder.all(color: PdfColors.grey300),
+            columnWidths: {
+              0: const pw.FlexColumnWidth(2), // Name
+              1: const pw.FlexColumnWidth(1.5), // Energy
+              2: const pw.FlexColumnWidth(1.5), // Maintenance
+              3: const pw.FlexColumnWidth(1.5), // Replacement
+              4: const pw.FlexColumnWidth(1.5), // Total
+            },
+            children: [
+              // Header row
+              pw.TableRow(
+                decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+                children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(5),
+                    child: pw.Text(l10n.aerator,
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(5),
+                    child: pw.Text(l10n.energyCostLabel,
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(5),
+                    child: pw.Text(l10n.maintenanceCostLabel,
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(5),
+                    child: pw.Text(l10n.replacementCostLabel,
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(5),
+                    child: pw.Text(l10n.totalLabel,
+                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                ],
+              ),
+              // Data rows for each aerator
+              ...results.map((result) {
+                final isWinner = result.name == winnerLabel;
+                return pw.TableRow(
+                  decoration: pw.BoxDecoration(
+                    color: isWinner ? PdfColors.green50 : PdfColors.white,
+                  ),
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(5),
+                      child: pw.Text(
+                        result.name,
+                        style: isWinner
+                            ? pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                                color: PdfColors.green800)
+                            : null,
+                      ),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(5),
+                      child: pw.Text(
+                          ResultsPage.formatCurrencyK(result.annualEnergyCost)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(5),
+                      child: pw.Text(ResultsPage.formatCurrencyK(
+                          result.annualMaintenanceCost)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(5),
+                      child: pw.Text(ResultsPage.formatCurrencyK(
+                          result.annualReplacementCost)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(5),
+                      child: pw.Text(
+                        ResultsPage.formatCurrencyK(result.annualEnergyCost +
+                            result.annualMaintenanceCost +
+                            result.annualReplacementCost),
+                        style: isWinner
+                            ? pw.TextStyle(fontWeight: pw.FontWeight.bold)
+                            : null,
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ],
+          ),
+        ],
+      ),
+    );
+
     pdf.addPage(
       pw.MultiPage(
         theme: theme,
@@ -353,10 +462,9 @@ class ResultsPage extends StatelessWidget {
             child: pw.Text(
               'AeraSync: ${l10n.aeratorComparisonResults}',
               style: pw.TextStyle(
-                fontSize: 24,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColors.blue700
-              ),
+                  fontSize: 24,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.blue700),
             ),
           );
         },
@@ -385,10 +493,9 @@ class ResultsPage extends StatelessWidget {
                   pw.Text(
                     l10n.summaryMetrics,
                     style: pw.TextStyle(
-                      fontSize: 18,
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.blue900
-                    ),
+                        fontSize: 18,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.blue900),
                   ),
                   pw.SizedBox(height: 10),
                   pw.Text(
@@ -399,23 +506,20 @@ class ResultsPage extends StatelessWidget {
                     ),
                   ),
                   pw.Text(
-                    '${l10n.annualRevenueLabel}: ${ResultsPage.formatCurrencyK(annualRevenue)}'
-                  ),
+                      '${l10n.annualRevenueLabel}: ${ResultsPage.formatCurrencyK(annualRevenue)}'),
                   pw.Text(
                     '${l10n.recommendedAerator}: $winnerLabel',
                     style: pw.TextStyle(
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.green800
-                    ),
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.green800),
                   ),
                   pw.SizedBox(height: 10),
                   pw.Text(
                     l10n.surveyInputs,
                     style: pw.TextStyle(
-                      fontSize: 14,
-                      fontWeight: pw.FontWeight.bold
-                    ),
+                        fontSize: 14, fontWeight: pw.FontWeight.bold),
                   ),
+                  pw.SizedBox(height: 5),
                   if (surveyData != null)
                     pw.Table(
                       columnWidths: {
@@ -432,6 +536,11 @@ class ResultsPage extends StatelessWidget {
 
             // Comparison details section
             ...detailSections,
+
+            pw.SizedBox(height: 20),
+
+            // Cost breakdown visualization
+            costChartSection,
 
             pw.SizedBox(height: 20),
 
@@ -454,8 +563,10 @@ class ResultsPage extends StatelessWidget {
     return pdf.save();
   }
 
-  pw.TableRow _createPdfTableRow(String label, String value, 
-      {bool useSubscriptFont = false, pw.Font? notoSerifBlackFont, pw.Font? notoSerifFont}) {
+  pw.TableRow _createPdfTableRow(String label, String value,
+      {bool useSubscriptFont = false,
+      pw.Font? notoSerifBlackFont,
+      pw.Font? notoSerifFont}) {
     return pw.TableRow(
       children: [
         pw.Padding(
@@ -466,7 +577,9 @@ class ResultsPage extends StatelessWidget {
         pw.Padding(
           padding: const pw.EdgeInsets.symmetric(vertical: 2),
           child: pw.Text(value,
-              style: useSubscriptFont && notoSerifBlackFont != null && notoSerifFont != null
+              style: useSubscriptFont &&
+                      notoSerifBlackFont != null &&
+                      notoSerifFont != null
                   ? pw.TextStyle(
                       font: notoSerifBlackFont,
                       fontFallback: [notoSerifFont],
@@ -477,8 +590,11 @@ class ResultsPage extends StatelessWidget {
     );
   }
 
-  String _formatPaybackPeriodForPdf(double paybackYears, AppLocalizations l10n, {bool isWinner = false}) {
-    if (paybackYears < 0 || paybackYears == double.infinity || paybackYears > 100) {
+  String _formatPaybackPeriodForPdf(double paybackYears, AppLocalizations l10n,
+      {bool isWinner = false}) {
+    if (paybackYears < 0 ||
+        paybackYears == double.infinity ||
+        paybackYears > 100) {
       if (isWinner) {
         return '< 1 ${l10n.year}';
       }
@@ -498,7 +614,8 @@ class ResultsPage extends StatelessWidget {
     return '${paybackYears.toStringAsFixed(1)} ${l10n.years}';
   }
 
-  String _formatROIForPdf(double roi, AppLocalizations l10n, {bool isWinner = false}) {
+  String _formatROIForPdf(double roi, AppLocalizations l10n,
+      {bool isWinner = false}) {
     if (roi <= 0 && !isWinner) {
       return l10n.notApplicable;
     }
@@ -736,11 +853,39 @@ class _EnhancedSummaryCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
-              Text(
-                '${l10n.totalDemandLabel}: ${tod.toStringAsFixed(2)} kg O₂/h',
-                style: getSubscriptTextStyle(context,
-                    baseStyle: Theme.of(context).textTheme.bodyMedium),
+              // Enhanced styling for total oxygen demand with proper subscript
+              RichText(
+                text: TextSpan(
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  children: [
+                    TextSpan(
+                      text: '${l10n.totalDemandLabel}: ',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    TextSpan(text: '${tod.toStringAsFixed(2)} kg '),
+                    TextSpan(
+                      text: 'O',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.bottom,
+                      baseline: TextBaseline.alphabetic,
+                      child: Transform.translate(
+                        offset: const Offset(0, 2),
+                        child: Text(
+                          '2',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            height: 0.7,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const TextSpan(text: '/h'),
+                  ],
+                ),
               ),
+
               Text(
                 '${l10n.annualRevenueLabel}: ${ResultsPage.formatCurrencyK(annualRevenue)}',
                 style: Theme.of(context).textTheme.bodyMedium,
@@ -955,11 +1100,13 @@ class _AeratorComparisonCard extends StatelessWidget {
           Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
           useSubscript
               ? Builder(
-                  builder: (context) => Text(
-                    value,
-                    style: getSubscriptTextStyle(
-                      context,
-                      baseStyle: Theme.of(context).textTheme.bodyMedium,
+                  builder: (context) => RichText(
+                    text: TextSpan(
+                      style: DefaultTextStyle.of(context).style,
+                      children: [
+                        const TextSpan(text: ''),
+                        ...parseSaeText(value),
+                      ],
                     ),
                   ),
                 )
@@ -967,6 +1114,45 @@ class _AeratorComparisonCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  List<InlineSpan> parseSaeText(String text) {
+    final List<InlineSpan> spans = [];
+    // Match typical scientific notation with subscripts like O₂ or kg O₂/kWh
+    final RegExp pattern = RegExp(r'O2|O₂');
+
+    // Split text at each occurrence of oxygen notation
+    final parts = text.split(pattern);
+
+    for (int i = 0; i < parts.length; i++) {
+      // Add the text before O2
+      spans.add(TextSpan(text: parts[i]));
+
+      // Add O2 with proper subscript (except after the last part)
+      if (i < parts.length - 1) {
+        spans.add(
+          TextSpan(text: 'O'),
+        );
+        spans.add(
+          WidgetSpan(
+            alignment: PlaceholderAlignment.bottom,
+            baseline: TextBaseline.alphabetic,
+            child: Transform.translate(
+              offset: const Offset(0, 2),
+              child: const Text(
+                '2',
+                style: TextStyle(
+                  fontSize: 10,
+                  height: 0.7,
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    return spans;
   }
 
   String _formatPaybackPeriod(double paybackYears, AppLocalizations l10n,
