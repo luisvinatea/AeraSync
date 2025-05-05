@@ -116,12 +116,138 @@ class ResultsPage extends StatelessWidget {
       double annualRevenue,
       Map<String, dynamic>? surveyData) async {
     final pdf = pw.Document();
+    
+    // Load fonts first before using them
+    final baseFont = await PdfGoogleFonts.robotoRegular();
+    final boldFont = await PdfGoogleFonts.robotoBold();
+    final notoSansFont = await PdfGoogleFonts.notoSansRegular();
+    final notoSerifFont = await PdfGoogleFonts.notoSerifRegular();
+    final notoSerifBlackFont = await PdfGoogleFonts.notoSerifBlack();
 
     // Create a theme for consistent styling
     final theme = pw.ThemeData.withFont(
-      base: await PdfGoogleFonts.robotoRegular(),
-      bold: await PdfGoogleFonts.robotoBold(),
+      base: baseFont,
+      bold: boldFont,
     );
+
+    // Prepare table rows synchronously to avoid async callback issues
+    final farmAreaRow = _createPdfTableRow(
+        l10n.farmAreaLabel, 
+        surveyData?['farm']?['farm_area_ha']?.toString() ?? 'N/A'
+    );
+    
+    final energyCostRow = _createPdfTableRow(
+        l10n.energyCostLabel,
+        surveyData?['financial']?['energy_cost']?.toString() ?? 'N/A'
+    );
+    
+    final hoursPerNightRow = _createPdfTableRow(
+        l10n.hoursPerNightLabel,
+        surveyData?['financial']?['hours_per_night']?.toString() ?? 'N/A'
+    );
+    
+    final analysisHorizonRow = _createPdfTableRow(
+        l10n.analysisHorizonLabel,
+        surveyData?['financial']?['horizon']?.toString() ?? 'N/A'
+    );
+
+    // Pre-generate all detail rows for each result
+    final detailSections = results.map((result) {
+      final isWinner = result.name == winnerLabel;
+      
+      // Create table rows for each detail
+      final detailRows = [
+        _createPdfTableRow(l10n.unitsNeeded, result.numAerators.toString()),
+        _createPdfTableRow(l10n.aeratorsPerHaLabel, result.aeratorsPerHa.toStringAsFixed(2)),
+        _createPdfTableRow(l10n.horsepowerPerHaLabel, '${result.hpPerHa.toStringAsFixed(2)} hp/ha'),
+        _createPdfTableRow(l10n.initialCostLabel, ResultsPage.formatCurrencyK(result.totalInitialCost)),
+        _createPdfTableRow(l10n.annualCostLabel, ResultsPage.formatCurrencyK(result.totalAnnualCost)),
+        _createPdfTableRow(l10n.costPercentRevenueLabel, '${result.costPercentRevenue.toStringAsFixed(2)}%'),
+        _createPdfTableRow(l10n.npvSavingsLabel, ResultsPage.formatCurrencyK(result.npvSavings)),
+        _createPdfTableRow(
+            l10n.saeLabel,
+            '${result.sae.toStringAsFixed(2)} kg O₂/kWh',
+            useSubscriptFont: true,
+            notoSerifBlackFont: notoSerifBlackFont,
+            notoSerifFont: notoSerifFont
+        ),
+      ];
+
+      // Create cost breakdown rows
+      final costBreakdownRows = [
+        _createPdfTableRow(l10n.annualEnergyCostLabel, ResultsPage.formatCurrencyK(result.annualEnergyCost)),
+        _createPdfTableRow(l10n.annualMaintenanceCostLabel, ResultsPage.formatCurrencyK(result.annualMaintenanceCost)),
+        _createPdfTableRow(l10n.annualReplacementCostLabel, ResultsPage.formatCurrencyK(result.annualReplacementCost)),
+      ];
+
+      return pw.Container(
+        margin: const pw.EdgeInsets.only(bottom: 15),
+        padding: const pw.EdgeInsets.all(10),
+        decoration: pw.BoxDecoration(
+          border: pw.Border.all(
+              color: isWinner ? PdfColors.green : PdfColors.grey300),
+          borderRadius: pw.BorderRadius.circular(5),
+          color: isWinner ? PdfColors.green50 : PdfColors.white,
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  result.name,
+                  style: pw.TextStyle(
+                      fontSize: 16,
+                      fontWeight: pw.FontWeight.bold,
+                      color: isWinner ? PdfColors.green800 : PdfColors.grey800),
+                ),
+                if (isWinner)
+                  pw.Container(
+                    padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: pw.BoxDecoration(
+                      color: PdfColors.green700,
+                      borderRadius: pw.BorderRadius.circular(12),
+                    ),
+                    child: pw.Text(
+                      l10n.recommended,
+                      style: pw.TextStyle(
+                        color: PdfColors.white,
+                        fontWeight: pw.FontWeight.bold,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            pw.Divider(),
+            pw.Table(
+              columnWidths: {
+                0: const pw.FlexColumnWidth(3),
+                1: const pw.FlexColumnWidth(2),
+              },
+              children: detailRows,
+            ),
+            pw.SizedBox(height: 10),
+            pw.Text(
+              l10n.costBreakdownVisualization,
+              style: pw.TextStyle(
+                fontSize: 14,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+            pw.SizedBox(height: 5),
+            pw.Table(
+              columnWidths: {
+                0: const pw.FlexColumnWidth(3),
+                1: const pw.FlexColumnWidth(2),
+              },
+              children: costBreakdownRows,
+            ),
+          ],
+        ),
+      );
+    }).toList();
 
     pdf.addPage(
       pw.MultiPage(
@@ -134,9 +260,10 @@ class ResultsPage extends StatelessWidget {
             child: pw.Text(
               'AeraSync: ${l10n.aeratorComparisonResults}',
               style: pw.TextStyle(
-                  fontSize: 24,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.blue700),
+                fontSize: 24,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue700
+              ),
             ),
           );
         },
@@ -165,26 +292,36 @@ class ResultsPage extends StatelessWidget {
                   pw.Text(
                     l10n.summaryMetrics,
                     style: pw.TextStyle(
-                        fontSize: 18,
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColors.blue900),
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blue900
+                    ),
                   ),
                   pw.SizedBox(height: 10),
                   pw.Text(
-                      '${l10n.totalDemandLabel}: ${tod.toStringAsFixed(2)} kg O₂/h'),
+                    '${l10n.totalDemandLabel}: ${tod.toStringAsFixed(2)} kg O₂/h',
+                    style: pw.TextStyle(
+                      font: notoSansFont,
+                      fontFallback: [notoSerifFont],
+                    ),
+                  ),
                   pw.Text(
-                      '${l10n.annualRevenueLabel}: ${ResultsPage.formatCurrencyK(annualRevenue)}'),
+                    '${l10n.annualRevenueLabel}: ${ResultsPage.formatCurrencyK(annualRevenue)}'
+                  ),
                   pw.Text(
                     '${l10n.recommendedAerator}: $winnerLabel',
                     style: pw.TextStyle(
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColors.green800),
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.green800
+                    ),
                   ),
                   pw.SizedBox(height: 10),
                   pw.Text(
                     l10n.surveyInputs,
                     style: pw.TextStyle(
-                        fontSize: 14, fontWeight: pw.FontWeight.bold),
+                      fontSize: 14,
+                      fontWeight: pw.FontWeight.bold
+                    ),
                   ),
                   if (surveyData != null)
                     pw.Table(
@@ -193,24 +330,10 @@ class ResultsPage extends StatelessWidget {
                         1: const pw.FlexColumnWidth(1),
                       },
                       children: [
-                        _pdfTableRow(
-                            l10n.farmAreaLabel,
-                            surveyData['farm']?['farm_area_ha']?.toString() ??
-                                'N/A'),
-                        _pdfTableRow(
-                            l10n.energyCostLabel,
-                            surveyData['financial']?['energy_cost']
-                                    ?.toString() ??
-                                'N/A'),
-                        _pdfTableRow(
-                            l10n.hoursPerNightLabel,
-                            surveyData['financial']?['hours_per_night']
-                                    ?.toString() ??
-                                'N/A'),
-                        _pdfTableRow(
-                            l10n.analysisHorizonLabel,
-                            surveyData['financial']?['horizon']?.toString() ??
-                                'N/A'),
+                        farmAreaRow,
+                        energyCostRow,
+                        hoursPerNightRow,
+                        analysisHorizonRow,
                       ],
                     ),
                 ],
@@ -220,113 +343,7 @@ class ResultsPage extends StatelessWidget {
             pw.SizedBox(height: 20),
 
             // Comparison details section
-            ...results.map((result) {
-              final isWinner = result.name == winnerLabel;
-              return pw.Container(
-                margin: const pw.EdgeInsets.only(bottom: 15),
-                padding: const pw.EdgeInsets.all(10),
-                decoration: pw.BoxDecoration(
-                  border: pw.Border.all(
-                      color: isWinner ? PdfColors.green : PdfColors.grey300),
-                  borderRadius: pw.BorderRadius.circular(5),
-                  color: isWinner ? PdfColors.green50 : PdfColors.white,
-                ),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Row(
-                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                      children: [
-                        pw.Text(
-                          result.name,
-                          style: pw.TextStyle(
-                              fontSize: 16,
-                              fontWeight: pw.FontWeight.bold,
-                              color: isWinner
-                                  ? PdfColors.green800
-                                  : PdfColors.grey800),
-                        ),
-                        if (isWinner)
-                          pw.Container(
-                            padding: const pw.EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 4),
-                            decoration: pw.BoxDecoration(
-                              color: PdfColors.green700,
-                              borderRadius: pw.BorderRadius.circular(12),
-                            ),
-                            child: pw.Text(
-                              l10n.recommended,
-                              style: pw.TextStyle(
-                                color: PdfColors.white,
-                                fontWeight: pw.FontWeight.bold,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    pw.Divider(),
-                    pw.Table(
-                      columnWidths: {
-                        0: const pw.FlexColumnWidth(3),
-                        1: const pw.FlexColumnWidth(2),
-                      },
-                      children: [
-                        _pdfTableRow(
-                            l10n.unitsNeeded, result.numAerators.toString()),
-                        _pdfTableRow(l10n.aeratorsPerHaLabel,
-                            result.aeratorsPerHa.toStringAsFixed(2)),
-                        _pdfTableRow(l10n.horsepowerPerHaLabel,
-                            '${result.hpPerHa.toStringAsFixed(2)} hp/ha'),
-                        _pdfTableRow(
-                            l10n.initialCostLabel,
-                            ResultsPage.formatCurrencyK(
-                                result.totalInitialCost)),
-                        _pdfTableRow(
-                            l10n.annualCostLabel,
-                            ResultsPage.formatCurrencyK(
-                                result.totalAnnualCost)),
-                        _pdfTableRow(l10n.costPercentRevenueLabel,
-                            '${result.costPercentRevenue.toStringAsFixed(2)}%'),
-                        _pdfTableRow(l10n.npvSavingsLabel,
-                            ResultsPage.formatCurrencyK(result.npvSavings)),
-                        _pdfTableRow(l10n.saeLabel,
-                            '${result.sae.toStringAsFixed(2)} kg O₂/kWh'),
-                      ],
-                    ),
-                    pw.SizedBox(height: 10),
-                    pw.Text(
-                      l10n.costBreakdownVisualization,
-                      style: pw.TextStyle(
-                        fontSize: 14,
-                        fontWeight: pw.FontWeight.bold,
-                      ),
-                    ),
-                    pw.SizedBox(height: 5),
-                    pw.Table(
-                      columnWidths: {
-                        0: const pw.FlexColumnWidth(3),
-                        1: const pw.FlexColumnWidth(2),
-                      },
-                      children: [
-                        _pdfTableRow(
-                            l10n.annualEnergyCostLabel,
-                            ResultsPage.formatCurrencyK(
-                                result.annualEnergyCost)),
-                        _pdfTableRow(
-                            l10n.annualMaintenanceCostLabel,
-                            ResultsPage.formatCurrencyK(
-                                result.annualMaintenanceCost)),
-                        _pdfTableRow(
-                            l10n.annualReplacementCostLabel,
-                            ResultsPage.formatCurrencyK(
-                                result.annualReplacementCost)),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }),
+            ...detailSections,
 
             pw.SizedBox(height: 20),
 
@@ -349,7 +366,8 @@ class ResultsPage extends StatelessWidget {
     return pdf.save();
   }
 
-  pw.TableRow _pdfTableRow(String label, String value) {
+  pw.TableRow _createPdfTableRow(String label, String value, 
+      {bool useSubscriptFont = false, pw.Font? notoSerifBlackFont, pw.Font? notoSerifFont}) {
     return pw.TableRow(
       children: [
         pw.Padding(
@@ -359,7 +377,13 @@ class ResultsPage extends StatelessWidget {
         ),
         pw.Padding(
           padding: const pw.EdgeInsets.symmetric(vertical: 2),
-          child: pw.Text(value),
+          child: pw.Text(value,
+              style: useSubscriptFont && notoSerifBlackFont != null && notoSerifFont != null
+                  ? pw.TextStyle(
+                      font: notoSerifBlackFont,
+                      fontFallback: [notoSerifFont],
+                    )
+                  : null),
         ),
       ],
     );
@@ -1334,6 +1358,7 @@ class _CostEvolutionCard extends StatelessWidget {
                 'Cumulative cost difference vs ${winnerAerator.name}',
                 style: const TextStyle(fontSize: 12),
                 overflow: TextOverflow.ellipsis,
+                maxLines: 2,
               ),
             ),
           ],
