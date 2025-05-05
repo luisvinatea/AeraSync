@@ -160,10 +160,6 @@
         const loadingScreen = document.getElementById("loading-screen");
         const flutterTarget = document.getElementById("flutter-target");
 
-        window.flutterConfiguration = {
-          canvasKitBaseUrl: "/canvaskit/"
-        };
-
         window.addEventListener('flutter-first-frame', function() {
           // Hide loading screen when app is ready
           setTimeout(function () {
