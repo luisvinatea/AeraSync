@@ -4,7 +4,7 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
 const RESOURCES = {"favicon.webp": "c47a7f48fa95de062c07bcb4e6e76ff1",
-"flutter_bootstrap.js": "d6577cdce850fa9f425fe2e34a33dc6f",
+"flutter_bootstrap.js": "4f954959fc862c5fe9b0589d06ff4462",
 "index.html": "79edd5b97af43778806ca77af8290eb3",
 "/": "79edd5b97af43778806ca77af8290eb3",
 "icons/aerasync180.webp": "fb66a85740a99e579915b01f94def02b",

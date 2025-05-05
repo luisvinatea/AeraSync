@@ -13,11 +13,13 @@ _flutter.buildConfig = {"engineRevision":"cf56914b326edb0ccb123ffdc60f00060bd513
 (function() {
   const hostElement = document.querySelector('#flutter-target');
   
-  if (engineInitializer) {
-    engineInitializer.initializeEngine({
+  if (typeof _flutter !== 'undefined') {
+    _flutter.loader.load({
       hostElement: hostElement
+    }).then(function(appEngineInitializer) {
+      return appEngineInitializer.initializeEngine();
     }).then(function(appRunner) {
-      appRunner.runApp();
+      return appRunner.runApp();
     });
   }
 })();
