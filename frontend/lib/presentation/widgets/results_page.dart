@@ -8,6 +8,14 @@ import 'package:printing/printing.dart';
 import '../../core/services/app_state.dart';
 import 'dart:typed_data';
 
+/// Helper method to create a TextStyle with proper font fallbacks for subscript characters
+TextStyle getSubscriptTextStyle(BuildContext context, {TextStyle? baseStyle}) {
+  final fallbackFonts = ['Noto Sans', 'Noto Serif', 'Roboto'];
+  return (baseStyle ?? Theme.of(context).textTheme.bodyMedium!).copyWith(
+    fontFamilyFallback: fallbackFonts,
+  );
+}
+
 class AeratorResult {
   final String name;
   final int numAerators;
@@ -576,7 +584,8 @@ class _EnhancedSummaryCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 '${l10n.totalDemandLabel}: ${tod.toStringAsFixed(2)} kg O₂/h',
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: getSubscriptTextStyle(context,
+                    baseStyle: Theme.of(context).textTheme.bodyMedium),
               ),
               Text(
                 '${l10n.annualRevenueLabel}: ${ResultsPage.formatCurrencyK(annualRevenue)}',
@@ -773,21 +782,34 @@ class _AeratorComparisonCard extends StatelessWidget {
             _detailRow(l10n.profitabilityIndexLabel,
                 _formatProfitabilityK(result.profitabilityK)),
             _detailRow(
-                l10n.saeLabel, '${result.sae.toStringAsFixed(2)} kg O₂/kWh'),
+              l10n.saeLabel,
+              '${result.sae.toStringAsFixed(2)} kg O₂/kWh',
+              useSubscript: true,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _detailRow(String label, String value) {
+  Widget _detailRow(String label, String value, {bool useSubscript = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-          Text(value),
+          useSubscript
+              ? Builder(
+                  builder: (context) => Text(
+                    value,
+                    style: getSubscriptTextStyle(
+                      context,
+                      baseStyle: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                )
+              : Text(value),
         ],
       ),
     );
