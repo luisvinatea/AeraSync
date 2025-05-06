@@ -191,15 +191,27 @@
           });
         });
 
+        // Function to hide the loading screen
+        function hideLoadingScreen() {
+          loadingScreen.style.opacity = "0";
+          setTimeout(function () {
+            loadingScreen.style.display = "none";
+          }, 800);
+        }
+
+        // Listen for Flutter first frame
         window.addEventListener("flutter-first-frame", function () {
           // Hide loading screen when app is ready
-          setTimeout(function () {
-            loadingScreen.style.opacity = "0";
-            setTimeout(function () {
-              loadingScreen.style.display = "none";
-            }, 800); // increased from 500 to 800 for smoother transition
-          }, 200); // increased from 100 to 200 for smoother transition
+          setTimeout(hideLoadingScreen, 200);
         });
+
+        // Fallback: Force hide loading screen after 5 seconds if Flutter doesn't load
+        setTimeout(function () {
+          if (loadingScreen.style.opacity !== "0") {
+            console.log("Using fallback to hide loading screen");
+            hideLoadingScreen();
+          }
+        }, 5000);
       });
     </script>
     <script src="flutter_bootstrap.js" async></script>

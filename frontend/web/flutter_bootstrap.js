@@ -70,6 +70,11 @@ window.addEventListener("load", function () {
 
         // Run the app
         appRunner.runApp();
+
+        // Manually dispatch flutter-first-frame event after a short delay
+        setTimeout(function () {
+          window.dispatchEvent(new Event("flutter-first-frame"));
+        }, 1000);
       }, 0);
     },
   });
