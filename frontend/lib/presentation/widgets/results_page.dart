@@ -125,102 +125,125 @@ class _ResultsPageState extends State<ResultsPage>
           return Stack(
             children: [
               WaveBackground(animation: _waveController.value),
-              Padding(
-                padding: const EdgeInsets.all(36.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Stack(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Expanded(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  EnhancedSummaryCard(
-                                    l10n: l10n,
-                                    tod: tod,
-                                    winnerLabel: winnerLabel,
-                                    annualRevenue: annualRevenue,
-                                    surveyData: surveyData,
-                                    results: results,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        EnhancedSummaryCard(
+                                          l10n: l10n,
+                                          tod: tod,
+                                          winnerLabel: winnerLabel,
+                                          annualRevenue: annualRevenue,
+                                          surveyData: surveyData,
+                                          results: results,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        AeratorComparisonCard(
+                                          l10n: l10n,
+                                          results: results,
+                                          winnerLabel: winnerLabel,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        EquilibriumPricesCard(
+                                          l10n: l10n,
+                                          equilibriumPrices: equilibriumPrices,
+                                        ),
+                                        const SizedBox(height: 80),
+                                      ],
+                                    ),
                                   ),
-                                  const SizedBox(height: 24),
-                                  AeratorComparisonCard(
-                                    l10n: l10n,
-                                    results: results,
-                                    winnerLabel: winnerLabel,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      children: [
+                                        CostVisualizationCard(
+                                          l10n: l10n,
+                                          results: results,
+                                          winnerLabel: winnerLabel,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        CostEvolutionCard(
+                                          l10n: l10n,
+                                          results: results,
+                                          winnerLabel: winnerLabel,
+                                          surveyData: surveyData,
+                                        ),
+                                        const SizedBox(height: 80),
+                                      ],
+                                    ),
                                   ),
-                                  const SizedBox(height: 24),
-                                  EquilibriumPricesCard(
-                                    l10n: l10n,
-                                    equilibriumPrices: equilibriumPrices,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 24),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  CostVisualizationCard(
-                                    l10n: l10n,
-                                    results: results,
-                                    winnerLabel: winnerLabel,
-                                  ),
-                                  const SizedBox(height: 24),
-                                  CostEvolutionCard(
-                                    l10n: l10n,
-                                    results: results,
-                                    winnerLabel: winnerLabel,
-                                    surveyData: surveyData,
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    Center(
-                      child: ElevatedButton(
-                        style: AppTheme.secondaryButtonStyle,
-                        onPressed: () => appState.navigateToSurvey(),
-                        child: Text(
-                          l10n.newComparison,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: AppTheme.fontSizeMedium,
+                      Positioned(
+                        bottom: 16,
+                        left: 16,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.refresh, size: 16),
+                          label: Text(l10n.newComparison),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
+                          onPressed: () => appState.navigateToSurvey(),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Center(
-                      child: ElevatedButton(
-                        style: AppTheme.secondaryButtonStyle,
-                        onPressed: () async {
-                          final pdfData = await PdfGenerator.generatePdf(
-                              l10n,
-                              results,
-                              winnerLabel,
-                              tod,
-                              annualRevenue,
-                              surveyData,
-                              apiResults);
-                          await Printing.layoutPdf(
-                            onLayout: (PdfPageFormat format) async => pdfData,
-                          );
-                        },
-                        child: Text(l10n.exportToPdf),
+                      Positioned(
+                        bottom: 16,
+                        right: 16,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.picture_as_pdf, size: 16),
+                          label: Text(l10n.exportToPdf),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green.shade700,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () async {
+                            final pdfData = await PdfGenerator.generatePdf(
+                                l10n,
+                                results,
+                                winnerLabel,
+                                tod,
+                                annualRevenue,
+                                surveyData,
+                                apiResults);
+                            await Printing.layoutPdf(
+                              onLayout: (PdfPageFormat format) async => pdfData,
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
