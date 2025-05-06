@@ -1,9 +1,14 @@
 import { initSurveyForm } from "./components/survey.js";
 import { initResultsView } from "./components/results.js";
 import { getTranslations } from "./utils/i18n.js";
+import { apiService } from "./utils/api.js";
+import { applyDeviceOptimizations } from "./utils/device.js";
 import { API_URL } from "./config.js";
 
 export function initApp() {
+  // Apply mobile optimizations
+  applyDeviceOptimizations();
+
   const app = {
     currentPage: "home",
     lang: "en",
@@ -72,17 +77,8 @@ export function initApp() {
       try {
         this.surveyData = formData;
 
-        const response = await fetch(`${this.apiUrl}/compare`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
-
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status}`);
-        }
-
-        this.results = await response.json();
+        // Use API service
+        this.results = await apiService.submitSurvey(formData);
         this.navigate("results");
         return this.results;
       } catch (error) {

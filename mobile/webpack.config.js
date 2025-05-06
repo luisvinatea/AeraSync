@@ -4,6 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
+  mode: "production",
   entry: "./lib/index.js",
   output: {
     path: path.resolve(__dirname, "public"),
@@ -28,7 +29,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "./web/index.html",
-      favicon: "./web/favicon.webp",
+      favicon: "./web/icons/favicon.webp",
     }),
     new MiniCssExtractPlugin({
       filename: "css/[name].[contenthash].css",
@@ -50,22 +51,4 @@ module.exports = {
       ],
     }),
   ],
-  devServer: {
-    static: "./public",
-    hot: true,
-    port: 3000,
-  },
-  optimization: {
-    moduleIds: "deterministic",
-    runtimeChunk: "single",
-    splitChunks: {
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: "vendors",
-          chunks: "all",
-        },
-      },
-    },
-  },
 };
