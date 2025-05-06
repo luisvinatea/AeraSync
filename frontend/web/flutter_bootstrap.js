@@ -1,17 +1,32 @@
-{
-  {
-    flutter_js;
-  }
-}
-{
-  {
-    flutter_build_config;
-  }
-}
+// Import flutter.js first
+const flutter_js = document.createElement("script");
+flutter_js.src = "flutter.js";
+flutter_js.defer = true;
+document.head.appendChild(flutter_js);
+
+// Define serviceWorkerVersion dynamically to prevent caching issues
+const serviceWorkerVersion = Date.now().toString();
+const flutter_build_config = {
+  engineRevision: "cf56914b326edb0ccb123ffdc60f00060bd513fa",
+  builds: [
+    {
+      compileTarget: "dart2js",
+      renderer: "canvaskit",
+      mainJsPath: "main.dart.js",
+    },
+  ],
+};
 
 // Flutter web bootstrap script
 window.addEventListener("load", function () {
-  _flutter.loader
+  if (!window._flutter) {
+    console.error(
+      "Flutter.js failed to load. Check if flutter.js is included properly."
+    );
+    return;
+  }
+
+  window._flutter.loader
     .load({
       serviceWorker: {
         serviceWorkerVersion: serviceWorkerVersion,
@@ -73,5 +88,11 @@ window.addEventListener("load", function () {
       setTimeout(function () {
         window.dispatchEvent(new Event("flutter-first-frame"));
       }, 1000);
+    })
+    .catch(function (error) {
+      console.error("Flutter initialization error:", error);
+      document.getElementById("loading-screen").innerHTML =
+        '<div class="loading"><h2>Error loading application</h2>' +
+        "<p>Please refresh the page or try again later.</p></div>";
     });
 });

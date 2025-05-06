@@ -176,7 +176,11 @@
     </div>
 
     <div id="flutter-target"></div>
+
+    <!-- Load flutter.js first, then flutter_bootstrap.js -->
     <script src="flutter.js" defer></script>
+    <script src="flutter_bootstrap.js" defer></script>
+
     <script>
       window.addEventListener("load", function () {
         const loadingScreen = document.getElementById("loading-screen");
@@ -215,6 +219,5 @@
         }, 5000);
       });
     </script>
-    <script src="flutter_bootstrap.js" async></script>
   </body>
 </html>
