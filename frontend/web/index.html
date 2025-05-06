@@ -3,7 +3,7 @@
   <head>
     <!-- Handling path issues -->
     <script>
-      // Fix hash route issue in Vercel deployments
+      // Fix hash route issues in Vercel deployments
       (function () {
         var pathname = window.location.pathname;
         var hash = window.location.hash;
@@ -13,8 +13,9 @@
           pathname = pathname.slice(0, -1);
         }
 
-        // Fix base path for Flutter routing
-        document.write('<base href="' + pathname + '">');
+        // Fix base path for Flutter routing - handle both dev and prod domains
+        var baseHref = pathname === "/" ? "/" : pathname + "/";
+        document.write('<base href="' + baseHref + '">');
       })();
     </script>
 
