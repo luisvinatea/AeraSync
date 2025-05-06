@@ -211,7 +211,8 @@ class _ResultsPageState extends State<ResultsPage>
                               winnerLabel,
                               tod,
                               annualRevenue,
-                              surveyData);
+                              surveyData,
+                              apiResults);
                           await Printing.layoutPdf(
                             onLayout: (PdfPageFormat format) async => pdfData,
                           );

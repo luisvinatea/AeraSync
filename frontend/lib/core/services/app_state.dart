@@ -176,11 +176,17 @@ class AppState extends ChangeNotifier {
     try {
       final normalizedData = _normalizeData(surveyData);
       _apiResults = await _apiService.compareAerators(normalizedData);
-      _apiResults?['surveyData'] = normalizedData; // <-- NEW
+
+      // Store original survey data directly for UI access
+      _apiResults?['surveyData'] = {
+        'farm': surveyData['farm'],
+        'financial': surveyData['financial'],
+        'aerator1': surveyData['aerators'][0],
+        'aerator2': surveyData['aerators'][1],
+      };
+
       _resultsAvailable = true;
       notifyListeners();
-
-      // Navigate to results page automatically
       _navigateToResults();
     } catch (e) {
       if (e.toString().contains('SocketException') ||
