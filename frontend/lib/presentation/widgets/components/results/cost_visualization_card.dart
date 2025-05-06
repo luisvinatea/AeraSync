@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../utils/formatting_utils.dart';
 import 'aerator_result.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class CostVisualizationCard extends StatelessWidget {
   final AppLocalizations l10n;
@@ -19,22 +20,34 @@ class CostVisualizationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
+      elevation: AppTheme.elevationMedium,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(AppTheme.paddingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.costBreakdownVisualization,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: TextStyle(
+                fontFamily: AppTheme.fontFamilyHeadings,
+                fontSize: AppTheme.fontSizeXLarge,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textDark,
+              ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppTheme.paddingMedium),
             Text(
               l10n.annualCostComposition,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: TextStyle(
+                fontFamily: AppTheme.fontFamilyBody,
+                fontSize: AppTheme.fontSizeMedium,
+                color: AppTheme.textMuted,
+              ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppTheme.paddingMedium),
             SizedBox(
               height: 450,
               child: Padding(
@@ -173,11 +186,11 @@ class CostVisualizationCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _legendItem(Colors.blue.shade300, l10n.annualEnergyCostLabel),
+        _legendItem(AppTheme.chartColors[0], l10n.annualEnergyCostLabel),
         const SizedBox(width: 16),
-        _legendItem(Colors.green.shade300, l10n.annualMaintenanceCostLabel),
+        _legendItem(AppTheme.chartColors[1], l10n.annualMaintenanceCostLabel),
         const SizedBox(width: 16),
-        _legendItem(Colors.orange.shade300, l10n.annualReplacementCostLabel),
+        _legendItem(AppTheme.chartColors[2], l10n.annualReplacementCostLabel),
       ],
     );
   }
@@ -228,20 +241,20 @@ class CostVisualizationCard extends StatelessWidget {
             borderRadius: BorderRadius.zero,
             rodStackItems: [
               BarChartRodStackItem(
-                  0, result.annualEnergyCost, Colors.blue.shade300),
+                  0, result.annualEnergyCost, AppTheme.chartColors[0]),
               BarChartRodStackItem(
                   result.annualEnergyCost,
                   result.annualEnergyCost + result.annualMaintenanceCost,
-                  Colors.green.shade300),
+                  AppTheme.chartColors[1]),
               BarChartRodStackItem(
                   result.annualEnergyCost + result.annualMaintenanceCost,
                   result.annualEnergyCost +
                       result.annualMaintenanceCost +
                       result.annualReplacementCost,
-                  Colors.orange.shade300),
+                  AppTheme.chartColors[2]),
             ],
             borderSide: isWinner
-                ? BorderSide(color: Colors.green.shade700, width: 2)
+                ? BorderSide(color: AppTheme.success, width: 2)
                 : BorderSide.none,
           ),
         ],

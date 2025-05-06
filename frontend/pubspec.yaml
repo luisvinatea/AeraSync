@@ -79,6 +79,8 @@ flutter:
     - web/icons/aerasync180.webp
     - web/icons/aerasync.webp
     - web/icons/background.webp
+    - web/icons/watermark.webp
+    - web/favicon.webp
     - web/assets/wave.svg
     - web/fonts/NotoSerif-Black.ttf
     - web/fonts/NotoSerif-Bold.ttf

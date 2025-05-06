@@ -18,9 +18,6 @@ class PdfGenerator {
     // Load fonts from assets
     final baseFont = await _loadFont('web/fonts/NotoSerif-Bold.ttf');
     final boldFont = await _loadFont('web/fonts/NotoSerif-Black.ttf');
-    final notoSansFont = await _loadFont('web/fonts/NotoSans-Bold.ttf');
-    final notoSerifFont = await _loadFont('web/fonts/NotoSerif-Bold.ttf');
-    final notoSerifBlackFont = await _loadFont('web/fonts/NotoSerif-Black.ttf');
 
     // Create a theme for consistent styling
     final theme = pw.ThemeData.withFont(
@@ -28,469 +25,349 @@ class PdfGenerator {
       bold: boldFont,
     );
 
-    // Prepare all survey input table rows
-    final surveyInputRows = <pw.TableRow>[];
-
-    if (surveyData != null) {
-      // Farm data
-      surveyInputRows.add(_createPdfTableRow(l10n.farmAreaLabel,
-          surveyData['farm']?['farm_area_ha']?.toString() ?? 'N/A'));
-
-      surveyInputRows.add(_createPdfTableRow(l10n.shrimpPriceLabel,
-          surveyData['farm']?['shrimp_price']?.toString() ?? 'N/A'));
-
-      surveyInputRows.add(_createPdfTableRow(l10n.cultureDaysLabel,
-          surveyData['farm']?['culture_days']?.toString() ?? 'N/A'));
-
-      surveyInputRows.add(_createPdfTableRow(l10n.shrimpDensityLabel,
-          surveyData['farm']?['shrimp_density_kg_m3']?.toString() ?? 'N/A'));
-
-      surveyInputRows.add(_createPdfTableRow(l10n.pondDepthLabel,
-          surveyData['farm']?['pond_depth_m']?.toString() ?? 'N/A'));
-
-      // Financial data
-      surveyInputRows.add(_createPdfTableRow(l10n.energyCostLabel,
-          surveyData['financial']?['energy_cost']?.toString() ?? 'N/A'));
-
-      surveyInputRows.add(_createPdfTableRow(l10n.hoursPerNightLabel,
-          surveyData['financial']?['hours_per_night']?.toString() ?? 'N/A'));
-
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.discountRateLabel,
-          surveyData['financial']?['discount_rate'] != null
-              ? '${((surveyData['financial']['discount_rate'] as num) * 100).toStringAsFixed(1)}%'
-              : 'N/A'));
-
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.inflationRateLabel,
-          surveyData['financial']?['inflation_rate'] != null
-              ? '${((surveyData['financial']['inflation_rate'] as num) * 100).toStringAsFixed(1)}%'
-              : 'N/A'));
-
-      surveyInputRows.add(_createPdfTableRow(l10n.analysisHorizonLabel,
-          surveyData['financial']?['horizon']?.toString() ?? 'N/A'));
-
-      surveyInputRows.add(_createPdfTableRow(
-          l10n.safetyMarginLabel,
-          surveyData['financial']?['safety_margin'] != null
-              ? '${((surveyData['financial']['safety_margin'] as num) * 100).toStringAsFixed(1)}%'
-              : 'N/A'));
-
-      surveyInputRows.add(_createPdfTableRow(l10n.temperatureLabel,
-          surveyData['financial']?['temperature']?.toString() ?? 'N/A'));
-    }
-
-    // Pre-generate all detail rows for each result
-    final detailSections = results.map((result) {
-      final isWinner = result.name == winnerLabel;
-
-      // Create table rows for each detail
-      final detailRows = [
-        _createPdfTableRow(l10n.unitsNeeded, result.numAerators.toString()),
-        _createPdfTableRow(
-            l10n.aeratorsPerHaLabel, result.aeratorsPerHa.toStringAsFixed(2)),
-        _createPdfTableRow(l10n.horsepowerPerHaLabel,
-            '${result.hpPerHa.toStringAsFixed(2)} hp/ha'),
-        _createPdfTableRow(l10n.initialCostLabel,
-            FormattingUtils.formatCurrencyK(result.totalInitialCost)),
-        _createPdfTableRow(l10n.annualCostLabel,
-            FormattingUtils.formatCurrencyK(result.totalAnnualCost)),
-        _createPdfTableRow(l10n.costPercentRevenueLabel,
-            '${result.costPercentRevenue.toStringAsFixed(2)}%'),
-        _createPdfTableRow(l10n.npvSavingsLabel,
-            FormattingUtils.formatCurrencyK(result.npvSavings)),
-        _createPdfTableRow(
-            l10n.saeLabel, '${result.sae.toStringAsFixed(2)} kg O₂/kWh',
-            useSubscriptFont: true,
-            notoSerifBlackFont: notoSerifBlackFont,
-            notoSerifFont: notoSerifFont),
-      ];
-
-      // Create cost breakdown rows
-      final costBreakdownRows = [
-        _createPdfTableRow(l10n.annualEnergyCostLabel,
-            FormattingUtils.formatCurrencyK(result.annualEnergyCost)),
-        _createPdfTableRow(l10n.annualMaintenanceCostLabel,
-            FormattingUtils.formatCurrencyK(result.annualMaintenanceCost)),
-        _createPdfTableRow(l10n.annualReplacementCostLabel,
-            FormattingUtils.formatCurrencyK(result.annualReplacementCost)),
-      ];
-
-      if (result.opportunityCost > 0) {
-        costBreakdownRows.add(_createPdfTableRow(l10n.opportunityCostLabel,
-            FormattingUtils.formatCurrencyK(result.opportunityCost)));
-      }
-
-      // Financial metrics rows
-      final financialMetricsRows = [
-        _createPdfTableRow(
-            l10n.paybackPeriod,
-            FormattingUtils.formatPaybackPeriod(result.paybackYears, l10n,
-                isWinner: isWinner)),
-        _createPdfTableRow(
-            l10n.roiLabel,
-            FormattingUtils.formatROI(result.roiPercent, l10n,
-                isWinner: isWinner)),
-        _createPdfTableRow(
-            l10n.irrLabel,
-            result.irr <= -100
-                ? l10n.notApplicable
-                : '${result.irr.toStringAsFixed(2)}%'),
-        _createPdfTableRow(l10n.profitabilityIndexLabel,
-            FormattingUtils.formatProfitabilityK(result.profitabilityK)),
-      ];
-
-      return pw.Container(
-        margin: const pw.EdgeInsets.only(bottom: 15),
-        padding: const pw.EdgeInsets.all(10),
-        decoration: pw.BoxDecoration(
-          border: pw.Border.all(
-              color: isWinner ? PdfColors.green : PdfColors.grey300),
-          borderRadius: pw.BorderRadius.circular(5),
-          color: isWinner ? PdfColors.green50 : PdfColors.white,
-        ),
-        child: pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
+    // Create cost visualization table
+    final costVisualizationTable = pw.Table(
+      border: pw.TableBorder.all(color: PdfColors.grey300),
+      columnWidths: {
+        0: const pw.FlexColumnWidth(2), // Name
+        1: const pw.FlexColumnWidth(1), // Energy
+        2: const pw.FlexColumnWidth(1), // Maintenance
+        3: const pw.FlexColumnWidth(1), // Replacement
+        4: const pw.FlexColumnWidth(1), // Total
+      },
+      children: [
+        // Header row
+        pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.grey200),
           children: [
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Text(
-                  result.name,
-                  style: pw.TextStyle(
-                      fontSize: 16,
-                      fontWeight: pw.FontWeight.bold,
-                      color: isWinner ? PdfColors.green800 : PdfColors.grey800),
-                ),
-                if (isWinner)
-                  pw.Container(
-                    padding: const pw.EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
-                    decoration: pw.BoxDecoration(
-                      color: PdfColors.green700,
-                      borderRadius: pw.BorderRadius.circular(12),
-                    ),
-                    child: pw.Text(
-                      l10n.recommended,
-                      style: pw.TextStyle(
-                        color: PdfColors.white,
-                        fontWeight: pw.FontWeight.bold,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ),
-              ],
+            _tableCell(l10n.aerator, isBold: true),
+            _tableCell(l10n.energyCostLabel, isBold: true, isCenter: true),
+            _tableCell(l10n.maintenanceCostLabel, isBold: true, isCenter: true),
+            _tableCell(l10n.replacementCostLabel, isBold: true, isCenter: true),
+            _tableCell(l10n.totalLabel, isBold: true, isCenter: true),
+          ],
+        ),
+        // Data rows for each aerator
+        ...results.map((result) {
+          final isWinner = result.name == winnerLabel;
+          final totalCost = result.annualEnergyCost +
+              result.annualMaintenanceCost +
+              result.annualReplacementCost;
+          return pw.TableRow(
+            decoration: pw.BoxDecoration(
+              color: isWinner ? PdfColors.green50 : PdfColors.white,
             ),
-            pw.Divider(),
-            pw.Text(
-              l10n.mainMetrics,
-              style: pw.TextStyle(
-                fontSize: 14,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-            pw.SizedBox(height: 5),
-            pw.Table(
-              columnWidths: {
-                0: const pw.FlexColumnWidth(3),
-                1: const pw.FlexColumnWidth(2),
-              },
-              children: detailRows,
-            ),
-            pw.SizedBox(height: 10),
-            pw.Text(
-              l10n.costBreakdownVisualization,
-              style: pw.TextStyle(
-                fontSize: 14,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-            pw.SizedBox(height: 5),
-            pw.Table(
-              columnWidths: {
-                0: const pw.FlexColumnWidth(3),
-                1: const pw.FlexColumnWidth(2),
-              },
-              children: costBreakdownRows,
-            ),
-            pw.SizedBox(height: 10),
-            pw.Text(
-              l10n.financialMetrics,
-              style: pw.TextStyle(
-                fontSize: 14,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-            pw.SizedBox(height: 5),
-            pw.Table(
-              columnWidths: {
-                0: const pw.FlexColumnWidth(3),
-                1: const pw.FlexColumnWidth(2),
-              },
-              children: financialMetricsRows,
+            children: [
+              _tableCell(result.name, isBold: isWinner, textColor: isWinner ? PdfColors.green800 : null),
+              _tableCell(FormattingUtils.formatCurrencyK(result.annualEnergyCost), isCenter: true),
+              _tableCell(FormattingUtils.formatCurrencyK(result.annualMaintenanceCost), isCenter: true),
+              _tableCell(FormattingUtils.formatCurrencyK(result.annualReplacementCost), isCenter: true),
+              _tableCell(FormattingUtils.formatCurrencyK(totalCost), isBold: isWinner, isCenter: true),
+            ],
+          );
+        }),
+      ],
+    );
+
+    // Create comparison table
+    final comparisonTable = pw.Table(
+      border: pw.TableBorder.all(color: PdfColors.grey300),
+      columnWidths: const {
+        0: pw.FlexColumnWidth(2),
+        1: pw.FlexColumnWidth(1),
+        2: pw.FlexColumnWidth(1),
+      },
+      children: [
+        // Header row
+        pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+          children: [
+            _tableCell(l10n.metric, isBold: true),
+            ...results.map((result) => 
+              _tableCell(result.name, isBold: result.name == winnerLabel, 
+                textColor: result.name == winnerLabel ? PdfColors.green800 : null, isCenter: true)
             ),
           ],
         ),
-      );
-    }).toList();
-
-    // Create simple bar chart for cost visualization
-    final costChartSection = pw.Container(
-      margin: const pw.EdgeInsets.only(bottom: 15),
-      padding: const pw.EdgeInsets.all(10),
-      decoration: pw.BoxDecoration(
-        border: pw.Border.all(color: PdfColors.grey300),
-        borderRadius: pw.BorderRadius.circular(5),
-      ),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(
-            l10n.costBreakdownVisualization,
-            style: pw.TextStyle(
-              fontSize: 16,
-              fontWeight: pw.FontWeight.bold,
-            ),
-          ),
-          pw.SizedBox(height: 10),
-
-          // Simple table representation of cost breakdown
-          pw.Table(
-            border: pw.TableBorder.all(color: PdfColors.grey300),
-            columnWidths: {
-              0: const pw.FlexColumnWidth(2), // Name
-              1: const pw.FlexColumnWidth(1.5), // Energy
-              2: const pw.FlexColumnWidth(1.5), // Maintenance
-              3: const pw.FlexColumnWidth(1.5), // Replacement
-              4: const pw.FlexColumnWidth(1.5), // Total
-            },
-            children: [
-              // Header row
-              pw.TableRow(
-                decoration: const pw.BoxDecoration(color: PdfColors.grey200),
-                children: [
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(5),
-                    child: pw.Text(l10n.aerator,
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(5),
-                    child: pw.Text(l10n.energyCostLabel,
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(5),
-                    child: pw.Text(l10n.maintenanceCostLabel,
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(5),
-                    child: pw.Text(l10n.replacementCostLabel,
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                  ),
-                  pw.Padding(
-                    padding: const pw.EdgeInsets.all(5),
-                    child: pw.Text(l10n.totalLabel,
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                  ),
-                ],
-              ),
-              // Data rows for each aerator
-              ...results.map((result) {
-                final isWinner = result.name == winnerLabel;
-                return pw.TableRow(
-                  decoration: pw.BoxDecoration(
-                    color: isWinner ? PdfColors.green50 : PdfColors.white,
-                  ),
-                  children: [
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text(
-                        result.name,
-                        style: isWinner
-                            ? pw.TextStyle(
-                                fontWeight: pw.FontWeight.bold,
-                                color: PdfColors.green800)
-                            : null,
-                      ),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text(FormattingUtils.formatCurrencyK(
-                          result.annualEnergyCost)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text(FormattingUtils.formatCurrencyK(
-                          result.annualMaintenanceCost)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text(FormattingUtils.formatCurrencyK(
-                          result.annualReplacementCost)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text(
-                        FormattingUtils.formatCurrencyK(
-                            result.annualEnergyCost +
-                                result.annualMaintenanceCost +
-                                result.annualReplacementCost),
-                        style: isWinner
-                            ? pw.TextStyle(fontWeight: pw.FontWeight.bold)
-                            : null,
-                      ),
-                    ),
-                  ],
-                );
-              }),
-            ],
-          ),
-        ],
-      ),
+        // Key metrics rows
+        _metricRow(l10n.unitsNeeded, results, (r) => r.numAerators.toString()),
+        _metricRow(l10n.aeratorsPerHaLabel, results, (r) => r.aeratorsPerHa.toStringAsFixed(2)),
+        _metricRow(l10n.horsepowerPerHaLabel, results, (r) => '${r.hpPerHa.toStringAsFixed(2)} hp/ha'),
+        _metricRow(l10n.initialCostLabel, results, (r) => FormattingUtils.formatCurrencyK(r.totalInitialCost)),
+        _metricRow(l10n.annualCostLabel, results, (r) => FormattingUtils.formatCurrencyK(r.totalAnnualCost)),
+        _metricRow(l10n.npvSavingsLabel, results, (r) => FormattingUtils.formatCurrencyK(r.npvSavings)),
+        _metricRow(l10n.saeLabel, results, (r) => '${r.sae.toStringAsFixed(2)} kg O₂/kWh'),
+        _metricRow(l10n.paybackPeriod, results, 
+          (r) => FormattingUtils.formatPaybackPeriod(r.paybackYears, l10n, isWinner: r.name == winnerLabel)),
+        _metricRow(l10n.roiLabel, results, 
+          (r) => FormattingUtils.formatROI(r.roiPercent, l10n, isWinner: r.name == winnerLabel)),
+        _metricRow(l10n.profitabilityIndexLabel, results, 
+          (r) => FormattingUtils.formatProfitabilityK(r.profitabilityK)),
+      ],
     );
+
+    // Create equilibrium prices table if available
+    pw.Widget equilibriumPricesTable = pw.Container();
+    if (surveyData != null && surveyData.containsKey('equilibriumPrices')) {
+      final equilibriumPrices = surveyData['equilibriumPrices'] as Map<String, dynamic>;
+      if (equilibriumPrices.isNotEmpty) {
+        final rows = <pw.TableRow>[];
+        
+        // Header row
+        rows.add(pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+          children: [
+            _tableCell(l10n.parameter, isBold: true),
+            _tableCell(l10n.equilibriumValue, isBold: true, isCenter: true),
+          ],
+        ));
+        
+        // Data rows
+        equilibriumPrices.forEach((parameter, value) {
+          rows.add(pw.TableRow(
+            children: [
+              _tableCell(parameter, isBold: true),
+              _tableCell(FormattingUtils.formatCurrencyK(value is num ? value.toDouble() : 0.0), isCenter: true),
+            ],
+          ));
+        });
+        
+        equilibriumPricesTable = pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              l10n.equilibriumPrices,
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 5),
+            pw.Table(
+              border: pw.TableBorder.all(color: PdfColors.grey300),
+              columnWidths: const {
+                0: pw.FlexColumnWidth(3),
+                1: pw.FlexColumnWidth(1),
+              },
+              children: rows,
+            ),
+          ],
+        );
+      }
+    }
 
     pdf.addPage(
       pw.MultiPage(
         theme: theme,
         pageFormat: PdfPageFormat.a4,
-        header: (pw.Context context) {
-          return pw.Container(
-            alignment: pw.Alignment.center,
-            margin: const pw.EdgeInsets.only(bottom: 20),
+        margin: const pw.EdgeInsets.all(20),
+        header: (pw.Context context) => pw.Container(
+          alignment: pw.Alignment.center,
+          margin: const pw.EdgeInsets.only(bottom: 10),
+          child: pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('AeraSync', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.blue700)),
+              pw.Text('Page ${context.pageNumber} of ${context.pagesCount}', style: const pw.TextStyle(fontSize: 9)),
+            ],
+          ),
+        ),
+        build: (pw.Context context) => [
+          // Summary header
+          pw.Center(
             child: pw.Text(
-              'AeraSync: ${l10n.aeratorComparisonResults}',
-              style: pw.TextStyle(
-                  fontSize: 24,
-                  fontWeight: pw.FontWeight.bold,
-                  color: PdfColors.blue700),
+              l10n.aeratorComparisonResults,
+              style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: PdfColors.blue700),
             ),
-          );
-        },
-        footer: (pw.Context context) {
-          return pw.Container(
-            alignment: pw.Alignment.centerRight,
-            margin: const pw.EdgeInsets.only(top: 10),
-            child: pw.Text(
-              'Page ${context.pageNumber} of ${context.pagesCount}',
-              style: pw.TextStyle(fontSize: 9, color: PdfColors.grey700),
+          ),
+          pw.SizedBox(height: 8),
+
+          // Summary section
+          pw.Container(
+            padding: const pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.grey300),
+              borderRadius: pw.BorderRadius.circular(5),
+              color: PdfColors.blue50,
             ),
-          );
-        },
-        build: (pw.Context context) {
-          return [
-            // Summary section
-            pw.Container(
-              padding: const pw.EdgeInsets.all(10),
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(color: PdfColors.grey300),
-                borderRadius: pw.BorderRadius.circular(5),
-              ),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text(
-                    l10n.summaryMetrics,
-                    style: pw.TextStyle(
-                        fontSize: 18,
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColors.blue900),
-                  ),
-                  pw.SizedBox(height: 10),
-                  pw.Text(
-                    '${l10n.totalDemandLabel}: ${tod.toStringAsFixed(2)} kg O₂/h',
-                    style: pw.TextStyle(
-                      font: notoSansFont,
-                      fontFallback: [notoSerifFont],
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Row(
+                  children: [
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text('${l10n.totalDemandLabel}: ${tod.toStringAsFixed(2)} kg O₂/h'),
+                          pw.Text('${l10n.annualRevenueLabel}: ${FormattingUtils.formatCurrencyK(annualRevenue)}'),
+                        ],
+                      ),
                     ),
-                  ),
-                  pw.Text(
-                      '${l10n.annualRevenueLabel}: ${FormattingUtils.formatCurrencyK(annualRevenue)}'),
-                  pw.Text(
-                    '${l10n.recommendedAerator}: $winnerLabel',
-                    style: pw.TextStyle(
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColors.green800),
-                  ),
-                  pw.SizedBox(height: 10),
-                  pw.Text(
-                    l10n.surveyInputs,
-                    style: pw.TextStyle(
-                        fontSize: 14, fontWeight: pw.FontWeight.bold),
-                  ),
-                  pw.SizedBox(height: 5),
-                  if (surveyData != null)
-                    pw.Table(
-                      columnWidths: {
-                        0: const pw.FlexColumnWidth(2),
-                        1: const pw.FlexColumnWidth(1),
-                      },
-                      children: surveyInputRows,
+                    pw.Expanded(
+                      child: pw.Container(
+                        padding: const pw.EdgeInsets.all(5),
+                        decoration: pw.BoxDecoration(
+                          color: PdfColors.green50,
+                          border: pw.Border.all(color: PdfColors.green),
+                          borderRadius: pw.BorderRadius.circular(5),
+                        ),
+                        child: pw.Text(
+                          '${l10n.recommendedAerator}: $winnerLabel',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.green800),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
                     ),
-                ],
-              ),
-            ),
-
-            pw.SizedBox(height: 20),
-
-            // Comparison details section
-            ...detailSections,
-
-            pw.SizedBox(height: 20),
-
-            // Cost breakdown visualization
-            costChartSection,
-
-            pw.SizedBox(height: 20),
-
-            // Footer note
-            pw.Container(
-              alignment: pw.Alignment.center,
-              child: pw.Text(
-                'Generated by AeraSync on ${DateTime.now().toString().substring(0, 10)}',
-                style: const pw.TextStyle(
-                  fontSize: 10,
-                  color: PdfColors.grey600,
+                  ],
                 ),
-              ),
+              ],
             ),
-          ];
-        },
+          ),
+          pw.SizedBox(height: 10),
+
+          // Comparison table
+          pw.Text(
+            l10n.aeratorComparisonResults,
+            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+          ),
+          pw.SizedBox(height: 5),
+          comparisonTable,
+          pw.SizedBox(height: 10),
+
+          // Cost table
+          pw.Text(
+            l10n.costBreakdownVisualization,
+            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+          ),
+          pw.SizedBox(height: 5),
+          costVisualizationTable,
+          pw.SizedBox(height: 10),
+          
+          // Equilibrium Prices (if available)
+          if (surveyData != null && surveyData.containsKey('equilibriumPrices') && 
+              (surveyData['equilibriumPrices'] as Map<String, dynamic>).isNotEmpty) ...[
+            equilibriumPricesTable,
+            pw.SizedBox(height: 10),
+          ],
+
+          // Survey inputs (if space allows)
+          if (surveyData != null) ...[
+            pw.Text(
+              l10n.surveyInputs,
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 5),
+            _buildSurveyInputsTable(surveyData, l10n),
+          ],
+          
+          // Footer note
+          pw.SizedBox(height: 10),
+          pw.Center(
+            child: pw.Text(
+              'Generated by AeraSync on ${DateTime.now().toString().substring(0, 10)}',
+              style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
+            ),
+          ),
+        ],
       ),
     );
 
     return pdf.save();
   }
 
-  static pw.TableRow _createPdfTableRow(String label, String value,
-      {bool useSubscriptFont = false,
-      pw.Font? notoSerifBlackFont,
-      pw.Font? notoSerifFont}) {
+  static pw.Widget _tableCell(String text, {bool isBold = false, bool isCenter = false, PdfColor? textColor}) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.all(4),
+      child: pw.Text(
+        text,
+        style: pw.TextStyle(
+          fontWeight: isBold ? pw.FontWeight.bold : null,
+          color: textColor,
+          fontSize: 9,
+        ),
+        textAlign: isCenter ? pw.TextAlign.center : pw.TextAlign.left,
+      ),
+    );
+  }
+
+  static pw.TableRow _metricRow(String label, List<AeratorResult> results, String Function(AeratorResult) valueGetter) {
     return pw.TableRow(
       children: [
-        pw.Padding(
-          padding: const pw.EdgeInsets.symmetric(vertical: 2),
-          child: pw.Text(label,
-              style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-        ),
-        pw.Padding(
-          padding: const pw.EdgeInsets.symmetric(vertical: 2),
-          child: pw.Text(value,
-              style: useSubscriptFont &&
-                      notoSerifBlackFont != null &&
-                      notoSerifFont != null
-                  ? pw.TextStyle(
-                      font: notoSerifBlackFont,
-                      fontFallback: [notoSerifFont],
-                    )
-                  : null),
-        ),
+        _tableCell(label, isBold: true),
+        ...results.map((result) => _tableCell(
+          valueGetter(result),
+          isBold: result.name == results.firstWhere((r) => r.name == results.first.name).name,
+          isCenter: true,
+        )),
       ],
     );
   }
 
-  // Helper method to load fonts from assets
+  static pw.Widget _buildSurveyInputsTable(Map<String, dynamic> surveyData, AppLocalizations l10n) {
+    // Divide survey inputs into two columns for space efficiency
+    final farmData = <pw.TableRow>[];
+    final financialData = <pw.TableRow>[];
+    
+    // Farm data
+    farmData.add(_inputRow(l10n.farmAreaLabel, surveyData['farm']?['farm_area_ha']?.toString() ?? 'N/A'));
+    farmData.add(_inputRow(l10n.shrimpPriceLabel, surveyData['farm']?['shrimp_price']?.toString() ?? 'N/A'));
+    farmData.add(_inputRow(l10n.cultureDaysLabel, surveyData['farm']?['culture_days']?.toString() ?? 'N/A'));
+    farmData.add(_inputRow(l10n.shrimpDensityLabel, surveyData['farm']?['shrimp_density_kg_m3']?.toString() ?? 'N/A'));
+    farmData.add(_inputRow(l10n.pondDepthLabel, surveyData['farm']?['pond_depth_m']?.toString() ?? 'N/A'));
+    
+    // Financial data
+    financialData.add(_inputRow(l10n.energyCostLabel, surveyData['financial']?['energy_cost']?.toString() ?? 'N/A'));
+    financialData.add(_inputRow(l10n.hoursPerNightLabel, surveyData['financial']?['hours_per_night']?.toString() ?? 'N/A'));
+    
+    final discountRate = surveyData['financial']?['discount_rate'];
+    financialData.add(_inputRow(
+      l10n.discountRateLabel, 
+      discountRate != null ? '${(discountRate * 100).toStringAsFixed(1)}%' : 'N/A'
+    ));
+    
+    final inflationRate = surveyData['financial']?['inflation_rate'];
+    financialData.add(_inputRow(
+      l10n.inflationRateLabel,
+      inflationRate != null ? '${(inflationRate * 100).toStringAsFixed(1)}%' : 'N/A'
+    ));
+    
+    financialData.add(_inputRow(l10n.analysisHorizonLabel, surveyData['financial']?['horizon']?.toString() ?? 'N/A'));
+    
+    return pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Expanded(
+          child: pw.Table(
+            border: pw.TableBorder.all(color: PdfColors.grey300),
+            columnWidths: const {
+              0: pw.FlexColumnWidth(2),
+              1: pw.FlexColumnWidth(1),
+            },
+            children: farmData,
+          ),
+        ),
+        pw.SizedBox(width: 10),
+        pw.Expanded(
+          child: pw.Table(
+            border: pw.TableBorder.all(color: PdfColors.grey300),
+            columnWidths: const {
+              0: pw.FlexColumnWidth(2),
+              1: pw.FlexColumnWidth(1),
+            },
+            children: financialData,
+          ),
+        ),
+      ],
+    );
+  }
+  
+  static pw.TableRow _inputRow(String label, String value) {
+    return pw.TableRow(
+      children: [
+        _tableCell(label, isBold: true),
+        _tableCell(value, isCenter: true),
+      ],
+    );
+  }
+
   static Future<pw.Font> _loadFont(String path) async {
     final fontData = await rootBundle.load(path);
     return pw.Font.ttf(fontData);

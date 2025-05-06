@@ -49,8 +49,12 @@ class FarmDetailsFormSection extends StatelessWidget {
           controller: todController,
           label: l10n.totalOxygenDemand,
           suffix: 'kg O₂/h',
-          min: 0.1,
-          hint: '5443.76',
+          min: 0,
+          max: 100000.0,
+          hint: '5000',
+          isNumeric: true,
+          step: 1,
+          decimals: 0,
         ),
         SurveyFormField(
           controller: farmAreaController,
@@ -59,6 +63,9 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 0.1,
           max: 10000.0,
           hint: '1000',
+          isNumeric: true,
+          step: 10,
+          decimals: 0,
         ),
         SurveyFormField(
           controller: shrimpPriceController,
@@ -67,6 +74,7 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 0.1,
           max: 100.0,
           hint: '5.0',
+          isNumeric: true,
         ),
         SurveyFormField(
           controller: cultureDaysController,
@@ -75,6 +83,9 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 30,
           max: 365,
           hint: '120',
+          isNumeric: true,
+          step: 1.0,
+          decimals: 0,
         ),
         SurveyFormField(
           controller: shrimpDensityController,
@@ -83,6 +94,7 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 0.1,
           max: 10.0,
           hint: '0.33',
+          isNumeric: true,
         ),
         SurveyFormField(
           controller: pondDepthController,
@@ -91,6 +103,7 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 0.1,
           max: 5.0,
           hint: '1.0',
+          isNumeric: true,
         ),
 
         // Financial details
@@ -101,6 +114,7 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 0.0,
           max: 2.0,
           hint: '0.05',
+          isNumeric: true,
         ),
         SurveyFormField(
           controller: hoursPerNightController,
@@ -109,6 +123,9 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 1,
           max: 24,
           hint: '8',
+          isNumeric: true,
+          step: 1.0,
+          decimals: 0,
         ),
         SurveyFormField(
           controller: discountRateController,
@@ -117,6 +134,7 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 0.0,
           max: 100.0,
           hint: '10.0',
+          isNumeric: true,
         ),
         SurveyFormField(
           controller: inflationRateController,
@@ -125,6 +143,7 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 0.0,
           max: 100.0,
           hint: '3.0',
+          isNumeric: true,
         ),
         SurveyFormField(
           controller: horizonController,
@@ -133,6 +152,9 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 1,
           max: 50,
           hint: '9',
+          isNumeric: true,
+          step: 1.0,
+          decimals: 0,
         ),
         SurveyFormField(
           controller: safetyMarginController,
@@ -142,6 +164,7 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 0.0,
           max: 100.0,
           hint: '0',
+          isNumeric: true,
         ),
         SurveyFormField(
           controller: temperatureController,
@@ -150,6 +173,7 @@ class FarmDetailsFormSection extends StatelessWidget {
           min: 0.0,
           max: 50.0,
           hint: '31.5',
+          isNumeric: true,
         ),
       ],
     );

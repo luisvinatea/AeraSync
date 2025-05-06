@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'aerator_result.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class CostEvolutionCard extends StatelessWidget {
   final AppLocalizations l10n;
@@ -20,22 +21,32 @@ class CostEvolutionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
+      elevation: AppTheme.elevationMedium,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(AppTheme.paddingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n.costEvolutionVisualization,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: TextStyle(
+                fontSize: AppTheme.fontSizeLarge,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textDark,
+              ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppTheme.paddingMedium),
             Text(
               'Cumulative cost difference (including initial cost) vs. recommended aerator over time',
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: TextStyle(
+                fontSize: AppTheme.fontSizeMedium,
+                color: AppTheme.textMuted,
+              ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppTheme.paddingMedium),
             SizedBox(
               height: 300,
               child: LineChart(
@@ -224,19 +235,6 @@ class CostEvolutionCard extends StatelessWidget {
     final horizon = surveyData?['financial']?['horizon'] as int? ?? 10;
 
     // Create a different colored line for each aerator
-    final colors = [
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.purple,
-      Colors.teal,
-      Colors.pink,
-      Colors.indigo,
-      Colors.amber,
-      Colors.cyan,
-      Colors.lime,
-    ];
-
     int colorIndex = 0;
 
     for (var result in results) {
@@ -256,13 +254,16 @@ class CostEvolutionCard extends StatelessWidget {
           LineChartBarData(
             spots: spots,
             isCurved: true,
-            color: colors[colorIndex % colors.length],
+            color:
+                AppTheme.chartColors[colorIndex % AppTheme.chartColors.length],
             barWidth: 2,
             isStrokeCapRound: true,
             dotData: FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: colors[colorIndex % colors.length].withAlpha(76),
+              color: AppTheme
+                  .chartColors[colorIndex % AppTheme.chartColors.length]
+                  .withAlpha(76),
               applyCutOffY: false,
             ),
           ),

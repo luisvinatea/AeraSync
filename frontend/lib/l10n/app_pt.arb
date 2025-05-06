@@ -429,5 +429,29 @@
   "totalLabel": "Custo Total",
   "@totalLabel": {
     "description": "Descrição para a coluna de custo total na tabela de comparação"
+  },
+  "powerLabel": "Potência",
+  "@powerLabel": {
+    "description": "Etiqueta para o campo de entrada de potência"
+  },
+  "costLabel": "Custo",
+  "@costLabel": {
+    "description": "Etiqueta para o campo de entrada de custo"
+  },
+  "maintenanceLabel": "Manutenção",
+  "@maintenanceLabel": {
+    "description": "Etiqueta para o campo de entrada de manutenção"
+  },
+  "metric": "Métrica",
+  "@metric": {
+    "description": "Etiqueta para o campo de entrada de métricas"
+  },
+  "parameter": "Parâmetro",
+  "@parameter": {
+    "description": "Etiqueta para o campo de entrada de parâmetro"
+  },
+  "equilibriumValue": "Valor de Equilíbrio",
+  "@equilibriumValue": {
+    "description": "Etiqueta para el campo de entrada de valor de equilibrio"
   }
 }

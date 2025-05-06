@@ -429,5 +429,29 @@
   "totalLabel": "Total",
   "@totalLabel": {
     "description": "Label for the total column in the comparison table"
+  },
+  "powerLabel": "Power",
+  "@powerLabel": {
+    "description": "Label for the power input field"
+  },
+  "costLabel": "Cost",
+  "@costLabel": {
+    "description": "Label for the cost input field"
+  },
+  "maintenanceLabel": "Maintenance",
+  "@maintenanceLabel": {
+    "description": "Label for the maintenance input field"
+  },
+  "metric": "Metric",
+  "@metric": {
+    "description": "Label for the metric input field"
+  },
+  "parameter": "Parameter",
+  "@parameter": {
+    "description": "Label for the parameter input field"
+  },
+  "equilibriumValue": "Equilibrium Value",
+  "@equilibriumValue": {
+    "description": "Label for the equilibrium value"
   }
 }

@@ -11,8 +11,12 @@ class AeratorFormSection extends StatelessWidget {
   final TextEditingController durabilityController;
   final TextEditingController maintenanceController;
 
+  // Fix the scrollKey parameter by adding a default value
+  final Key? scrollKey;
+
   const AeratorFormSection({
     super.key,
+    this.scrollKey,
     required this.aeratorNumber,
     required this.nameController,
     required this.powerController,
@@ -27,6 +31,7 @@ class AeratorFormSection extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Column(
+      key: scrollKey, // This will work with nullable key
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(
@@ -35,7 +40,7 @@ class AeratorFormSection extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color.fromARGB(255, 62, 132, 238),
             ),
           ),
         ),
@@ -46,11 +51,14 @@ class AeratorFormSection extends StatelessWidget {
         ),
         SurveyFormField(
           controller: powerController,
-          label: l10n.horsepowerLabel,
-          suffix: 'hp',
-          min: 0.1,
+          label: l10n.powerLabel,
+          suffix: 'HP',
+          min: 1,
           max: 100,
           hint: '3.0',
+          isNumeric: true,
+          step: 0.5,
+          decimals: 1
         ),
         SurveyFormField(
           controller: sotrController,
@@ -58,15 +66,21 @@ class AeratorFormSection extends StatelessWidget {
           suffix: 'kg O₂/h',
           min: 0.1,
           max: 100,
-          hint: '1.4',
+          hint: '10.0',
+          isNumeric: true,
+          step: 0.1,
+          decimals: 1,
         ),
         SurveyFormField(
           controller: costController,
-          label: l10n.priceLabel,
+          label: l10n.costLabel,
           suffix: 'USD',
-          min: 0,
-          max: 50000,
+          min: 0.1,
+          max: 100000,
           hint: '500',
+          isNumeric: true,
+          step: 1.0,
+          decimals: 0,
         ),
         SurveyFormField(
           controller: durabilityController,
@@ -75,14 +89,20 @@ class AeratorFormSection extends StatelessWidget {
           min: 0.1,
           max: 50,
           hint: '2',
+          isNumeric: true,
+          step: 1.0,
+          decimals: 0,
         ),
         SurveyFormField(
           controller: maintenanceController,
-          label: l10n.maintenanceCostLabel,
+          label: l10n.maintenanceLabel,
           suffix: 'USD/year',
-          min: 0,
+          min: 0.0,
           max: 10000,
-          hint: '65',
+          hint: '50',
+          isNumeric: true,
+          step: 1.0,
+          decimals: 0,
         ),
       ],
     );

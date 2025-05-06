@@ -8,6 +8,8 @@ import '../../core/services/app_state.dart';
 import 'components/survey/farm_details_form_section.dart';
 import 'components/survey/aerator_form_section.dart';
 import 'utils/survey_data_processor.dart';
+import 'utils/wave_background.dart';
+import '../../core/theme/app_theme.dart';
 
 class SurveyPage extends StatefulWidget {
   const SurveyPage({super.key});
@@ -84,10 +86,12 @@ class SurveyPage extends StatefulWidget {
 class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _stepperKey = GlobalKey();
+  final _scrollController = ScrollController();
   late TabController _tabController;
+  late AnimationController _waveController;
 
   // Farm inputs
-  final _todController = TextEditingController(text: "5443.76");
+  final _todController = TextEditingController(text: "5440");
   final _farmAreaController = TextEditingController(text: "1000");
   final _shrimpPriceController = TextEditingController(text: "5.0");
   final _cultureDaysController = TextEditingController(text: "120");
@@ -126,6 +130,10 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _waveController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    )..repeat();
   }
 
   @override
@@ -156,6 +164,8 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
     _aerator2DurabilityController.dispose();
     _aerator2MaintenanceController.dispose();
     _tabController.dispose();
+    _scrollController.dispose();
+    _waveController.dispose();
     super.dispose();
   }
 
@@ -255,6 +265,18 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
           _currentStep += 1;
         });
         developer.log('Moved to step: $_currentStep');
+
+        // Reset scroll position to the top of the new step's content
+        // with a slight delay to ensure the new step is rendered
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              0, // Scroll to top
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
       } else {
         developer.log('Validation failed, staying on step: $_currentStep');
       }
@@ -268,6 +290,17 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
         _currentStep -= 1;
       });
       developer.log('Moved to step: $_currentStep');
+
+      // Reset scroll position to the top when going back to previous step
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            0, // Scroll to top
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
     }
   }
 
@@ -277,7 +310,10 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
     developer.log('Building SurveyPage, current step: $_currentStep');
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
         title: Text(
           l10n.survey,
           style: const TextStyle(
@@ -285,184 +321,185 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.blue.shade800,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF60A5FA), Color(0xFF1E40AF)],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Form(
-                  key: _formKey,
-                  child: Stepper(
-                    key: _stepperKey,
-                    type: StepperType.vertical,
-                    currentStep: _currentStep,
-                    onStepTapped: (step) {
-                      if (_formKey.currentState!.validate() ||
-                          step < _currentStep) {
-                        setState(() {
-                          _currentStep = step;
-                        });
-                        developer
-                            .log('Step tapped, moved to step: $_currentStep');
-                      }
-                    },
-                    controlsBuilder: (context, controls) {
-                      developer
-                          .log('Rendering controls for step: $_currentStep');
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            if (_currentStep > 0)
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: ElevatedButton(
-                                    key: const Key('back_button'),
-                                    onPressed: _prevStep,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue.shade700,
-                                      textStyle: const TextStyle(
-                                        fontWeight: FontWeight.bold,
+      body: AnimatedBuilder(
+        animation: _waveController,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              // Background wave animation
+              WaveBackground(animation: _waveController.value),
+
+              // Content
+              SingleChildScrollView(
+                controller: _scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : Form(
+                          key: _formKey,
+                          child: Stepper(
+                            key: _stepperKey,
+                            type: StepperType.vertical,
+                            currentStep: _currentStep,
+                            onStepTapped: (step) {
+                              if (_formKey.currentState!.validate() ||
+                                  step < _currentStep) {
+                                setState(() {
+                                  _currentStep = step;
+                                });
+                                developer.log(
+                                    'Step tapped, moved to step: $_currentStep');
+                              }
+                            },
+                            controlsBuilder: (context, controls) {
+                              developer.log(
+                                  'Rendering controls for step: $_currentStep');
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    if (_currentStep > 0)
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0),
+                                          child: ElevatedButton(
+                                            key: const Key('back_button'),
+                                            onPressed: _prevStep,
+                                            style: AppTheme.primaryButtonStyle,
+                                            child: Text(
+                                              l10n.back,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    child: Text(
-                                      l10n.back,
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                    if (_currentStep < 1)
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0),
+                                          child: ElevatedButton(
+                                            key: const Key('next_button'),
+                                            onPressed: _nextStep,
+                                            style: AppTheme.primaryButtonStyle,
+                                            child: Text(
+                                              l10n.next,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                    if (_currentStep == 1)
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0),
+                                          child: ElevatedButton(
+                                            key: const Key('submit_button'),
+                                            onPressed: () =>
+                                                _submitSurvey(context),
+                                            style: AppTheme.successButtonStyle,
+                                            child: Text(
+                                              l10n.submit,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
+                            steps: [
+                              Step(
+                                title: Text(
+                                  l10n.farmFinancialDetails,
+                                  style: const TextStyle(
+                                    fontFamily: AppTheme.fontFamilyHeadings,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
                                 ),
-                              ),
-                            if (_currentStep < 1)
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: ElevatedButton(
-                                    key: const Key('next_button'),
-                                    onPressed: _nextStep,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue.shade700,
-                                      textStyle: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      l10n.next,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
+                                isActive: _currentStep == 0,
+                                content: FarmDetailsFormSection(
+                                  todController: _todController,
+                                  farmAreaController: _farmAreaController,
+                                  shrimpPriceController: _shrimpPriceController,
+                                  cultureDaysController: _cultureDaysController,
+                                  shrimpDensityController:
+                                      _shrimpDensityController,
+                                  pondDepthController: _pondDepthController,
+                                  energyCostController: _energyCostController,
+                                  hoursPerNightController:
+                                      _hoursPerNightController,
+                                  discountRateController:
+                                      _discountRateController,
+                                  inflationRateController:
+                                      _inflationRateController,
+                                  horizonController: _horizonController,
+                                  safetyMarginController:
+                                      _safetyMarginController,
+                                  temperatureController: _temperatureController,
                                 ),
                               ),
-                            if (_currentStep == 1)
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: ElevatedButton(
-                                    key: const Key('submit_button'),
-                                    onPressed: () => _submitSurvey(context),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green.shade700,
-                                      textStyle: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      l10n.submit,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                              Step(
+                                title: Text(
+                                  l10n.aeratorDetails,
+                                  style: const TextStyle(
+                                    fontFamily: AppTheme.fontFamilyHeadings,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
                                 ),
+                                isActive: _currentStep == 1,
+                                content: Column(
+                                  children: [
+                                    AeratorFormSection(
+                                      aeratorNumber: "1",
+                                      nameController: _aerator1NameController,
+                                      powerController: _aerator1PowerController,
+                                      sotrController: _aerator1SotrController,
+                                      costController: _aerator1CostController,
+                                      durabilityController:
+                                          _aerator1DurabilityController,
+                                      maintenanceController:
+                                          _aerator1MaintenanceController,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    AeratorFormSection(
+                                      aeratorNumber: "2",
+                                      nameController: _aerator2NameController,
+                                      powerController: _aerator2PowerController,
+                                      sotrController: _aerator2SotrController,
+                                      costController: _aerator2CostController,
+                                      durabilityController:
+                                          _aerator2DurabilityController,
+                                      maintenanceController:
+                                          _aerator2MaintenanceController,
+                                    ),
+                                  ],
+                                ),
                               ),
-                          ],
-                        ),
-                      );
-                    },
-                    steps: [
-                      Step(
-                        title: Text(
-                          l10n.farmFinancialDetails,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            ],
                           ),
                         ),
-                        isActive: _currentStep == 0,
-                        content: FarmDetailsFormSection(
-                          todController: _todController,
-                          farmAreaController: _farmAreaController,
-                          shrimpPriceController: _shrimpPriceController,
-                          cultureDaysController: _cultureDaysController,
-                          shrimpDensityController: _shrimpDensityController,
-                          pondDepthController: _pondDepthController,
-                          energyCostController: _energyCostController,
-                          hoursPerNightController: _hoursPerNightController,
-                          discountRateController: _discountRateController,
-                          inflationRateController: _inflationRateController,
-                          horizonController: _horizonController,
-                          safetyMarginController: _safetyMarginController,
-                          temperatureController: _temperatureController,
-                        ),
-                      ),
-                      Step(
-                        title: Text(
-                          l10n.aeratorDetails,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        isActive: _currentStep == 1,
-                        content: Column(
-                          children: [
-                            AeratorFormSection(
-                              aeratorNumber: "1",
-                              nameController: _aerator1NameController,
-                              powerController: _aerator1PowerController,
-                              sotrController: _aerator1SotrController,
-                              costController: _aerator1CostController,
-                              durabilityController:
-                                  _aerator1DurabilityController,
-                              maintenanceController:
-                                  _aerator1MaintenanceController,
-                            ),
-                            const SizedBox(height: 16),
-                            AeratorFormSection(
-                              aeratorNumber: "2",
-                              nameController: _aerator2NameController,
-                              powerController: _aerator2PowerController,
-                              sotrController: _aerator2SotrController,
-                              costController: _aerator2CostController,
-                              durabilityController:
-                                  _aerator2DurabilityController,
-                              maintenanceController:
-                                  _aerator2MaintenanceController,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

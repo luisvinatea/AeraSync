@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../utils/formatting_utils.dart';
 import 'aerator_result.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../utils/formatting_utils.dart';
 
 class AeratorComparisonCard extends StatelessWidget {
   final AppLocalizations l10n;
@@ -18,9 +19,12 @@ class AeratorComparisonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
+      elevation: AppTheme.elevationMedium,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(AppTheme.paddingMedium),
         child: Semantics(
           label: l10n.aeratorComparisonResultsDescription,
           child: Column(
@@ -28,9 +32,13 @@ class AeratorComparisonCard extends StatelessWidget {
             children: [
               Text(
                 l10n.aeratorComparisonResults,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: TextStyle(
+                  fontSize: AppTheme.fontSizeXLarge,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textDark,
+                ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: AppTheme.paddingMedium),
               ...results
                   .map((result) => _buildDetailedResultCard(context, result)),
             ],
@@ -130,16 +138,24 @@ class AeratorComparisonCard extends StatelessWidget {
 
   Widget _detailRow(String label, String value, {bool useSubscript = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: EdgeInsets.symmetric(vertical: AppTheme.paddingSmall * 0.5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(label,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: AppTheme.fontSizeMedium,
+                color: AppTheme.textDark,
+              )),
           useSubscript
               ? Builder(
                   builder: (context) => RichText(
                     text: TextSpan(
-                      style: DefaultTextStyle.of(context).style,
+                      style: DefaultTextStyle.of(context).style.copyWith(
+                            color: AppTheme.textDark,
+                            fontSize: AppTheme.fontSizeMedium,
+                          ),
                       children: [
                         const TextSpan(text: ''),
                         ...FormattingUtils.parseSaeText(value, context),
@@ -147,7 +163,14 @@ class AeratorComparisonCard extends StatelessWidget {
                     ),
                   ),
                 )
-              : Text(value),
+              : Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: AppTheme.fontSizeMedium,
+                    fontFamily: AppTheme.fontFamilyNumbers,
+                    color: AppTheme.textDark,
+                  ),
+                ),
         ],
       ),
     );

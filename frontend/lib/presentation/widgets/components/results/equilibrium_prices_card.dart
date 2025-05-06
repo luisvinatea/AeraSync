@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../utils/formatting_utils.dart';
 
 class EquilibriumPricesCard extends StatelessWidget {
@@ -19,9 +20,12 @@ class EquilibriumPricesCard extends StatelessWidget {
     }
 
     return Card(
-      elevation: 4,
+      elevation: AppTheme.elevationMedium,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusMedium),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(AppTheme.paddingMedium),
         child: Semantics(
           label: l10n.equilibriumPricesDescription,
           child: Column(
@@ -29,35 +33,51 @@ class EquilibriumPricesCard extends StatelessWidget {
             children: [
               Text(
                 l10n.equilibriumPrices,
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: TextStyle(
+                  fontSize: AppTheme.fontSizeXLarge,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textDark,
+                ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: AppTheme.paddingMedium),
               Text(
                 l10n.equilibriumPriceExplanation,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: TextStyle(
+                  fontSize: AppTheme.fontSizeMedium,
+                  color: AppTheme.textLight,
+                ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: AppTheme.paddingLarge),
               ...equilibriumPrices.entries.map((entry) {
                 final price =
                     (entry.value is num) ? entry.value.toDouble() : 0.0;
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
+                  margin: EdgeInsets.only(bottom: AppTheme.paddingSmall),
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(AppTheme.borderRadiusSmall),
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: EdgeInsets.all(AppTheme.paddingSmall),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Text(
                             entry.key,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: AppTheme.fontSizeMedium,
+                              color: AppTheme.textDark,
+                            ),
                           ),
                         ),
                         Text(
                           FormattingUtils.formatCurrencyK(price),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                            fontSize: AppTheme.fontSizeLarge,
+                            color: AppTheme.textDark,
                           ),
                         ),
                       ],
