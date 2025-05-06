@@ -11,6 +11,7 @@ import 'components/survey/financial_details_form_section.dart';
 import 'utils/survey_data_processor.dart';
 import 'utils/wave_background.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/responsive_util.dart';
 
 class SurveyPage extends StatefulWidget {
   const SurveyPage({super.key});
@@ -308,6 +309,8 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isMobile = ResponsiveUtil.isMobile(context);
+
     developer.log('Building SurveyPage, current step: $_currentStep');
 
     return Scaffold(
@@ -332,193 +335,252 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
               WaveBackground(animation: _waveController.value),
 
               // Content
-              SingleChildScrollView(
-                controller: _scrollController,
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : Form(
-                          key: _formKey,
-                          child: Stepper(
-                            key: _stepperKey,
-                            type: StepperType.vertical,
-                            currentStep: _currentStep,
-                            onStepTapped: (step) {
-                              if (_formKey.currentState!.validate() ||
-                                  step < _currentStep) {
-                                setState(() {
-                                  _currentStep = step;
-                                });
+              SafeArea(
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Padding(
+                    padding:
+                        EdgeInsets.all(ResponsiveUtil.contentPadding(context)),
+                    child: _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : Form(
+                            key: _formKey,
+                            child: Stepper(
+                              key: _stepperKey,
+                              type: StepperType.vertical,
+                              currentStep: _currentStep,
+                              onStepTapped: (step) {
+                                if (_formKey.currentState!.validate() ||
+                                    step < _currentStep) {
+                                  setState(() {
+                                    _currentStep = step;
+                                  });
+                                  developer.log(
+                                      'Step tapped, moved to step: $_currentStep');
+                                }
+                              },
+                              controlsBuilder: (context, controls) {
                                 developer.log(
-                                    'Step tapped, moved to step: $_currentStep');
-                              }
-                            },
-                            controlsBuilder: (context, controls) {
-                              developer.log(
-                                  'Rendering controls for step: $_currentStep');
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    if (_currentStep > 0)
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: ElevatedButton(
-                                            key: const Key('back_button'),
-                                            onPressed: _prevStep,
-                                            style: AppTheme.primaryButtonStyle,
-                                            child: Text(
-                                              l10n.back,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
+                                    'Rendering controls for step: $_currentStep');
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: isMobile ? 12.0 : 16.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      if (_currentStep > 0)
+                                        Expanded(
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal:
+                                                    isMobile ? 4.0 : 8.0),
+                                            child: ElevatedButton(
+                                              key: const Key('back_button'),
+                                              onPressed: _prevStep,
+                                              style:
+                                                  AppTheme.primaryButtonStyle,
+                                              child: Text(
+                                                l10n.back,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: isMobile ? 14 : 16,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    if (_currentStep < 2)
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: ElevatedButton(
-                                            key: const Key('next_button'),
-                                            onPressed: _nextStep,
-                                            style: AppTheme.primaryButtonStyle,
-                                            child: Text(
-                                              l10n.next,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
+                                      if (_currentStep < 2)
+                                        Expanded(
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal:
+                                                    isMobile ? 4.0 : 8.0),
+                                            child: ElevatedButton(
+                                              key: const Key('next_button'),
+                                              onPressed: _nextStep,
+                                              style:
+                                                  AppTheme.primaryButtonStyle,
+                                              child: Text(
+                                                l10n.next,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: isMobile ? 14 : 16,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    if (_currentStep == 2)
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: ElevatedButton(
-                                            key: const Key('submit_button'),
-                                            onPressed: () =>
-                                                _submitSurvey(context),
-                                            style: AppTheme.successButtonStyle,
-                                            child: Text(
-                                              l10n.submit,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
+                                      if (_currentStep == 2)
+                                        Expanded(
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal:
+                                                    isMobile ? 4.0 : 8.0),
+                                            child: ElevatedButton(
+                                              key: const Key('submit_button'),
+                                              onPressed: () =>
+                                                  _submitSurvey(context),
+                                              style:
+                                                  AppTheme.successButtonStyle,
+                                              child: Text(
+                                                l10n.submit,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: isMobile ? 14 : 16,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                  ],
-                                ),
-                              );
-                            },
-                            steps: [
-                              Step(
-                                title: Text(
-                                  l10n.farmSpecs,
-                                  style: const TextStyle(
-                                    fontFamily: AppTheme.fontFamilyHeadings,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    ],
                                   ),
-                                ),
-                                isActive: _currentStep == 0,
-                                content: FarmDetailsFormSection(
-                                  todController: _todController,
-                                  farmAreaController: _farmAreaController,
-                                  shrimpPriceController: _shrimpPriceController,
-                                  cultureDaysController: _cultureDaysController,
-                                  shrimpDensityController:
-                                      _shrimpDensityController,
-                                  pondDepthController: _pondDepthController,
-                                  temperatureController: _temperatureController,
-                                ),
-                              ),
-                              Step(
-                                title: Text(
-                                  l10n.aeratorDetails,
-                                  style: const TextStyle(
-                                    fontFamily: AppTheme.fontFamilyHeadings,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                isActive: _currentStep == 1,
-                                content: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Left column - Aerator 1
-                                    Expanded(
-                                      flex: 1,
-                                      child: AeratorFormSection(
-                                        aeratorNumber: "1",
-                                        nameController: _aerator1NameController,
-                                        powerController:
-                                            _aerator1PowerController,
-                                        sotrController: _aerator1SotrController,
-                                        costController: _aerator1CostController,
-                                        durabilityController:
-                                            _aerator1DurabilityController,
-                                        maintenanceController:
-                                            _aerator1MaintenanceController,
-                                      ),
+                                );
+                              },
+                              steps: [
+                                Step(
+                                  title: Text(
+                                    l10n.farmSpecs,
+                                    style: const TextStyle(
+                                      fontFamily: AppTheme.fontFamilyHeadings,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
                                     ),
-                                    // Right column - Aerator 2
-                                    Expanded(
-                                      flex: 1,
-                                      child: AeratorFormSection(
-                                        aeratorNumber: "2",
-                                        nameController: _aerator2NameController,
-                                        powerController:
-                                            _aerator2PowerController,
-                                        sotrController: _aerator2SotrController,
-                                        costController: _aerator2CostController,
-                                        durabilityController:
-                                            _aerator2DurabilityController,
-                                        maintenanceController:
-                                            _aerator2MaintenanceController,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Step(
-                                title: Text(
-                                  l10n.financialAspects,
-                                  style: const TextStyle(
-                                    fontFamily: AppTheme.fontFamilyHeadings,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                  ),
+                                  isActive: _currentStep == 0,
+                                  content: FarmDetailsFormSection(
+                                    todController: _todController,
+                                    farmAreaController: _farmAreaController,
+                                    shrimpPriceController:
+                                        _shrimpPriceController,
+                                    cultureDaysController:
+                                        _cultureDaysController,
+                                    shrimpDensityController:
+                                        _shrimpDensityController,
+                                    pondDepthController: _pondDepthController,
+                                    temperatureController:
+                                        _temperatureController,
                                   ),
                                 ),
-                                isActive: _currentStep == 2,
-                                content: FinancialDetailsFormSection(
-                                  energyCostController: _energyCostController,
-                                  hoursPerNightController:
-                                      _hoursPerNightController,
-                                  discountRateController:
-                                      _discountRateController,
-                                  inflationRateController:
-                                      _inflationRateController,
-                                  horizonController: _horizonController,
-                                  safetyMarginController:
-                                      _safetyMarginController,
+                                Step(
+                                  title: Text(
+                                    l10n.aeratorDetails,
+                                    style: const TextStyle(
+                                      fontFamily: AppTheme.fontFamilyHeadings,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  isActive: _currentStep == 1,
+                                  content: isMobile
+                                      ? Column(
+                                          children: [
+                                            // Mobile view - stacked aerators
+                                            AeratorFormSection(
+                                              aeratorNumber: "1",
+                                              nameController:
+                                                  _aerator1NameController,
+                                              powerController:
+                                                  _aerator1PowerController,
+                                              sotrController:
+                                                  _aerator1SotrController,
+                                              costController:
+                                                  _aerator1CostController,
+                                              durabilityController:
+                                                  _aerator1DurabilityController,
+                                              maintenanceController:
+                                                  _aerator1MaintenanceController,
+                                            ),
+                                            const SizedBox(height: 16),
+                                            AeratorFormSection(
+                                              aeratorNumber: "2",
+                                              nameController:
+                                                  _aerator2NameController,
+                                              powerController:
+                                                  _aerator2PowerController,
+                                              sotrController:
+                                                  _aerator2SotrController,
+                                              costController:
+                                                  _aerator2CostController,
+                                              durabilityController:
+                                                  _aerator2DurabilityController,
+                                              maintenanceController:
+                                                  _aerator2MaintenanceController,
+                                            ),
+                                          ],
+                                        )
+                                      : Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // Tablet/Desktop view - side by side
+                                            Expanded(
+                                              flex: 1,
+                                              child: AeratorFormSection(
+                                                aeratorNumber: "1",
+                                                nameController:
+                                                    _aerator1NameController,
+                                                powerController:
+                                                    _aerator1PowerController,
+                                                sotrController:
+                                                    _aerator1SotrController,
+                                                costController:
+                                                    _aerator1CostController,
+                                                durabilityController:
+                                                    _aerator1DurabilityController,
+                                                maintenanceController:
+                                                    _aerator1MaintenanceController,
+                                              ),
+                                            ),
+                                            SizedBox(width: isMobile ? 0 : 16),
+                                            Expanded(
+                                              flex: 1,
+                                              child: AeratorFormSection(
+                                                aeratorNumber: "2",
+                                                nameController:
+                                                    _aerator2NameController,
+                                                powerController:
+                                                    _aerator2PowerController,
+                                                sotrController:
+                                                    _aerator2SotrController,
+                                                costController:
+                                                    _aerator2CostController,
+                                                durabilityController:
+                                                    _aerator2DurabilityController,
+                                                maintenanceController:
+                                                    _aerator2MaintenanceController,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                 ),
-                              ),
-                            ],
+                                Step(
+                                  title: Text(
+                                    l10n.financialAspects,
+                                    style: const TextStyle(
+                                      fontFamily: AppTheme.fontFamilyHeadings,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  isActive: _currentStep == 2,
+                                  content: FinancialDetailsFormSection(
+                                    energyCostController: _energyCostController,
+                                    hoursPerNightController:
+                                        _hoursPerNightController,
+                                    discountRateController:
+                                        _discountRateController,
+                                    inflationRateController:
+                                        _inflationRateController,
+                                    horizonController: _horizonController,
+                                    safetyMarginController:
+                                        _safetyMarginController,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                  ),
                 ),
               ),
             ],

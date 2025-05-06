@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/services/app_state.dart';
+import '../../core/utils/responsive_util.dart';
 import '../widgets/utils/wave_background.dart';
 import '../../core/theme/app_theme.dart';
 
@@ -119,6 +120,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final appState = Provider.of<AppState>(context);
+    final isMobile = ResponsiveUtil.isMobile(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -128,13 +130,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Replace SVG with Image widget for WebP file
             Image.asset(
               'web/icons/watermark.webp',
-              height: 30,
+              height: isMobile ? 24 : 30,
             ),
             const SizedBox(width: 8),
-            Text(l10n.appTitle, style: const TextStyle(color: Color.fromARGB(255, 40, 130, 225))),
+            Text(l10n.appTitle,
+                style: TextStyle(
+                  color: const Color.fromARGB(255, 40, 130, 225),
+                  fontSize: isMobile ? 18 : 20,
+                )),
           ],
         ),
         centerTitle: true,
@@ -148,101 +153,153 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               WaveBackground(animation: _waveController.value),
 
               // Content
-              Center(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Card(
-                      elevation: 8,
-                      shadowColor: Colors.black54.withAlpha(0),
-                      color: const Color.fromARGB(255, 255, 255, 255).withAlpha(0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Semantics(
-                              label: l10n.welcomeToAeraSync,
-                              child: Text(
-                                l10n.welcomeToAeraSync,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            if (!_isApiHealthy) ...[
-                              Container(
-                                padding: const EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.withAlpha(26),
-                                  borderRadius: BorderRadius.circular(8.0),
+              SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.all(
+                          ResponsiveUtil.contentPadding(context)),
+                      child: Card(
+                        elevation: 8,
+                        shadowColor: Colors.black54.withAlpha(0),
+                        color: const Color.fromARGB(255, 255, 255, 255)
+                            .withAlpha(0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Semantics(
+                                label: l10n.welcomeToAeraSync,
+                                child: Text(
+                                  l10n.welcomeToAeraSync,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: isMobile ? 20 : 24,
+                                      ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.warning,
-                                      color: Colors.red,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(child: Text(l10n.apiUnreachable)),
-                                    TextButton(
-                                      onPressed: _checkApiHealth,
-                                      child: Text(l10n.retry),
-                                    ),
-                                  ],
+                              ),
+                              const SizedBox(height: 24),
+                              if (!_isApiHealthy) ...[
+                                Container(
+                                  padding: const EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.withAlpha(26),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.warning,
+                                        color: Colors.red,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                          child: Text(l10n.apiUnreachable)),
+                                      TextButton(
+                                        onPressed: _checkApiHealth,
+                                        child: Text(l10n.retry),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                              ElevatedButton(
+                                style: isMobile
+                                    ? ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.primary,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 12,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      )
+                                    : AppTheme.primaryButtonStyle,
+                                onPressed: _isApiHealthy &&
+                                        (!_showDisclosureDialog ||
+                                            appState.hasAgreedToDisclosure)
+                                    ? () =>
+                                        Navigator.pushNamed(context, '/survey')
+                                    : null,
+                                child: Text(
+                                  l10n.startSurvey,
+                                  style: TextStyle(
+                                    fontSize: isMobile
+                                        ? AppTheme.fontSizeMedium
+                                        : AppTheme.fontSizeLarge,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 16),
+                              Semantics(
+                                label: l10n.selectLanguage,
+                                child: isMobile
+                                    ? Column(
+                                        children: [
+                                          Text(l10n.selectLanguage),
+                                          const SizedBox(height: 8),
+                                          DropdownButton<Locale>(
+                                            value: appState.locale,
+                                            items: AppLocalizations
+                                                .supportedLocales
+                                                .map((locale) =>
+                                                    DropdownMenuItem(
+                                                      value: locale,
+                                                      child: Text(locale
+                                                          .languageCode
+                                                          .toUpperCase()),
+                                                    ))
+                                                .toList(),
+                                            onChanged: (locale) {
+                                              if (locale != null) {
+                                                appState.locale = locale;
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(l10n.selectLanguage),
+                                          const SizedBox(width: 8),
+                                          DropdownButton<Locale>(
+                                            value: appState.locale,
+                                            items: AppLocalizations
+                                                .supportedLocales
+                                                .map((locale) =>
+                                                    DropdownMenuItem(
+                                                      value: locale,
+                                                      child: Text(locale
+                                                          .languageCode
+                                                          .toUpperCase()),
+                                                    ))
+                                                .toList(),
+                                            onChanged: (locale) {
+                                              if (locale != null) {
+                                                appState.locale = locale;
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                              ),
                             ],
-                            ElevatedButton(
-                              style: AppTheme.primaryButtonStyle,
-                              onPressed: _isApiHealthy &&
-                                      (!_showDisclosureDialog ||
-                                          appState.hasAgreedToDisclosure)
-                                  ? () =>
-                                      Navigator.pushNamed(context, '/survey')
-                                  : null,
-                              child: Text(
-                                l10n.startSurvey,
-                                style: const TextStyle(
-                                  fontSize: AppTheme.fontSizeLarge,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Semantics(
-                              label: l10n.selectLanguage,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(l10n.selectLanguage),
-                                  const SizedBox(width: 8),
-                                  DropdownButton<Locale>(
-                                    value: appState.locale,
-                                    items: AppLocalizations.supportedLocales
-                                        .map((locale) => DropdownMenuItem(
-                                              value: locale,
-                                              child: Text(locale.languageCode
-                                                  .toUpperCase()),
-                                            ))
-                                        .toList(),
-                                    onChanged: (locale) {
-                                      if (locale != null) {
-                                        appState.locale = locale;
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
