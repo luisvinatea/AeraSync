@@ -382,9 +382,9 @@
   "@optionalField": {
     "description": "Etiqueta para campos opcionales en la encuesta"
   },
-  "farmFinancialDetails": "Detalles Financieros de la Camaronera",
-  "@farmFinancialDetails": {
-    "description": "Etiqueta para la sección de detalles financieros de la camaronera"
+  "farmSpecs": "Especificaciones de la Camaronera",
+  "@farmSpecs": {
+    "description": "Etiqueta para la sección de detalles de la camaronera"
   },
   "surveyInputs": "Entradas de la Encuesta",
   "@surveyInputs": {

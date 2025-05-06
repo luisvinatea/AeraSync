@@ -9,12 +9,12 @@
   "scope": "/",
   "icons": [
     {
-      "src": "/icons/aerasync64.webp",
+      "src": "/icons/watermark.webp",
       "sizes": "64x64",
       "type": "image/webp"
     },
     {
-      "src": "/icons/aerasync180.webp",
+      "src": "/icons/watermark.webp",
       "sizes": "180x180",
       "type": "image/webp"
     }

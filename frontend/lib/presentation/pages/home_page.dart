@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               height: 30,
             ),
             const SizedBox(width: 8),
-            Text(l10n.appTitle, style: const TextStyle(color: Colors.white)),
+            Text(l10n.appTitle, style: const TextStyle(color: Color.fromARGB(255, 40, 130, 225))),
           ],
         ),
         centerTitle: true,
@@ -154,8 +154,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     padding: const EdgeInsets.all(16.0),
                     child: Card(
                       elevation: 8,
-                      shadowColor: Colors.black54,
-                      color: Colors.white.withAlpha(230),
+                      shadowColor: Colors.black54.withAlpha(0),
+                      color: const Color.fromARGB(255, 255, 255, 255).withAlpha(0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),

@@ -7,6 +7,7 @@ import 'dart:developer' as developer;
 import '../../core/services/app_state.dart';
 import 'components/survey/farm_details_form_section.dart';
 import 'components/survey/aerator_form_section.dart';
+import 'components/survey/financial_details_form_section.dart';
 import 'utils/survey_data_processor.dart';
 import 'utils/wave_background.dart';
 import '../../core/theme/app_theme.dart';
@@ -32,6 +33,7 @@ class SurveyPage extends StatefulWidget {
         cultureDaysController: state._cultureDaysController,
         shrimpDensityController: state._shrimpDensityController,
         pondDepthController: state._pondDepthController,
+        temperatureController: state._temperatureController,
 
         // Financial inputs
         energyCostController: state._energyCostController,
@@ -40,7 +42,6 @@ class SurveyPage extends StatefulWidget {
         inflationRateController: state._inflationRateController,
         horizonController: state._horizonController,
         safetyMarginController: state._safetyMarginController,
-        temperatureController: state._temperatureController,
 
         // Aerator 1 inputs
         aerator1NameController: state._aerator1NameController,
@@ -97,6 +98,7 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
   final _cultureDaysController = TextEditingController(text: "120");
   final _shrimpDensityController = TextEditingController(text: "0.33");
   final _pondDepthController = TextEditingController(text: "1.0");
+  final _temperatureController = TextEditingController(text: "31.5");
 
   // Financial inputs
   final _energyCostController = TextEditingController(text: "0.05");
@@ -105,7 +107,6 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
   final _inflationRateController = TextEditingController(text: "3.0");
   final _horizonController = TextEditingController(text: "9");
   final _safetyMarginController = TextEditingController(text: "0");
-  final _temperatureController = TextEditingController(text: "31.5");
 
   // Aerator inputs - first aerator
   final _aerator1NameController = TextEditingController(text: "Paddlewheel 1");
@@ -144,13 +145,13 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
     _cultureDaysController.dispose();
     _shrimpDensityController.dispose();
     _pondDepthController.dispose();
+    _temperatureController.dispose();
     _energyCostController.dispose();
     _hoursPerNightController.dispose();
     _discountRateController.dispose();
     _inflationRateController.dispose();
     _horizonController.dispose();
     _safetyMarginController.dispose();
-    _temperatureController.dispose();
     _aerator1NameController.dispose();
     _aerator1PowerController.dispose();
     _aerator1SotrController.dispose();
@@ -190,6 +191,7 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
         cultureDaysController: _cultureDaysController,
         shrimpDensityController: _shrimpDensityController,
         pondDepthController: _pondDepthController,
+        temperatureController: _temperatureController,
 
         // Financial inputs
         energyCostController: _energyCostController,
@@ -198,7 +200,6 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
         inflationRateController: _inflationRateController,
         horizonController: _horizonController,
         safetyMarginController: _safetyMarginController,
-        temperatureController: _temperatureController,
 
         // Aerator 1 inputs
         aerator1NameController: _aerator1NameController,
@@ -259,7 +260,7 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
 
   void _nextStep() {
     developer.log('Next step called, current step: $_currentStep');
-    if (_currentStep < 1) {
+    if (_currentStep < 2) {
       if (_formKey.currentState!.validate()) {
         setState(() {
           _currentStep += 1;
@@ -381,7 +382,7 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
                                           ),
                                         ),
                                       ),
-                                    if (_currentStep < 1)
+                                    if (_currentStep < 2)
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
@@ -399,7 +400,7 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
                                           ),
                                         ),
                                       ),
-                                    if (_currentStep == 1)
+                                    if (_currentStep == 2)
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
@@ -425,7 +426,7 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
                             steps: [
                               Step(
                                 title: Text(
-                                  l10n.farmFinancialDetails,
+                                  l10n.farmSpecs,
                                   style: const TextStyle(
                                     fontFamily: AppTheme.fontFamilyHeadings,
                                     fontWeight: FontWeight.bold,
@@ -441,16 +442,6 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
                                   shrimpDensityController:
                                       _shrimpDensityController,
                                   pondDepthController: _pondDepthController,
-                                  energyCostController: _energyCostController,
-                                  hoursPerNightController:
-                                      _hoursPerNightController,
-                                  discountRateController:
-                                      _discountRateController,
-                                  inflationRateController:
-                                      _inflationRateController,
-                                  horizonController: _horizonController,
-                                  safetyMarginController:
-                                      _safetyMarginController,
                                   temperatureController: _temperatureController,
                                 ),
                               ),
@@ -464,32 +455,65 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
                                   ),
                                 ),
                                 isActive: _currentStep == 1,
-                                content: Column(
+                                content: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    AeratorFormSection(
-                                      aeratorNumber: "1",
-                                      nameController: _aerator1NameController,
-                                      powerController: _aerator1PowerController,
-                                      sotrController: _aerator1SotrController,
-                                      costController: _aerator1CostController,
-                                      durabilityController:
-                                          _aerator1DurabilityController,
-                                      maintenanceController:
-                                          _aerator1MaintenanceController,
+                                    // Left column - Aerator 1
+                                    Expanded(
+                                      flex: 1,
+                                      child: AeratorFormSection(
+                                        aeratorNumber: "1",
+                                        nameController: _aerator1NameController,
+                                        powerController:
+                                            _aerator1PowerController,
+                                        sotrController: _aerator1SotrController,
+                                        costController: _aerator1CostController,
+                                        durabilityController:
+                                            _aerator1DurabilityController,
+                                        maintenanceController:
+                                            _aerator1MaintenanceController,
+                                      ),
                                     ),
-                                    const SizedBox(height: 16),
-                                    AeratorFormSection(
-                                      aeratorNumber: "2",
-                                      nameController: _aerator2NameController,
-                                      powerController: _aerator2PowerController,
-                                      sotrController: _aerator2SotrController,
-                                      costController: _aerator2CostController,
-                                      durabilityController:
-                                          _aerator2DurabilityController,
-                                      maintenanceController:
-                                          _aerator2MaintenanceController,
+                                    // Right column - Aerator 2
+                                    Expanded(
+                                      flex: 1,
+                                      child: AeratorFormSection(
+                                        aeratorNumber: "2",
+                                        nameController: _aerator2NameController,
+                                        powerController:
+                                            _aerator2PowerController,
+                                        sotrController: _aerator2SotrController,
+                                        costController: _aerator2CostController,
+                                        durabilityController:
+                                            _aerator2DurabilityController,
+                                        maintenanceController:
+                                            _aerator2MaintenanceController,
+                                      ),
                                     ),
                                   ],
+                                ),
+                              ),
+                              Step(
+                                title: Text(
+                                  l10n.financialAspects,
+                                  style: const TextStyle(
+                                    fontFamily: AppTheme.fontFamilyHeadings,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                isActive: _currentStep == 2,
+                                content: FinancialDetailsFormSection(
+                                  energyCostController: _energyCostController,
+                                  hoursPerNightController:
+                                      _hoursPerNightController,
+                                  discountRateController:
+                                      _discountRateController,
+                                  inflationRateController:
+                                      _inflationRateController,
+                                  horizonController: _horizonController,
+                                  safetyMarginController:
+                                      _safetyMarginController,
                                 ),
                               ),
                             ],

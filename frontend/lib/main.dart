@@ -98,16 +98,16 @@ class MyApp extends StatelessWidget {
               fillColor: Colors.white.withAlpha(242),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF60A5FA)),
+                borderSide: const BorderSide(color: Colors.transparent),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF60A5FA)),
+                borderSide: const BorderSide(color: Colors.transparent),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide:
-                    const BorderSide(color: Color(0xFF1E40AF), width: 2),
+                    const BorderSide(color: Colors.transparent, width: 2),
               ),
               labelStyle: TextStyle(
                 backgroundColor: Colors.white.withAlpha(204),

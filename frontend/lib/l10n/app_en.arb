@@ -382,9 +382,9 @@
   "@optionalField": {
     "description": "Label for optional fields in the survey"
   },
-  "farmFinancialDetails": "Farm Financial Details",
-  "@farmFinancialDetails": {
-    "description": "Title for the farm financial details section"
+  "farmSpecs": "Farm Specifications",
+  "@farmSpecs": {
+    "description": "Label for the section of farm specifications"
   },
   "surveyInputs": "Survey Inputs",
   "@surveyInputs": {

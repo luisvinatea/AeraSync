@@ -46,9 +46,9 @@ class AppTheme {
       Color(0x1AFCD34D); // Warning with 10% opacity
 
   // Input field colors
-  static const Color inputBorder = Color(0xFF3B82F6);
-  static const Color inputFocused = Color(0xFF2563EB);
-  static const Color inputBackground = Color.fromARGB(255, 252, 247, 247);
+  static const Color inputBorder = Colors.transparent;
+  static const Color inputFocused = Colors.transparent;
+  static const Color inputBackground = Colors.transparent;
 
   // Button colors
   static const Color buttonPrimary = Color(0xFF1E40AF);
@@ -65,8 +65,8 @@ class AppTheme {
   static const Color shadowColor = Color(0x40000000); // Black with 25% opacity
 
   // Border colors
-  static const Color borderPrimary = Color(0xFF3B82F6);
-  static const Color borderLight = Color(0xFFE5E7EB);
+  static const Color borderPrimary = Colors.transparent;
+  static const Color borderLight = Colors.transparent;
 
   // Border Radius
   static const double borderRadiusSmall = 8.0;
@@ -264,7 +264,7 @@ class AppTheme {
   static InputDecorationTheme inputDecorationTheme = InputDecorationTheme(
     labelStyle: TextStyle(color: const Color.fromARGB(255, 41, 119, 220), fontWeight: FontWeight.bold),
     hintStyle: TextStyle(color: const Color.fromARGB(186, 42, 94, 198), fontWeight: FontWeight.bold),
-    fillColor: inputBackground,
+    fillColor: const Color.fromARGB(0, 252, 247, 247).withAlpha(0),
     filled: true,
     errorStyle: TextStyle(color: error, fontSize: fontSizeSmall),
     contentPadding:

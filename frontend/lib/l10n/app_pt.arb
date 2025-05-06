@@ -157,10 +157,10 @@
     "description": "Mensagem de validação para entradas fora de intervalo",
     "placeholders": {
       "min": {
-      "example": "0"
+        "example": "0"
       },
       "max": {
-      "example": "100"
+        "example": "100"
       }
     }
   },
@@ -382,9 +382,9 @@
   "@optionalField": {
     "description": "Etiqueta para campos opcionais na pesquisa"
   },
-  "farmFinancialDetails": "Detalhes Financeiros da Fazenda",
-  "@farmFinancialDetails": {
-    "description": "Etiqueta para a seção de detalhes financeiros da fazenda"
+  "farmSpecs": "Especificações da Fazenda",
+  "@farmSpecs": {
+    "description": "Etiqueta para a seção de especificações da fazenda"
   },
   "surveyInputs": "Entradas da Pesquisa",
   "@surveyInputs": {
