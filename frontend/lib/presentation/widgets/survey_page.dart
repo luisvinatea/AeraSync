@@ -338,6 +338,8 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
               SafeArea(
                 child: SingleChildScrollView(
                   controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  key: const Key('survey_scrollable'),
                   child: Padding(
                     padding:
                         EdgeInsets.all(ResponsiveUtil.contentPadding(context)),

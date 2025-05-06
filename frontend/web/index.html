@@ -31,7 +31,7 @@
     <meta name="author" content="Luis Vinatea" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, minimal-ui, shrink-to-fit=no"
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -68,22 +68,19 @@
     <link rel="manifest" href="manifest.json" />
 
     <style>
-      html,
-      body {
-        position: relative;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+      html {
         scroll-behavior: smooth;
+        height: 100%;
+        width: 100%;
       }
 
       body {
         margin: 0;
         transition: background-color 0.3s ease-in-out;
-        touch-action: pan-x pan-y;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        overflow: hidden;
       }
 
       /* Ensure loading screen styles are defined inline */
@@ -141,8 +138,8 @@
       #flutter-target {
         width: 100%;
         height: 100%;
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
+        position: absolute;
+        overflow: hidden;
       }
       .app-logo {
         width: 200px;
@@ -180,11 +177,6 @@
     <div id="flutter-target"></div>
     <script src="flutter.js" defer></script>
     <script>
-      // Enable touch scrolling for iOS
-      document.addEventListener("touchstart", function () {}, {
-        passive: true,
-      });
-
       window.addEventListener("load", function () {
         const loadingScreen = document.getElementById("loading-screen");
         const flutterTarget = document.getElementById("flutter-target");
