@@ -177,7 +177,16 @@
 
     <div id="flutter-target"></div>
 
-    <!-- Load flutter.js first, then flutter_bootstrap.js -->
+    <!-- Load scripts with correct order and configuration -->
+    <script>
+      // Define Flutter configuration before loading flutter.js
+      window._flutter = window._flutter || {};
+      window._flutter.loader = {
+        loadEntrypoint: function (options) {
+          return Promise.resolve();
+        },
+      };
+    </script>
     <script src="flutter.js" defer></script>
     <script src="flutter_bootstrap.js" defer></script>
 

@@ -6,7 +6,12 @@ document.head.appendChild(flutter_js);
 
 // Define serviceWorkerVersion dynamically to prevent caching issues
 const serviceWorkerVersion = Date.now().toString();
-const flutter_build_config = {
+
+// Ensure Flutter object exists
+window._flutter = window._flutter || {};
+
+// Set Flutter build config
+window._flutter.buildConfig = {
   engineRevision: "cf56914b326edb0ccb123ffdc60f00060bd513fa",
   builds: [
     {
@@ -17,82 +22,60 @@ const flutter_build_config = {
   ],
 };
 
-// Flutter web bootstrap script
+// Initialize Flutter manually
 window.addEventListener("load", function () {
-  if (!window._flutter) {
-    console.error(
-      "Flutter.js failed to load. Check if flutter.js is included properly."
-    );
-    return;
-  }
+  // Load main.dart.js directly
+  const mainScript = document.createElement("script");
+  mainScript.src = "main.dart.js";
+  mainScript.type = "application/javascript";
 
-  window._flutter.loader
-    .load({
-      serviceWorker: {
-        serviceWorkerVersion: serviceWorkerVersion,
-      },
-    })
-    .then(function (engineInitializer) {
-      // Initialize the Flutter engine
-      return engineInitializer.initializeEngine({
-        // Use canvaskit renderer
-        renderer: "canvaskit",
-      });
-    })
-    .then(function (appRunner) {
-      // Enable iOS Safari scrolling fix
-      const iOSFix = function () {
-        if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-          // Add touchmove listener to prevent default
-          document.addEventListener(
-            "touchmove",
-            function (e) {
-              // Don't prevent default for actual scrollable areas
-              if (
-                e.target.closest(".scrollable") ||
-                e.target.closest(".flutter-view") ||
-                e.target.closest("flt-glass-pane")
-              ) {
-                return;
-              }
-              // Allow default behavior for scrollable areas
-            },
-            { passive: true }
-          );
+  // Handle script load error
+  mainScript.onerror = function () {
+    console.error("Failed to load main.dart.js");
+    document.getElementById("loading-screen").innerHTML =
+      '<div class="loading"><h2>Error loading application</h2>' +
+      "<p>Please refresh the page or try again later.</p></div>";
+  };
 
-          // Update Flutter's handling of touch events
-          window.flutterIosScrollFix = true;
-
-          // Override position:fixed that prevents scrolling
-          const style = document.createElement("style");
-          style.textContent = `
-          flt-glass-pane {
-            overflow: auto !important;
-            -webkit-overflow-scrolling: touch !important;
+  // Enable iOS Safari scrolling fix
+  const iOSFix = function () {
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+      document.addEventListener(
+        "touchmove",
+        function (e) {
+          if (
+            e.target.closest(".scrollable") ||
+            e.target.closest(".flutter-view") ||
+            e.target.closest("flt-glass-pane")
+          ) {
+            return;
           }
-          .flutter-view, .scrollable {
-            overflow: auto !important;
-            -webkit-overflow-scrolling: touch !important;
-          }
-        `;
-          document.head.appendChild(style);
-        }
-      };
+        },
+        { passive: true }
+      );
 
-      iOSFix();
+      window.flutterIosScrollFix = true;
 
-      // Run the app
-      appRunner.runApp();
+      const style = document.createElement("style");
+      style.textContent = `
+      flt-glass-pane {
+        overflow: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+      .flutter-view, .scrollable {
+        overflow: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+    `;
+      document.head.appendChild(style);
+    }
+  };
 
-      // Manually dispatch flutter-first-frame event after a short delay
-      setTimeout(function () {
-        window.dispatchEvent(new Event("flutter-first-frame"));
-      }, 1000);
-    })
-    .catch(function (error) {
-      console.error("Flutter initialization error:", error);
-      document.getElementById("loading-screen").innerHTML =
-        '<div class="loading"><h2>Error loading application</h2>' +
-        "<p>Please refresh the page or try again later.</p></div>";
-    });
+  iOSFix();
+  document.body.appendChild(mainScript);
+
+  // Trigger flutter-first-frame manually after a delay
+  setTimeout(function () {
+    window.dispatchEvent(new Event("flutter-first-frame"));
+  }, 3000);
 });
