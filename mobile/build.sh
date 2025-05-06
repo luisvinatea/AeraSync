@@ -1,7 +1,9 @@
 #!/bin/bash
-# /home/luisvinatea/DEVinatea/Repos/AeraSync/mobile/build.sh
 
-# Install dependencies
+# Make script executable
+chmod +x build.sh
+
+# Install dependencies explicitly
 npm install --no-save
 
 # Run webpack build
