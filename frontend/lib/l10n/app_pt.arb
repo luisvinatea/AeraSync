@@ -406,11 +406,11 @@
   "@costEvolutionVisualization": {
     "description": "Descrição para o cartão de visualização da evolução do custo"
   },
-  "costEvolutionExplanation": "Evolução do custo anual para cada opção de aerador.",
-  "@costEvolutionExplanation": {
-    "description": "Descrição para a visualização da evolução do custo"
+  "cummulativeCostExplanation": "Diferença de custo acumulada entre o aerador recomendado e a outra alternativa ao longo do tempo",
+  "@cummulativeCostExplanation": {
+    "description": "Descrição para a visualização da diferença de custo acumulada entre o aerador recomendado e a outra alternativa"
   },
-  "exportToPdf": "Exportar em PDF",
+  "exportToPdf": "Exportar PDF",
   "@exportToPdf": {
     "description": "Etiqueta para o botão de exportar resultados em PDF"
   },

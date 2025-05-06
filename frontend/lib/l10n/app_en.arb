@@ -406,8 +406,8 @@
   "@costEvolutionVisualization": {
     "description": "Title for the cost evolution visualization card"
   },
-  "costEvolutionExplanation": "Annual cost evolution for each aerator option",
-  "@costEvolutionExplanation": {
+  "cummulativeCostExplanation": "Cost difference between the recommended aerator and the other option over time",
+  "@cummulativeCostExplanation": {
     "description": "Description for the cost evolution visualization"
   },
   "exportToPdf": "Export to PDF",

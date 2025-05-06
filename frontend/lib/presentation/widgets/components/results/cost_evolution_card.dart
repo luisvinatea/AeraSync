@@ -40,7 +40,7 @@ class CostEvolutionCard extends StatelessWidget {
             ),
             SizedBox(height: AppTheme.paddingMedium),
             Text(
-              'Cumulative cost difference (including initial cost) vs. recommended aerator over time',
+              l10n.cummulativeCostExplanation,
               style: TextStyle(
                 fontSize: AppTheme.fontSizeMedium,
                 color: AppTheme.textMuted,

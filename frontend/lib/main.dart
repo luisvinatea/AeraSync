@@ -120,6 +120,7 @@ class MyApp extends StatelessWidget {
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             ),
           ),
+          locale: appState.locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           initialRoute: '/',

@@ -406,8 +406,8 @@
   "@costEvolutionVisualization": {
     "description": "Descripción para la tarjeta de visualización de la evolución de costos"
   },
-  "costEvolutionExplanation": "Evolución del costo anual para cada opción de aireador.",
-  "@costEvolutionExplanation": {
+  "cummulativeCostExplanation": "Diferencia de costo acumulada entre el aireador recomendado y la otra alternativa en el tiempo",
+  "@cummulativeCostExplanation": {
     "description": "Descripción para la visualización de la evolución de costos"
   },
   "exportToPdf": "Exportar a PDF",
