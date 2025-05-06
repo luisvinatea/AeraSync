@@ -2,7 +2,7 @@
 
 AeraSync is a mobile and web application designed to streamline the calculation and tracking of the Standard Oxygen Transfer Rate (SOTR) and Standard Aeration Efficiency (SAE) for aerators in aquaculture ponds. The app provides a seamless interface for technicians to perform daily checkpointing, ensuring accurate and efficient monitoring of aeration performance. Future versions will incorporate AI-driven predictions to optimize aeration efficiency.
 
-AeraSync is built using Dart and Flutter, enabling cross-platform support for mobile (Android, iOS) and web. The web version is hosted on GitHub Pages at <https://luisvinatea.github.io/AeraSync/>.
+AeraSync is built using Dart and Flutter for the frontend, with a Python backend API, enabling cross-platform support for mobile (Android, iOS) and web. The web application is deployed at [https://aerasync-web.vercel.app](https://aerasync-web.vercel.app) and the documentation is hosted at [https://luisvinatea.github.io/AeraSync/](https://luisvinatea.github.io/AeraSync/).
 
 ## Features
 
@@ -12,13 +12,14 @@ AeraSync is built using Dart and Flutter, enabling cross-platform support for mo
 * **Cross-Platform Support** – Available on Android, iOS, and web, with a consistent user experience.
 * **User-Friendly Interface** – Designed for field technicians with a simple and intuitive UI.
 * **Localization** – Supports multiple languages (English, Spanish, Portuguese, French, Italian, German, Norwegian, Russian, Chinese, Japanese, Thai, Indonesian, Arabic, Hebrew, Swedish) for broader accessibility.
-* **Data Integration** – Includes preloaded datasets (e.g., `o2_temp_sal_100_sat.json`) for accurate calculations.
-* **Interactive Charts** – Visualize key metrics using interactive charts powered by `fl_chart`.
+* **Data Integration** – Includes preloaded datasets for accurate calculations.
+* **Interactive Charts** – Visualize key metrics using interactive charts.
+* **Python Backend API** – Reliable serverless API deployed on Vercel for processing complex calculations.
 * **Predictive Analytics (Upcoming)** – AI-driven insights for aeration optimization (planned for future releases).
 
 ## Installation
 
-AeraSync is a Flutter project. Follow these steps to set up and run the application locally:
+AeraSync is a Flutter project with separate frontend and backend components. Follow these steps to set up and run the application locally:
 
 1. **Clone the Repository**:
 
@@ -32,7 +33,15 @@ AeraSync is a Flutter project. Follow these steps to set up and run the applicat
     cd AeraSync
     ```
 
-3. **Install Flutter Dependencies**:
+### Frontend Setup
+
+1. **Navigate to the Frontend Directory**:
+
+    ```sh
+    cd frontend
+    ```
+
+2. **Install Flutter Dependencies**:
 
     Ensure you have Flutter installed (see [Flutter installation guide](https://flutter.dev/docs/get-started/install)). Then, install the project dependencies:
 
@@ -40,7 +49,7 @@ AeraSync is a Flutter project. Follow these steps to set up and run the applicat
     flutter pub get
     ```
 
-4. **Run the Application**:
+3. **Run the Frontend Application**:
 
     * Using the Makefile:
 
@@ -60,13 +69,36 @@ AeraSync is a Flutter project. Follow these steps to set up and run the applicat
         flutter run
         ```
 
+### Backend Setup
+
+1. **Navigate to the Backend Directory**:
+
+    ```sh
+    cd ../backend
+    ```
+
+2. **Set Up Python Environment**:
+
+    ```sh
+    pip install -r requirements.txt
+    ```
+
+3. **Run the Backend API Locally** (optional):
+
+    ```sh
+    python -m api.main
+    ```
+
 ## Development Tasks
+
+### Frontend Development
 
 * **Generate Localization Files**:
 
-    After updating the `.arb` files in `lib/l10n/`, regenerate the localization classes:
+    After updating the `.arb` files in `frontend/lib/l10n/`, regenerate the localization classes:
 
     ```sh
+    cd frontend
     make gen-l10n
     ```
 
@@ -81,6 +113,7 @@ AeraSync is a Flutter project. Follow these steps to set up and run the applicat
     Run the unit and widget tests:
 
     ```sh
+    cd frontend
     make test
     ```
 
@@ -95,6 +128,7 @@ AeraSync is a Flutter project. Follow these steps to set up and run the applicat
     Create a release build for web deployment:
 
     ```sh
+    cd frontend
     make build-web
     ```
 
@@ -104,61 +138,69 @@ AeraSync is a Flutter project. Follow these steps to set up and run the applicat
     flutter build web --release
     ```
 
-## Deployment to GitHub Pages
+### Backend Development
 
-The web version of AeraSync is hosted on GitHub Pages. You can use the provided `deploy.sh` script (ensure it's executable: `chmod +x deploy.sh`) or the Makefile target:
-
-* Using the Makefile:
+* **Run Backend Tests**:
 
     ```sh
-    make deploy
+    cd backend
+    python -m pytest
     ```
 
-* Or directly using the script:
+## Deployment
+
+### Documentation Deployment
+
+The project documentation is hosted on GitHub Pages. To update the documentation:
+
+* Using the build script:
 
     ```sh
-    ./deploy.sh
+    cd source
+    make html
     ```
 
-The script handles cleaning, dependency checks, testing, building with the correct base href (`/AeraSync/`), and deploying the `build/web` contents to the `gh-pages` branch.
+The documentation is available at [https://luisvinatea.github.io/AeraSync/](https://luisvinatea.github.io/AeraSync/).
 
-Visit <https://luisvinatea.github.io/AeraSync/> to see the deployed site.
+### Web Application Deployment
+
+The web application is deployed on Vercel. The live version is available at [https://aerasync-web.vercel.app](https://aerasync-web.vercel.app).
+
+### Backend API Deployment
+
+The Python backend API is deployed as a serverless function on Vercel.
 
 ## Tech Stack
 
 * **Frontend & Cross-Platform**: Dart / Flutter
-* **Backend (Future/Reference)**: Python (e.g., `sotr_calculator.py` for calculations, potential integration with Flask or Firebase)
+* **Backend**: Python FastAPI for the REST API
 * **Data Storage**: Local JSON files (e.g., `o2_temp_sal_100_sat.json`); future plans for cloud storage (Firestore/PostgreSQL)
-* **Web Hosting**: GitHub Pages
+* **Web Hosting**: Vercel (frontend application), GitHub Pages (documentation)
 * **AI Engine (Future)**: TensorFlow.js or PyTorch for predictive analytics
 
 ## Project Structure
 
-````markdown
+```text
 AeraSync/
-├── assets/                 # Static assets (e.g., JSON data)
-├── lib/                    # Flutter source code
-│   ├── core/               # Business logic (calculators, models, services)
-│   ├── l10n/               # Localization files (*.arb)
-│   ├── presentation/       # UI components (screens, widgets)
-│   └── main.dart           # App entry point
-├── web/                    # Web-specific files (index.html, manifest.json, icons, etc.)
-├── backend/                # Python scripts for calculations (e.g., sotr_calculator.py)
-├── test/                   # Unit and widget tests
-├── android/                # Android specific files
-├── ios/                    # iOS specific files
-├── linux/                  # Linux specific files
-├── macos/                  # macOS specific files
-├── windows/                # Windows specific files
-├── .gitignore
-├── analysis_options.yaml   # Linter configuration
-├── deploy.sh               # Deployment script for GitHub Pages
-├── l10n.yaml               # Localization tool configuration
-├── Makefile                # Development task shortcuts
-├── pubspec.lock
-├── pubspec.yaml            # Project dependencies and metadata
+├── frontend/              # Flutter application
+│   ├── lib/               # Flutter source code
+│   │   ├── core/          # Business logic (calculators, models, services)
+│   │   ├── l10n/          # Localization files (*.arb)
+│   │   ├── presentation/  # UI components (screens, widgets)
+│   │   └── main.dart      # App entry point
+│   ├── web/               # Web-specific files
+│   ├── test/              # Unit and widget tests
+│   └── build/             # Built application
+├── backend/               # Python FastAPI backend
+│   ├── api/               # API definition and routes
+│   │   ├── core/          # Core business logic
+│   │   └── routes/        # API endpoints
+│   └── test/              # Backend tests
+├── docs/                  # Documentation files
+├── source/                # Documentation source files
+├── LICENSE
 └── README.md
-````
+```
 
 ## Contribution
 
