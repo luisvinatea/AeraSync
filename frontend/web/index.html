@@ -31,7 +31,7 @@
     <meta name="author" content="Luis Vinatea" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=5.0"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -62,11 +62,7 @@
     />
     <meta name="twitter:image" content="icons/aerasync180.webp" />
 
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="icons/watermark.webp"
-    />
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/watermark.webp" />
     <link rel="icon" type="image/webp" href="icons/watermark.webp" />
     <title>AeraSync - Shrimp Farm Aerator Comparison</title>
     <link rel="manifest" href="manifest.json" />
@@ -75,7 +71,7 @@
       html {
         scroll-behavior: smooth;
       }
-      
+
       body {
         margin: 0;
         transition: background-color 0.3s ease-in-out;
@@ -179,23 +175,23 @@
         const flutterTarget = document.getElementById("flutter-target");
 
         // Add smooth scrolling to all elements
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-          anchor.addEventListener('click', function (e) {
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
             e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-              behavior: 'smooth'
+            document.querySelector(this.getAttribute("href")).scrollIntoView({
+              behavior: "smooth",
             });
           });
         });
 
-        window.addEventListener('flutter-first-frame', function() {
+        window.addEventListener("flutter-first-frame", function () {
           // Hide loading screen when app is ready
           setTimeout(function () {
             loadingScreen.style.opacity = "0";
             setTimeout(function () {
               loadingScreen.style.display = "none";
-            }, 800);  // increased from 500 to 800 for smoother transition
-          }, 200);  // increased from 100 to 200 for smoother transition
+            }, 800); // increased from 500 to 800 for smoother transition
+          }, 200); // increased from 100 to 200 for smoother transition
         });
       });
     </script>
