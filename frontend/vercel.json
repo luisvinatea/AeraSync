@@ -4,9 +4,7 @@
   "outputDirectory": "public",
   "trailingSlash": false,
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
     {
       "source": "/(.*)",
@@ -52,13 +50,6 @@
           "value": "public, max-age=31536000, immutable"
         }
       ]
-    }
-  ],
-  "routes": [
-    { 
-      "src": "/[^.]+", 
-      "dest": "/", 
-      "status": 200
     }
   ]
 }
