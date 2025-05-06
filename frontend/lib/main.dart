@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart'; // Add this for PointerDeviceKind
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,12 +11,28 @@ import 'presentation/widgets/results_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Set preferred orientations for mobile devices
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Set system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    systemNavigationBarColor: Color(0xFF1E40AF),
+    systemNavigationBarIconBrightness: Brightness.light,
+  ));
+
   final prefs = await SharedPreferences.getInstance();
   final localeCode = prefs.getString('locale') ?? 'en';
   final supportedLocales =
       AppLocalizations.supportedLocales.map((l) => l.languageCode).toSet();
   final validLocaleCode =
       supportedLocales.contains(localeCode) ? localeCode : 'en';
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppState(locale: Locale(validLocaleCode)),
@@ -28,10 +46,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Detect if we're on mobile
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+
     return Consumer<AppState>(
       builder: (context, appState, child) {
         return MaterialApp(
-          navigatorKey: AppState.navigatorKey, // Use the global navigator key
+          navigatorKey: AppState.navigatorKey,
           title: 'AeraSync',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
@@ -44,7 +65,7 @@ class MyApp extends StatelessWidget {
               surface: Colors.white.withAlpha(230),
               onSurface: const Color(0xFF1E40AF),
             ),
-            textTheme: const TextTheme(
+            textTheme: TextTheme(
               bodyMedium: TextStyle(
                 fontFamily: 'NotoSerif',
                 fontFamilyFallback: [
@@ -53,42 +74,47 @@ class MyApp extends StatelessWidget {
                   'DejaVuSans',
                   'ArialUnicodeMS'
                 ],
+                // Adjust text size based on screen width
+                fontSize: isMobile ? 14.0 : 16.0,
               ),
               headlineMedium: TextStyle(
-                fontSize: 22,
+                fontSize: isMobile ? 18.0 : 22.0,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF1E40AF),
               ),
               labelMedium: TextStyle(
-                fontSize: 16,
+                fontSize: isMobile ? 14.0 : 16.0,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFF1E40AF),
               ),
             ),
-            appBarTheme: const AppBarTheme(
+            appBarTheme: AppBarTheme(
               backgroundColor: Color(0xFF1E40AF),
               foregroundColor: Colors.white,
               titleTextStyle: TextStyle(
-                fontSize: 20,
+                fontSize: isMobile ? 18.0 : 20.0,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
+              toolbarHeight: isMobile ? 56.0 : 64.0,
             ),
-            cardTheme: const CardTheme(
+            cardTheme: CardTheme(
               elevation: 4,
-              margin: EdgeInsets.symmetric(vertical: 8),
+              margin: EdgeInsets.symmetric(
+                  vertical: 8, horizontal: isMobile ? 8 : 16),
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1E40AF),
                 foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 16 : 20,
+                    vertical: isMobile ? 8 : 10),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                textStyle: const TextStyle(
-                  fontSize: 16,
+                textStyle: TextStyle(
+                  fontSize: isMobile ? 14 : 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -113,13 +139,15 @@ class MyApp extends StatelessWidget {
                 backgroundColor: Colors.white.withAlpha(204),
                 color: const Color(0xFF1E40AF),
                 fontWeight: FontWeight.w500,
-                fontSize: 16,
+                fontSize: isMobile ? 14 : 16,
               ),
               floatingLabelBehavior: FloatingLabelBehavior.always,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+              contentPadding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 12 : 16, vertical: isMobile ? 14 : 18),
             ),
           ),
+          // Add scroll behavior configuration for mobile
+          scrollBehavior: const AppScrollBehavior(),
           locale: appState.locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -130,6 +158,18 @@ class MyApp extends StatelessWidget {
             '/results': (context) => const ResultsPage(),
           },
           builder: (context, child) {
+            // Apply text scaling limit for better readability on mobile
+            final mediaQuery = MediaQuery.of(context);
+            final constrainedTextScaler =
+                mediaQuery.textScaler.clamp(minScaleFactor: 0.8, maxScaleFactor: 1.3);
+
+            child = MediaQuery(
+              data: mediaQuery.copyWith(
+                textScaler: constrainedTextScaler,
+              ),
+              child: child!,
+            );
+
             // Show errors as SnackBar
             if (appState.error != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -144,10 +184,32 @@ class MyApp extends StatelessWidget {
                 );
               });
             }
-            return child ?? const SizedBox.shrink();
+            return child;
           },
         );
       },
     );
+  }
+}
+
+// Custom scroll behavior that enables drag scrolling on all platforms
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.unknown,
+      };
+
+  @override
+  Widget buildScrollbar(
+      BuildContext context, Widget child, ScrollableDetails details) {
+    // Only show scrollbar on desktop
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+    return isMobile ? child : super.buildScrollbar(context, child, details);
   }
 }

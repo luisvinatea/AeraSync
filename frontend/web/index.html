@@ -39,7 +39,19 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="AeraSync" />
     <meta name="theme-color" content="#1E40AF" />
+    <!-- Mobile Web App Tags -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="HandheldFriendly" content="true" />
 
+    <!-- PWA Tags -->
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/watermark.webp" />
+    <link rel="icon" type="image/webp" href="icons/watermark.webp" />
+    <link rel="apple-touch-startup-image" href="icons/watermark.webp" />
+    
+    <!-- Open Graph Tags -->
     <meta
       property="og:title"
       content="AeraSync - Shrimp Farm Aerator Comparison"
@@ -63,16 +75,14 @@
     />
     <meta name="twitter:image" content="icons/aerasync180.webp" />
 
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/watermark.webp" />
-    <link rel="icon" type="image/webp" href="icons/watermark.webp" />
     <title>AeraSync - Shrimp Farm Aerator Comparison</title>
-    <link rel="manifest" href="manifest.json" />
 
     <style>
       html {
         scroll-behavior: smooth;
         height: 100%;
         width: 100%;
+        touch-action: manipulation;
       }
 
       body {
@@ -82,6 +92,7 @@
         width: 100%;
         position: fixed;
         overflow: hidden;
+        -webkit-tap-highlight-color: transparent;
       }
 
       /* Ensure loading screen styles are defined inline */
@@ -151,6 +162,26 @@
       .app-logo:hover {
         transform: scale(1.05);
       }
+      
+      /* Mobile optimization */
+      @media (max-width: 768px) {
+        .app-logo {
+          width: 160px;
+        }
+        input, button {
+          font-size: 16px !important; /* Prevent zoom on input focus */
+        }
+      }
+      
+      /* Prevent pull-to-refresh */
+      body {
+        overscroll-behavior-y: contain;
+      }
+      
+      /* Add mobile-specific touch handling */
+      .flutter-view * {
+        touch-action: pan-x pan-y;
+      }
     </style>
   </head>
   <body>
@@ -158,7 +189,7 @@
       id="loading-screen"
       role="status"
       aria-label="Loading AeraSync application"
-    >
+    ></div>
       <div class="wave-overlay"></div>
       <div class="loading">
         <picture>

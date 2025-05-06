@@ -1,21 +1,41 @@
 {
   "name": "AeraSync",
   "short_name": "AeraSync",
-  "start_url": "/",
+  "description": "Compare aerators for shrimp farming with a step-by-step survey and view ranked results.",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#1E40AF",
   "theme_color": "#1E40AF",
-  "description": "AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results.",
-  "scope": "/",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/icons/watermark.webp",
-      "sizes": "64x64",
-      "type": "image/webp"
+      "src": "icons/icon-192.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "maskable any"
     },
     {
-      "src": "/icons/watermark.webp",
-      "sizes": "180x180",
+      "src": "icons/icon-512.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "icons/screenshot1.webp",
+      "sizes": "1280x720",
       "type": "image/webp"
     }
   ]

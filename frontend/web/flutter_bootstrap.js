@@ -22,8 +22,48 @@ window._flutter.buildConfig = {
   ],
 };
 
-// Initialize Flutter manually
+// Add mobile-specific handling
 window.addEventListener("load", function () {
+  // Detect mobile device
+  const isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+
+  // Apply mobile optimizations
+  if (isMobile) {
+    // Handle viewport resize (fixes keyboard issues)
+    window.addEventListener("resize", () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+    });
+
+    // Fix iOS double-tap zoom
+    document.addEventListener(
+      "touchend",
+      function (event) {
+        const now = Date.now();
+        if (
+          typeof window.lastTap !== "undefined" &&
+          now - window.lastTap < 500
+        ) {
+          event.preventDefault();
+        }
+        window.lastTap = now;
+      },
+      { passive: false }
+    );
+  }
+
+  // Register service worker for PWA support
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("flutter-first-frame", function () {
+      navigator.serviceWorker.register(
+        "flutter_service_worker.js?v=" + serviceWorkerVersion
+      );
+    });
+  }
+
   // Load main.dart.js directly
   const mainScript = document.createElement("script");
   mainScript.src = "main.dart.js";
