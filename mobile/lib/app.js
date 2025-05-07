@@ -21,6 +21,7 @@ export function initApp() {
       this.translations = await getTranslations(this.lang);
       this.setupEventListeners();
       this.renderApp();
+      this.checkApiHealth();
       this.hideLoading();
     },
 
@@ -73,6 +74,17 @@ export function initApp() {
       }
     },
 
+    async checkApiHealth() {
+      try {
+        const isHealthy = await apiService.checkHealth();
+        if (!isHealthy) {
+          console.warn("API health check failed");
+        }
+      } catch (error) {
+        console.error("Error checking API health:", error);
+      }
+    },
+
     async submitSurvey(formData) {
       try {
         this.surveyData = formData;
@@ -83,7 +95,7 @@ export function initApp() {
         return this.results;
       } catch (error) {
         console.error("Error submitting survey:", error);
-        this.showError(error.message);
+        this.showError(error.message || "Failed to submit survey data");
       }
     },
 

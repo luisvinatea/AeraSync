@@ -24,5 +24,19 @@
         }
       ]
     }
+  ],
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/api/(.*)", "dest": "https://aerasync-api.vercel.app/$1" },
+    { "src": "/compare", "dest": "https://aerasync-api.vercel.app/compare" },
+    { "src": "/health", "dest": "https://aerasync-api.vercel.app/health" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
