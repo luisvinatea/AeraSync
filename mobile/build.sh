@@ -3,5 +3,5 @@
 # Install dependencies explicitly
 npm install --legacy-peer-deps
 
-# Run vercel-specific build for better compatibility
+# Run vercel-build script instead of regular build
 npm run vercel-build

@@ -5,7 +5,7 @@
   "scripts": {
     "start": "webpack serve --open",
     "build": "webpack --mode=production",
-    "vercel-build": "npm install schema-utils@4.2.0 mini-css-extract-plugin@2.7.6 copy-webpack-plugin@11.0.0 html-webpack-plugin@5.5.3 css-loader@6.8.1 --no-save && webpack --mode=production"
+    "vercel-build": "npm install schema-utils@4.2.0 mini-css-extract-plugin@2.7.6 --no-save && webpack --mode=production"
   },
   "dependencies": {
     "axios": "^1.6.0",
