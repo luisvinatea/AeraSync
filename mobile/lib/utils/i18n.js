@@ -1,61 +1,120 @@
-const translations = {
-  en: {
-    appTitle: "AeraSync",
-    start: "Start",
-    next: "Next",
-    back: "Back",
-    submit: "Submit",
-    results: "Results",
-    home: {
-      welcome: "Welcome to AeraSync",
-      description:
-        "Compare aerators for shrimp farming with a step-by-step survey and view ranked results.",
-    },
-    survey: {
-      title: "Aerator Survey",
-      step1: "Basic Information",
-      step2: "Farm Details",
-      step3: "Power Source",
-      step4: "Preferences",
-    },
-    results: {
-      title: "Comparison Results",
-      summary: "Summary",
-      totalCost: "Total Cost",
-      efficiency: "Efficiency",
-      recommendation: "Recommendation",
-    },
-  },
-  es: {
-    appTitle: "AeraSync",
-    start: "Comenzar",
-    next: "Siguiente",
-    back: "Atrás",
-    submit: "Enviar",
-    results: "Resultados",
-    home: {
-      welcome: "Bienvenido a AeraSync",
-      description:
-        "Compare aireadores para cultivo de camarones con una encuesta paso a paso y vea resultados clasificados.",
-    },
-    survey: {
-      title: "Encuesta de Aireadores",
-      step1: "Información Básica",
-      step2: "Detalles de la Granja",
-      step3: "Fuente de Energía",
-      step4: "Preferencias",
-    },
-    results: {
-      title: "Resultados de Comparación",
-      summary: "Resumen",
-      totalCost: "Costo Total",
-      efficiency: "Eficiencia",
-      recommendation: "Recomendación",
-    },
-  },
+// Available languages
+const LANGUAGES = {
+  en: "English",
+  es: "Español",
 };
 
-export const getTranslations = async (lang) => {
-  const userLang = lang || navigator.language.split("-")[0] || "en";
-  return translations[userLang] || translations["en"];
-};
+// Default language
+const DEFAULT_LANG = "en";
+
+/**
+ * Gets translations for the specified language
+ * @param {string} lang - Language code (e.g., 'en', 'es')
+ * @returns {Promise<Object>} - Translation dictionary
+ */
+export async function getTranslations(lang = DEFAULT_LANG) {
+  try {
+    const response = await fetch(`/i18n/${lang}.json`);
+    if (!response.ok) {
+      console.warn(
+        `Could not load translations for ${lang}, falling back to English`
+      );
+      const fallback = await fetch(`/i18n/en.json`);
+      return await fallback.json();
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error loading translations:", error);
+    return getDefaultTranslations();
+  }
+}
+
+/**
+ * Initializes language detection and setting
+ * @returns {string} - Detected or saved language code
+ */
+export function initLanguage() {
+  // Check for stored language preference
+  let lang = localStorage.getItem("aerasync_lang") || "";
+
+  // If no stored preference, try to detect from browser
+  if (!lang) {
+    const browserLang = navigator.language.split("-")[0];
+    lang = Object.keys(LANGUAGES).includes(browserLang)
+      ? browserLang
+      : DEFAULT_LANG;
+    localStorage.setItem("aerasync_lang", lang);
+  }
+
+  return lang;
+}
+
+/**
+ * Sets up language toggle functionality
+ * @param {Object} app - The main application object
+ */
+export function setupLanguageToggle(app) {
+  const langToggle = document.getElementById("language-toggle");
+  if (!langToggle) return;
+
+  // Display current language
+  langToggle.textContent = app.lang.toUpperCase();
+
+  // Toggle between available languages
+  langToggle.addEventListener("click", () => {
+    const currentLang = app.lang;
+    const langs = Object.keys(LANGUAGES);
+    const currentIndex = langs.indexOf(currentLang);
+    const nextIndex = (currentIndex + 1) % langs.length;
+    const newLang = langs[nextIndex];
+
+    localStorage.setItem("aerasync_lang", newLang);
+    app.lang = newLang;
+    langToggle.textContent = newLang.toUpperCase();
+
+    // Reload translations and update UI
+    app.loadTranslations(newLang).then(() => app.updateUI());
+  });
+}
+
+/**
+ * Provides default English translations in case loading fails
+ * @returns {Object} - English translations
+ */
+function getDefaultTranslations() {
+  return {
+    // General
+    appName: "AeraSync",
+    loading: "Loading...",
+    back: "Back",
+    next: "Next",
+    submit: "Submit",
+    results: "Results",
+    error: "Error",
+    success: "Success",
+
+    // Navigation
+    home: "Home",
+    survey: "Survey",
+
+    // Survey sections
+    farmSpecs: "Farm Specifications",
+    aeratorDetails: "Aerator Details",
+    financialAspects: "Financial Aspects",
+
+    // Results
+    summaryMetrics: "Summary Metrics",
+    aeratorComparisonResults: "Aerator Comparison Results",
+    equilibriumPrices: "Equilibrium Prices",
+    costBreakdownVisualization: "Cost Breakdown",
+    costEvolutionVisualization: "Cost Evolution",
+    newComparison: "New Comparison",
+    exportToPdf: "Export to PDF",
+    recommended: "Recommended",
+
+    // Error messages
+    submissionFailed: "Submission failed. Please try again.",
+    networkError: "Network error. Please check your connection.",
+    invalidInput: "Please check your inputs and try again.",
+  };
+}

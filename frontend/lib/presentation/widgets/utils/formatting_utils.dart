@@ -19,22 +19,39 @@ class FormattingUtils {
         paybackYears == double.infinity ||
         paybackYears > 100) {
       if (isWinner) {
-        return '< 1 ${l10n.year}';
+        return '< 1 ${l10n.day}';
       }
       return l10n.notApplicable;
     }
 
-    if (paybackYears < 0.0822) {
+    // Less than 30 days - show in days
+    if (paybackYears < 0.08) {
       final days = (paybackYears * 365).round();
-      return '$days ${l10n.days}';
+      return '$days ${days == 1 ? l10n.day : l10n.days}';
     }
 
+    // Less than a year - show in months and days
     if (paybackYears < 1) {
-      final months = (paybackYears * 12).round();
-      return '$months ${l10n.months}';
+      final monthsTotal = paybackYears * 12;
+      final months = monthsTotal.floor();
+      final days = ((monthsTotal - months) * 30).round();
+
+      if (days > 0) {
+        return '$months ${months == 1 ? l10n.month : l10n.months}, $days ${days == 1 ? l10n.day : l10n.days}';
+      } else {
+        return '$months ${months == 1 ? l10n.month : l10n.months}';
+      }
     }
 
-    return '${paybackYears.toStringAsFixed(1)} ${l10n.years}';
+    // More than a year - show in years and months
+    final years = paybackYears.floor();
+    final months = ((paybackYears - years) * 12).round();
+
+    if (months > 0) {
+      return '$years ${years == 1 ? l10n.year : l10n.years}, $months ${months == 1 ? l10n.month : l10n.months}';
+    } else {
+      return '$years ${years == 1 ? l10n.year : l10n.years}';
+    }
   }
 
   /// Format ROI percentage with proper suffixes

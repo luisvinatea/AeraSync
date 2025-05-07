@@ -3,19 +3,16 @@
   "framework": null,
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/health",
       "dest": "api/main.py"
     },
     {
-      "src": "/(.*)",
-      "dest": "api/main.py",
-      "methods": ["OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Max-Age": "86400"
-      }
+      "src": "/compare",
+      "dest": "api/main.py"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "api/main.py"
     },
     {
       "src": "/(.*)",
@@ -23,17 +20,12 @@
     }
   ],
   "env": {
-    "CORS_ORIGINS": "https://aerasync-web.vercel.app,http://localhost:37897,http://localhost:*,http://127.0.0.1:*"
+    "CORS_ORIGINS": "https://aerasync-mobile.vercel.app,http://localhost:3000,https://aerasync-web-git-v3-devinatea.vercel.app,https://aerasync-web.vercel.app"
   },
   "builds": [
     {
       "src": "api/main.py",
-      "use": "@vercel/python",
-      "config": {
-        "includeFiles": ["api/**"],
-        "maxDuration": 30,
-        "memory": 256
-      }
+      "use": "@vercel/python"
     }
   ]
 }

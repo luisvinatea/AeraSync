@@ -20,25 +20,25 @@ app = FastAPI(title="AeraSync Aerator Comparison API", version="1.0.0")
 cors_origins = os.environ.get("CORS_ORIGINS", "").split(",")
 if not cors_origins or cors_origins == [""]:
     cors_origins = [
-        "http://127.0.0.1:8080",  # Local Flutter dev
-        "http://localhost:8080",  # Alternative localhost
-        "http://127.0.0.1:*",  # Cover any local port
-        "http://localhost:*",  # Cover any local port
-        "https://aerasync-web.vercel.app",  # Production URL
-        "https://aerasync-web-devinatea.vercel.app",  # Development URL
+        "http://localhost",
+        "http://localhost:3000",
+        "http://localhost:5000",
+        "https://aerasync.vercel.app",
+        "https://aerasync-mobile.vercel.app",
+        "https://aerasync-web-git-v3-devinatea.vercel.app",
+        "https://aerasync-web.vercel.app",
     ]
 
 # Configure CORS with appropriate preflight handling
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins temporarily for debugging
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],  # Allow all headers for debugging
-    max_age=86400,  # Cache preflight responses for 24 hours
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Include all routes
+# Include routers
+app.include_router(root_router)
 app.include_router(health_router)
 app.include_router(aerator_router)
-app.include_router(root_router)

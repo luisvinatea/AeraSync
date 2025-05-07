@@ -10,31 +10,31 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icons/icon-192.webp",
-      "sizes": "192x192",
+      "src": "icons/aerasync180.webp",
+      "sizes": "180x180",
       "type": "image/webp",
       "purpose": "maskable any"
     },
     {
-      "src": "icons/icon-512.webp",
+      "src": "icons/aerasync.webp",
       "sizes": "512x512",
       "type": "image/webp",
       "purpose": "maskable any"
     },
     {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
+      "src": "icons/aerasync180.png",
+      "sizes": "180x180",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "icons/aerasync.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ],
   "screenshots": [
     {
-      "src": "icons/screenshot1.webp",
+      "src": "icons/background.webp",
       "sizes": "1280x720",
       "type": "image/webp"
     }

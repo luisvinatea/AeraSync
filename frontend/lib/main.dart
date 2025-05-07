@@ -160,8 +160,8 @@ class MyApp extends StatelessWidget {
           builder: (context, child) {
             // Apply text scaling limit for better readability on mobile
             final mediaQuery = MediaQuery.of(context);
-            final constrainedTextScaler =
-                mediaQuery.textScaler.clamp(minScaleFactor: 0.8, maxScaleFactor: 1.3);
+            final constrainedTextScaler = mediaQuery.textScaler
+                .clamp(minScaleFactor: 0.8, maxScaleFactor: 1.3);
 
             child = MediaQuery(
               data: mediaQuery.copyWith(
