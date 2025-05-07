@@ -300,12 +300,7 @@ def process_aerator(
     power_kw = aerator.power_hp * HP_TO_KW
     operating_hours = financial.hours_per_night * 365
     annual_energy_cost = float(
-        f"{
-            power_kw
-            * financial.energy_cost
-            * operating_hours
-            * num_aerators:.2f
-        }"
+        f"{power_kw * financial.energy_cost * operating_hours * num_aerators:.2f}"
     )
     annual_maintenance_cost = float(
         f"{aerator.maintenance * num_aerators:.2f}"
@@ -317,11 +312,7 @@ def process_aerator(
     )
 
     total_annual_cost = float(
-        f"{
-            annual_energy_cost
-            + annual_maintenance_cost
-            + annual_replacement_cost:.2f
-        }"
+        f"{annual_energy_cost + annual_maintenance_cost + annual_replacement_cost:.2f}"
     )
 
     cost_percent_revenue = (
@@ -468,16 +459,10 @@ def compare_aerators(data: Dict[str, Any]) -> Dict[str, Any]:
     for result in aerator_results:
         aerator = result["aerator"]
         annual_saving = float(
-            f"{
-                least_efficient['total_annual_cost']
-                - result['total_annual_cost']:.2f
-            }"
+            f"{least_efficient['total_annual_cost'] - result['total_annual_cost']:.2f}"
         )
         additional_cost = float(
-            f"{
-                result['total_initial_cost']
-                - least_efficient['total_initial_cost']:.2f
-            }"
+            f"{result['total_initial_cost'] - least_efficient['total_initial_cost']:.2f}"
         )
         cash_flows_savings = [
             float(f"{annual_saving * (1 + financial.inflation_rate) ** t:.2f}")
@@ -491,16 +476,11 @@ def compare_aerators(data: Dict[str, Any]) -> Dict[str, Any]:
         opportunity_cost = 0.00
         if aerator.name == least_efficient_aerator.name:
             winner_saving = float(
-                f"{
-                    least_efficient['total_annual_cost']
-                    - winner['total_annual_cost']:.2f
-                }"
+                f"{least_efficient['total_annual_cost'] - winner['total_annual_cost']:.2f}"
             )
             winner_cash_flows = [
                 float(
-                    f"{
-                        winner_saving * (1 + financial.inflation_rate) ** t:.2f
-                    }"
+                    f"{winner_saving * (1 + financial.inflation_rate) ** t:.2f}"
                 )
                 for t in range(financial.horizon)
             ]
