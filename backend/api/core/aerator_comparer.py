@@ -330,13 +330,9 @@ def process_aerator(
         else 0.00
     )
 
-    # Calculate cost per kg of oxygen
-    daily_oxygen = aerator.sotr * financial.hours_per_night * num_aerators
-    annual_oxygen = daily_oxygen * 365
+    # Cost per kg O2 = energy cost per kWh / SAE (kg O2/kWh)
     cost_per_kg_o2 = (
-        float(f"{total_annual_cost / annual_oxygen:.3f}")
-        if annual_oxygen > 0
-        else 0.00
+        float(f"{financial.energy_cost / sae:.3f}") if sae > 0 else 0.00
     )
 
     return {
@@ -456,7 +452,9 @@ def compare_aerators(data: Dict[str, Any]) -> Dict[str, Any]:
     least_efficient = max(
         aerator_results, key=lambda x: x["total_annual_cost"]
     )
-    winner = min(aerator_results, key=lambda x: x["total_annual_cost"])
+    winner = min(
+        aerator_results, key=lambda x: cast(float, x["total_annual_cost"])
+    )
     winner_aerator = winner["aerator"]
     least_efficient_aerator = least_efficient["aerator"]
 
@@ -563,6 +561,7 @@ def compare_aerators(data: Dict[str, Any]) -> Dict[str, Any]:
                 aerators_per_ha=result["aerators_per_ha"],
                 hp_per_ha=result["hp_per_ha"],
                 sae=result["sae"],
+                cost_per_kg_o2=result["cost_per_kg_o2"],
                 opportunity_cost=opportunity_cost,
             )
         )

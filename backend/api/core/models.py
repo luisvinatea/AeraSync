@@ -33,6 +33,7 @@ class Aerator:
     payback_years: float = float("inf")
     roi_percent: float = 0
     sae: float = 0
+    cost_per_kg_o2: float = 0
     profitability_k: float = 0
     opportunity_cost: float = 0
 
@@ -59,6 +60,7 @@ class Aerator:
             "payback_years": self.payback_years,
             "roi_percent": self.roi_percent,
             "sae": self.sae,
+            "cost_per_kg_o2": self.cost_per_kg_o2,
             "profitability_k": self.profitability_k,
             "opportunity_cost": self.opportunity_cost,
         }
@@ -102,3 +104,4 @@ class AeratorResult(NamedTuple):
     hp_per_ha: float
     sae: float
     opportunity_cost: float
+    cost_per_kg_o2: float
