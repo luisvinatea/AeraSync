@@ -2,11 +2,11 @@
   "version": 2,
   "public": true,
   "name": "aerasync-mobile",
-  "buildCommand": "npm install && npm run vercel-build",
+  "buildCommand": "npm install --legacy-peer-deps && npm run vercel-build",
   "outputDirectory": "public",
   "builds": [
     {
-      "src": "build.sh",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "public" }
     }

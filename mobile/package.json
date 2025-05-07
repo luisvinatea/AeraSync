@@ -5,19 +5,20 @@
   "scripts": {
     "start": "webpack serve --open",
     "build": "webpack --mode=production",
-    "vercel-build": "npm install mini-css-extract-plugin schema-utils && webpack --mode=production"
+    "vercel-build": "webpack --mode=production"
   },
   "dependencies": {
     "axios": "^1.6.0",
     "chart.js": "^4.3.0",
-    "sanitize.css": "^13.0.0"
+    "sanitize.css": "^13.0.0",
+    "schema-utils": "^4.2.0"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
     "html-webpack-plugin": "^5.5.3",
     "mini-css-extract-plugin": "^2.7.6",
-    "schema-utils": "^3.1.1",
+    "schema-utils": "^4.2.0",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
