@@ -131,7 +131,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'web/icons/watermark.webp',
+              'assets/icons/watermark.webp',
               height: isMobile ? 24 : 30,
             ),
             const SizedBox(width: 8),

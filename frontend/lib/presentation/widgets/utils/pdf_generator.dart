@@ -22,8 +22,8 @@ class PdfGenerator {
     );
 
     // Load fonts from assets
-    final baseFont = await _loadFont('web/fonts/NotoSerif-Bold.ttf');
-    final boldFont = await _loadFont('web/fonts/NotoSerif-Black.ttf');
+    final baseFont = await _loadFont('assets/fonts/NotoSerif-Bold.ttf');
+    final boldFont = await _loadFont('assets/fonts/NotoSerif-Black.ttf');
 
     // Create a theme for consistent styling
     final theme = pw.ThemeData.withFont(
