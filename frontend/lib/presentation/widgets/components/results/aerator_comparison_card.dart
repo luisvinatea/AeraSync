@@ -191,7 +191,7 @@ class AeratorComparisonCard extends StatelessWidget {
 
   Widget _buildMetricItem(String label, String value, IconData icon) {
     return SizedBox(
-      width: 150,
+      width: 155,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

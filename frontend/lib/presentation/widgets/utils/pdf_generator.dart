@@ -380,14 +380,14 @@ class PdfGenerator {
       ),
       headers: [l10n.parameter, l10n.value],
       data: [
-        ['{l10n.farmAreaLabel}', '${farm['farm_area_ha'] ?? 'N/A'} ha'],
-        ['{l10n.shrimpPriceLabel}', '\$${farm['shrimp_price'] ?? 'N/A'}/kg'],
-        ['{l10n.cultureDaysLabel}', '${farm['culture_days'] ?? 'N/A'}'],
+        [l10n.farmAreaLabel, '${farm['farm_area_ha'] ?? 'N/A'} ha'],
+        [l10n.shrimpPriceLabel, '\$${farm['shrimp_price'] ?? 'N/A'}/kg'],
+        [l10n.cultureDaysLabel, '${farm['culture_days'] ?? 'N/A'}'],
         [
-          '{l10n.shrimpDensityLabel}',
+          l10n.shrimpDensityLabel,
           '${farm['shrimp_density_kg_m3'] ?? 'N/A'} kg/m³'
         ],
-        ['{l10n.pondDepthLabel}', '${farm['pond_depth_m'] ?? 'N/A'} m'],
+        [l10n.pondDepthLabel, '${farm['pond_depth_m'] ?? 'N/A'} m'],
       ],
       cellStyle: pw.TextStyle(fontSize: 9),
       cellAlignments: {
@@ -408,31 +408,25 @@ class PdfGenerator {
       ),
       headers: [l10n.parameter, l10n.value],
       data: [
+        [l10n.energyCostLabel, '\$${financial['energy_cost'] ?? 'N/A'}/kWh'],
+        [l10n.hoursPerNightLabel, '${financial['hours_per_night'] ?? 'N/A'}'],
         [
-          '{l10n.energyCostLabel}',
-          '\$${financial['energy_cost'] ?? 'N/A'}/kWh'
-        ],
-        [
-          '{l10n.hoursPerNightLabel}',
-          '${financial['hours_per_night'] ?? 'N/A'}'
-        ],
-        [
-          '{l10n.discountRateLabel}',
+          l10n.discountRateLabel,
           '${financial['discount_rate'] != null ? (financial['discount_rate'] * 100).toStringAsFixed(1) : 'N/A'}%'
         ],
         [
-          '{l10n.inflationRateLabel}',
+          l10n.inflationRateLabel,
           '${financial['inflation_rate'] != null ? (financial['inflation_rate'] * 100).toStringAsFixed(1) : 'N/A'}%'
         ],
         [
-          '{l10n.analysisHorizonLabel}',
+          l10n.analysisHorizonLabel,
           '${financial['horizon'] ?? 'N/A'} ${l10n.years}'
         ],
         [
-          '{l10n.safetyMarginLabel}',
+          l10n.safetyMarginLabel,
           '${financial['safety_margin'] != null ? (financial['safety_margin'] * 100).toStringAsFixed(1) : 'N/A'}%'
         ],
-        ['{l10n.temperatureLabel}', '${financial['temperature'] ?? 'N/A'} °C'],
+        [l10n.temperatureLabel, '${financial['temperature'] ?? 'N/A'} °C'],
       ],
       cellStyle: pw.TextStyle(fontSize: 9),
       cellAlignments: {
@@ -453,16 +447,16 @@ class PdfGenerator {
       ),
       headers: ['${l10n.aeratorLabel} 1', l10n.value],
       data: [
-        ['{l10n.nameLabel}', '${aerator1['name'] ?? 'N/A'}'],
-        ['{l10n.powerLabel}', '${aerator1['power_hp'] ?? 'N/A'} HP'],
-        ['{l10n.sotrLabel}', '${aerator1['sotr'] ?? 'N/A'} kg O₂/h'],
-        ['{l10n.costLabel}', '\$${aerator1['cost'] ?? 'N/A'}'],
+        [l10n.nameLabel, '${aerator1['name'] ?? 'N/A'}'],
+        [l10n.powerLabel, '${aerator1['power_hp'] ?? 'N/A'} HP'],
+        [l10n.sotrLabel, '${aerator1['sotr'] ?? 'N/A'} kg O₂/h'],
+        [l10n.costLabel, '\$${aerator1['cost'] ?? 'N/A'}'],
         [
-          '{l10n.durabilityLabel}',
+          l10n.durabilityLabel,
           '${aerator1['durability'] ?? 'N/A'} ${l10n.years}'
         ],
         [
-          '{l10n.maintenanceLabel}',
+          l10n.maintenanceLabel,
           '\$${aerator1['maintenance'] ?? 'N/A'}/${l10n.year}'
         ],
       ],
@@ -485,16 +479,16 @@ class PdfGenerator {
       ),
       headers: ['${l10n.aeratorLabel} 2', l10n.value],
       data: [
-        ['{l10n.nameLabel}', '${aerator2['name'] ?? 'N/A'}'],
-        ['{l10n.powerLabel}', '${aerator2['power_hp'] ?? 'N/A'} HP'],
-        ['{l10n.sotrLabel}', '${aerator2['sotr'] ?? 'N/A'} kg O₂/h'],
-        ['{l10n.costLabel}', '\$${aerator2['cost'] ?? 'N/A'}'],
+        [l10n.nameLabel, '${aerator2['name'] ?? 'N/A'}'],
+        [l10n.powerLabel, '${aerator2['power_hp'] ?? 'N/A'} HP'],
+        [l10n.sotrLabel, '${aerator2['sotr'] ?? 'N/A'} kg O₂/h'],
+        [l10n.costLabel, '\$${aerator2['cost'] ?? 'N/A'}'],
         [
-          '{l10n.durabilityLabel}',
+          l10n.durabilityLabel,
           '${aerator2['durability'] ?? 'N/A'} ${l10n.years}'
         ],
         [
-          '{l10n.maintenanceLabel}',
+          l10n.maintenanceLabel,
           '\$${aerator2['maintenance'] ?? 'N/A'}/${l10n.year}'
         ],
       ],
@@ -552,7 +546,12 @@ class PdfGenerator {
   }
 
   static Future<pw.Font> _loadFont(String path) async {
-    final fontData = await rootBundle.load(path);
-    return pw.Font.ttf(fontData);
+    try {
+      final fontData = await rootBundle.load('assets/$path');
+      return pw.Font.ttf(fontData.buffer.asUint8List() as ByteData);
+    } catch (e) {
+      // Fallback to base font if loading fails
+      return pw.Font.helvetica();
+    }
   }
 }
