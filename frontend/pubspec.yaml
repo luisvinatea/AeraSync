@@ -55,14 +55,13 @@ flutter:
         - asset: assets/fonts/Roboto-Black.ttf
         - asset: assets/fonts/Roboto-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Roboto-BlackItalic.ttf
+        - asset: assets/fonts/Roboto-BoldItalic.ttf
+          weight: 700
           style: italic
 
-    - family: DejaVuSans
-      fonts:
-        - asset: assets/fonts/DejaVuSans.ttf
-        - asset: assets/fonts/DejaVuSans-Bold.ttf
+        - asset: assets/fonts/Roboto-BlackItalic.ttf
           weight: 700
+          style: italic
 
     - family: ArialUnicodeMS
       fonts:
@@ -71,6 +70,7 @@ flutter:
           weight: 700
 
   assets:
+    - assets/
     - assets/icons/aerasync64.webp
     - assets/icons/aerasync180.webp
     - assets/icons/aerasync.webp

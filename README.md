@@ -6,16 +6,16 @@ AeraSync is built using Dart and Flutter for the frontend, with a Python backend
 
 ## Features
 
-* **SOTR & SAE Calculation** – Compute key aerator efficiency metrics effortlessly using a built-in calculator.
-* **Aerator Comparison** – Compare two aerators based on SOTR, cost, and maintenance to determine the most cost-effective option.
-* **Oxygen Demand and Estimation** – Calculate oxygen demand and estimate the number of aerators needed, with both farm-based and experimental methods.
-* **Cross-Platform Support** – Available on Android, iOS, and web, with a consistent user experience.
-* **User-Friendly Interface** – Designed for field technicians with a simple and intuitive UI.
-* **Localization** – Supports multiple languages (English, Spanish, Portuguese, French, Italian, German, Norwegian, Russian, Chinese, Japanese, Thai, Indonesian, Arabic, Hebrew, Swedish) for broader accessibility.
-* **Data Integration** – Includes preloaded datasets for accurate calculations.
-* **Interactive Charts** – Visualize key metrics using interactive charts.
-* **Python Backend API** – Reliable serverless API deployed on Vercel for processing complex calculations.
-* **Predictive Analytics (Upcoming)** – AI-driven insights for aeration optimization (planned for future releases).
+- **SOTR & SAE Calculation** – Compute key aerator efficiency metrics effortlessly using a built-in calculator.
+- **Aerator Comparison** – Compare two aerators based on SOTR, cost, and maintenance to determine the most cost-effective option.
+- **Oxygen Demand and Estimation** – Calculate oxygen demand and estimate the number of aerators needed, with both farm-based and experimental methods.
+- **Cross-Platform Support** – Available on Android, iOS, and web, with a consistent user experience.
+- **User-Friendly Interface** – Designed for field technicians with a simple and intuitive UI.
+- **Localization** – Supports multiple languages (English, Spanish, Portuguese, French, Italian, German, Norwegian, Russian, Chinese, Japanese, Thai, Indonesian, Arabic, Hebrew, Swedish) for broader accessibility.
+- **Data Integration** – Includes preloaded datasets for accurate calculations.
+- **Interactive Charts** – Visualize key metrics using interactive charts.
+- **Python Backend API** – Reliable serverless API deployed on Vercel for processing complex calculations.
+- **Predictive Analytics (Upcoming)** – AI-driven insights for aeration optimization (planned for future releases).
 
 ## Installation
 
@@ -23,129 +23,129 @@ AeraSync is a Flutter project with separate frontend and backend components. Fol
 
 1. **Clone the Repository**:
 
-    ```sh
-    git clone https://github.com/luisvinatea/AeraSync.git
-    ```
+   ```sh
+   git clone https://github.com/luisvinatea/AeraSync.git
+   ```
 
 2. **Navigate to the Project Directory**:
 
-    ```sh
-    cd AeraSync
-    ```
+   ```sh
+   cd AeraSync
+   ```
 
 ### Frontend Setup
 
 1. **Navigate to the Frontend Directory**:
 
-    ```sh
-    cd frontend
-    ```
+   ```sh
+   cd frontend
+   ```
 
 2. **Install Flutter Dependencies**:
 
-    Ensure you have Flutter installed (see [Flutter installation guide](https://flutter.dev/docs/get-started/install)). Then, install the project dependencies:
+   Ensure you have Flutter installed (see [Flutter installation guide](https://flutter.dev/docs/get-started/install)). Then, install the project dependencies:
 
-    ```sh
-    flutter pub get
-    ```
+   ```sh
+   flutter pub get
+   ```
 
 3. **Run the Frontend Application**:
 
-    * Using the Makefile:
+   - Using the Makefile:
 
-        ```sh
-        make run-flutter
-        ```
+     ```sh
+     make run-flutter
+     ```
 
-    * Or directly:
+   - Or directly:
 
-        ```sh
-        flutter run -d chrome
-        ```
+     ```sh
+     flutter run -d chrome
+     ```
 
-    * For mobile (Android/iOS emulator or device):
+   - For mobile (Android/iOS emulator or device):
 
-        ```sh
-        flutter run
-        ```
+     ```sh
+     flutter run
+     ```
 
 ### Backend Setup
 
 1. **Navigate to the Backend Directory**:
 
-    ```sh
-    cd ../backend
-    ```
+   ```sh
+   cd ../backend
+   ```
 
 2. **Set Up Python Environment**:
 
-    ```sh
-    pip install -r requirements.txt
-    ```
+   ```sh
+   pip install -r requirements.txt
+   ```
 
 3. **Run the Backend API Locally** (optional):
 
-    ```sh
-    python -m api.main
-    ```
+   ```sh
+   python -m api.main
+   ```
 
 ## Development Tasks
 
 ### Frontend Development
 
-* **Generate Localization Files**:
+- **Generate Localization Files**:
 
-    After updating the `.arb` files in `frontend/lib/l10n/`, regenerate the localization classes:
+  After updating the `.arb` files in `frontend/lib/l10n/`, regenerate the localization classes:
 
-    ```sh
-    cd frontend
-    make gen-l10n
-    ```
+  ```sh
+  cd frontend
+  make gen-l10n
+  ```
 
-    Or:
+  Or:
 
-    ```sh
-    flutter gen-l10n
-    ```
+  ```sh
+  flutter gen-l10n
+  ```
 
-* **Run Tests**:
+- **Run Tests**:
 
-    Run the unit and widget tests:
+  Run the unit and widget tests:
 
-    ```sh
-    cd frontend
-    make test
-    ```
+  ```sh
+  cd frontend
+  make test
+  ```
 
-    Or:
+  Or:
 
-    ```sh
-    flutter test
-    ```
+  ```sh
+  flutter test
+  ```
 
-* **Build for Web**:
+- **Build for Web**:
 
-    Create a release build for web deployment:
+  Create a release build for web deployment:
 
-    ```sh
-    cd frontend
-    make build-web
-    ```
+  ```sh
+  cd frontend
+  make build-web
+  ```
 
-    Or:
+  Or:
 
-    ```sh
-    flutter build web --release
-    ```
+  ```sh
+  flutter build web --release
+  ```
 
 ### Backend Development
 
-* **Run Backend Tests**:
+- **Run Backend Tests**:
 
-    ```sh
-    cd backend
-    python -m pytest
-    ```
+  ```sh
+  cd backend
+  python -m pytest
+  ```
 
 ## Deployment
 
@@ -153,12 +153,12 @@ AeraSync is a Flutter project with separate frontend and backend components. Fol
 
 The project documentation is hosted on GitHub Pages. To update the documentation:
 
-* Using the build script:
+- Using the build script:
 
-    ```sh
-    cd source
-    make html
-    ```
+  ```sh
+  cd source
+  make html
+  ```
 
 The documentation is available at [https://luisvinatea.github.io/AeraSync/](https://luisvinatea.github.io/AeraSync/).
 
@@ -172,11 +172,11 @@ The Python backend API is deployed as a serverless function on Vercel.
 
 ## Tech Stack
 
-* **Frontend & Cross-Platform**: Dart / Flutter
-* **Backend**: Python FastAPI for the REST API
-* **Data Storage**: Local JSON files (e.g., `o2_temp_sal_100_sat.json`); future plans for cloud storage (Firestore/PostgreSQL)
-* **Web Hosting**: Vercel (frontend application), GitHub Pages (documentation)
-* **AI Engine (Future)**: TensorFlow.js or PyTorch for predictive analytics
+- **Frontend & Cross-Platform**: Dart / Flutter
+- **Backend**: Python FastAPI for the REST API
+- **Data Storage**: Local JSON files (e.g., `o2_temp_sal_100_sat.json`); future plans for cloud storage (Firestore/PostgreSQL)
+- **Web Hosting**: Vercel (frontend application), GitHub Pages (documentation)
+- **AI Engine (Future)**: TensorFlow.js or PyTorch for predictive analytics
 
 ## Project Structure
 

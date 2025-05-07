@@ -193,9 +193,10 @@ class AeratorComparisonCard extends StatelessWidget {
     return SizedBox(
       width: 155,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
@@ -211,6 +212,7 @@ class AeratorComparisonCard extends StatelessWidget {
                     color: AppTheme.textMuted,
                   ),
                   overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],
@@ -223,6 +225,7 @@ class AeratorComparisonCard extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: AppTheme.textDark,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

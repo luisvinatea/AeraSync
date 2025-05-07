@@ -548,7 +548,7 @@ class PdfGenerator {
   static Future<pw.Font> _loadFont(String path) async {
     try {
       final fontData = await rootBundle.load('assets/$path');
-      return pw.Font.ttf(fontData.buffer.asUint8List() as ByteData);
+      return pw.Font.ttf(fontData);
     } catch (e) {
       // Fallback to base font if loading fails
       return pw.Font.helvetica();
