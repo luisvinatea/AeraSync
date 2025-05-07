@@ -56,6 +56,6 @@ echo "/* /index.html 200" > public/_redirects
 # Copy custom fonts to public folder if needed
 echo "Ensuring fonts are available..."
 mkdir -p public/fonts
-cp -R web/fonts/* public/fonts/ 2>/dev/null || echo "No custom fonts to copy"
+cp -R assets/fonts/* public/fonts/ 2>/dev/null || echo "No custom fonts to copy"
 
 echo "Build complete! Files are ready in 'public' directory."
