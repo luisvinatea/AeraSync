@@ -26,6 +26,7 @@ if not cors_origins or cors_origins == [""]:
         "https://aerasync.vercel.app",
         "https://aerasync-mobile.vercel.app",
         "https://aerasync-web-git-v3-devinatea.vercel.app",
+        "https://aerasync-web.vercel.app",
     ]
 
 # Configure CORS with appropriate preflight handling
