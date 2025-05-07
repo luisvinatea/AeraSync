@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/gestures.dart'; // Add this for PointerDeviceKind
+import 'package:flutter/gestures.dart'; 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +11,9 @@ import 'presentation/widgets/results_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Preload fonts to prevent missing character warnings
+  await _preloadFonts();
 
   // Set preferred orientations for mobile devices
   await SystemChrome.setPreferredOrientations([
@@ -39,6 +42,19 @@ void main() async {
       child: const MyApp(),
     ),
   );
+}
+
+Future<void> _preloadFonts() async {
+  await Future.wait([
+    FontLoader('Noto Sans')
+      ..addFont(rootBundle.load('assets/fonts/NotoSans-Regular.ttf'))
+      ..addFont(rootBundle.load('assets/fonts/NotoSans-Bold.ttf'))
+      ..load(),
+    FontLoader('Noto Serif')
+      ..addFont(rootBundle.load('assets/fonts/NotoSerif-Regular.ttf'))
+      ..addFont(rootBundle.load('assets/fonts/NotoSerif-Bold.ttf'))
+      ..load(),
+  ] as Iterable<Future>);
 }
 
 class MyApp extends StatelessWidget {
