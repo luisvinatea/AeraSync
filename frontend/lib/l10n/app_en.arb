@@ -366,17 +366,25 @@
   "@year": {
     "description": "Label for a single year"
   },
+  "years": "Years",
+  "@years": {
+    "description": "Label for years (plural)"
+  },
+  "day": "Day",
+  "@day": {
+    "description": "Label for a single day"
+  },
   "days": "Days",
   "@days": {
     "description": "Label for days"
   },
+  "month": "Month",
+  "@month": {
+    "description": "Label for a single month"
+  },
   "months": "Months",
   "@months": {
     "description": "Label for months"
-  },
-  "years": "Years",
-  "@years": {
-    "description": "Label for years (plural)"
   },
   "optionalField": "Optional",
   "@optionalField": {
@@ -453,5 +461,17 @@
   "equilibriumValue": "Equilibrium Value",
   "@equilibriumValue": {
     "description": "Label for the equilibrium value"
+  },
+  "value": "Value",
+  "@value": {
+    "description": "Label for the value input field"
+  },
+  "costRevenueRatioLabel": "Cost/Revenue Ratio",
+  "@costRevenueRatioLabel": {
+    "description": "Label for the cost/revenue ratio column in the comparison table"
+  },
+  "costPerKgO2Label": "Cost per kg O₂",
+  "@costPerKgO2Label": {
+    "description": "Label for the cost per kg of oxygen metric"
   }
 }

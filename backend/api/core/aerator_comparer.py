@@ -300,12 +300,7 @@ def process_aerator(
     power_kw = aerator.power_hp * HP_TO_KW
     operating_hours = financial.hours_per_night * 365
     annual_energy_cost = float(
-        f"{
-            power_kw
-            * financial.energy_cost
-            * operating_hours
-            * num_aerators:.2f
-        }"
+        f"{power_kw * financial.energy_cost * operating_hours * num_aerators:.2f}"
     )
     annual_maintenance_cost = float(
         f"{aerator.maintenance * num_aerators:.2f}"
@@ -317,17 +312,18 @@ def process_aerator(
     )
 
     total_annual_cost = float(
-        f"{
-            annual_energy_cost
-            + annual_maintenance_cost
-            + annual_replacement_cost:.2f
-        }"
+        f"{annual_energy_cost + annual_maintenance_cost + annual_replacement_cost:.2f}"
     )
 
     cost_percent_revenue = (
         float(f"{total_annual_cost / annual_revenue * 100:.2f}")
         if annual_revenue > 0
         else 0.00
+    )
+
+    # Cost per kg O2 = energy cost per kWh / SAE (kg O2/kWh)
+    cost_per_kg_o2 = (
+        float(f"{financial.energy_cost / sae:.3f}") if sae > 0 else 0.00
     )
 
     return {
@@ -343,6 +339,7 @@ def process_aerator(
         "aerators_per_ha": aerators_per_ha,
         "hp_per_ha": hp_per_ha,
         "sae": sae,
+        "cost_per_kg_o2": cost_per_kg_o2,
     }
 
 
@@ -446,7 +443,9 @@ def compare_aerators(data: Dict[str, Any]) -> Dict[str, Any]:
     least_efficient = max(
         aerator_results, key=lambda x: x["total_annual_cost"]
     )
-    winner = min(aerator_results, key=lambda x: x["total_annual_cost"])
+    winner = min(
+        aerator_results, key=lambda x: cast(float, x["total_annual_cost"])
+    )
     winner_aerator = winner["aerator"]
     least_efficient_aerator = least_efficient["aerator"]
 
@@ -460,16 +459,10 @@ def compare_aerators(data: Dict[str, Any]) -> Dict[str, Any]:
     for result in aerator_results:
         aerator = result["aerator"]
         annual_saving = float(
-            f"{
-                least_efficient['total_annual_cost']
-                - result['total_annual_cost']:.2f
-            }"
+            f"{least_efficient['total_annual_cost'] - result['total_annual_cost']:.2f}"
         )
         additional_cost = float(
-            f"{
-                result['total_initial_cost']
-                - least_efficient['total_initial_cost']:.2f
-            }"
+            f"{result['total_initial_cost'] - least_efficient['total_initial_cost']:.2f}"
         )
         cash_flows_savings = [
             float(f"{annual_saving * (1 + financial.inflation_rate) ** t:.2f}")
@@ -483,16 +476,11 @@ def compare_aerators(data: Dict[str, Any]) -> Dict[str, Any]:
         opportunity_cost = 0.00
         if aerator.name == least_efficient_aerator.name:
             winner_saving = float(
-                f"{
-                    least_efficient['total_annual_cost']
-                    - winner['total_annual_cost']:.2f
-                }"
+                f"{least_efficient['total_annual_cost'] - winner['total_annual_cost']:.2f}"
             )
             winner_cash_flows = [
                 float(
-                    f"{
-                        winner_saving * (1 + financial.inflation_rate) ** t:.2f
-                    }"
+                    f"{winner_saving * (1 + financial.inflation_rate) ** t:.2f}"
                 )
                 for t in range(financial.horizon)
             ]
@@ -553,6 +541,7 @@ def compare_aerators(data: Dict[str, Any]) -> Dict[str, Any]:
                 aerators_per_ha=result["aerators_per_ha"],
                 hp_per_ha=result["hp_per_ha"],
                 sae=result["sae"],
+                cost_per_kg_o2=result["cost_per_kg_o2"],
                 opportunity_cost=opportunity_cost,
             )
         )

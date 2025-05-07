@@ -366,17 +366,25 @@
   "@year": {
     "description": "Etiqueta para um único ano"
   },
+  "years": "Anos",
+  "@years": {
+    "description": "Etiqueta para anos (plural)"
+  },
+  "day": "Dia",
+  "@day": {
+    "description": "Etiqueta para um único dia"
+  },
   "days": "Dias",
   "@days": {
     "description": "Etiqueta para dias"
   },
+  "month": "Mês",
+  "@month": {
+    "description": "Etiqueta para um único mês"
+  },
   "months": "Meses",
   "@months": {
     "description": "Etiqueta para meses"
-  },
-  "years": "Anos",
-  "@years": {
-    "description": "Etiqueta para anos (plural)"
   },
   "optionalField": "Opcional",
   "@optionalField": {
@@ -452,6 +460,18 @@
   },
   "equilibriumValue": "Valor de Equilíbrio",
   "@equilibriumValue": {
-    "description": "Etiqueta para el campo de entrada de valor de equilibrio"
+    "description": "Etiqueta para o campo de entrada do valor de equilíbrio"
+  },
+  "value": "Valor",
+  "@value": {
+    "description": "Etiqueta para o campo de entrada de valor"
+  },
+  "costRevenueRatioLabel": "Razão custo/receita",
+  "@costRevenueRatioLabel": {
+    "description": "Etiqueta para a coluna de custo/receita na tabela de comparação"
+  },
+  "costPerKgO2Label": "Custo por kg O₂",
+  "@costPerKgO2Label": {
+    "description": "Etiqueta para o custo por kg de oxigênio"
   }
 }

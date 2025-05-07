@@ -2,13 +2,8 @@
   "version": 2,
   "public": true,
   "name": "aerasync-mobile",
-  "builds": [
-    {
-      "src": "build.sh",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "public" }
-    }
-  ],
+  "buildCommand": "npm install --legacy-peer-deps && npm run vercel-build",
+  "outputDirectory": "public",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
     {
@@ -29,5 +24,19 @@
         }
       ]
     }
+  ],
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/api/(.*)", "dest": "https://aerasync-api.vercel.app/$1" },
+    { "src": "/compare", "dest": "https://aerasync-api.vercel.app/compare" },
+    { "src": "/health", "dest": "https://aerasync-api.vercel.app/health" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

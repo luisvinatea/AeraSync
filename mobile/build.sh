@@ -1,8 +1,7 @@
 #!/bin/bash
-# /home/luisvinatea/DEVinatea/Repos/AeraSync/mobile/build.sh
 
-# Install dependencies
-npm install --no-save
+# Install dependencies explicitly
+npm install --legacy-peer-deps
 
-# Run webpack build
-npm run build
+# Run vercel-build script instead of regular build
+npm run vercel-build

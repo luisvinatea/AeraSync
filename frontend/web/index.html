@@ -1,295 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Mobile redirect script -->
-    <script>
-      (function() {
-        // Check if user should be redirected to mobile site
-        function isMobileDevice() {
-          return (window.innerWidth <= 767) ||
-                 /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
-        
-        // Don't redirect if user has opted out
-        const noRedirect = window.location.search.indexOf('nomobile=1') > -1 ||
-                           localStorage.getItem('nomobile') === '1';
-        
-        // Get current domain and replace with mobile domain
-        if (isMobileDevice() && !noRedirect && window.location.hostname !== 'localhost') {
-          const mobileDomain = 'aerasync-mobile.vercel.app';
-          const currentDomain = window.location.hostname;
-          
-          if (currentDomain !== mobileDomain) {
-            const mobileUrl = window.location.href.replace(currentDomain, mobileDomain);
-            window.location.href = mobileUrl;
-          }
-        }
-      })();
-    </script>
-    
-    <!-- Device detection -->
-    <script src="device-detect.js"></script>
-    
-    <!-- Handling path issues -->
-    <script>
-      // Fix hash route issues in Vercel deployments
-      (function () {
-        var pathname = window.location.pathname;
-        var hash = window.location.hash;
 
-        // Remove trailing slash if present
-        if (pathname.length > 1 && pathname.endsWith("/")) {
-          pathname = pathname.slice(0, -1);
-        }
-
-        // Fix base path for Flutter routing - handle both dev and prod domains
-        var baseHref = pathname === "/" ? "/" : pathname + "/";
-        document.write('<base href="' + baseHref + '">');
-      })();
-    </script>
-
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta
-      name="description"
-      content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results."
-    />
-    <meta
-      name="keywords"
-      content="AeraSync, aerator comparison, shrimp farming, aquaculture, cost optimization"
-    />
-    <meta name="author" content="Luis Vinatea" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <!-- Switch to desktop version link in meta -->
-    <link rel="alternate" href="https://aerasync-web.vercel.app" media="only screen and (min-width: 768px)">
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="apple-mobile-web-app-title" content="AeraSync" />
-    <meta name="theme-color" content="#1E40AF" />
-    <!-- Mobile Web App Tags -->
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="msapplication-tap-highlight" content="no" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="HandheldFriendly" content="true" />
-
-    <!-- PWA Tags -->
-    <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/watermark.webp" />
-    <link rel="icon" type="image/webp" href="icons/watermark.webp" />
-    <link rel="apple-touch-startup-image" href="icons/watermark.webp" />
-    
-    <!-- Open Graph Tags -->
-    <meta
-      property="og:title"
-      content="AeraSync - Shrimp Farm Aerator Comparison"
-    />
-    <meta
-      property="og:description"
-      content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results."
-    />
-    <meta property="og:image" content="icons/watermark.webp" />
-    <meta property="og:url" content="https://aerasync-web.vercel.app/" />
-    <meta property="og:type" content="website" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="AeraSync - Shrimp Farm Aerator Comparison"
-    />
-    <meta
-      name="twitter:description"
-      content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results."
-    />
-    <meta name="twitter:image" content="icons/aerasync180.webp" />
-
-    <title>AeraSync - Shrimp Farm Aerator Comparison</title>
-
-    <style>
-      html {
-        scroll-behavior: smooth;
-        height: 100%;
-        width: 100%;
-        touch-action: manipulation;
+<head>
+  <!-- Mobile redirect script -->
+  <script>
+    (function () {
+      // Check if user should be redirected to mobile site
+      function isMobileDevice() {
+        return (window.innerWidth <= 767) ||
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
       }
 
-      body {
-        margin: 0;
-        transition: background-color 0.3s ease-in-out;
-        height: 100%;
-        width: 100%;
-        position: fixed;
-        overflow: hidden;
-        -webkit-tap-highlight-color: transparent;
-      }
+      // Don't redirect if user has opted out
+      const noRedirect = window.location.search.indexOf('nomobile=1') > -1 ||
+        localStorage.getItem('nomobile') === '1';
 
-      /* Ensure loading screen styles are defined inline */
-      #loading-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #141f41 url("icons/background.webp") no-repeat center/cover;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        transition: opacity 0.8s ease-in-out;
-      }
-      .loading {
-        text-align: center;
-        color: #0049af;
-        transition: transform 0.5s ease-in-out;
-      }
-      .loading h1 {
-        transition: opacity 0.5s ease-in-out;
-      }
-      .spinner {
-        border: 4px solid rgb(248, 249, 255);
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        border-left-color: #1e40af;
-        animation: spin 1.2s ease-in-out infinite;
-        margin: 0 auto;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
+      // Get current domain and replace with mobile domain
+      if (isMobileDevice() && !noRedirect && window.location.hostname !== 'localhost') {
+        const mobileDomain = 'aerasync-mobile.vercel.app';
+        const currentDomain = window.location.hostname;
+
+        if (currentDomain !== mobileDomain) {
+          const mobileUrl = window.location.href.replace(currentDomain, mobileDomain);
+          window.location.href = mobileUrl;
         }
       }
-      .wave-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 30%;
-        background: linear-gradient(
-          0deg,
+    })();
+  </script>
+
+  <!-- Device detection -->
+  <script src="device-detect.js"></script>
+
+  <!-- Handling path issues -->
+  <script>
+    // Fix hash route issues in Vercel deployments
+    (function () {
+      var pathname = window.location.pathname;
+      var hash = window.location.hash;
+
+      // Remove trailing slash if present
+      if (pathname.length > 1 && pathname.endsWith("/")) {
+        pathname = pathname.slice(0, -1);
+      }
+
+      // Fix base path for Flutter routing - handle both dev and prod domains
+      var baseHref = pathname === "/" ? "/" : pathname + "/";
+      document.write('<base href="' + baseHref + '">');
+    })();
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="description"
+    content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results." />
+  <meta name="keywords" content="AeraSync, aerator comparison, shrimp farming, aquaculture, cost optimization" />
+  <meta name="author" content="Luis Vinatea" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <!-- Switch to desktop version link in meta -->
+  <link rel="alternate" href="https://aerasync-web.vercel.app" media="only screen and (min-width: 768px)">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="AeraSync" />
+  <meta name="theme-color" content="#1E40AF" />
+  <!-- Mobile Web App Tags -->
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="HandheldFriendly" content="true" />
+
+  <!-- PWA Tags -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/watermark.webp" />
+  <link rel="icon" type="image/webp" href="icons/watermark.webp" />
+  <link rel="apple-touch-startup-image" href="icons/watermark.webp" />
+
+  <!-- Open Graph Tags -->
+  <meta property="og:title" content="AeraSync - Shrimp Farm Aerator Comparison" />
+  <meta property="og:description"
+    content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results." />
+  <meta property="og:image" content="icons/watermark.webp" />
+  <meta property="og:url" content="https://aerasync-web.vercel.app/" />
+  <meta property="og:type" content="website" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AeraSync - Shrimp Farm Aerator Comparison" />
+  <meta name="twitter:description"
+    content="AeraSync: Compare aerators for shrimp farming with a step-by-step survey and view ranked results." />
+  <meta name="twitter:image" content="icons/aerasync180.webp" />
+
+  <title>AeraSync - Shrimp Farm Aerator Comparison</title>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+      height: 100%;
+      width: 100%;
+      touch-action: manipulation;
+    }
+
+    body {
+      margin: 0;
+      transition: background-color 0.3s ease-in-out;
+      height: 100%;
+      width: 100%;
+      position: fixed;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Ensure loading screen styles are defined inline */
+    #loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #141f41 url("icons/background.webp") no-repeat center/cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.8s ease-in-out;
+    }
+
+    .loading {
+      text-align: center;
+      color: #0049af;
+      transition: transform 0.5s ease-in-out;
+    }
+
+    .loading h1 {
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .spinner {
+      border: 4px solid rgb(248, 249, 255);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border-left-color: #1e40af;
+      animation: spin 1.2s ease-in-out infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .wave-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 30%;
+      background: linear-gradient(0deg,
           rgba(96, 165, 250, 0.2) 0%,
-          rgba(255, 255, 255, 0) 100%
-        );
-        transition: height 0.5s ease-in-out;
-      }
-      #flutter-target {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        overflow: hidden;
-      }
+          rgba(255, 255, 255, 0) 100%);
+      transition: height 0.5s ease-in-out;
+    }
+
+    #flutter-target {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      overflow: hidden;
+    }
+
+    .app-logo {
+      width: 200px;
+      height: auto;
+      margin-bottom: 20px;
+      transition: transform 0.4s ease-in-out;
+    }
+
+    .app-logo:hover {
+      transform: scale(1.05);
+    }
+
+    /* Mobile optimization */
+    @media (max-width: 768px) {
       .app-logo {
-        width: 200px;
-        height: auto;
-        margin-bottom: 20px;
-        transition: transform 0.4s ease-in-out;
+        width: 160px;
       }
-      .app-logo:hover {
-        transform: scale(1.05);
-      }
-      
-      /* Mobile optimization */
-      @media (max-width: 768px) {
-        .app-logo {
-          width: 160px;
-        }
-        input, button {
-          font-size: 16px !important; /* Prevent zoom on input focus */
-        }
-      }
-      
-      /* Prevent pull-to-refresh */
-      body {
-        overscroll-behavior-y: contain;
-      }
-      
-      /* Add mobile-specific touch handling */
-      .flutter-view * {
-        touch-action: pan-x pan-y;
-      }
-    </style>
-  </head>
-  <body>
-    <div
-      id="loading-screen"
-      role="status"
-      aria-label="Loading AeraSync application"
-    ></div>
-      <div class="wave-overlay"></div>
-      <div class="loading">
-        <picture>
-          <source srcset="icons/watermark.webp" type="image/webp" />
-          <img
-            src="icons/watermark.webp"
-            alt="AeraSync Logo - A stylized wave representing water and aeration"
-            class="app-logo"
-            loading="lazy"
-          />
-        </picture>
-        <h1>AeraSync</h1>
-        <div class="spinner" aria-hidden="true"></div>
-      </div>
-    </div>
-    <div class="desktop-switch">
-      <a href="https://aerasync-web.vercel.app?from_mobile=1">Switch to desktop version</a>
-    </div>
-    <footer>
-      <p>&copy; 2025 AeraSync. All rights reserved.</p>
-    </footer>
-    <div id="flutter-target"></div>
-    <!-- Load scripts with correct order and configuration -->
-    <script>
-      // Define Flutter configuration before loading flutter.js
-      window._flutter = window._flutter || {};
-      window._flutter.loader = {
-        loadEntrypoint: function (options) {
-          return Promise.resolve();
-        },
-      };
-    </script>
-    <script src="flutter.js" defer></script>
-    <script src="flutter_bootstrap.js" defer></script>
 
-    <script>
-      window.addEventListener("load", function () {
-        const loadingScreen = document.getElementById("loading-screen");
-        const flutterTarget = document.getElementById("flutter-target");
+      input,
+      button {
+        font-size: 16px !important;
+        /* Prevent zoom on input focus */
+      }
+    }
 
-        // Add smooth scrolling to all elements
-        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-          anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute("href")).scrollIntoView({
-              behavior: "smooth",
-            });
+    /* Prevent pull-to-refresh */
+    body {
+      overscroll-behavior-y: contain;
+    }
+
+    /* Add mobile-specific touch handling */
+    .flutter-view * {
+      touch-action: pan-x pan-y;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loading-screen" role="status" aria-label="Loading AeraSync application"></div>
+  <div class="wave-overlay"></div>
+  <div class="loading">
+    <picture>
+      <source srcset="icons/watermark.webp" type="image/webp" />
+      <img src="icons/watermark.webp" alt="AeraSync Logo - A stylized wave representing water and aeration"
+        class="app-logo" loading="lazy" />
+    </picture>
+    <h1>AeraSync</h1>
+    <div class="spinner" aria-hidden="true"></div>
+  </div>
+  </div>
+  <div class="desktop-switch">
+    <a href="https://aerasync-web.vercel.app?from_mobile=1">Switch to desktop version</a>
+  </div>
+  <footer>
+    <p>&copy; 2025 AeraSync. All rights reserved.</p>
+  </footer>
+  <div id="flutter-target"></div>
+  <!-- Load scripts with correct order and configuration -->
+  <script>
+    // Define Flutter configuration before loading flutter.js
+    window._flutter = window._flutter || {};
+    window._flutter.loader = {
+      loadEntrypoint: function (options) {
+        return Promise.resolve();
+      },
+    };
+  </script>
+  <script src="flutter.js" defer></script>
+  <script src="flutter_bootstrap.js" defer></script>
+
+  <script>
+    window.addEventListener("load", function () {
+      const loadingScreen = document.getElementById("loading-screen");
+      const flutterTarget = document.getElementById("flutter-target");
+
+      // Add smooth scrolling to all elements
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth",
           });
         });
-
-        // Function to hide the loading screen
-        function hideLoadingScreen() {
-          loadingScreen.style.opacity = "0";
-          setTimeout(function () {
-            loadingScreen.style.display = "none";
-          }, 800);
-        }
-
-        // Listen for Flutter first frame
-        window.addEventListener("flutter-first-frame", function () {
-          // Hide loading screen when app is ready
-          setTimeout(hideLoadingScreen, 200);
-        });
-
-        // Fallback: Force hide loading screen after 5 seconds if Flutter doesn't load
-        setTimeout(function () {
-          if (loadingScreen.style.opacity !== "0") {
-            console.log("Using fallback to hide loading screen");
-            hideLoadingScreen();
-          }
-        }, 5000);
       });
-    </script>
-  </body>
+
+      // Function to hide the loading screen
+      function hideLoadingScreen() {
+        loadingScreen.style.opacity = "0";
+        setTimeout(function () {
+          loadingScreen.style.display = "none";
+        }, 800);
+      }
+
+      // Listen for Flutter first frame
+      window.addEventListener("flutter-first-frame", function () {
+        // Hide loading screen when app is ready
+        setTimeout(hideLoadingScreen, 200);
+      });
+
+      // Fallback: Force hide loading screen after 5 seconds if Flutter doesn't load
+      setTimeout(function () {
+        if (loadingScreen.style.opacity !== "0") {
+          console.log("Using fallback to hide loading screen");
+          hideLoadingScreen();
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+
 </html>

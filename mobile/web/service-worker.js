@@ -6,9 +6,9 @@ const ASSETS = [
   "/js/main.js",
   "/css/main.css",
   "/icons/favicon.webp",
-  "/icons/logo.webp",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png",
+  "/icons/watermark.webp",
+  "/icons/aerasync180.png",
+  "/icons/aerasync.webp",
 ];
 
 // Install event - cache assets

@@ -25,110 +25,27 @@ class AeratorComparisonCard extends StatelessWidget {
       ),
       child: Padding(
         padding: EdgeInsets.all(AppTheme.paddingMedium),
-        child: Semantics(
-          label: l10n.aeratorComparisonResultsDescription,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.aeratorComparisonResults,
-                style: TextStyle(
-                  fontSize: AppTheme.fontSizeXLarge,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textDark,
-                ),
-              ),
-              SizedBox(height: AppTheme.paddingMedium),
-              ...results
-                  .map((result) => _buildDetailedResultCard(context, result)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailedResultCard(BuildContext context, AeratorResult result) {
-    final isWinner = result.name == winnerLabel;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: isWinner ? Colors.green.shade50 : null,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    result.name,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ),
-                if (isWinner)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      l10n.recommended,
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-              ],
+            Text(
+              l10n.aeratorComparisonResults,
+              style: TextStyle(
+                fontSize: AppTheme.fontSizeXLarge,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textDark,
+              ),
             ),
-            const Divider(),
-            _detailRow(l10n.unitsNeeded, result.numAerators.toString()),
-            _detailRow(l10n.aeratorsPerHaLabel,
-                result.aeratorsPerHa.toStringAsFixed(2)),
-            _detailRow(l10n.horsepowerPerHaLabel,
-                '${result.hpPerHa.toStringAsFixed(2)} hp/ha'),
-            _detailRow(l10n.initialCostLabel,
-                FormattingUtils.formatCurrencyK(result.totalInitialCost)),
-            _detailRow(l10n.annualCostLabel,
-                FormattingUtils.formatCurrencyK(result.totalAnnualCost)),
-            _detailRow(l10n.costPercentRevenueLabel,
-                '${result.costPercentRevenue.toStringAsFixed(2)}%'),
-            _detailRow(l10n.annualEnergyCostLabel,
-                FormattingUtils.formatCurrencyK(result.annualEnergyCost)),
-            _detailRow(l10n.annualMaintenanceCostLabel,
-                FormattingUtils.formatCurrencyK(result.annualMaintenanceCost)),
-            _detailRow(l10n.annualReplacementCostLabel,
-                FormattingUtils.formatCurrencyK(result.annualReplacementCost)),
-            if (result.opportunityCost > 0)
-              _detailRow(l10n.opportunityCostLabel,
-                  FormattingUtils.formatCurrencyK(result.opportunityCost)),
-            const Divider(),
-            _detailRow(
-              l10n.npvSavingsLabel,
-              FormattingUtils.formatCurrencyK(result.npvSavings),
-            ),
-            _detailRow(
-                l10n.paybackPeriod,
-                FormattingUtils.formatPaybackPeriod(result.paybackYears, l10n,
-                    isWinner: isWinner)),
-            _detailRow(
-                l10n.roiLabel,
-                FormattingUtils.formatROI(result.roiPercent, l10n,
-                    isWinner: isWinner)),
-            _detailRow(
-                l10n.irrLabel,
-                result.irr <= -100
-                    ? l10n.notApplicable
-                    : '${result.irr.toStringAsFixed(2)}%'),
-            _detailRow(l10n.profitabilityIndexLabel,
-                FormattingUtils.formatProfitabilityK(result.profitabilityK)),
-            _detailRow(
-              l10n.saeLabel,
-              '${result.sae.toStringAsFixed(2)} kg O₂/kWh',
-              useSubscript: true,
+            const SizedBox(height: 16),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: results.length,
+              itemBuilder: (context, index) {
+                final result = results[index];
+                final isWinner = result.name == winnerLabel;
+                return _buildComparisonCard(context, result, isWinner);
+              },
             ),
           ],
         ),
@@ -136,41 +53,177 @@ class AeratorComparisonCard extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(String label, String value, {bool useSubscript = false}) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: AppTheme.paddingSmall * 0.5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: AppTheme.fontSizeMedium,
-                color: AppTheme.textDark,
-              )),
-          useSubscript
-              ? Builder(
-                  builder: (context) => RichText(
-                    text: TextSpan(
-                      style: DefaultTextStyle.of(context).style.copyWith(
-                            color: AppTheme.textDark,
-                            fontSize: AppTheme.fontSizeMedium,
-                          ),
+  Widget _buildComparisonCard(
+      BuildContext context, AeratorResult result, bool isWinner) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: AppTheme.elevationSmall,
+      color: isWinner ? Colors.green.shade50 : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+        side: isWinner
+            ? BorderSide(color: Colors.green.shade700, width: 1.5)
+            : BorderSide.none,
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(AppTheme.paddingMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    result.name,
+                    style: TextStyle(
+                      fontSize: AppTheme.fontSizeLarge,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          isWinner ? Colors.green.shade800 : AppTheme.textDark,
+                    ),
+                  ),
+                ),
+                if (isWinner) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade700,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const TextSpan(text: ''),
-                        ...FormattingUtils.parseSaeText(value, context),
+                        const Icon(Icons.check_circle_outline,
+                            color: Colors.white, size: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          l10n.recommended,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                )
-              : Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: AppTheme.fontSizeMedium,
-                    fontFamily: AppTheme.fontFamilyNumbers,
-                    color: AppTheme.textDark,
-                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _buildMetricItem(
+                  l10n.unitsNeeded,
+                  '${result.numAerators}',
+                  Icons.format_list_numbered,
                 ),
+                _buildMetricItem(
+                  l10n.aeratorsPerHaLabel,
+                  result.aeratorsPerHa.toStringAsFixed(2),
+                  Icons.landscape,
+                ),
+                _buildMetricItem(
+                  l10n.horsepowerPerHaLabel,
+                  '${result.hpPerHa.toStringAsFixed(2)} HP/ha',
+                  Icons.electric_bolt,
+                ),
+                _buildMetricItem(
+                  l10n.initialCostLabel,
+                  FormattingUtils.formatCurrencyK(result.totalInitialCost),
+                  Icons.attach_money,
+                ),
+                _buildMetricItem(
+                  l10n.annualCostLabel,
+                  FormattingUtils.formatCurrencyK(result.totalAnnualCost),
+                  Icons.calendar_today,
+                ),
+                _buildMetricItem(
+                  l10n.costRevenueRatioLabel,
+                  '${result.costPercentRevenue.toStringAsFixed(2)}%',
+                  Icons.pie_chart,
+                ),
+                _buildMetricItem(
+                  l10n.npvSavingsLabel,
+                  FormattingUtils.formatCurrencyK(result.npvSavings),
+                  Icons.savings,
+                ),
+                _buildMetricItem(
+                  l10n.paybackPeriod,
+                  FormattingUtils.formatPaybackPeriod(result.paybackYears, l10n,
+                      isWinner: isWinner),
+                  Icons.timelapse,
+                ),
+                _buildMetricItem(
+                  l10n.roiLabel,
+                  FormattingUtils.formatROI(result.roiPercent, l10n,
+                      isWinner: isWinner),
+                  Icons.trending_up,
+                ),
+                _buildMetricItem(
+                  l10n.profitabilityIndexLabel,
+                  FormattingUtils.formatProfitabilityK(result.profitabilityK),
+                  Icons.auto_graph,
+                ),
+                _buildMetricItem(
+                  l10n.saeLabel,
+                  '${result.sae.toStringAsFixed(2)} kg O₂/kWh',
+                  Icons.bolt,
+                ),
+                _buildMetricItem(
+                  l10n.costPerKgO2Label,
+                  '\$${result.costPerKgO2.toStringAsFixed(3)}/kg O₂',
+                  Icons.attach_money,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetricItem(String label, String value, IconData icon) {
+    return SizedBox(
+      width: 150,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                icon,
+                size: 14,
+                color: AppTheme.textMuted,
+              ),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textMuted,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: AppTheme.fontSizeMedium,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textDark,
+            ),
+          ),
         ],
       ),
     );

@@ -64,7 +64,8 @@ void main() {
         matching: find.byKey(Key(key)),
       );
 
-      developer.log('Looking for $key button: ${buttonFinder.evaluate().length} found');
+      developer.log(
+          'Looking for $key button: ${buttonFinder.evaluate().length} found');
 
       if (buttonFinder.evaluate().isNotEmpty) {
         await tester.ensureVisible(buttonFinder.first);
@@ -77,7 +78,6 @@ void main() {
 
       throw Exception('Could not find and tap the $key button');
     }
-
 
     testWidgets('renders initial form with farm details step',
         (WidgetTester tester) async {
