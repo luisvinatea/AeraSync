@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/gestures.dart'; // Add this for PointerDeviceKind
+import 'package:flutter/gestures.dart'; 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,14 +67,7 @@ class MyApp extends StatelessWidget {
             ),
             textTheme: TextTheme(
               bodyMedium: TextStyle(
-                fontFamily: 'NotoSerif',
-                fontFamilyFallback: [
-                  'NotoSans',
-                  'Roboto',
-                  'DejaVuSans',
-                  'ArialUnicodeMS'
-                ],
-                // Adjust text size based on screen width
+                // Using system fonts instead of custom fonts to avoid loading issues
                 fontSize: isMobile ? 14.0 : 16.0,
               ),
               headlineMedium: TextStyle(

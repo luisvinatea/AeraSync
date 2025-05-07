@@ -8,7 +8,7 @@ from typing import List, Dict, Any
 
 from ..core.aerator_comparer import compare_aerators
 
-router = APIRouter()
+router = APIRouter(prefix="")
 
 
 class AeratorModel(BaseModel):

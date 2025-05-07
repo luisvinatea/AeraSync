@@ -22,7 +22,7 @@ class WaveBackground extends StatelessWidget {
               height: height,
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('web/icons/background.webp'),
+                  image: AssetImage('assets/icons/background.webp'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -34,7 +34,7 @@ class WaveBackground extends StatelessWidget {
               left: 0,
               right: 0,
               child: SvgPicture.asset(
-                'web/assets/wave.svg',
+                'assets/static/wave.svg',
                 width: width,
                 fit: BoxFit.fitWidth,
               ),
