@@ -22,6 +22,7 @@ if not cors_origins or cors_origins == [""]:
     cors_origins = [
         "http://localhost",
         "http://localhost:3000",
+        "http://localhost:3001",
         "http://localhost:5000",
         "https://aerasync.vercel.app",
         "https://aerasync-mobile.vercel.app",
