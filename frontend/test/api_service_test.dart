@@ -26,8 +26,8 @@ void main() {
     group('checkHealth', () {
       test('returns true when API is healthy', () async {
         // Arrange
-        when(mockClient.get(Uri.parse('$baseUrl/api/health')))
-            .thenAnswer((_) async => http.Response('{"status":"healthy"}', 200));
+        when(mockClient.get(Uri.parse('$baseUrl/api/health'))).thenAnswer(
+            (_) async => http.Response('{"status":"healthy"}', 200));
 
         // Act
         final result = await apiService.checkHealth();
@@ -133,9 +133,7 @@ void main() {
           }
         ],
         'winnerLabel': 'Aerator 2',
-        'equilibriumPrices': {
-          'Aerator 1': 399.40
-        }
+        'equilibriumPrices': {'Aerator 1': 399.40}
       };
 
       test('returns comparison results when API call is successful', () async {
@@ -144,7 +142,8 @@ void main() {
           Uri.parse('$baseUrl/api/compare'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(testInputs),
-        )).thenAnswer((_) async => http.Response(jsonEncode(testResponse), 200));
+        )).thenAnswer(
+            (_) async => http.Response(jsonEncode(testResponse), 200));
 
         // Act
         final result = await apiService.compareAerators(testInputs);
@@ -177,14 +176,16 @@ void main() {
         );
       });
 
-      test('throws exception when API returns error in response body', () async {
+      test('throws exception when API returns error in response body',
+          () async {
         // Arrange
         final errorResponse = {'error': 'Invalid inputs'};
         when(mockClient.post(
           Uri.parse('$baseUrl/api/compare'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(testInputs),
-        )).thenAnswer((_) async => http.Response(jsonEncode(errorResponse), 200));
+        )).thenAnswer(
+            (_) async => http.Response(jsonEncode(errorResponse), 200));
 
         // Act & Assert
         expect(

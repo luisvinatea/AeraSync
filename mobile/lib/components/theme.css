@@ -9,7 +9,8 @@ body.mobile {
 body.mobile input,
 body.mobile select,
 body.mobile textarea {
-  font-size: 16px !important; /* Prevent iOS zoom */
+  font-size: 16px !important;
+  /* Prevent iOS zoom */
   padding: 0.75rem;
 }
 
@@ -24,7 +25,8 @@ body.mobile a.cta {
 
 /* Improved visibility on background image */
 body.mobile .app {
-  background-color: rgba(249, 250, 251, 0.9); /* More opacity on mobile */
+  background-color: rgba(249, 250, 251, 0.9);
+  /* More opacity on mobile */
 }
 
 body.mobile .survey-step,

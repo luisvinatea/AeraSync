@@ -44,7 +44,9 @@ class FinancialDetails(BaseModel):
 class AeratorComparisonRequest(BaseModel):
     farm: FarmDetails
     financial: FinancialDetails
-    aerators: List[AeratorModel] = Field(description="List of aerators to compare", min_length=2)
+    aerators: List[AeratorModel] = Field(
+        description="List of aerators to compare", min_length=2
+    )
 
 
 @router.post("/compare")

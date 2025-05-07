@@ -49,7 +49,8 @@ void main() {
       );
     }
 
-    testWidgets('renders title and welcome message', (WidgetTester tester) async {
+    testWidgets('renders title and welcome message',
+        (WidgetTester tester) async {
       await tester.pumpWidget(createHomeScreen());
       await tester.pumpAndSettle();
 
@@ -60,7 +61,8 @@ void main() {
       expect(find.textContaining('Welcome'), findsOneWidget);
     });
 
-    testWidgets('shows start survey button when API is healthy', (WidgetTester tester) async {
+    testWidgets('shows start survey button when API is healthy',
+        (WidgetTester tester) async {
       when(mockAppState.isApiHealthy).thenReturn(true);
 
       await tester.pumpWidget(createHomeScreen());
@@ -74,7 +76,8 @@ void main() {
       expect(tester.widget<ElevatedButton>(startSurveyButton).enabled, isTrue);
     });
 
-    testWidgets('disables start survey button when API is not healthy', (WidgetTester tester) async {
+    testWidgets('disables start survey button when API is not healthy',
+        (WidgetTester tester) async {
       // Setup mock for unhealthy API
       when(mockAppState.isApiHealthy).thenReturn(false);
       when(mockAppState.checkApiHealth()).thenAnswer((_) async => false);
@@ -88,7 +91,8 @@ void main() {
       expect(tester.widget<ElevatedButton>(startSurveyButton).enabled, isFalse);
     });
 
-    testWidgets('shows API unreachable warning when API is not healthy', (WidgetTester tester) async {
+    testWidgets('shows API unreachable warning when API is not healthy',
+        (WidgetTester tester) async {
       when(mockAppState.isApiHealthy).thenReturn(false);
       when(mockAppState.checkApiHealth()).thenAnswer((_) async => false);
 
@@ -100,7 +104,8 @@ void main() {
       expect(find.textContaining('Retry'), findsOneWidget);
     });
 
-    testWidgets('shows disclosure dialog if not previously agreed', (WidgetTester tester) async {
+    testWidgets('shows disclosure dialog if not previously agreed',
+        (WidgetTester tester) async {
       when(mockAppState.hasAgreedToDisclosure).thenReturn(false);
 
       await tester.pumpWidget(createHomeScreen());
@@ -111,7 +116,8 @@ void main() {
       expect(find.byType(AlertDialog), findsOneWidget);
     });
 
-    testWidgets('does not show disclosure dialog if previously agreed', (WidgetTester tester) async {
+    testWidgets('does not show disclosure dialog if previously agreed',
+        (WidgetTester tester) async {
       when(mockAppState.hasAgreedToDisclosure).thenReturn(true);
 
       await tester.pumpWidget(createHomeScreen());
@@ -121,7 +127,8 @@ void main() {
       expect(find.byType(AlertDialog), findsNothing);
     });
 
-    testWidgets('clicking agree on disclosure dialog updates app state', (WidgetTester tester) async {
+    testWidgets('clicking agree on disclosure dialog updates app state',
+        (WidgetTester tester) async {
       when(mockAppState.hasAgreedToDisclosure).thenReturn(false);
 
       await tester.pumpWidget(createHomeScreen());
@@ -129,9 +136,7 @@ void main() {
 
       // Find and click a TextButton in the AlertDialog
       final agreeButton = find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.byType(TextButton)
-      );
+          of: find.byType(AlertDialog), matching: find.byType(TextButton));
       expect(agreeButton, findsOneWidget);
 
       await tester.tap(agreeButton);
@@ -141,7 +146,8 @@ void main() {
       verify(mockAppState.setDisclosureAgreed(true)).called(1);
     });
 
-    testWidgets('clicking language dropdown shows language options', (WidgetTester tester) async {
+    testWidgets('clicking language dropdown shows language options',
+        (WidgetTester tester) async {
       await tester.pumpWidget(createHomeScreen());
       await tester.pumpAndSettle();
 
@@ -159,7 +165,8 @@ void main() {
       expect(tester.widgetList(dropdownItems).length, greaterThan(1));
     });
 
-    testWidgets('changing language updates app state', (WidgetTester tester) async {
+    testWidgets('changing language updates app state',
+        (WidgetTester tester) async {
       await tester.pumpWidget(createHomeScreen());
       await tester.pumpAndSettle();
 
@@ -181,7 +188,8 @@ void main() {
       }
     });
 
-    testWidgets('tapping start survey navigates to survey page', (WidgetTester tester) async {
+    testWidgets('tapping start survey navigates to survey page',
+        (WidgetTester tester) async {
       when(mockAppState.isApiHealthy).thenReturn(true);
       when(mockAppState.hasAgreedToDisclosure).thenReturn(true);
 
@@ -196,12 +204,12 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           routes: {
             '/': (context) => MediaQuery(
-                data: const MediaQueryData(size: Size(800, 600)),
-                child: ChangeNotifierProvider<AppState>.value(
-                  value: mockAppState,
-                  child: const HomePage(),
+                  data: const MediaQueryData(size: Size(800, 600)),
+                  child: ChangeNotifierProvider<AppState>.value(
+                    value: mockAppState,
+                    child: const HomePage(),
+                  ),
                 ),
-              ),
             '/survey': (context) => const Scaffold(body: Text('Survey Page')),
           },
         ),

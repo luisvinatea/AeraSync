@@ -7,4 +7,3 @@ class L10n {
     Locale('pt'),
   ];
 }
-

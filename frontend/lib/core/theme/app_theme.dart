@@ -174,8 +174,8 @@ class AppTheme {
 
   // Get text color based on background brightness
   static Color getTextColorForBackground(Color backgroundColor) {
-    return backgroundColor.computeLuminance() < 0.5 
-        ? darkBackgroundTextColor 
+    return backgroundColor.computeLuminance() < 0.5
+        ? darkBackgroundTextColor
         : lightBackgroundTextColor;
   }
 
@@ -244,6 +244,12 @@ class AppTheme {
     ),
   );
 
+  // Elevation values
+  static const double elevationNone = 0.0;
+  static const double elevationSmall = 4.0;
+  static const double elevationLarge = 16.0;
+  static const double elevationXLarge = 32.0;
+
   // Card styles as method
   static BoxDecoration getCardDecoration({double? elevation}) {
     return BoxDecoration(
@@ -251,8 +257,13 @@ class AppTheme {
       borderRadius: BorderRadius.circular(borderRadiusMedium),
       boxShadow: [
         BoxShadow(
-          color: shadowColor.withAlpha(
-              ((elevation != null ? 0.1 * elevation / elevationMedium : 0.1) * 255).toInt()).withAlpha(255),
+          color: shadowColor
+              .withAlpha(((elevation != null
+                          ? 0.1 * elevation / elevationMedium
+                          : 0.1) *
+                      255)
+                  .toInt())
+              .withAlpha(255),
           blurRadius: elevation ?? elevationMedium * 2,
           offset: const Offset(0, 2),
         ),
@@ -262,8 +273,12 @@ class AppTheme {
 
   // Input decoration theme
   static InputDecorationTheme inputDecorationTheme = InputDecorationTheme(
-    labelStyle: TextStyle(color: const Color.fromARGB(255, 41, 119, 220), fontWeight: FontWeight.bold),
-    hintStyle: TextStyle(color: const Color.fromARGB(186, 42, 94, 198), fontWeight: FontWeight.bold),
+    labelStyle: TextStyle(
+        color: const Color.fromARGB(255, 41, 119, 220),
+        fontWeight: FontWeight.bold),
+    hintStyle: TextStyle(
+        color: const Color.fromARGB(186, 42, 94, 198),
+        fontWeight: FontWeight.bold),
     fillColor: const Color.fromARGB(0, 252, 247, 247).withAlpha(0),
     filled: true,
     errorStyle: TextStyle(color: error, fontSize: fontSizeSmall),

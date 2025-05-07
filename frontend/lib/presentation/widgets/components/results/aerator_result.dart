@@ -1,8 +1,9 @@
-
 class AeratorResult {
   final String name;
   final int numAerators;
+  final double aeratorsPerHa;
   final double totalPowerHp;
+  final double hpPerHa;
   final double totalInitialCost;
   final double annualEnergyCost;
   final double annualMaintenanceCost;
@@ -14,15 +15,16 @@ class AeratorResult {
   final double roiPercent;
   final double irr;
   final double profitabilityK;
-  final double aeratorsPerHa;
-  final double hpPerHa;
   final double sae;
   final double opportunityCost;
+  final double costPerKgO2;
 
   AeratorResult({
     required this.name,
     required this.numAerators,
+    required this.aeratorsPerHa,
     required this.totalPowerHp,
+    required this.hpPerHa,
     required this.totalInitialCost,
     required this.annualEnergyCost,
     required this.annualMaintenanceCost,
@@ -34,10 +36,9 @@ class AeratorResult {
     required this.roiPercent,
     required this.irr,
     required this.profitabilityK,
-    required this.aeratorsPerHa,
-    required this.hpPerHa,
     required this.sae,
     required this.opportunityCost,
+    required this.costPerKgO2,
   });
 
   factory AeratorResult.fromJson(Map<String, dynamic> json) {
@@ -46,7 +47,9 @@ class AeratorResult {
       numAerators: json['num_aerators'] is int
           ? json['num_aerators']
           : (json['num_aerators'] as num?)?.toInt() ?? 0,
+      aeratorsPerHa: (json['aerators_per_ha'] as num?)?.toDouble() ?? 0.0,
       totalPowerHp: (json['total_power_hp'] as num?)?.toDouble() ?? 0.0,
+      hpPerHa: (json['hp_per_ha'] as num?)?.toDouble() ?? 0.0,
       totalInitialCost: (json['total_initial_cost'] as num?)?.toDouble() ?? 0.0,
       annualEnergyCost: (json['annual_energy_cost'] as num?)?.toDouble() ?? 0.0,
       annualMaintenanceCost:
@@ -62,11 +65,34 @@ class AeratorResult {
       roiPercent: (json['roi_percent'] as num?)?.toDouble() ?? 0.0,
       irr: (json['irr'] as num?)?.toDouble() ?? -100.0,
       profitabilityK: (json['profitability_k'] as num?)?.toDouble() ?? 0.0,
-      aeratorsPerHa: (json['aerators_per_ha'] as num?)?.toDouble() ?? 0.0,
-      hpPerHa: (json['hp_per_ha'] as num?)?.toDouble() ?? 0.0,
       sae: (json['sae'] as num?)?.toDouble() ?? 0.0,
       opportunityCost: (json['opportunity_cost'] as num?)?.toDouble() ?? 0.0,
+      costPerKgO2: (json['cost_per_kg_o2'] as num?)?.toDouble() ?? 0.0,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'num_aerators': numAerators,
+      'aerators_per_ha': aeratorsPerHa,
+      'total_power_hp': totalPowerHp,
+      'hp_per_ha': hpPerHa,
+      'total_initial_cost': totalInitialCost,
+      'annual_energy_cost': annualEnergyCost,
+      'annual_maintenance_cost': annualMaintenanceCost,
+      'annual_replacement_cost': annualReplacementCost,
+      'total_annual_cost': totalAnnualCost,
+      'cost_percent_revenue': costPercentRevenue,
+      'npv_savings': npvSavings,
+      'payback_years': paybackYears,
+      'roi_percent': roiPercent,
+      'irr': irr,
+      'profitability_k': profitabilityK,
+      'sae': sae,
+      'opportunity_cost': opportunityCost,
+      'cost_per_kg_o2': costPerKgO2,
+    };
   }
 
   String formatCurrencyK(double value) {

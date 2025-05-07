@@ -330,6 +330,15 @@ def process_aerator(
         else 0.00
     )
 
+    # Calculate cost per kg of oxygen
+    daily_oxygen = aerator.sotr * financial.hours_per_night * num_aerators
+    annual_oxygen = daily_oxygen * 365
+    cost_per_kg_o2 = (
+        float(f"{total_annual_cost / annual_oxygen:.3f}")
+        if annual_oxygen > 0
+        else 0.00
+    )
+
     return {
         "aerator": aerator,
         "num_aerators": num_aerators,
@@ -343,6 +352,7 @@ def process_aerator(
         "aerators_per_ha": aerators_per_ha,
         "hp_per_ha": hp_per_ha,
         "sae": sae,
+        "cost_per_kg_o2": cost_per_kg_o2,
     }
 
 

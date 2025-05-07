@@ -74,7 +74,9 @@ class _SurveyFormFieldState extends State<SurveyFormField> {
                   style: TextStyle(
                     color: AppTheme.textPrimary,
                     fontWeight: FontWeight.bold,
-                    fontFamily: widget.isNumeric ? AppTheme.fontFamilyNumbers : AppTheme.fontFamilyBody,
+                    fontFamily: widget.isNumeric
+                        ? AppTheme.fontFamilyNumbers
+                        : AppTheme.fontFamilyBody,
                   ),
                   cursorColor: AppTheme.textPrimary,
                   decoration: InputDecoration(
@@ -175,7 +177,9 @@ class _SurveyFormFieldState extends State<SurveyFormField> {
               style: TextStyle(
                 color: AppTheme.textPrimary,
                 fontWeight: FontWeight.bold,
-                fontFamily: widget.isNumeric ? AppTheme.fontFamilyNumbers : AppTheme.fontFamilyBody,
+                fontFamily: widget.isNumeric
+                    ? AppTheme.fontFamilyNumbers
+                    : AppTheme.fontFamilyBody,
               ),
               cursorColor: AppTheme.textPrimary,
               decoration: InputDecoration(

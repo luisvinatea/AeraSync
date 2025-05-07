@@ -113,7 +113,7 @@ export function initSurveyForm(app) {
         inflation_rate: parseFloat(formData.inflation_rate) / 100,
         horizon: parseInt(formData.analysis_horizon),
         safety_margin: parseFloat(formData.safety_margin || "0") / 100,
-        temperature: parseFloat(formData.temperature)
+        temperature: parseFloat(formData.temperature),
       },
       aerators: [
         {
@@ -122,7 +122,7 @@ export function initSurveyForm(app) {
           sotr: parseFloat(formData.aerator1_sotr),
           cost: parseFloat(formData.aerator1_cost),
           durability: parseFloat(formData.aerator1_durability),
-          maintenance: parseFloat(formData.aerator1_maintenance)
+          maintenance: parseFloat(formData.aerator1_maintenance),
         },
         {
           name: formData.aerator2_name,
@@ -130,9 +130,9 @@ export function initSurveyForm(app) {
           sotr: parseFloat(formData.aerator2_sotr),
           cost: parseFloat(formData.aerator2_cost),
           durability: parseFloat(formData.aerator2_durability),
-          maintenance: parseFloat(formData.aerator2_maintenance)
-        }
-      ]
+          maintenance: parseFloat(formData.aerator2_maintenance),
+        },
+      ],
     };
   }
 

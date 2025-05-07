@@ -20,25 +20,38 @@ export function formatPaybackPeriod(paybackYears) {
   if (!isFinite(paybackYears)) return "Never";
   if (paybackYears > 100) return ">100 years";
 
-  // For very short payback periods (less than a month)
-  if (paybackYears < 0.0822) {
+  // For very short payback periods (less than 30 days)
+  if (paybackYears < 0.08) {
     const days = Math.round(paybackYears * 365);
-    return `${days} days`;
+    return `${days} ${days === 1 ? "day" : "days"}`;
   }
 
-  // For periods less than a year
+  // For periods less than a year - show months and days
   if (paybackYears < 1) {
-    const months = Math.round(paybackYears * 12);
-    return `${months} months`;
+    const monthsTotal = paybackYears * 12;
+    const months = Math.floor(monthsTotal);
+    const days = Math.round((monthsTotal - months) * 30);
+
+    if (days > 0) {
+      return `${months} ${months === 1 ? "month" : "months"}, ${days} ${
+        days === 1 ? "day" : "days"
+      }`;
+    } else {
+      return `${months} ${months === 1 ? "month" : "months"}`;
+    }
   }
 
-  // Standard format: years and months
-  const wholeYears = Math.floor(paybackYears);
-  const months = Math.round((paybackYears - wholeYears) * 12);
+  // More than a year - show years and months
+  const years = Math.floor(paybackYears);
+  const months = Math.round((paybackYears - years) * 12);
 
-  if (months === 0) return `${wholeYears} years`;
-  if (months === 12) return `${wholeYears + 1} years`;
-  return `${wholeYears}y ${months}m`;
+  if (months > 0) {
+    return `${years} ${years === 1 ? "year" : "years"}, ${months} ${
+      months === 1 ? "month" : "months"
+    }`;
+  } else {
+    return `${years} ${years === 1 ? "year" : "years"}`;
+  }
 }
 
 /**

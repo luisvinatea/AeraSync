@@ -1,556 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <meta
-      name="description"
-      content="AeraSync Mobile: Compare aerators for shrimp farming with a step-by-step survey and view ranked results."
-    />
-    <meta name="theme-color" content="#1E40AF" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <meta name="format-detection" content="telephone=no" />
-    <title>AeraSync</title>
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="icon" type="image/webp" href="/icons/favicon.webp" />
-    <link rel="apple-touch-icon" href="/icons/aerasync180.webp" />
-    <link
-      rel="preload"
-      href="/icons/background.webp"
-      as="image"
-      type="image/webp"
-    />
-  </head>
-  <body>
-    <div id="loading-screen">
-      <div class="spinner"></div>
-    </div>
 
-    <div class="app">
-      <header>
-        <h1>AeraSync</h1>
-        <div id="language-toggle">EN</div>
-      </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description"
+    content="AeraSync Mobile: Compare aerators for shrimp farming with a step-by-step survey and view ranked results." />
+  <meta name="theme-color" content="#1E40AF" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>AeraSync</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/webp" href="/icons/favicon.webp" />
+  <link rel="apple-touch-icon" href="/icons/aerasync180.webp" />
+  <link rel="preload" href="/icons/background.webp" as="image" type="image/webp" />
+</head>
 
-      <main>
-        <!-- Home Page -->
-        <div id="home-page" class="page">
-          <div class="hero">
-            <img
-              src="/icons/watermark.webp"
-              alt="AeraSync Logo"
-              width="120"
-              height="120"
-            />
-            <h2>Welcome to AeraSync</h2>
+<body>
+  <div id="loading-screen">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="app">
+    <header>
+      <h1>AeraSync</h1>
+      <div id="language-toggle">EN</div>
+    </header>
+
+    <main>
+      <!-- Home Page -->
+      <div id="home-page" class="page">
+        <div class="hero">
+          <img src="/icons/watermark.webp" alt="AeraSync Logo" width="120" height="120" />
+          <h2>Welcome to AeraSync</h2>
+          <p>
+            Compare aerators for shrimp farming with a step-by-step survey and
+            view ranked results.
+          </p>
+          <button class="cta-button" data-nav="survey">
+            Start Comparison
+          </button>
+        </div>
+      </div>
+
+      <!-- Survey Page -->
+      <div id="survey-page" class="page">
+        <h2>Aerator Comparison Survey</h2>
+        <div class="progress-container">
+          <div class="progress-bar" style="width: 25%"></div>
+        </div>
+
+        <form id="survey-form" class="survey-container">
+          <!-- Step 1: Farm Details -->
+          <div class="survey-step" data-step="1">
+            <h3>Farm Specifications</h3>
+
+            <div class="form-group">
+              <label for="total_oxygen_demand">Total Oxygen Demand (kg O₂/h)</label>
+              <input type="number" id="total_oxygen_demand" name="total_oxygen_demand" class="form-control" required
+                step="1" min="0" value="5440" />
+              <div class="error-message">Please enter a valid value.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="farm_area">Farm Area (ha)</label>
+              <input type="number" id="farm_area" name="farm_area" class="form-control" required step="1" min="100"
+                value="1000" />
+              <div class="error-message">Please enter a valid farm area.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="shrimp_price">Shrimp Price (USD/kg)</label>
+              <input type="number" id="shrimp_price" name="shrimp_price" class="form-control" required step="0.01"
+                min="0.01" value="5.0" />
+              <div class="error-message">Please enter a valid price.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="culture_days">Culture Days</label>
+              <input type="number" id="culture_days" name="culture_days" class="form-control" required step="1" min="1"
+                max="365" value="120" />
+              <div class="error-message">
+                Please enter a valid number of days.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="shrimp_density">Shrimp Density (kg/m³)</label>
+              <input type="number" id="shrimp_density" name="shrimp_density" class="form-control" required step="0.01"
+                min="0.1" value="0.33" />
+              <div class="error-message">Please enter a valid density.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="pond_depth">Pond Depth (m)</label>
+              <input type="number" id="pond_depth" name="pond_depth" class="form-control" required step="0.1" min="0.1"
+                value="1.0" />
+              <div class="error-message">
+                Please enter a valid pond depth.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="temperature">Temperature (°C)</label>
+              <input type="number" id="temperature" name="temperature" class="form-control" required step="0.1" min="0"
+                max="50" value="31.5" />
+              <div class="error-message">
+                Please enter a valid temperature.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Aerator Details -->
+          <div class="survey-step" data-step="2">
+            <h3>Aerator Details</h3>
+
+            <div class="aerator-section">
+              <h4>Aerator 1</h4>
+              <div class="form-group">
+                <label for="aerator1_name">Name</label>
+                <input type="text" id="aerator1_name" name="aerator1_name" class="form-control" required
+                  value="Paddlewheel 1" />
+              </div>
+
+              <div class="form-group">
+                <label for="aerator1_power">Power (HP)</label>
+                <input type="number" id="aerator1_power" name="aerator1_power" class="form-control" required step="0.1"
+                  min="0.1" value="3.0" />
+              </div>
+
+              <div class="form-group">
+                <label for="aerator1_sotr">SOTR (kg O₂/h)</label>
+                <input type="number" id="aerator1_sotr" name="aerator1_sotr" class="form-control" required step="0.1"
+                  min="0.1" value="1.4" />
+              </div>
+
+              <div class="form-group">
+                <label for="aerator1_cost">Cost (USD)</label>
+                <input type="number" id="aerator1_cost" name="aerator1_cost" class="form-control" required step="1"
+                  min="1" value="500" />
+              </div>
+
+              <div class="form-group">
+                <label for="aerator1_durability">Durability (years)</label>
+                <input type="number" id="aerator1_durability" name="aerator1_durability" class="form-control" required
+                  step="0.5" min="0.5" value="2" />
+              </div>
+
+              <div class="form-group">
+                <label for="aerator1_maintenance">Maintenance (USD/year)</label>
+                <input type="number" id="aerator1_maintenance" name="aerator1_maintenance" class="form-control" required
+                  step="1" min="0" value="65" />
+              </div>
+            </div>
+
+            <div class="aerator-section">
+              <h4>Aerator 2</h4>
+              <div class="form-group">
+                <label for="aerator2_name">Name</label>
+                <input type="text" id="aerator2_name" name="aerator2_name" class="form-control" required
+                  value="Paddlewheel 2" />
+              </div>
+
+              <div class="form-group">
+                <label for="aerator2_power">Power (HP)</label>
+                <input type="number" id="aerator2_power" name="aerator2_power" class="form-control" required step="0.1"
+                  min="0.1" value="3.0" />
+              </div>
+
+              <div class="form-group">
+                <label for="aerator2_sotr">SOTR (kg O₂/h)</label>
+                <input type="number" id="aerator2_sotr" name="aerator2_sotr" class="form-control" required step="0.1"
+                  min="0.1" value="2.6" />
+              </div>
+
+              <div class="form-group">
+                <label for="aerator2_cost">Cost (USD)</label>
+                <input type="number" id="aerator2_cost" name="aerator2_cost" class="form-control" required step="1"
+                  min="1" value="800" />
+              </div>
+
+              <div class="form-group">
+                <label for="aerator2_durability">Durability (years)</label>
+                <input type="number" id="aerator2_durability" name="aerator2_durability" class="form-control" required
+                  step="0.5" min="0.5" value="4.5" />
+              </div>
+
+              <div class="form-group">
+                <label for="aerator2_maintenance">Maintenance (USD/year)</label>
+                <input type="number" id="aerator2_maintenance" name="aerator2_maintenance" class="form-control" required
+                  step="1" min="0" value="50" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Financial Details -->
+          <div class="survey-step" data-step="3">
+            <h3>Financial Aspects</h3>
+
+            <div class="form-group">
+              <label for="energy_cost">Energy Cost (USD/kWh)</label>
+              <input type="number" id="energy_cost" name="energy_cost" class="form-control" required step="0.01" min="0"
+                value="0.05" />
+            </div>
+
+            <div class="form-group">
+              <label for="hours_per_night">Hours Per Night</label>
+              <input type="number" id="hours_per_night" name="hours_per_night" class="form-control" required step="1"
+                min="1" max="24" value="8" />
+            </div>
+
+            <div class="form-group">
+              <label for="discount_rate">Discount Rate (%)</label>
+              <input type="number" id="discount_rate" name="discount_rate" class="form-control" required step="0.1"
+                min="0" max="100" value="10.0" />
+            </div>
+
+            <div class="form-group">
+              <label for="inflation_rate">Inflation Rate (%)</label>
+              <input type="number" id="inflation_rate" name="inflation_rate" class="form-control" required step="0.1"
+                min="0" max="100" value="3.0" />
+            </div>
+
+            <div class="form-group">
+              <label for="analysis_horizon">Analysis Horizon (years)</label>
+              <input type="number" id="analysis_horizon" name="analysis_horizon" class="form-control" required step="1"
+                min="1" max="50" value="9" />
+            </div>
+
+            <div class="form-group">
+              <label for="safety_margin">Safety Margin (%)</label>
+              <input type="number" id="safety_margin" name="safety_margin" class="form-control" step="0.1" min="0"
+                max="100" value="0" />
+            </div>
+          </div>
+
+          <!-- Form Navigation -->
+          <div class="form-actions">
+            <button type="button" id="back-btn">Back</button>
+            <button type="button" id="next-btn">Next</button>
+            <button type="button" id="submit-btn">Submit</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Page -->
+      <div id="results-page" class="page">
+        <h2>Comparison Results</h2>
+
+        <!-- Summary Card -->
+        <div id="summary-container" class="summary-card">
+          <h3>Summary Metrics</h3>
+          <div class="summary-data"></div>
+        </div>
+
+        <!-- Aerator Comparison Cards -->
+        <div class="card-container">
+          <div class="card">
+            <h3>Aerator Comparison Results</h3>
+            <div id="aerator-cards" class="aerator-cards"></div>
+          </div>
+        </div>
+
+        <!-- Equilibrium Prices Card -->
+        <div class="card-container">
+          <div class="card">
+            <h3>Equilibrium Prices</h3>
             <p>
-              Compare aerators for shrimp farming with a step-by-step survey and
-              view ranked results.
+              The equilibrium price represents the value at which both aerator
+              options become economically equivalent.
             </p>
-            <button class="cta-button" data-nav="survey">
-              Start Comparison
-            </button>
+            <div id="equilibrium-prices" class="equilibrium-prices"></div>
           </div>
         </div>
 
-        <!-- Survey Page -->
-        <div id="survey-page" class="page">
-          <h2>Aerator Comparison Survey</h2>
-          <div class="progress-container">
-            <div class="progress-bar" style="width: 25%"></div>
+        <!-- Cost Visualization Card -->
+        <div class="card-container">
+          <div class="card">
+            <h3>Cost Breakdown Visualization</h3>
+            <p>Annual cost composition for each aerator option.</p>
+            <div id="comparison-chart" class="chart-container"></div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="color-box energy-color"></span>Energy Cost
+              </div>
+              <div class="legend-item">
+                <span class="color-box maintenance-color"></span>Maintenance
+                Cost
+              </div>
+              <div class="legend-item">
+                <span class="color-box replacement-color"></span>Replacement
+                Cost
+              </div>
+            </div>
           </div>
-
-          <form id="survey-form" class="survey-container">
-            <!-- Step 1: Farm Details -->
-            <div class="survey-step" data-step="1">
-              <h3>Farm Specifications</h3>
-
-              <div class="form-group">
-                <label for="total_oxygen_demand"
-                  >Total Oxygen Demand (kg O₂/h)</label
-                >
-                <input
-                  type="number"
-                  id="total_oxygen_demand"
-                  name="total_oxygen_demand"
-                  class="form-control"
-                  required
-                  step="1"
-                  min="0"
-                  value="5440"
-                />
-                <div class="error-message">Please enter a valid value.</div>
-              </div>
-
-              <div class="form-group">
-                <label for="farm_area">Farm Area (ha)</label>
-                <input
-                  type="number"
-                  id="farm_area"
-                  name="farm_area"
-                  class="form-control"
-                  required
-                  step="1"
-                  min="100"
-                  value="1000"
-                />
-                <div class="error-message">Please enter a valid farm area.</div>
-              </div>
-
-              <div class="form-group">
-                <label for="shrimp_price">Shrimp Price (USD/kg)</label>
-                <input
-                  type="number"
-                  id="shrimp_price"
-                  name="shrimp_price"
-                  class="form-control"
-                  required
-                  step="0.01"
-                  min="0.01"
-                  value="5.0"
-                />
-                <div class="error-message">Please enter a valid price.</div>
-              </div>
-
-              <div class="form-group">
-                <label for="culture_days">Culture Days</label>
-                <input
-                  type="number"
-                  id="culture_days"
-                  name="culture_days"
-                  class="form-control"
-                  required
-                  step="1"
-                  min="1"
-                  max="365"
-                  value="120"
-                />
-                <div class="error-message">
-                  Please enter a valid number of days.
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="shrimp_density">Shrimp Density (kg/m³)</label>
-                <input
-                  type="number"
-                  id="shrimp_density"
-                  name="shrimp_density"
-                  class="form-control"
-                  required
-                  step="0.01"
-                  min="0.1"
-                  value="0.33"
-                />
-                <div class="error-message">Please enter a valid density.</div>
-              </div>
-
-              <div class="form-group">
-                <label for="pond_depth">Pond Depth (m)</label>
-                <input
-                  type="number"
-                  id="pond_depth"
-                  name="pond_depth"
-                  class="form-control"
-                  required
-                  step="0.1"
-                  min="0.1"
-                  value="1.0"
-                />
-                <div class="error-message">
-                  Please enter a valid pond depth.
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="temperature">Temperature (°C)</label>
-                <input
-                  type="number"
-                  id="temperature"
-                  name="temperature"
-                  class="form-control"
-                  required
-                  step="0.1"
-                  min="0"
-                  max="50"
-                  value="31.5"
-                />
-                <div class="error-message">
-                  Please enter a valid temperature.
-                </div>
-              </div>
-            </div>
-
-            <!-- Step 2: Aerator Details -->
-            <div class="survey-step" data-step="2">
-              <h3>Aerator Details</h3>
-
-              <div class="aerator-section">
-                <h4>Aerator 1</h4>
-                <div class="form-group">
-                  <label for="aerator1_name">Name</label>
-                  <input
-                    type="text"
-                    id="aerator1_name"
-                    name="aerator1_name"
-                    class="form-control"
-                    required
-                    value="Paddlewheel 1"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="aerator1_power">Power (HP)</label>
-                  <input
-                    type="number"
-                    id="aerator1_power"
-                    name="aerator1_power"
-                    class="form-control"
-                    required
-                    step="0.1"
-                    min="0.1"
-                    value="3.0"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="aerator1_sotr">SOTR (kg O₂/h)</label>
-                  <input
-                    type="number"
-                    id="aerator1_sotr"
-                    name="aerator1_sotr"
-                    class="form-control"
-                    required
-                    step="0.1"
-                    min="0.1"
-                    value="1.4"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="aerator1_cost">Cost (USD)</label>
-                  <input
-                    type="number"
-                    id="aerator1_cost"
-                    name="aerator1_cost"
-                    class="form-control"
-                    required
-                    step="1"
-                    min="1"
-                    value="500"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="aerator1_durability">Durability (years)</label>
-                  <input
-                    type="number"
-                    id="aerator1_durability"
-                    name="aerator1_durability"
-                    class="form-control"
-                    required
-                    step="0.5"
-                    min="0.5"
-                    value="2"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="aerator1_maintenance"
-                    >Maintenance (USD/year)</label
-                  >
-                  <input
-                    type="number"
-                    id="aerator1_maintenance"
-                    name="aerator1_maintenance"
-                    class="form-control"
-                    required
-                    step="1"
-                    min="0"
-                    value="65"
-                  />
-                </div>
-              </div>
-
-              <div class="aerator-section">
-                <h4>Aerator 2</h4>
-                <div class="form-group">
-                  <label for="aerator2_name">Name</label>
-                  <input
-                    type="text"
-                    id="aerator2_name"
-                    name="aerator2_name"
-                    class="form-control"
-                    required
-                    value="Paddlewheel 2"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="aerator2_power">Power (HP)</label>
-                  <input
-                    type="number"
-                    id="aerator2_power"
-                    name="aerator2_power"
-                    class="form-control"
-                    required
-                    step="0.1"
-                    min="0.1"
-                    value="3.0"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="aerator2_sotr">SOTR (kg O₂/h)</label>
-                  <input
-                    type="number"
-                    id="aerator2_sotr"
-                    name="aerator2_sotr"
-                    class="form-control"
-                    required
-                    step="0.1"
-                    min="0.1"
-                    value="2.6"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="aerator2_cost">Cost (USD)</label>
-                  <input
-                    type="number"
-                    id="aerator2_cost"
-                    name="aerator2_cost"
-                    class="form-control"
-                    required
-                    step="1"
-                    min="1"
-                    value="800"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="aerator2_durability">Durability (years)</label>
-                  <input
-                    type="number"
-                    id="aerator2_durability"
-                    name="aerator2_durability"
-                    class="form-control"
-                    required
-                    step="0.5"
-                    min="0.5"
-                    value="4.5"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="aerator2_maintenance"
-                    >Maintenance (USD/year)</label
-                  >
-                  <input
-                    type="number"
-                    id="aerator2_maintenance"
-                    name="aerator2_maintenance"
-                    class="form-control"
-                    required
-                    step="1"
-                    min="0"
-                    value="50"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- Step 3: Financial Details -->
-            <div class="survey-step" data-step="3">
-              <h3>Financial Aspects</h3>
-
-              <div class="form-group">
-                <label for="energy_cost">Energy Cost (USD/kWh)</label>
-                <input
-                  type="number"
-                  id="energy_cost"
-                  name="energy_cost"
-                  class="form-control"
-                  required
-                  step="0.01"
-                  min="0"
-                  value="0.05"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="hours_per_night">Hours Per Night</label>
-                <input
-                  type="number"
-                  id="hours_per_night"
-                  name="hours_per_night"
-                  class="form-control"
-                  required
-                  step="1"
-                  min="1"
-                  max="24"
-                  value="8"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="discount_rate">Discount Rate (%)</label>
-                <input
-                  type="number"
-                  id="discount_rate"
-                  name="discount_rate"
-                  class="form-control"
-                  required
-                  step="0.1"
-                  min="0"
-                  max="100"
-                  value="10.0"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="inflation_rate">Inflation Rate (%)</label>
-                <input
-                  type="number"
-                  id="inflation_rate"
-                  name="inflation_rate"
-                  class="form-control"
-                  required
-                  step="0.1"
-                  min="0"
-                  max="100"
-                  value="3.0"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="analysis_horizon">Analysis Horizon (years)</label>
-                <input
-                  type="number"
-                  id="analysis_horizon"
-                  name="analysis_horizon"
-                  class="form-control"
-                  required
-                  step="1"
-                  min="1"
-                  max="50"
-                  value="9"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="safety_margin">Safety Margin (%)</label>
-                <input
-                  type="number"
-                  id="safety_margin"
-                  name="safety_margin"
-                  class="form-control"
-                  step="0.1"
-                  min="0"
-                  max="100"
-                  value="0"
-                />
-              </div>
-            </div>
-
-            <!-- Form Navigation -->
-            <div class="form-actions">
-              <button type="button" id="back-btn">Back</button>
-              <button type="button" id="next-btn">Next</button>
-              <button type="button" id="submit-btn">Submit</button>
-            </div>
-          </form>
         </div>
 
-        <!-- Results Page -->
-        <div id="results-page" class="page">
-          <h2>Comparison Results</h2>
-
-          <!-- Summary Card -->
-          <div id="summary-container" class="summary-card">
-            <h3>Summary Metrics</h3>
-            <div class="summary-data"></div>
-          </div>
-
-          <!-- Aerator Comparison Cards -->
-          <div class="card-container">
-            <div class="card">
-              <h3>Aerator Comparison Results</h3>
-              <div id="aerator-cards" class="aerator-cards"></div>
-            </div>
-          </div>
-
-          <!-- Equilibrium Prices Card -->
-          <div class="card-container">
-            <div class="card">
-              <h3>Equilibrium Prices</h3>
-              <p>
-                The equilibrium price represents the value at which both aerator
-                options become economically equivalent.
-              </p>
-              <div id="equilibrium-prices" class="equilibrium-prices"></div>
-            </div>
-          </div>
-
-          <!-- Cost Visualization Card -->
-          <div class="card-container">
-            <div class="card">
-              <h3>Cost Breakdown Visualization</h3>
-              <p>Annual cost composition for each aerator option.</p>
-              <div id="comparison-chart" class="chart-container"></div>
-              <div class="chart-legend">
-                <div class="legend-item">
-                  <span class="color-box energy-color"></span>Energy Cost
-                </div>
-                <div class="legend-item">
-                  <span class="color-box maintenance-color"></span>Maintenance
-                  Cost
-                </div>
-                <div class="legend-item">
-                  <span class="color-box replacement-color"></span>Replacement
-                  Cost
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Cost Evolution Card -->
-          <div class="card-container">
-            <div class="card">
-              <h3>Cost Evolution Over Time</h3>
-              <p>
-                Cumulative cost difference compared to the recommended aerator.
-              </p>
-              <div id="evolution-chart" class="chart-container"></div>
-            </div>
-          </div>
-
-          <div class="action-buttons">
-            <button class="cta-button" data-nav="survey">New Comparison</button>
-            <button id="export-pdf" class="secondary-button">
-              Export to PDF
-            </button>
+        <!-- Cost Evolution Card -->
+        <div class="card-container">
+          <div class="card">
+            <h3>Cost Evolution Over Time</h3>
+            <p>
+              Cumulative cost difference compared to the recommended aerator.
+            </p>
+            <div id="evolution-chart" class="chart-container"></div>
           </div>
         </div>
-      </main>
-      <footer>
-        <p>
-          © 2025 AeraSync |
-          <a href="https://aerasync-web.vercel.app/privacy" style="color: white"
-            >Privacy Policy</a
-          >
-        </p>
-      </footer>
-    </div>
 
-    <div id="error-toast"></div>
-  </body>
+        <div class="action-buttons">
+          <button class="cta-button" data-nav="survey">New Comparison</button>
+          <button id="export-pdf" class="secondary-button">
+            Export to PDF
+          </button>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <p>
+        © 2025 AeraSync |
+        <a href="https://aerasync-web.vercel.app/privacy" style="color: white">Privacy Policy</a>
+      </p>
+    </footer>
+  </div>
+
+  <div id="error-toast"></div>
+</body>
+
 </html>
