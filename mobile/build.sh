@@ -4,7 +4,7 @@
 chmod +x build.sh
 
 # Install dependencies explicitly
-npm install --no-save
+npm install --legacy-peer-deps
 
 # Run webpack build
 npm run build

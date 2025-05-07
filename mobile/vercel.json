@@ -2,6 +2,8 @@
   "version": 2,
   "public": true,
   "name": "aerasync-mobile",
+  "buildCommand": "npm install && npm run vercel-build",
+  "outputDirectory": "public",
   "builds": [
     {
       "src": "build.sh",
