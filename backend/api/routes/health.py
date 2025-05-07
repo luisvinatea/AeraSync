@@ -4,7 +4,7 @@ Health check endpoints for the AeraSync API.
 
 from fastapi import APIRouter
 
-router = APIRouter()
+router = APIRouter(prefix="")
 
 
 @router.get("/health")

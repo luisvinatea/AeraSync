@@ -5,8 +5,9 @@ Handles incoming requests for aerator comparisons and health checks.
 """
 
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, Request  # type: ignore # noqa: F401
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse  # type: ignore # noqa: F401
 
 # Import routes
 from .routes.health import router as health_router
@@ -38,6 +39,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Direct health check endpoint for Vercel
+@app.get("/health")
+async def direct_health_check():
+    """Direct health check endpoint for Vercel deployments."""
+    return {"status": "ok", "message": "API is healthy"}
+
 
 # Include routers
 app.include_router(root_router)
