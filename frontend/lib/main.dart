@@ -45,16 +45,18 @@ void main() async {
 }
 
 Future<void> _preloadFonts() async {
+  final notoSansLoader = FontLoader('Noto Sans')
+    ..addFont(rootBundle.load('fonts/NotoSans-Regular.ttf'))
+    ..addFont(rootBundle.load('fonts/NotoSans-Bold.ttf'));
+
+  final notoSerifLoader = FontLoader('Noto Serif')
+    ..addFont(rootBundle.load('fonts/NotoSerif-Regular.ttf'))
+    ..addFont(rootBundle.load('fonts/NotoSerif-Bold.ttf'));
+
   await Future.wait([
-    FontLoader('Noto Sans')
-      ..addFont(rootBundle.load('assets/fonts/NotoSans-Regular.ttf'))
-      ..addFont(rootBundle.load('assets/fonts/NotoSans-Bold.ttf'))
-      ..load(),
-    FontLoader('Noto Serif')
-      ..addFont(rootBundle.load('assets/fonts/NotoSerif-Regular.ttf'))
-      ..addFont(rootBundle.load('assets/fonts/NotoSerif-Bold.ttf'))
-      ..load(),
-  ] as Iterable<Future>);
+    notoSansLoader.load(),
+    notoSerifLoader.load(),
+  ]);
 }
 
 class MyApp extends StatelessWidget {
