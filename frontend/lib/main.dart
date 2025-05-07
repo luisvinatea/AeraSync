@@ -12,9 +12,6 @@ import 'presentation/widgets/results_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Preload fonts to prevent missing character warnings
-  await _preloadFonts();
-
   // Set preferred orientations for mobile devices
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -44,21 +41,6 @@ void main() async {
   );
 }
 
-Future<void> _preloadFonts() async {
-  final notoSansLoader = FontLoader('Noto Sans')
-    ..addFont(rootBundle.load('fonts/NotoSans-Regular.ttf'))
-    ..addFont(rootBundle.load('fonts/NotoSans-Bold.ttf'));
-
-  final notoSerifLoader = FontLoader('Noto Serif')
-    ..addFont(rootBundle.load('fonts/NotoSerif-Regular.ttf'))
-    ..addFont(rootBundle.load('fonts/NotoSerif-Bold.ttf'));
-
-  await Future.wait([
-    notoSansLoader.load(),
-    notoSerifLoader.load(),
-  ]);
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -85,14 +67,7 @@ class MyApp extends StatelessWidget {
             ),
             textTheme: TextTheme(
               bodyMedium: TextStyle(
-                fontFamily: 'NotoSerif',
-                fontFamilyFallback: [
-                  'NotoSans',
-                  'Roboto',
-                  'DejaVuSans',
-                  'ArialUnicodeMS'
-                ],
-                // Adjust text size based on screen width
+                // Using system fonts instead of custom fonts to avoid loading issues
                 fontSize: isMobile ? 14.0 : 16.0,
               ),
               headlineMedium: TextStyle(
