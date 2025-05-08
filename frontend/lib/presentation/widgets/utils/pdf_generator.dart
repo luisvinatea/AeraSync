@@ -1,12 +1,14 @@
-
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../components/results/aerator_result.dart';
 import 'formatting_utils.dart';
+import 'package:logging/logging.dart';
 
 class PdfGenerator {
+  static final _logger = Logger('PdfGenerator');
+
   static Future<Uint8List> generatePdf(
       AppLocalizations l10n,
       List<AeratorResult> results,
@@ -281,7 +283,8 @@ class PdfGenerator {
             cellPadding:
                 const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             cellDecoration: (index, data, rowNum) {
-              if (results[rowNum].name == winnerLabel) {
+              if (rowNum < results.length &&
+                  results[rowNum].name == winnerLabel) {
                 return pw.BoxDecoration(color: PdfColors.green100);
               }
               if (rowNum.isEven) {
@@ -549,10 +552,10 @@ class PdfGenerator {
   static Future<pw.Font> _loadFont(String path) async {
     try {
       final fontData = await rootBundle.load('assets/$path');
-      print('Successfully loaded font: $path');
-      return pw.Font.ttf(fontData.buffer.asUint8List() as ByteData);
+      _logger.info('Successfully loaded font: $path');
+      return pw.Font.ttf(fontData);
     } catch (e) {
-      print('Failed to load font $path: $e');
+      _logger.warning('Failed to load font $path: $e');
       return pw.Font.helvetica();
     }
   }

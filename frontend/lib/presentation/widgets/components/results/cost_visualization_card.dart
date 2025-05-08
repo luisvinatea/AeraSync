@@ -128,7 +128,6 @@ class CostVisualizationCard extends StatelessWidget {
                       enabled: true,
                       handleBuiltInTouches: false,
                       touchTooltipData: BarTouchTooltipData(
-                        tooltipBgColor: Colors.white.withAlpha(204),
                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
                           final result = results[groupIndex];
                           String component = '';
@@ -164,6 +163,8 @@ class CostVisualizationCard extends StatelessWidget {
                             ),
                           );
                         },
+                        getTooltipColor: (touchedSpot) =>
+                            const Color.fromRGBO(255, 255, 255, 0.8),
                       ),
                       touchCallback:
                           (FlTouchEvent event, BarTouchResponse? response) {
@@ -183,13 +184,13 @@ class CostVisualizationCard extends StatelessWidget {
   }
 
   Widget _buildLegend(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 16,
+      runSpacing: 8,
       children: [
         _legendItem(AppTheme.chartColors[0], l10n.annualEnergyCostLabel),
-        const SizedBox(width: 16),
         _legendItem(AppTheme.chartColors[1], l10n.annualMaintenanceCostLabel),
-        const SizedBox(width: 16),
         _legendItem(AppTheme.chartColors[2], l10n.annualReplacementCostLabel),
       ],
     );
@@ -197,6 +198,7 @@ class CostVisualizationCard extends StatelessWidget {
 
   Widget _legendItem(Color color, String label) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 16,
@@ -204,9 +206,12 @@ class CostVisualizationCard extends StatelessWidget {
           color: color,
         ),
         const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12),
+        Flexible(
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 12),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );
