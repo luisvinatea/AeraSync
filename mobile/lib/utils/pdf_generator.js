@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+// Import and apply the autotable plugin
+import autoTable from "jspdf-autotable";
 
 // Formatter functions
 function formatCurrencyK(value) {
@@ -50,6 +51,9 @@ export async function generatePdf(results) {
     unit: "mm",
     format: "a4",
   });
+
+  // Add plugin to jsPDF instance
+  autoTable(pdf);
 
   const surveyData = results.surveyData || {};
   const farm = surveyData.farm || {};
