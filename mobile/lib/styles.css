@@ -49,7 +49,7 @@ body {
 }
 
 /* Header */
-header {
+#main-header {
   background-color: var(--primary);
   color: white;
   padding: 1rem;
@@ -62,13 +62,31 @@ header {
   justify-content: space-between;
 }
 
-header h1 {
+#main-header h1 {
   margin: 0;
   font-size: 1.5rem;
 }
 
+#main-nav {
+  display: flex;
+  align-items: center;
+}
+
+#language-toggle {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.2s;
+}
+#language-toggle:hover,
+#language-toggle:focus {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 /* Main content */
-main {
+#main-content {
   flex: 1;
   padding: 1rem;
   max-width: 100%;
@@ -92,50 +110,43 @@ main {
 }
 
 /* Home Page */
-.hero {
+#home-page .hero {
   text-align: center;
   padding: 2rem 1rem;
   margin-bottom: 2rem;
 }
 
-.hero h2 {
+#home-page .hero h2 {
   color: var(--primary);
   font-size: 1.75rem;
   margin-bottom: 1rem;
 }
 
-.hero p {
+#home-page .hero p {
   margin-bottom: 2rem;
   color: var(--text-light);
   line-height: 1.5;
 }
 
-.cta-button {
+#home-page .cta-button {
   background-color: var(--primary);
   color: white;
-  border: none;
   padding: 0.75rem 1.5rem;
-  font-size: 1rem;
   border-radius: 0.5rem;
-  cursor: pointer;
+  font-size: 1rem;
   font-weight: 600;
-  transition: background-color 0.2s;
-  display: inline-block;
   text-decoration: none;
-  margin-top: 1rem;
+  display: inline-block;
+  transition: background-color 0.2s;
 }
 
-.cta-button:hover,
-.cta-button:focus {
+#home-page .cta-button:hover,
+#home-page .cta-button:focus {
   background-color: #1e3a8a;
 }
 
-/* Survey Form */
-.survey-container {
-  width: 100%;
-}
-
-.progress-container {
+/* Survey Page */
+#survey-page .progress-container {
   height: 6px;
   background-color: #e2e8f0;
   border-radius: 3px;
@@ -143,28 +154,40 @@ main {
   overflow: hidden;
 }
 
-.progress-bar {
+#survey-page .progress-bar {
   height: 100%;
   background-color: var(--primary);
   transition: width 0.3s ease;
 }
 
-.survey-step {
-  margin-bottom: 1.5rem;
+#survey-form.survey-container {
+  width: 100%;
 }
 
-.form-group {
+#survey-form fieldset.survey-step {
+  margin-bottom: 1.5rem;
+  border: none;
+  padding: 0;
+}
+
+#survey-form legend h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.15rem;
+  color: var(--primary);
+}
+
+#survey-form .form-group {
   margin-bottom: 1.25rem;
 }
 
-.form-group label {
+#survey-form .form-group label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: var(--text);
 }
 
-.form-control {
+#survey-form .form-control {
   width: 100%;
   padding: 0.75rem;
   font-size: 1rem;
@@ -173,27 +196,109 @@ main {
   background-color: white;
 }
 
-.form-control:focus {
+#survey-form .form-control:focus {
   outline: none;
   border-color: var(--primary-light);
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
-.form-control.error {
+#survey-form .form-control.error {
   border-color: var(--error);
 }
 
-.error-message {
+#survey-form .error-message {
   color: var(--error);
   font-size: 0.875rem;
   margin-top: 0.25rem;
   display: none;
 }
 
-.form-control.error+.error-message {
+#survey-form .form-control.error + .error-message {
   display: block;
 }
 
+/* Grouping for specific form groups */
+#group-total-oxygen-demand,
+#group-farm-area,
+#group-shrimp-price,
+#group-culture-days,
+#group-shrimp-density,
+#group-pond-depth,
+#group-temperature,
+#group-energy-cost,
+#group-hours-per-night,
+#group-discount-rate,
+#group-inflation-rate,
+#group-analysis-horizon,
+#group-safety-margin,
+#group-aerator1-name,
+#group-aerator1-power,
+#group-aerator1-sotr,
+#group-aerator1-cost,
+#group-aerator1-durability,
+#group-aerator1-maintenance,
+#group-aerator2-name,
+#group-aerator2-power,
+#group-aerator2-sotr,
+#group-aerator2-cost,
+#group-aerator2-durability,
+#group-aerator2-maintenance {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+#group-total-oxygen-demand:focus-within,
+#group-farm-area:focus-within,
+#group-shrimp-price:focus-within,
+#group-culture-days:focus-within,
+#group-shrimp-density:focus-within,
+#group-pond-depth:focus-within,
+#group-temperature:focus-within,
+#group-energy-cost:focus-within,
+#group-hours-per-night:focus-within,
+#group-discount-rate:focus-within,
+#group-inflation-rate:focus-within,
+#group-analysis-horizon:focus-within,
+#group-safety-margin:focus-within,
+#group-aerator1-name:focus-within,
+#group-aerator1-power:focus-within,
+#group-aerator1-sotr:focus-within,
+#group-aerator1-cost:focus-within,
+#group-aerator1-durability:focus-within,
+#group-aerator1-maintenance:focus-within,
+#group-aerator2-name:focus-within,
+#group-aerator2-power:focus-within,
+#group-aerator2-sotr:focus-within,
+#group-aerator2-cost:focus-within,
+#group-aerator2-durability:focus-within,
+#group-aerator2-maintenance:focus-within {
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+
+/* Aerator sections */
+#aerator1-section,
+#aerator2-section {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--card-shadow);
+}
+
+#aerator1-section h4,
+#aerator2-section h4 {
+  color: var(--primary);
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Survey navigation */
 .form-actions {
   display: flex;
   justify-content: space-between;
@@ -221,7 +326,7 @@ main {
 }
 
 /* Results Page */
-.summary-card {
+#results-page .summary-card {
   background-color: white;
   border-radius: 0.75rem;
   padding: 1.25rem;
@@ -229,196 +334,158 @@ main {
   box-shadow: var(--card-shadow);
 }
 
-.summary-card h3 {
+#results-page .summary-card h3 {
   margin-top: 0;
   color: var(--primary);
   font-size: 1.25rem;
   margin-bottom: 1rem;
 }
 
-.summary-data {
+#results-page .summary-data {
   display: grid;
   gap: 0.75rem;
 }
 
-.summary-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border);
+/* Card containers and cards */
+#results-page .card-container {
+  margin-bottom: 1.5rem;
 }
 
-.summary-label {
-  color: var(--text-light);
-  font-weight: 500;
+#results-page .card {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 1rem;
 }
 
-.summary-value {
+#results-page .card h3 {
+  color: var(--primary);
+  font-size: 1.25rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
   font-weight: 600;
 }
 
-#comparison-chart {
-  background-color: white;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  margin-bottom: 2rem;
-  box-shadow: var(--card-shadow);
-  height: 300px;
+#results-page .card p {
+  color: var(--text-light);
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
 }
 
-.aerator-cards {
+/* Aerator cards */
+#aerator-comparison-card #aerator-cards {
   display: flex;
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
-.aerator-card {
-  background-color: white;
-  border-radius: 0.75rem;
-  box-shadow: var(--card-shadow);
-  padding: 1.25rem;
-  border-left: 4px solid var(--primary-light);
-}
-
-.aerator-card.recommended {
-  border-left: 4px solid var(--success);
-}
-
-.aerator-header {
+/* Equilibrium prices */
+#equilibrium-card .equilibrium-prices {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.aerator-header h3 {
-  margin: 0;
-  font-size: 1.125rem;
-  color: var(--primary);
-}
-
-.recommended-badge {
-  background-color: var(--success);
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-}
-
-.aerator-details {
-  display: grid;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
-.detail-row {
+#equilibrium-card .equilibrium-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  font-weight: 500;
 }
 
-.detail-label {
-  font-size: 0.875rem;
-  color: var(--text-light);
-}
-
-.detail-value {
+#equilibrium-card .equilibrium-value {
   font-weight: 600;
-  font-size: 0.875rem;
-}
-
-/* Aerator sections styling */
-.aerator-section {
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--card-shadow);
-}
-
-.aerator-section h4 {
   color: var(--primary);
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-  font-weight: 600;
 }
 
-/* Range inputs styling */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
+/* Cost Visualization */
+#cost-visualization-card .chart-container {
   width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: #e2e8f0;
-  outline: none;
-  margin: 10px 0;
+  height: 300px;
+  margin: 1rem 0;
+  position: relative;
 }
 
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--primary);
-  cursor: pointer;
-}
-
-input[type="range"]::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--primary);
-  cursor: pointer;
-  border: none;
-}
-
-.range-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: var(--text-light);
-}
-
-/* Loading */
-#loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
+#cost-visualization-card .chart-legend {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+#cost-visualization-card .legend-item {
+  display: flex;
   align-items: center;
-  z-index: 999;
-  opacity: 1;
-  transition: opacity 0.5s ease-in-out;
+  font-size: 0.8rem;
 }
 
-.spinner {
-  border: 3px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  border-top: 3px solid var(--primary);
-  width: 30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto;
+#cost-visualization-card .color-box {
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+}
+
+#cost-visualization-card .energy-color {
+  background-color: rgba(30, 64, 175, 0.7);
+}
+
+#cost-visualization-card .maintenance-color {
+  background-color: rgba(96, 165, 250, 0.7);
+}
+
+#cost-visualization-card .replacement-color {
+  background-color: rgba(147, 197, 253, 0.7);
+}
+
+/* Cost Evolution */
+#cost-evolution-card .chart-container {
+  width: 100%;
+  height: 300px;
+  margin: 1rem 0;
+  position: relative;
+}
+
+/* Action buttons */
+#results-page .action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+#results-page .secondary-button {
+  background-color: var(--success);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
   display: inline-block;
+  text-decoration: none;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
+#results-page .secondary-button:hover,
+#results-page .secondary-button:focus {
+  background-color: #0d946a;
+}
 
-  100% {
-    transform: rotate(360deg);
-  }
+/* Footer */
+#main-footer {
+  background-color: var(--primary);
+  color: white;
+  text-align: center;
+  padding: 0.75rem;
+  margin-top: auto;
+  font-size: 0.75rem;
 }
 
 /* Toasts */
@@ -446,210 +513,9 @@ input[type="range"]::-moz-range-thumb {
   opacity: 1;
 }
 
-/* Footer */
-footer {
-  background-color: var(--primary);
-  color: white;
-  text-align: center;
-  padding: 0.75rem;
-  margin-top: auto;
-  font-size: 0.75rem;
-}
-
 /* Media queries for larger mobile devices */
 @media (min-width: 480px) {
   main {
     max-width: 480px;
-  }
-}
-
-/* Results Page Styling */
-.card-container {
-  margin-bottom: 1.5rem;
-}
-
-.card {
-  background-color: white;
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  box-shadow: var(--card-shadow);
-  margin-bottom: 1rem;
-}
-
-.card h3 {
-  color: var(--primary);
-  font-size: 1.25rem;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.card p {
-  color: var(--text-light);
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-}
-
-/* Aerator cards */
-.aerator-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.aerator-card {
-  background-color: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  border-left: 4px solid var(--primary-light);
-}
-
-.aerator-card.recommended {
-  border-left: 4px solid var(--success);
-  background-color: rgba(16, 185, 129, 0.05);
-}
-
-.aerator-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.aerator-header h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  color: var(--primary);
-  font-weight: bold;
-}
-
-.recommended-badge {
-  background-color: var(--success);
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.25rem 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.detail-label {
-  font-size: 0.8rem;
-  color: var(--text-light);
-  font-weight: 500;
-}
-
-.detail-value {
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-/* Charts */
-.chart-container {
-  width: 100%;
-  height: 300px;
-  margin: 1rem 0;
-  position: relative;
-}
-
-.chart-legend {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  font-size: 0.8rem;
-}
-
-.color-box {
-  width: 12px;
-  height: 12px;
-  margin-right: 4px;
-}
-
-.energy-color {
-  background-color: rgba(30, 64, 175, 0.7);
-}
-
-.maintenance-color {
-  background-color: rgba(96, 165, 250, 0.7);
-}
-
-.replacement-color {
-  background-color: rgba(147, 197, 253, 0.7);
-}
-
-/* Equilibrium prices */
-.equilibrium-prices {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.equilibrium-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.75rem;
-  background-color: #f9fafb;
-  border-radius: 0.5rem;
-  font-weight: 500;
-}
-
-.equilibrium-value {
-  font-weight: 600;
-  color: var(--primary);
-}
-
-/* Action buttons */
-.action-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-.secondary-button {
-  background-color: var(--success);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s;
-  display: inline-block;
-  text-decoration: none;
-}
-
-.secondary-button:hover,
-.secondary-button:focus {
-  background-color: #0d946a;
-}
-
-@media (min-width: 640px) {
-  .action-buttons {
-    flex-direction: row;
-    justify-content: center;
   }
 }
