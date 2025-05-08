@@ -30,6 +30,7 @@ if not cors_origins or cors_origins == [""]:
         "http://localhost:37235/",
         "https://aerasync.vercel.app",
         "https://aerasync-mobile.vercel.app",
+        "https://aerasync-mobile-git-v3-devinatea.vercel.app/",
         "https://aerasync-web-git-v3-devinatea.vercel.app",
         "https://aerasync-web.vercel.app",
     ]
