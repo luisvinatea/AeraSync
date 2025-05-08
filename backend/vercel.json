@@ -20,7 +20,7 @@
     }
   ],
   "env": {
-    "CORS_ORIGINS": "https://aerasync-mobile.vercel.app,http://localhost:3000,https://aerasync-web-git-v3-devinatea.vercel.app,https://aerasync-web.vercel.app"
+    "CORS_ORIGINS": "https://aerasync-mobile.vercel.app,http://localhost:3000,https://aerasync-web-git-v3-devinatea.vercel.app,https://aerasync-web.vercel.app,https://aerasync-mobile-git-v3-devinatea.vercel.app/"
   },
   "builds": [
     {

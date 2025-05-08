@@ -1,9 +1,9 @@
 /**
- * Formats a currency value with K/M suffix for large numbers
+ * Formats a currency value for display
  * @param {number} value - The value to format
  * @returns {string} - Formatted currency string
  */
-export function formatCurrencyK(value) {
+export function formatCurrency(value) {
   if (!value && value !== 0) return "0.00";
 
   if (value >= 1000000) {
@@ -16,25 +16,26 @@ export function formatCurrencyK(value) {
 }
 
 /**
- * Formats a profitability value with special handling for negative values
- * @param {number} value - The profitability value
- * @returns {string} - Formatted profitability string
+ * Formats a percentage value for display
+ * @param {number} value - The percentage value
+ * @returns {string} - Formatted percentage string
  */
-export function formatProfitabilityK(value) {
-  if (value === null || value === undefined || value < 0) {
-    return "N/A";
-  }
-  return value.toFixed(2);
+export function formatPercent(value) {
+  if (!value && value !== 0) return "0.00%";
+  return `${value.toFixed(2)}%`;
 }
 
 /**
- * Formats a payback period in years to a readable format
- * @param {number} years - Payback period in years
+ * Formats a payback period in years to a readable string
+ * @param {number} years - The payback period in years
+ * @param {Object} translations - Translation dictionary for i18n support
  * @returns {string} - Formatted payback period
  */
-export function formatPaybackPeriod(years) {
+export function formatPaybackPeriod(years, translations = {}) {
+  const t = (key) => translations[key] || key;
+
   if (years === null || years === undefined || years < 0) {
-    return "N/A";
+    return t("notApplicable");
   }
 
   if (!isFinite(years)) {
@@ -42,13 +43,13 @@ export function formatPaybackPeriod(years) {
   }
 
   if (years > 100) {
-    return "> 100 years";
+    return "> 100 " + t("years");
   }
 
   // For very short payback periods (less than 30 days)
   if (years < 0.08) {
     const days = Math.round(years * 365);
-    return `${days} day${days !== 1 ? "s" : ""}`;
+    return `${days} ${days !== 1 ? t("days") : t("day")}`;
   }
 
   // For periods less than a year - show months and days
@@ -57,11 +58,11 @@ export function formatPaybackPeriod(years) {
     const days = Math.round((years * 365) % 30);
 
     if (days > 0) {
-      return `${months} month${months !== 1 ? "s" : ""} ${days} day${
-        days !== 1 ? "s" : ""
+      return `${months} ${months !== 1 ? t("months") : t("month")} ${days} ${
+        days !== 1 ? t("days") : t("day")
       }`;
     } else {
-      return `${months} month${months !== 1 ? "s" : ""}`;
+      return `${months} ${months !== 1 ? t("months") : t("month")}`;
     }
   }
 
@@ -70,10 +71,10 @@ export function formatPaybackPeriod(years) {
   const months = Math.round((years - wholeYears) * 12);
 
   if (months > 0) {
-    return `${wholeYears} year${wholeYears !== 1 ? "s" : ""} ${months} month${
-      months !== 1 ? "s" : ""
-    }`;
+    return `${wholeYears} ${
+      wholeYears !== 1 ? t("years") : t("year")
+    } ${months} ${months !== 1 ? t("months") : t("month")}`;
   } else {
-    return `${wholeYears} year${wholeYears !== 1 ? "s" : ""}`;
+    return `${wholeYears} ${wholeYears !== 1 ? t("years") : t("year")}`;
   }
 }
