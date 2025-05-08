@@ -1,3 +1,4 @@
+
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pdf/pdf.dart';
@@ -293,8 +294,9 @@ class PdfGenerator {
           pw.SizedBox(height: 15),
 
           // Equilibrium prices table
-          if (apiResults['equilibriumPrices'] != null &&
-              (apiResults['equilibriumPrices'] as Map).isNotEmpty) ...[
+          if (apiResults['equilibriumPrices'] is Map<String, dynamic> &&
+              (apiResults['equilibriumPrices'] as Map<String, dynamic>)
+                  .isNotEmpty) ...[
             pw.Text(l10n.equilibriumPrices, style: headerStyle),
             pw.SizedBox(height: 8),
             _buildEquilibriumPricesTable(
@@ -306,7 +308,6 @@ class PdfGenerator {
           pw.Text(l10n.surveyInputs, style: headerStyle),
           pw.SizedBox(height: 8),
 
-          // Display survey inputs in a more compact table layout
           _buildSurveyInputsTables(surveyData, l10n),
         ],
       ),
@@ -548,9 +549,10 @@ class PdfGenerator {
   static Future<pw.Font> _loadFont(String path) async {
     try {
       final fontData = await rootBundle.load('assets/$path');
+      print('Successfully loaded font: $path');
       return pw.Font.ttf(fontData.buffer.asUint8List() as ByteData);
     } catch (e) {
-      // Fallback to base font if loading fails
+      print('Failed to load font $path: $e');
       return pw.Font.helvetica();
     }
   }
