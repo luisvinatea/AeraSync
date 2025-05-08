@@ -20,10 +20,27 @@ export async function getTranslations(lang = DEFAULT_LANG) {
       console.warn(
         `Could not load translations for ${lang}, falling back to English`
       );
-      const fallback = await fetch(`/i18n/en.json`);
-      return await fallback.json();
+      return getDefaultTranslations();
     }
-    return await response.json();
+
+    // Get the response as text first to check for HTML errors
+    const text = await response.text();
+
+    // Check if the response is HTML (error page) instead of JSON
+    if (text.trim().startsWith("<!")) {
+      console.warn(
+        `Received HTML instead of JSON for ${lang}, falling back to default translations`
+      );
+      return getDefaultTranslations();
+    }
+
+    // Parse the JSON if it's valid
+    try {
+      return JSON.parse(text);
+    } catch (parseError) {
+      console.error("Error parsing JSON:", parseError);
+      return getDefaultTranslations();
+    }
   } catch (error) {
     console.error("Error loading translations:", error);
     return getDefaultTranslations();

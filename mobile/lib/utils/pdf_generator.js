@@ -1,6 +1,42 @@
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
-import { formatCurrencyK, formatPaybackPeriod } from "./formatters";
+
+// Formatter functions
+function formatCurrencyK(value) {
+  if (!value && value !== 0) return "0.00";
+  if (value >= 1000000) return `${(value / 1000000).toFixed(2)}M`;
+  if (value >= 1000) return `${(value / 1000).toFixed(2)}K`;
+  return value.toFixed(2);
+}
+
+function formatPaybackPeriod(years) {
+  if (years === null || years === undefined || years < 0) return "N/A";
+  if (!isFinite(years)) return "Never";
+  if (years > 100) return "> 100 years";
+
+  if (years < 0.08) {
+    const days = Math.round(years * 365);
+    return `${days} day${days !== 1 ? "s" : ""}`;
+  }
+
+  if (years < 1) {
+    const months = Math.floor(years * 12);
+    const days = Math.round((years * 365) % 30);
+    if (days > 0)
+      return `${months} month${months !== 1 ? "s" : ""} ${days} day${
+        days !== 1 ? "s" : ""
+      }`;
+    return `${months} month${months !== 1 ? "s" : ""}`;
+  }
+
+  const wholeYears = Math.floor(years);
+  const months = Math.round((years - wholeYears) * 12);
+  if (months > 0)
+    return `${wholeYears} year${wholeYears !== 1 ? "s" : ""} ${months} month${
+      months !== 1 ? "s" : ""
+    }`;
+  return `${wholeYears} year${wholeYears !== 1 ? "s" : ""}`;
+}
 
 /**
  * Generates a PDF report of aerator comparison results
@@ -179,6 +215,8 @@ export async function generatePdf(results) {
   );
   yPosition += 5;
   pdf.text(`Pond Depth: ${farm.pond_depth_m || "N/A"} m`, 20, yPosition);
+  yPosition += 5;
+  pdf.text(`Temperature: ${farm.temperature || "N/A"} °C`, 20, yPosition);
   yPosition += 10;
 
   // Financial aspects
@@ -234,8 +272,6 @@ export async function generatePdf(results) {
     20,
     yPosition
   );
-  yPosition += 5;
-  pdf.text(`Temperature: ${financial.temperature || "N/A"} °C`, 20, yPosition);
   yPosition += 10;
 
   if (yPosition > 250) {
@@ -282,7 +318,6 @@ export async function generatePdf(results) {
     20,
     yPosition
   );
-  yPosition += 10;
 
   // Add footer
   const totalPages = pdf.internal.getNumberOfPages();
@@ -302,19 +337,9 @@ export async function generatePdf(results) {
 }
 
 /**
- * Gets a dataURL of the PDF to preview or download
- * @param {Object} results - The results data object
- * @returns {Promise<string>} - Promise resolving to a data URL
- */
-export async function getPdfDataUrl(results) {
-  const pdf = await generatePdf(results);
-  return pdf.output("datauristring");
-}
-
-/**
  * Downloads the PDF with a specified filename
  * @param {Object} results - The results data object
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>} - Promise resolving to success status
  */
 export async function downloadPdf(results) {
   try {
