@@ -44,40 +44,21 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone response for caching
-        const clonedResponse = response.clone();
+        // If we got a valid response, clone it and update the cache
+        if (!response || response.status !== 200 || response.type !== "basic") {
+          return response;
+        }
 
+        const responseToCache = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
-          // Only cache GET requests for specific asset types
-          if (
-            event.request.method === "GET" &&
-            (event.request.url.includes("/js/") ||
-              event.request.url.includes("/css/") ||
-              event.request.url.includes("/icons/"))
-          ) {
-            cache.put(event.request, clonedResponse);
-          }
+          cache.put(event.request, responseToCache);
         });
 
         return response;
       })
       .catch(() => {
-        return caches.match(event.request).then((cachedResponse) => {
-          // Return cached response or offline fallback
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-
-          // For navigation, return the offline page
-          if (event.request.mode === "navigate") {
-            return caches.match("/index.html");
-          }
-
-          return new Response("Network error", {
-            status: 408,
-            headers: { "Content-Type": "text/plain" },
-          });
-        });
+        // If network fetch fails, try to get from cache
+        return caches.match(event.request);
       })
   );
 });

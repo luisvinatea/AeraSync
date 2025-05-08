@@ -5,7 +5,7 @@
   "scripts": {
     "start": "webpack serve --open",
     "build": "webpack --mode=production",
-    "vercel-build": "npm install schema-utils@4.2.0 mini-css-extract-plugin@2.7.6 copy-webpack-plugin@11.0.0 --no-save && webpack --mode=production",
+    "vercel-build": "webpack --mode=production",
     "dev": "node server.js",
     "dev:webpack": "webpack serve --mode=development --open"
   },
@@ -17,16 +17,18 @@
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "sanitize.css": "^13.0.0",
-    "schema-utils": "^4.2.0"
+    "schema-utils": "^4.0.0"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
     "html-webpack-plugin": "^5.5.3",
     "mini-css-extract-plugin": "^2.7.6",
-    "schema-utils": "^4.2.0",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

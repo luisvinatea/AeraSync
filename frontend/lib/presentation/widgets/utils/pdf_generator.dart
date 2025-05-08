@@ -4,8 +4,11 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../components/results/aerator_result.dart';
 import 'formatting_utils.dart';
+import 'package:logging/logging.dart';
 
 class PdfGenerator {
+  static final _logger = Logger('PdfGenerator');
+
   static Future<Uint8List> generatePdf(
       AppLocalizations l10n,
       List<AeratorResult> results,
@@ -280,7 +283,8 @@ class PdfGenerator {
             cellPadding:
                 const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             cellDecoration: (index, data, rowNum) {
-              if (results[rowNum].name == winnerLabel) {
+              if (rowNum < results.length &&
+                  results[rowNum].name == winnerLabel) {
                 return pw.BoxDecoration(color: PdfColors.green100);
               }
               if (rowNum.isEven) {
@@ -293,8 +297,9 @@ class PdfGenerator {
           pw.SizedBox(height: 15),
 
           // Equilibrium prices table
-          if (apiResults['equilibriumPrices'] != null &&
-              (apiResults['equilibriumPrices'] as Map).isNotEmpty) ...[
+          if (apiResults['equilibriumPrices'] is Map<String, dynamic> &&
+              (apiResults['equilibriumPrices'] as Map<String, dynamic>)
+                  .isNotEmpty) ...[
             pw.Text(l10n.equilibriumPrices, style: headerStyle),
             pw.SizedBox(height: 8),
             _buildEquilibriumPricesTable(
@@ -306,7 +311,6 @@ class PdfGenerator {
           pw.Text(l10n.surveyInputs, style: headerStyle),
           pw.SizedBox(height: 8),
 
-          // Display survey inputs in a more compact table layout
           _buildSurveyInputsTables(surveyData, l10n),
         ],
       ),
@@ -548,9 +552,10 @@ class PdfGenerator {
   static Future<pw.Font> _loadFont(String path) async {
     try {
       final fontData = await rootBundle.load('assets/$path');
-      return pw.Font.ttf(fontData.buffer.asUint8List() as ByteData);
+      _logger.info('Successfully loaded font: $path');
+      return pw.Font.ttf(fontData);
     } catch (e) {
-      // Fallback to base font if loading fails
+      _logger.warning('Failed to load font $path: $e');
       return pw.Font.helvetica();
     }
   }

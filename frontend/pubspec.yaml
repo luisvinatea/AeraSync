@@ -17,11 +17,12 @@ dependencies:
     sdk: flutter
   url_launcher: ^6.3.1
   flutter_svg: ^2.1.0
-  fl_chart: ^0.65.0 # Added for data visualization
+  fl_chart: ^0.71.0 # Added for data visualization
   pdf: ^3.11.3
   flutter_pdfview: ^1.4.0+1
   path_provider: ^2.1.5
   printing: ^5.14.2
+  logging: ^1.2.0
 
 dev_dependencies:
   flutter_test:
