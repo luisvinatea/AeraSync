@@ -77,7 +77,7 @@ export async function generatePdf(results) {
 
   pdf.setFontSize(11);
   pdf.text(
-    `Total Oxygen Demand: ${(results.tod || 0).toFixed(2)} kg O₂/h`,
+    `Total Oxygen Demand: ${(results.tod || 0).toFixed(2)} kg O₂/h/ha`,
     20,
     45
   );
@@ -103,6 +103,7 @@ export async function generatePdf(results) {
     `$${formatCurrencyK(aerator.npv_savings)}`,
     `${aerator.roi_percent.toFixed(2)}%`,
     formatPaybackPeriod(aerator.payback_years),
+    `$${aerator.cost_per_kg_o2.toFixed(3)}/kg O₂`,
   ]);
 
   pdf.autoTable({
@@ -116,6 +117,7 @@ export async function generatePdf(results) {
         "NPV Savings",
         "ROI",
         "Payback",
+        "Cost per kg O₂",
       ],
     ],
     body: tableData,

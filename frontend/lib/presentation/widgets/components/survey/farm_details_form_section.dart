@@ -54,13 +54,13 @@ class FarmDetailsFormSection extends StatelessWidget {
               SurveyFormField(
                 controller: todController,
                 label: l10n.totalOxygenDemand,
-                suffix: 'kg O₂/h',
+                suffix: 'kg O₂/h/ha',
                 min: 0,
-                max: 100000.0,
-                hint: '5000',
+                max: 100.0,
+                hint: '5.47',
                 isNumeric: true,
-                step: 1,
-                decimals: 0,
+                step: 0.1,
+                decimals: 2,
               ),
               SurveyFormField(
                 controller: farmAreaController,

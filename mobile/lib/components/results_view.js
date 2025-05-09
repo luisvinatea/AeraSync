@@ -42,7 +42,7 @@ function renderSummary(results, translations) {
   summaryContainer.innerHTML = `
     <div class="summary-item">
       <span class="label">${t(translations, "totalDemandLabel")}</span>
-      <span class="value">${tod.toFixed(2)} kg O₂/h</span>
+      <span class="value">${tod.toFixed(2)} kg O₂/h/ha</span>
     </div>
     <div class="summary-item">
       <span class="label">${t(translations, "annualRevenueLabel")}</span>

@@ -93,7 +93,7 @@ class _SurveyPageState extends State<SurveyPage> with TickerProviderStateMixin {
   late AnimationController _waveController;
 
   // Farm inputs
-  final _todController = TextEditingController(text: "5440");
+  final _todController = TextEditingController(text: "5.47");
   final _farmAreaController = TextEditingController(text: "1000");
   final _shrimpPriceController = TextEditingController(text: "5.0");
   final _cultureDaysController = TextEditingController(text: "120");

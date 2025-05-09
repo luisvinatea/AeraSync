@@ -206,6 +206,11 @@ class PdfGenerator {
                 ...results.map((r) => '${r.sae.toStringAsFixed(2)} kg O₂/kWh')
               ],
               [
+                'Cost per kg O₂',
+                ...results
+                    .map((r) => '\$${r.costPerKgO2.toStringAsFixed(3)}/kg')
+              ],
+              [
                 l10n.paybackPeriod,
                 ...results.map((r) => FormattingUtils.formatPaybackPeriod(
                     r.paybackYears, l10n,
