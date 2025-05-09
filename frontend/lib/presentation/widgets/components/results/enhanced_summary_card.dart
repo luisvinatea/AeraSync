@@ -74,7 +74,7 @@ class EnhancedSummaryCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const TextSpan(text: '/h'),
+                    const TextSpan(text: '/h/ha'),
                   ],
                 ),
               ),

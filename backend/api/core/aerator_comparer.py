@@ -275,7 +275,10 @@ def process_aerator(
 ) -> Dict[str, Any]:
     """Process a single aerator and calculate metrics."""
     otr_t = calculate_otr_t(aerator.sotr, financial.temperature)
-    required_otr_t = farm.tod * (1 + financial.safety_margin / 100)
+
+    # Convert TOD from kg O2/hour/ha to total kg O2/hour for the entire farm
+    total_tod = farm.tod * farm.farm_area_ha
+    required_otr_t = total_tod * (1 + financial.safety_margin / 100)
 
     # Handle very large farm areas
     if farm.farm_area_ha > 1e9:
@@ -634,7 +637,7 @@ if __name__ == "__main__":
     sample_request: Dict[str, Any] = {
         "body": {
             "farm": {
-                "tod": 5443.7675,
+                "tod": 5.47,
                 "farm_area_ha": 1000,
                 "shrimp_price": 5.0,
                 "culture_days": 120,

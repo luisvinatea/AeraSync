@@ -21,6 +21,7 @@
     <title>AeraSync</title>
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/webp" href="/icons/favicon.webp" />
+    <link rel="apple-touch-icon" href="/icons/watermark.webp" />
     <link rel="apple-touch-icon" href="/icons/ios/apple-touch-icon-180.png" />
     <link
       rel="apple-touch-icon"
@@ -103,7 +104,7 @@
 
               <div class="form-group" id="group-total-oxygen-demand">
                 <label for="total_oxygen_demand"
-                  >Total Oxygen Demand (kg O₂/h)</label
+                  >Total Oxygen Demand (kg O₂/h/ha)</label
                 >
                 <input
                   type="number"
@@ -111,9 +112,10 @@
                   name="total_oxygen_demand"
                   class="form-control"
                   required
-                  step="1"
+                  step="0.01"
                   min="0"
-                  value="5440"
+                  max="100"
+                  value="5.47"
                   aria-describedby="error-total-oxygen-demand"
                 />
                 <div class="error-message" id="error-total-oxygen-demand">

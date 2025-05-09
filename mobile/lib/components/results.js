@@ -37,7 +37,7 @@ function renderSummary(results) {
     summaryData.innerHTML = `
       <div class="summary-item">
         <span class="summary-label">Total Oxygen Demand:</span>
-        <span class="summary-value">${tod.toFixed(2)} kg O₂/h</span>
+        <span class="summary-value">${tod.toFixed(2)} kg O₂/h/ha</span>
       </div>
       <div class="summary-item">
         <span class="summary-label">Annual Revenue:</span>
