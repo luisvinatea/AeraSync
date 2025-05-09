@@ -9,6 +9,12 @@
   "orientation": "portrait",
   "icons": [
     {
+      "src": "/icons/watermark.webp",
+      "sizes": "120x120",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    },
+    {
       "src": "/icons/aerasync180.png",
       "sizes": "192x192",
       "type": "image/png",
