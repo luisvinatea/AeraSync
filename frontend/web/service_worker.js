@@ -21,6 +21,8 @@ const ASSETS_TO_CACHE = [
   "assets/fonts/NotoSans-Italic.ttf",
   "icons/watermark.webp",
   "icons/background.webp",
+  "assets/icons/aerasync_icon.svg",
+  "assets/static/wave.svg",
   "canvaskit/canvaskit.js",
   "canvaskit/canvaskit.wasm",
 ];

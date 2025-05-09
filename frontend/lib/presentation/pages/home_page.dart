@@ -6,6 +6,7 @@ import '../../core/services/app_state.dart';
 import '../../core/utils/responsive_util.dart';
 import '../widgets/utils/wave_background.dart';
 import '../../core/theme/app_theme.dart';
+import '../widgets/components/common/aerasync_icon.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -130,9 +131,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/icons/watermark.webp',
-              height: isMobile ? 24 : 30,
+            AeraSyncIcon(
+              size: isMobile ? 24 : 30,
             ),
             const SizedBox(width: 8),
             Text(l10n.appTitle,
