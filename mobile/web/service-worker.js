@@ -9,6 +9,8 @@ const ASSETS = [
   "/icons/watermark.webp",
   "/icons/aerasync180.png",
   "/icons/aerasync.webp",
+  "/icons/aerasync_icon.svg",
+  "/icons/background.webp"
 ];
 
 // Install event - cache assets
