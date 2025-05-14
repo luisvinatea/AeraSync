@@ -26,6 +26,7 @@ build/
 .aerasync/
 frontend/public/
 node_modules/
+docs/equilibrium_price_aerators.md
 
 # Frontend specific
 frontend/*.jsbundle
