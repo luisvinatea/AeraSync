@@ -27,6 +27,7 @@ build/
 frontend/public/
 node_modules/
 docs/equilibrium_price_aerators.md
+docs/equilibrium_price_aerators.ipynb
 
 # Frontend specific
 frontend/*.jsbundle
