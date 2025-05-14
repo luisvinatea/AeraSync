@@ -25,7 +25,6 @@ build/
 .idea/
 .aerasync/
 frontend/public/
-docs/
 node_modules/
 
 # Frontend specific
