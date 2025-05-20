@@ -4,6 +4,7 @@
 set -e
 
 echo "Fixing AeraSync build issues..."
+echo "=============================="
 
 # Check if Flutter is in PATH
 if ! command -v flutter &>/dev/null; then
@@ -47,6 +48,17 @@ fi
 echo "Copying build files to public folder..."
 mkdir -p public
 cp -R build/web/* public/
+
+# Create redirect file for SPA routing
+echo "Creating redirect file for SPA routing..."
+echo "/* /index.html 200" > public/_redirects
+
+# Copy custom fonts to public folder if needed
+echo "Ensuring fonts are available..."
+mkdir -p public/fonts
+cp -R assets/fonts/* public/fonts/ 2>/dev/null || echo "No custom fonts to copy"
+
+echo "Build completed successfully!"
 
 # Create redirect file for SPA routing
 echo "Creating redirect file for SPA routing..."
