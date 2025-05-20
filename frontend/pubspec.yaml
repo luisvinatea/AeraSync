@@ -72,7 +72,7 @@ flutter:
 
   assets:
     - assets/
-    - assets/icons/aerasync_icon.svg
+    - assets/icons/icon.svg
     - assets/icons/aerasync64.webp
     - assets/icons/aerasync180.webp
     - assets/icons/aerasync.webp
