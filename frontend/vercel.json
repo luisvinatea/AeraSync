@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "chmod +x fix_build.sh && ./fix_build.sh",
+  "buildCommand": "chmod +x vercel_build.sh && ./vercel_build.sh",
   "outputDirectory": "public",
   "trailingSlash": false,
   "cleanUrls": true,
