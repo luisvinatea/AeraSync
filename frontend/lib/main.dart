@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/gestures.dart'; 
+import 'package:flutter/gestures.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -82,11 +82,11 @@ class MyApp extends StatelessWidget {
               ),
             ),
             appBarTheme: AppBarTheme(
-              backgroundColor: Color(0xFF1E40AF),
-              foregroundColor: Colors.white,
+              elevation: 0,
+              backgroundColor: const Color(0xFF1E40AF),
               titleTextStyle: TextStyle(
-                fontSize: isMobile ? 18.0 : 20.0,
-                fontWeight: FontWeight.w600,
+                fontSize: isMobile ? 18 : 22,
+                fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
               toolbarHeight: isMobile ? 56.0 : 64.0,
@@ -95,6 +95,9 @@ class MyApp extends StatelessWidget {
               elevation: 4,
               margin: EdgeInsets.symmetric(
                   vertical: 8, horizontal: isMobile ? 8 : 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
