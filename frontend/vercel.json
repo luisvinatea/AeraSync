@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "chmod +x build.sh && ./build.sh",
+  "buildCommand": "chmod +x fix_build.sh && ./fix_build.sh",
   "outputDirectory": "public",
   "trailingSlash": false,
   "cleanUrls": true,
